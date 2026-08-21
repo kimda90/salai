@@ -2,63 +2,138 @@
 
 ## MVP goal
 
-Validate that a local Resolve companion with a persistent `story ↔ shot intent ↔ asset ↔ timeline` graph is useful before building a broad production platform.
+Validate that Salai's semantic scripting and production-graph model is useful before investing in broad Resolve, GenAI, or production-platform implementation.
 
-The MVP should prove five things:
+The largest current product uncertainty is not whether Resolve can be automated. CutMaster provides a credible path for that infrastructure. The larger unknown is whether one structured narrative model can support:
 
-1. Salai can use CutMaster as the Resolve automation layer instead of rebuilding broad Resolve API coverage.
-2. Narrative objects can remain linked to real/generated assets and Resolve timeline usage.
-3. Paper-edit/story-level operations provide value above working directly in the NLE.
-4. Generated media can enter the same production flow as captured media.
-5. Electron + a local Python service provide a practical production runtime for local files, processes, and Resolve/Comfy integration.
+- blank-page/script-first authoring;
+- AV-style visual/audio planning;
+- stable links to ShotIntents and later production assets;
+- runtime-constrained rewriting;
+- footage-first/reverse scripting;
+- AI-assisted structural editing without destroying production relationships.
 
-## Phase 0 — CutMaster / Resolve vertical-slice spike
+The MVP should ultimately prove six things:
 
-Do not begin by writing a general Resolve abstraction from scratch.
+1. A semantic script with stable object identity feels natural to author.
+2. Outline, AV Script, Teleprompter, and later coverage views can derive from the same model.
+3. Script objects can remain linked to ShotIntents/assets through revisions.
+4. Existing footage can become evidence for a narrative structure using the same model.
+5. Resolve can consume downstream decisions through CutMaster without Salai becoming an NLE.
+6. Generated media can enter the same production flow as captured media.
 
-First prove the path:
+## Phase 0 — Structured scripting spike
+
+This is the current highest-priority product-risk spike.
+
+It should run without Resolve and without real footage analysis.
+
+### Core hypothesis
+
+A Salai script is not an opaque text document and is not necessarily a screenplay.
+
+It is a structured narrative model with stable IDs. Different authoring/production views are projections of that model.
+
+Initial semantic hierarchy:
 
 ```text
-Salai test client → CutMaster → DaVinci Resolve Studio
+Script
+├── Section / optional Scene
+│   ├── Beat
+│   │   ├── visual content
+│   │   ├── audio content
+│   │   ├── duration intent
+│   │   └── relationships
+│   └── Beat
+└── Section
 ```
+
+`Beat` is the initial smallest narrative unit Salai reasons about.
+
+### Initial editor direction
+
+Prototype with Tiptap / ProseMirror using custom schema nodes and stable IDs.
+
+Keep the first schema intentionally small:
+
+```text
+salaiDocument
+section
+beat
+visualBlock
+voiceoverBlock
+dialogueBlock
+onscreenTextBlock
+noteBlock
+```
+
+Lexical remains a fallback candidate if the spike reveals a materially better fit.
 
 ### Required experiments
 
-- connect CutMaster to the current Resolve instance;
-- read the current Resolve project and timeline;
-- enumerate Media Pool bins/items;
-- map timeline items to source Media Pool items;
-- read selected Media Pool/timeline items where supported;
-- create a bin;
-- import media;
-- write/read third-party/custom metadata where supported;
-- add/read markers and marker custom data where supported;
-- create a timeline from explicit source ranges;
-- append/insert clips at known record positions;
-- add an imported/generated clip as a Resolve take;
-- switch/read takes;
-- inspect identifiers across Resolve restart;
-- duplicate a timeline and inspect identifier behavior;
-- duplicate/export/import a project and inspect identifier behavior;
-- determine the polling/event approach needed for current selection/playhead/project state;
-- verify timeout/error behavior when Resolve is unavailable or busy.
+1. Create sections and Beats.
+2. Edit visual and audio content naturally.
+3. Move/reorder Beats while preserving identity.
+4. Split and merge Beats and define relationship behavior.
+5. Toggle between Outline and AV Script views.
+6. Derive a Teleprompter view from the same document.
+7. Link dummy ShotIntents to Beats.
+8. Persist/reopen with IDs and links intact.
+9. Set a target duration and continuously estimate runtime.
+10. Have an LLM propose a rewrite as explicit structured operations rather than replacement text.
+11. Review/apply/reject the AI patch.
+12. Import/export a small Fountain example.
+13. Build a small reverse-script structure from mocked footage-derived MediaSegments.
 
-### Output
+### Structural identity rules to validate
 
-A capability matrix focused on Salai requirements rather than exhaustive Resolve coverage:
+Initial hypothesis:
 
-| Capability | CutMaster surface | Extra Salai code? | Reliable? | Notes |
-|---|---|---|---|---|
+- text edits preserve object ID;
+- move/reorder preserves object ID;
+- split creates a new object and requires explicit relationship redistribution;
+- merge retains one canonical ID and records provenance from the merged object;
+- delete does not silently delete linked production objects;
+- structural operations are transactional and undoable.
 
-### Adoption criterion
+### AI editing rule
 
-If CutMaster reliably covers the vertical slice, adopt it as upstream infrastructure and wrap only the small Salai-specific interface required by the domain.
+Do not use:
 
-Do not import undocumented CutMaster internals unless a stable/public route does not exist. Prefer its versioned MCP/public extension surfaces and contribute generally useful missing operations upstream where practical.
+```text
+script blob → LLM → replacement script blob
+```
+
+Prefer:
+
+```text
+structured script
+      ↓
+LLM proposed operations
+      ↓
+reviewable patch
+      ↓
+transaction
+```
+
+Example operations:
+
+```text
+update beat_17.audio.voiceover
+remove beat_16
+move beat_18 before beat_17
+insert new beat after beat_21
+```
+
+### Success criterion
+
+The scripting spike succeeds when one semantic model can support Outline, AV Script, and Teleprompter views while preserving stable IDs/relationships through common edits, and when both script-first and mocked footage-first authoring fit the same model.
+
+See `docs/scripting.md` for the detailed model and open questions.
 
 ## Phase 0.5 — Electron / local service shell
 
-Prove the desktop runtime before implementing significant product UI.
+Build only enough desktop runtime to host the scripting prototype and prove local application lifecycle.
 
 ### Electron responsibilities
 
@@ -67,66 +142,91 @@ Prove the desktop runtime before implementing significant product UI.
 - open the React renderer;
 - choose/open a real local project directory;
 - retain the project path across sessions;
-- drag/drop local production files with actual filesystem paths;
-- reveal/open local assets;
-- observe local filesystem changes;
-- start/stop optional child services where appropriate.
+- expose a narrow secure preload API.
 
-Use a secure renderer boundary:
+Use:
 
 - `contextIsolation: true`;
-- `nodeIntegration: false`;
-- narrow preload IPC API.
+- `nodeIntegration: false`.
 
 ### Python service responsibilities
 
 - FastAPI HTTP/WebSocket API;
 - SQLite project state;
-- project filesystem scanning/watching;
-- CutMaster integration;
-- OpenAssetIO integration;
-- later ComfyUI and media analysis.
+- scripting/domain persistence;
+- later filesystem/media/Resolve/GenAI integrations.
 
 ### Success criterion
 
-A user can open a local production directory in the Electron application, Salai can index it through the Python service, and the same service can inspect the connected Resolve project through CutMaster.
+The structured scripting prototype persists as a real local Salai project inside the Electron application without relying on browser filesystem permissions.
 
-## Phase 1 — Production graph prototype
+## Phase 1 — Production graph foundation
 
-Implement only these domain concepts:
+Once the scripting model is validated, formalize the minimum domain graph around it.
+
+Implement:
 
 - Project
-- NarrativeNode (section/beat/scene/script block)
+- NarrativeNode
 - ShotIntent
 - Asset
 - MediaSegment
 - Relationship
-- ResolveBinding
 - Annotation
+- ResolveBinding
 
 Use SQLite. Do not introduce a graph database.
 
 ### Required flow
 
-1. Create a project and several narrative beats.
-2. Create ShotIntents linked to those beats.
-3. Register/import local media assets.
-4. Sync enough Resolve context through CutMaster to identify Media Pool/timeline objects.
-5. Manually link a Resolve clip or clip range to a ShotIntent.
-6. Read a Resolve timeline and show which beats/ShotIntents are represented.
+1. Create a script containing Sections/Beats.
+2. Link one Beat to several ShotIntents.
+3. Link a dummy Asset/MediaSegment realization to a ShotIntent.
+4. Edit/reorder/split narrative content and inspect how those links behave.
+5. Query coverage from the graph.
 
 Success means Salai can answer:
 
-- Which assets/segments realize this ShotIntent?
-- Which ShotIntents still have no usable realization?
-- Where is this media/shot used in the current Resolve timeline?
-- Which narrative beats are absent from the edit?
+- What visual/production intent supports this Beat?
+- Which ShotIntents have no realization?
+- Which assets/segments realize a ShotIntent?
+- Which production relationships changed when the script structure changed?
 
-## Phase 1.5 — OpenAssetIO spike
+## Phase 1.5 — CutMaster / Resolve vertical slice
+
+Resolve integration is still required, but it follows the scripting model rather than driving it.
+
+Do not write broad Resolve wrappers from scratch.
+
+Prove:
+
+```text
+Salai → CutMaster → DaVinci Resolve Studio
+```
+
+### Required experiments
+
+- read current project/timeline context;
+- identify Media Pool/timeline items;
+- import media;
+- map timeline items to source Media Pool items;
+- write/read third-party/custom metadata where useful;
+- add/read markers/custom data;
+- create a timeline from explicit source ranges;
+- append/insert known ranges;
+- add an alternative asset as a Resolve take;
+- inspect identifier behavior across restart/duplication/export-import;
+- determine polling/event strategy for current Resolve context.
+
+### Adoption criterion
+
+If CutMaster covers the required vertical slice reliably, keep it as upstream Resolve infrastructure and add only small Salai-specific adapters where required.
+
+## Phase 2 — Asset boundary / OpenAssetIO spike
 
 Use OpenAssetIO only at the asset boundary.
 
-Implement the smallest useful local manager/host experiment:
+Validate:
 
 ```text
 salai://project/<project-id>/assets/<asset-id>
@@ -136,38 +236,70 @@ OpenAssetIO
 local project-controlled path
 ```
 
-### Validate
+Required experiments:
 
-- create a Salai asset with an entity reference;
-- resolve it to a local filesystem path;
-- publish/register a newly generated asset;
-- preserve stable identity if its concrete location changes;
-- determine the minimal trait set Salai needs;
-- verify that introducing OpenAssetIO does not complicate ordinary narrative/domain queries.
+- create an Asset with an entity reference;
+- resolve it to a local path;
+- publish/register a new asset;
+- preserve identity if concrete location changes;
+- determine the minimal Salai trait set;
+- confirm narrative queries remain ordinary domain operations rather than OpenAssetIO calls.
 
-OpenAssetIO should not become a requirement for querying scenes, beats, reviews, or other non-asset objects.
+## Phase 3 — Reverse scripting with real media
 
-## Phase 2 — Paper edit
+Move from mocked MediaSegments to real footage-derived material.
+
+The purpose is not to build a full semantic-search product. It is to test whether footage can become narrative evidence.
+
+### Minimal pipeline
+
+```text
+local media
+   ↓
+transcript / simple visual description / metadata
+   ↓
+MediaSegments
+   ↓
+topic/moment grouping
+   ↓
+proposed Beats with source relationships
+```
+
+### Required flow
+
+1. Ingest a small interview/B-roll dataset.
+2. Produce transcript-derived segments and lightweight visual descriptions.
+3. Let the user select moments as narrative evidence.
+4. Ask AI to propose a short structure.
+5. Create Beats already linked to their source MediaSegments.
+6. Rewrite/reorder the structure while retaining those links.
+
+Success means footage-first work uses the same scripting model as blank-page authoring.
+
+## Phase 4 — Paper edit
 
 Create a story-level edit representation independent from a Resolve timeline.
 
-A paper edit is an ordered set of narrative/media segments with approximate duration and intent.
+A PaperEdit is an ordered set of narrative/media choices with approximate duration and intent.
 
 Required operations:
 
-- drag/reorder beats;
-- choose a linked media segment/take;
-- duplicate a paper edit into an alternative version;
-- compare high-level structural differences;
-- materialize the selected paper edit as a new Resolve timeline through CutMaster.
+- select narrative Beats;
+- choose linked MediaSegments/realizations;
+- reorder structure;
+- duplicate into alternatives;
+- compare structural differences;
+- materialize the chosen version as a Resolve timeline through CutMaster.
 
-OpenTimelineIO may be generated for interchange/inspection, but the Salai PaperEdit model should retain narrative information beyond OTIO.
+OpenTimelineIO may be derived for interchange, but the Salai PaperEdit model retains narrative information beyond OTIO.
 
 No frame-accurate NLE UI should be built.
 
-## Phase 3 — GenAI backend spike
+## Phase 5 — GenAI backend spike
 
-Define a minimal provider-independent interface.
+Add generation only after ShotIntent and asset relationships work with ordinary media.
+
+Initial provider-neutral interface:
 
 ```text
 GenerationBackend
@@ -179,110 +311,91 @@ GenerationBackend
 - result(job)
 ```
 
-### Initial operations
-
-Limit to:
+Initial operations:
 
 - `text_to_image`;
 - `image_to_video`.
 
-These are sufficient to validate storyboard/previs/missing-coverage workflows.
+Initial backend: ComfyUI.
 
-### Initial backend
+Required flow:
 
-Start with ComfyUI.
+1. Beat requires a ShotIntent.
+2. ShotIntent has no usable realization.
+3. User requests a generated alternative.
+4. Salai fills a registered Comfy workflow manifest.
+5. Output is copied/published into project-controlled storage.
+6. Output becomes a normal Salai Asset.
+7. Asset is linked as a ShotIntent realization.
+8. Asset is imported into Resolve through CutMaster.
+9. Where useful, it is added as another Resolve take.
 
-The spike should:
+Generated output never overwrites source media and retains provenance.
 
-1. register a known workflow plus a Salai workflow manifest;
-2. expose selected workflow inputs such as prompt, source image, seed, and duration where applicable;
-3. submit the workflow programmatically;
-4. observe queue/execution state;
-5. retrieve the output;
-6. copy/publish the output into project-controlled storage;
-7. create provenance records;
-8. register the result as a normal Salai Asset;
-9. import it into Resolve through CutMaster;
-10. link it to a ShotIntent;
-11. optionally add it as a Resolve take alongside a captured realization.
+## Phase 6 — Broader AI-assisted reasoning
 
-### Generated take behavior
-
-A generated result should behave like another realization/take:
-
-```text
-ShotIntent 07A
-├── camera-01.mov
-├── camera-02.mov
-├── gen-01.mp4
-└── gen-02.mp4
-```
-
-No generated result should overwrite source media.
-
-### Quality lifecycle
-
-Support the concept, even if the spike only implements two levels:
-
-```text
-DRAFT → PREVIEW → FINAL
-```
-
-A final regeneration should remain linked to the same generation family/intent rather than silently replacing the preview.
-
-## Phase 4 — AI-assisted linking/reasoning
-
-Only after the graph, CutMaster integration, and GenAI ingest flow work manually.
+Only after the structured script and production graph work manually.
 
 Potential capabilities:
 
-- break script into beats and suggested ShotIntents;
-- suggest clip/segment ↔ ShotIntent links;
+- develop an idea into sections/beats;
+- rewrite to target duration;
+- compare alternative structures;
+- suggest ShotIntents from visual narrative needs;
+- suggest MediaSegment ↔ ShotIntent relationships;
 - identify missing coverage;
-- describe footage and propose narrative groupings;
-- propose alternate paper-edit structures;
-- explain structural changes before applying them;
-- decide whether a missing realization should be searched, shot, generated, or represented temporarily.
+- propose footage-first structures;
+- explain changes before applying them;
+- decide whether a missing realization should be searched, shot, generated, or left as placeholder.
 
-AI suggestions should carry provenance/confidence and remain user-confirmable.
+AI suggestions remain reviewable and should carry provenance/confidence where appropriate.
 
-## Explicit non-goals for MVP
+## Explicit non-goals for early MVP
 
 Do not build:
 
+- a complete Final Draft replacement;
+- page-perfect screenplay formatting;
+- locked pages/revision colors;
 - a frame-accurate NLE;
-- a standalone color system;
-- a compositor;
-- an audio workstation;
-- a render farm;
+- a standalone color/compositing/audio system;
 - broad custom Resolve scripting already covered by CutMaster;
 - a custom asset-resolution standard already covered by OpenAssetIO;
-- a proxy/media transcoding platform beyond what integration requires;
 - a ComfyUI node editor;
 - a generic MAM;
 - broad cloud collaboration;
-- mobile capture tooling;
-- every GenAI provider;
-- a Rust/Tauri desktop stack without a concrete requirement.
+- full CRDT/multi-user editing before the local model is validated;
+- every screenplay interchange format;
+- every GenAI provider.
 
-## First validation scenario
+## First product validation scenario
 
-Use one concrete 30–60 second scripted piece.
+Use one concrete 30–60 second piece.
 
-1. Open a real local project directory in Salai Electron.
-2. Write 5–8 narrative beats.
-3. Plan 8–15 ShotIntents.
-4. Import a small real footage set into Resolve.
-5. Through CutMaster, identify/import/link footage to ShotIntents.
-6. Observe coverage gaps.
-7. Generate one missing realization through ComfyUI.
-8. Publish/register it as a Salai Asset and ingest it into Resolve.
-9. Add the generated option as a normal timeline item or alternate Resolve take.
-10. Build two paper-edit alternatives.
-11. Materialize one as a Resolve timeline through CutMaster.
-12. Change the Resolve timeline and inspect how much linkage Salai can preserve/recover.
+### Script-first
 
-This end-to-end scenario is the primary product/architecture test before expanding scope.
+1. Start with an idea.
+2. Build 5–8 Beats using Outline view.
+3. Switch to AV Script view and author visual/audio intent.
+4. Set a 30- or 60-second target and refine against runtime estimate.
+5. Link 8–15 ShotIntents.
+6. Ask AI for a shorter structural alternative and review the patch.
+
+### Footage-first
+
+7. Start a second version from a small set of interview/B-roll MediaSegments.
+8. Build/propose Beats with source relationships.
+9. Compare the footage-first and blank-page structures.
+
+### Downstream production
+
+10. Link real footage realizations.
+11. Observe coverage gaps.
+12. Generate one missing realization through ComfyUI.
+13. Build two PaperEdit alternatives.
+14. Materialize one into Resolve through CutMaster.
+
+The first milestone should stop much earlier than step 14: the immediate goal is to validate steps 1–9 before expanding downstream.
 
 ## Initial implementation stack
 
@@ -292,6 +405,7 @@ Desktop/UI
 - React
 - TypeScript
 - Vite
+- Tiptap / ProseMirror (initial scripting editor candidate)
 - pnpm
 
 Backend
@@ -307,4 +421,8 @@ Infrastructure
 - OpenTimelineIO (editorial interchange)
 - ComfyUI (initial GenAI execution)
 - FFmpeg / ffprobe (media utilities)
+
+Interchange
+- Fountain import/export initially
+- FDX later if justified
 ```
