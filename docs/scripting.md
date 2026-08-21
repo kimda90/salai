@@ -2,64 +2,62 @@
 
 ## Why scripting is the current product-risk focus
 
-Resolve integration is important, but broad Resolve automation already has a credible open-source path through CutMaster. The less understood part of Salai is the authoring model itself: what a "script" means across short-form branded work, interviews/documentary, corporate video, YouTube, commercials, and more traditional scene-based work.
+Resolve integration remains important, but broad Resolve automation has a credible open-source path through CutMaster. The less understood part of Salai is the authoring model itself: what a "script" means across short-form branded work, interviews/documentary, corporate video, YouTube, commercials, and more traditional scene-based work.
 
 Salai should not assume that every production starts from a screenplay, nor that a script is only formatted text.
 
 The current hypothesis is:
 
-> A Salai script is a structured narrative model with stable identity. Outline, AV script, screenplay-like formatting, teleprompter text, coverage, and paper edit are views or projections over that model rather than separate documents.
+> A Salai script is stable semantic production data. Outline, AV script, teleprompter, coverage, and later screenplay-like presentations are projections of that data rather than separate documents.
 
-This model must also support the inverse workflow:
+The model must work in both directions:
 
-> Existing footage can become evidence for proposed narrative beats, which can then be edited into a script/story structure.
+```text
+blank page → narrative → production
 
-## Primary authoring model: AV-script-first, not screenplay-first
+existing media → evidence/moments → narrative → production
+```
 
-The initial target user often works on 15-second to several-minute pieces where visual and audio intent matter independently.
+The immediate spike should validate this semantic intermediate representation before choosing an editor framework or adding downstream infrastructure.
 
-A useful default representation is therefore similar to an AV script:
+## The key distinction: Beat vs Cue
 
-| Visual | Audio |
-| --- | --- |
-| Close shot of product opening | VO: "Opening it takes one click." |
-| UI screen recording | SFX + VO |
-| Customer reaction | Music rises |
+The previous model treated `Beat` as both the semantic narrative unit and the AV-script row. That is likely too rigid.
 
-This is a useful **view**, but it should not be the storage schema.
+Example:
 
-A single narrative beat may require multiple visual realizations, and a single shot can support more than one beat. Treating one AV row as one shot would make the model too rigid.
+```text
+Beat
+"Installing the device is easy"
 
-## Semantic script model
+AV moments
+1. wide installation       VO starts
+2. insert connector        VO continues
+3. UI turns green          SFX + end of VO
+4. user reaction           music rises
+```
 
-A project contains structured narrative objects with stable IDs.
+Narratively this is one Beat, but production-wise it contains several temporal audiovisual moments.
+
+The current model to test is therefore:
 
 ```text
 Script
-├── NarrativeNode: section
-│   ├── NarrativeNode: beat
-│   │   ├── visual content
-│   │   ├── audio content
-│   │   ├── duration intent
-│   │   └── notes
-│   └── NarrativeNode: beat
-└── NarrativeNode: section
+└── Section
+    └── Beat                 semantic meaning
+        ├── Cue              audiovisual/temporal moment
+        │   ├── visual[]
+        │   └── audio[]
+        └── Cue
+            ├── visual[]
+            └── audio[]
 ```
 
-Possible narrative node types:
+`Cue` is a working name. The spike should validate whether this level is genuinely useful before treating the term as permanent product language.
 
-```text
-section
-scene
-beat
-script_block
-```
+### Beat
 
-`scene` is optional rather than universal. A feature-film-like project may use acts/sequences/scenes; a 45-second product video may use Hook / Problem / Demo / Benefit / CTA.
-
-### Beat-first hierarchy
-
-The smallest narrative unit that Salai should reason about is initially the `Beat`.
+A Beat represents a meaningful narrative idea or change.
 
 Examples:
 
@@ -72,138 +70,157 @@ PROBLEM
   Beat: user frustration
 
 DEMO
-  Beat: open product
-  Beat: complete task
+  Beat: installation is simple
 
 CTA
   Beat: final promise
 ```
 
-For more traditional narrative work:
+A traditional scene-based project may still use:
 
 ```text
 ACT 1
-  Scene 1
+  Scene
     Beat
-    Beat
-  Scene 2
     Beat
 ```
 
-The model should allow both without forcing all projects into screenplay conventions.
+`Scene` is optional rather than universal.
 
-## Content channels inside a beat
+### Cue
 
-A beat can carry multiple typed content blocks.
+A Cue represents a moment in which visual and audio content are intended to happen together or overlap approximately.
+
+A Beat may contain one Cue or several Cues.
+
+This gives different views natural levels of granularity:
+
+```text
+Outline
+Section → Beat
+
+AV Script
+Beat → Cue → Visual | Audio
+
+Teleprompter
+spoken AudioBlocks across Cues
+
+Coverage
+Beat/Cue → ShotIntent
+```
+
+The spike should determine whether ShotIntent relationships normally belong at Beat level, Cue level, or both.
+
+## Explicit domain types, not a generic NarrativeNode tree
+
+`NarrativeNode` remains useful architectural shorthand, but the implementation should prefer explicit discriminated domain types rather than an unrestricted recursive tree.
+
+Initial domain concepts:
+
+```text
+Script
+Section
+Scene (optional)
+Beat
+Cue
+ContentBlock
+```
+
+Allowed parent/child relationships should be explicit. This avoids invalid structures such as a Section nested under a Beat purely because every object is a generic node.
+
+## Content blocks
+
+A Cue carries typed visual and audio content blocks.
+
+The first spike should implement only the smallest useful set.
 
 ### Visual
 
-Possible visual block types:
-
 ```text
-action
-visual_description
-onscreen_text
-graphic
-reference
-note
+VisualDescription
+OnScreenText
+Graphic
 ```
 
 ### Audio
 
-Possible audio block types:
-
 ```text
-dialogue
-voiceover
-music
-sfx
-ambience
-note
+AuthoredSpeech
+SourceExcerpt
+Music
+SFX
 ```
 
-This is intentionally extensible. The first implementation should only add block types required by the prototype rather than trying to model every screenplay or broadcast convention.
+Additional types such as ambience, notes, references, dialogue character metadata, or screenplay-specific constructs can be added after the model proves itself.
 
-## Script views
+## Authored content vs sourced content
 
-The same semantic model should support multiple presentations.
+This distinction is fundamental for footage-first/reverse scripting.
+
+### AuthoredSpeech
+
+Editable production copy such as voiceover, presenter copy, or scripted dialogue.
 
 ```text
-                    SCRIPT MODEL
-                         │
-       ┌─────────────────┼─────────────────┐
-       │                 │                 │
-    Outline          AV Script        Teleprompter
-       │                 │                 │
-  sections/beats     visual | audio     dialogue/VO
-       │
-       ├──────────── screenplay-like view
-       └──────────── coverage/shot-intent view
+AuthoredSpeech
+- id
+- text
+- role/type
 ```
 
-### Outline view
+Changing the text changes the authored content.
 
-Optimized for structural authoring:
+### SourceExcerpt
 
-- sections/scenes;
-- beats;
-- approximate duration;
-- drag/reorder;
-- collapse/expand;
-- structural alternatives.
+A reference to words that already exist in recorded media.
 
-### AV Script view
+```text
+SourceExcerpt
+- id
+- mediaSegmentId
+- transcript snapshot/display text
+- source in/out
+```
 
-Optimized for production intent:
+Example:
 
-- visual and audio side by side;
-- per-beat timing;
-- on-screen text/graphics;
-- references;
-- linked ShotIntents.
+```text
+Interview 03:41–03:47
+"We were spending almost two days doing this manually."
+```
 
-### Teleprompter view
+This is evidence tied to media. Editing its displayed transcript must not pretend the underlying interview changed.
 
-A derived view containing only material intended to be spoken/read, such as:
+A user may trim, replace, or unlink a SourceExcerpt, or create new AuthoredSpeech paraphrasing it, but those operations have different semantics.
 
-- dialogue;
-- presenter copy;
-- voiceover.
-
-It should not be stored as a second independent script.
-
-### Screenplay-like view
-
-Potential later projection for projects that benefit from scene headings, action, character and dialogue formatting. This should not dictate the base model for the first version.
+This authored-vs-sourced distinction is one of the primary things Spike 0A must validate.
 
 ## ShotIntent remains separate from narrative content
 
-`ShotIntent` represents a production need, not a line of script.
+`ShotIntent` represents a production need, not a line of script or an AV row.
 
 ```text
 Beat
-"Installation takes less than a minute."
+"Installation takes less than a minute"
 
-Visual intent
-"Show installation process"
+Cues
+1. begin installation
+2. connect device
+3. confirm UI state
 
-ShotIntents
-├── wide installation
-├── close-up connector
-├── insert screws
-├── UI indicator
-└── reaction
+Possible ShotIntents
+- wide installation
+- connector insert
+- UI confirmation
+- reaction
 ```
 
-A Beat can link to zero, one, or many ShotIntents.
-
-A ShotIntent can also support multiple Beats.
+Relationships are many-to-many and may attach at Beat or Cue level:
 
 ```text
 Beat ↔ ShotIntent
+Cue  ↔ ShotIntent
 ```
-
-is therefore many-to-many.
 
 A ShotIntent is later realized by assets/segments:
 
@@ -217,386 +234,430 @@ ShotIntent 18B
 └── graphic/composite
 ```
 
-This keeps narrative intent independent from execution.
+Narrative intent remains independent from realization.
 
 ## Stable identity is a core requirement
 
-Salai's scripting model differs from a normal text editor because script objects participate in the production graph.
+Script objects participate in the production graph and therefore require durable IDs.
 
 For example:
 
 ```text
 Beat B17
-"Manual invoices take hours."
+"Manual invoices waste time"
 ```
 
-may be linked to:
+may eventually be related to:
 
 ```text
+Cue C31
 ShotIntent S32
 MediaSegment M43
-ResolveBinding R91
 Annotation A12
+ResolveBinding R91
 ```
 
-Changing the wording must not implicitly destroy those relationships.
+Ordinary text editing must not implicitly destroy those relationships.
 
-### Simple text edit
+### Identity rules to validate
+
+Initial hypotheses:
+
+- editing fields preserves object identity;
+- moving/reordering objects preserves identity;
+- inserting creates new identity;
+- splitting retains one original identity and creates another, with an explicit relationship policy;
+- merging retains one canonical identity and records provenance from removed objects;
+- deleting narrative objects never silently deletes linked external production objects;
+- structural operations are transactional and invertible/undoable.
+
+The exact split/merge rules are not yet product decisions. They are part of the experiment.
+
+## Duration model
+
+The Beat/Cue distinction gives runtime estimation a cleaner structure.
+
+A Cue is approximately a concurrent audiovisual moment.
+
+Possible estimate:
 
 ```text
-B17 before:
-"Manual invoices take hours."
+Cue duration =
+  explicit duration
+  OR max(
+    authored speech estimate,
+    source excerpt duration,
+    visual hold estimate
+  )
 
-B17 after:
-"Teams waste hours entering invoices manually."
+Beat duration    = sum(Cue durations)
+Section duration = sum(Beat durations)
+Script duration  = sum(Section durations)
 ```
 
-This remains the same object and retains the same ID.
+For authored speech, estimate from words per minute.
 
-### Structural edit
+For a SourceExcerpt, use actual source in/out duration.
 
-Splitting, merging, deleting, or moving beats is more difficult:
+The goal is useful authoring feedback, not frame-accurate timing.
 
-```text
-B17
-"Teams waste hours entering invoices manually."
+Target durations such as 15, 30, 60, or 90 seconds remain first-class constraints.
 
-becomes
+## Reverse scripting: media becomes evidence
 
-B17
-"Teams waste hours entering invoices."
-
-B18
-"The process is entirely manual."
-```
-
-The system must define how relationships are preserved or redistributed.
-
-Initial principle:
-
-- editing text preserves object identity;
-- moving an object preserves identity;
-- splitting creates a new object and requires an explicit relationship policy;
-- merging retains one canonical ID and records provenance from the merged object;
-- deleting an object does not silently delete linked production data;
-- structural operations should be transactional and undoable.
-
-Exact split/merge policies are a prototype question and should be tested with real workflows.
-
-## AI must edit structure, not replace opaque text
-
-The LLM should not normally receive a blob of script text and return another blob that replaces the document.
-
-Bad abstraction:
-
-```text
-script text
-   ↓
-LLM
-   ↓
-new script text
-```
-
-Preferred abstraction:
-
-```text
-structured script
-      ↓
-LLM proposes operations
-      ↓
-reviewable patch
-      ↓
-transaction
-```
-
-Example user request:
-
-> Make the opening shorter and get this under 30 seconds.
-
-Possible proposal:
-
-```json
-[
-  {
-    "op": "update",
-    "id": "beat_17",
-    "field": "audio.voiceover",
-    "value": "..."
-  },
-  {
-    "op": "remove",
-    "id": "beat_16"
-  },
-  {
-    "op": "move",
-    "id": "beat_18",
-    "before": "beat_17"
-  }
-]
-```
-
-The UI can present:
-
-```text
-AI PROPOSAL
-
-- Beat 16 removed
-~ Beat 17 shortened
-↕ Beat 18 moved earlier
-
-Estimated runtime
-00:47 → 00:29
-
-[Review] [Accept all]
-```
-
-This preserves IDs where possible, makes structural edits auditable, and keeps the production graph coherent.
-
-## Runtime is first-class narrative data
-
-For the initial target market, target duration is often a hard creative constraint:
-
-```text
-15 sec
-30 sec
-60 sec
-90 sec
-3 min
-```
-
-Salai should track both target and estimated duration.
-
-Possible sources of estimated duration:
-
-- spoken-word reading rate;
-- explicit beat duration;
-- linked media-segment duration;
-- visual-hold estimates;
-- overlaps between audio and visual content.
-
-Example:
-
-```text
-TARGET        00:30
-
-Voiceover     00:21
-Visual holds  00:12
-Overlap       -00:05
-───────────────────
-Estimated     00:28
-```
-
-The estimate does not need to be frame-accurate. Its purpose is to support authoring and structural alternatives before editorial materialization.
-
-## Reverse scripting: footage → narrative
-
-Reverse scripting is a first-class workflow, not a secondary import feature.
+Reverse scripting is not a separate script system.
 
 Starting state:
 
 ```text
-existing/random footage
+MediaSegments
+├── interview excerpts
+├── B-roll moments
+├── screen recordings
+└── other selected material
+```
+
+A user or later AI process can create narrative structure from those sources:
+
+```text
+Section: Problem
+
+Beat: Manual work consumed too much time
+
+Cue 1
+Visual: office B-roll
+Audio: SourceExcerpt interview_04 03:41–03:47
+
+Cue 2
+Visual: spreadsheet screen recording
+Audio: AuthoredSpeech bridge VO
+```
+
+The same Beat/Cue model therefore supports blank-page scripting and footage-derived scripting.
+
+This is a core validation criterion for the narrative IR.
+
+## Views are projections, not canonical documents
+
+If the domain model succeeds, it should support multiple presentations.
+
+### Outline
+
+Shows primarily:
+
+```text
+Section
+  Beat
+  Beat
+```
+
+Optimized for structural reasoning and reordering.
+
+### AV Script
+
+Shows Cues as audiovisual moments:
+
+| Visual | Audio |
+| --- | --- |
+| Wide installation | VO begins |
+| Connector insert | VO continues |
+| UI green | SFX |
+
+### Teleprompter
+
+Derived from `AuthoredSpeech` blocks marked as spoken/presenter/VO content.
+
+`SourceExcerpt` may optionally appear in transcript/reference modes, but it is not editable teleprompter copy by default.
+
+### Coverage
+
+Projects Beat/Cue relationships to ShotIntents and later realizations.
+
+### Screenplay-like presentation
+
+Potential later projection for scene headings, action, characters, and dialogue. It should not determine the first domain model.
+
+## Structural operations are a first-class API
+
+The domain should expose explicit operations rather than arbitrary mutation.
+
+Candidate operation vocabulary:
+
+```text
+createSection
+createBeat
+createCue
+updateBlock
+moveBeat
+moveCue
+splitBeat
+mergeBeats
+deleteBeat
+linkShotIntent
+unlinkShotIntent
+linkSourceExcerpt
+```
+
+The operation layer provides:
+
+- identity preservation;
+- relationship policy enforcement;
+- validation;
+- transaction boundaries;
+- undo/inversion;
+- a future interface for AI-assisted edits.
+
+## AI should be tested after the operation vocabulary
+
+Spike 0A should not call a real LLM.
+
+First prove that meaningful editorial changes can be represented manually as domain operations.
+
+Example patch:
+
+```json
+[
+  {
+    "op": "updateBlock",
+    "blockId": "vo_12",
+    "text": "Installation takes seconds."
+  },
+  {
+    "op": "moveBeat",
+    "beatId": "beat_4",
+    "after": "beat_1"
+  },
+  {
+    "op": "deleteBeat",
+    "beatId": "beat_2"
+  }
+]
+```
+
+The important first test is:
+
+```text
+before runtime 00:41
         ↓
-transcripts + descriptions + metadata
+operations
         ↓
-meaningful MediaSegments
-        ↓
-possible topics / evidence / moments
-        ↓
-proposed narrative structure
+after runtime 00:29
+
+stable IDs retained where appropriate
+relationships preserved according to policy
+patch invertible
 ```
 
-Example:
+Only after this operation model is stable should an LLM generate proposed patches.
+
+## Editor framework should follow the domain model
+
+Do not make ProseMirror/Tiptap, Lexical, HTML, or another editor representation the canonical script model in Spike 0A.
+
+Two architectures remain possible:
 
 ```text
-Available material
+A. editor document = canonical domain
 
-Interview
-- hiring problem
-- old process
-- implementation
-- result
-
-Visual material
-- office
-- application UI
-- customer
-- exterior
+B. Salai domain model = canonical
+   React authoring UI projects the model
+   rich-text editor used only where useful
 ```
 
-Salai may propose:
+The current preference is to validate **B** first.
+
+An AV script is primarily structured production data with editable text fields, not necessarily one rich-text document.
+
+Tiptap/ProseMirror and Lexical remain candidates for Spike 0B if richer text editing requires them.
+
+## Interchange comes later
+
+Fountain and FDX are useful interoperability targets but do not test whether Salai's semantic authoring model is correct.
+
+They are therefore excluded from Spike 0A.
+
+Once the model stabilizes:
 
 ```text
-01 Hook
-   "Hiring used to take weeks."
-
-02 Problem
-   Existing process
-
-03 Change
-   New application
-
-04 Result
-   Faster hiring
+Fountain / FDX
+      ↕ adapters
+Salai narrative IR
 ```
 
-Crucially, proposed Beats can already carry evidence/source relationships:
+Interchange formats must never become canonical storage for Salai-specific relationships.
+
+# Scripting validation plan
+
+The previous single scripting spike is split into three experiments.
+
+## Spike 0A — Narrative IR
+
+### Question
+
+Can one stable semantic model represent blank-page AV scripting, audio-driven interview work, and footage-first narrative construction without special-case data models?
+
+### Implementation boundary
+
+Pure TypeScript package:
 
 ```text
-Beat 03
-Sources
-├── interview_04 03:41–04:12
-├── screen_08
-└── broll_31
+packages/script-model/
 ```
 
-The user can then write/rewrite the narrative while retaining those source relationships.
+No Electron, React, Tiptap, Python, SQLite, Resolve, real LLM, or Fountain required.
 
-This is one of the strongest ways Salai differs from conventional screenplay software.
+### Required domain capabilities
 
-## Editor implementation direction
+- Script / Section / optional Scene / Beat / Cue types;
+- typed visual/audio ContentBlocks;
+- AuthoredSpeech vs SourceExcerpt;
+- stable IDs;
+- Beat/Cue ↔ ShotIntent references;
+- SourceExcerpt ↔ MediaSegment references;
+- move/edit/split/merge/delete semantics;
+- serialization/deserialization round-trip;
+- duration estimation;
+- explicit structural operation format;
+- validation and relationship invariants;
+- operation inversion/undo where practical for the spike.
 
-The editor should be schema-aware rather than a generic textarea/contenteditable document.
+### Three required fixtures
 
-### Preferred prototype: Tiptap / ProseMirror
+#### Fixture A — 30-second product video
 
-Current preference:
-
-- Tiptap for React/TypeScript editor integration;
-- ProseMirror's schema and transaction model underneath;
-- stable IDs stored on semantic nodes;
-- custom node types for Salai narrative content.
-
-Candidate nodes for the spike:
+Script-first structure:
 
 ```text
-salaiDocument
-section
-beat
-visualBlock
-voiceoverBlock
-dialogueBlock
-onscreenTextBlock
-noteBlock
+Hook
+Problem
+Demo
+Benefit
+CTA
 ```
 
-The exact node set should remain small until validated.
+Must exercise:
 
-### Alternative: Lexical
+- authored VO;
+- visuals/graphics;
+- several Cues within a Beat;
+- several ShotIntents for one Beat;
+- target runtime.
 
-Lexical is a credible alternative, especially if the React integration proves simpler for the required structured operations. The spike should not deeply couple domain persistence to an editor framework; editor state should map cleanly into Salai domain objects.
+#### Fixture B — 2-minute interview/corporate piece
 
-## Interchange
+Audio-driven structure combining:
 
-### Fountain
+- SourceExcerpts;
+- authored VO bridges;
+- B-roll while interview audio continues;
+- several audiovisual Cues per Beat.
 
-Fountain is useful as a screenplay-oriented import/export format and should be treated as interoperability rather than canonical storage.
+Must validate authored-vs-sourced semantics.
+
+#### Fixture C — footage-first mini documentary
+
+Start from mocked `MediaSegment[]` and construct the narrative using SourceExcerpts and visual source references.
+
+Must prove the same domain model works without a blank-page script origin.
+
+A traditional screenplay/dialogue scene may be added later as a stress fixture, but should not shape the initial model.
+
+### Identity/invariant tests
+
+At minimum:
 
 ```text
-Fountain
-   ↕ importer/exporter
-Salai semantic model
+edit Beat/Cue content
+→ identity unchanged
+
+move Beat/Cue
+→ identity unchanged
+→ relationships unchanged
+
+split Beat
+→ one original ID retained
+→ one new ID created
+→ relationship outcome explicit/tested
+
+merge Beats
+→ one canonical ID retained
+→ provenance recorded
+
+remove narrative object with external links
+→ external object not silently deleted
+→ orphan/reassignment state explicit
+
+serialize → deserialize
+→ IDs/order/content/relationships/runtime semantics preserved
 ```
-
-A Fountain export will necessarily lose some Salai-specific information such as:
-
-- ShotIntent links;
-- asset relationships;
-- Resolve bindings;
-- generation provenance;
-- review relationships.
-
-Those remain in the Salai project.
-
-### FDX and other formats
-
-FDX may be supported later through permissively licensed parsers/libraries if demand justifies it. The scripting spike should not become an interchange project.
-
-## Persistence
-
-The canonical production graph remains SQLite/domain data.
-
-The first spike should determine whether editor documents are best persisted as:
-
-1. normalized narrative/domain tables plus editor projection state;
-2. a structured JSON document with indexed domain objects;
-3. a hybrid approach.
-
-Regardless of storage shape, stable object IDs and relationships are requirements.
-
-Do not make rendered HTML or Fountain text the canonical source of truth.
-
-## Scripting spike
-
-The next product-risk spike should work without Resolve.
-
-### Prototype UI
-
-One intentionally simple Electron screen:
-
-```text
-┌───────────────────────────────────────────┐
-│ STORY                                     │
-│                                           │
-│ Target: 00:30            Estimate: 00:34  │
-│                                           │
-│ HOOK                                      │
-│ ┌────────────────┬──────────────────────┐ │
-│ │ VISUAL         │ AUDIO                │ │
-│ │ Product close  │ "This used to take  │ │
-│ │                │ twenty minutes."     │ │
-│ └────────────────┴──────────────────────┘ │
-│                                           │
-│ PROBLEM                                   │
-│ ┌────────────────┬──────────────────────┐ │
-│ │ ...            │ ...                  │ │
-│ └────────────────┴──────────────────────┘ │
-│                                           │
-│ + Beat                                    │
-└───────────────────────────────────────────┘
-```
-
-### Required experiments
-
-1. Create sections and Beats.
-2. Write/edit visual and audio content.
-3. Move/reorder Beats without changing identity.
-4. Split and merge Beats and inspect relationship behavior.
-5. Toggle between Outline and AV Script views.
-6. Derive a Teleprompter view from the same model.
-7. Link dummy ShotIntents to Beats.
-8. Persist/reopen the document with IDs and relationships intact.
-9. Set a target duration and continuously estimate runtime.
-10. Have an LLM propose a structural rewrite as explicit operations.
-11. Review/apply/reject the AI structural patch.
-12. Import/export a small Fountain sample.
-13. Create a small reverse-script structure from mocked footage-derived MediaSegments.
 
 ### Success criteria
 
-The spike succeeds if:
+Spike 0A succeeds if:
 
-- the user can author naturally without feeling like they are editing database rows;
-- structural objects retain reliable identity through normal editing;
-- one semantic model can power Outline, AV Script, and Teleprompter views;
-- ShotIntent relationships remain understandable after common edits;
-- AI can propose meaningful structural changes without replacing the entire document;
-- runtime constraints are useful during authoring;
-- footage-first narrative construction fits the same model without a second scripting system.
+- all three fixtures fit the same core types without special-case schemas;
+- Beat and Cue remain meaningfully different concepts;
+- authored speech and sourced excerpts coexist naturally;
+- stable identity survives common structural changes;
+- relationship behavior is explicit rather than accidental;
+- runtime estimates are structurally useful;
+- useful script revisions can be represented through the operation vocabulary.
 
-## Explicit non-goals for this spike
+If the fixtures require fundamentally different data models, the hypothesis fails and should be revised before UI work.
+
+## Spike 0B — Authoring UX
+
+### Question
+
+Can humans comfortably author and restructure the validated Narrative IR?
+
+Only after 0A succeeds, build a small React prototype exposing:
+
+- Outline view;
+- AV Script view;
+- derived Teleprompter view;
+- reordering;
+- Cue creation/removal;
+- editing authored blocks;
+- viewing SourceExcerpts as media-backed evidence;
+- target/estimated runtime.
+
+Evaluate whether plain React editable controls are sufficient or whether Tiptap/ProseMirror/Lexical materially improve the experience.
+
+Electron is optional for this UX spike; it should not be required to answer the authoring question.
+
+## Spike 0C — Assisted authoring
+
+### Question
+
+Can an LLM safely propose useful narrative restructuring through the validated operation API?
+
+Add:
+
+- structured LLM input derived from the Narrative IR;
+- operation-schema output;
+- validation;
+- reviewable diff/patch UI;
+- apply/reject;
+- runtime before/after;
+- relationship impact summary.
+
+The LLM must not bypass the domain operation layer.
+
+## Explicit non-goals for Spike 0A
 
 Do not build:
 
-- a complete Final Draft replacement;
-- page-perfect screenplay formatting;
-- locked pages/revision colors;
-- production scheduling;
-- full collaboration/CRDT infrastructure;
-- real Resolve integration;
-- real computer-vision footage analysis;
-- every screenplay interchange format;
-- a polished visual design system;
-- autonomous script writing that bypasses review.
+- Electron application shell;
+- Python/FastAPI service;
+- SQLite persistence;
+- Tiptap/ProseMirror integration;
+- real LLM calls;
+- Fountain/FDX interchange;
+- Resolve integration;
+- real transcription/computer vision;
+- polished UI;
+- collaboration/CRDT;
+- full screenplay formatting.
 
-The purpose of the spike is to validate the semantic authoring model before broader application implementation.
+The purpose of 0A is to make changing the model cheap while testing the highest-risk assumptions.
