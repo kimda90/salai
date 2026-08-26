@@ -42,6 +42,20 @@ Salai should maintain one semantic project model while allowing users to work th
 
 Users should not need to understand Salai's internal data model to use the product.
 
+## Product discovery observations
+
+Current product discovery has surfaced several concrete workflow observations that inform, but do not by themselves commit, requirements:
+
+- narrative thinking is often idea-first: the creator cares first about what the audience should understand or experience, not how many shots or lines are required;
+- one Beat may therefore need several Cues, while no additional semantic level below Cue has yet been justified;
+- creative validation is progressive: an idea may work on the page, fail when shot, or only reveal its strengths/weaknesses once edited in context;
+- rejected material is commonly retained nearby or in alternate timelines/versions rather than permanently deleted;
+- spatial proximity helps keep alternates "in hand" without cluttering the active sequence;
+- lower-friction previs could move meaningful creative feedback earlier, before expensive production or timeline work;
+- a mixed-media freeform canvas is a future research direction, not a committed product surface.
+
+See [`research-notes.md`](research-notes.md) for the evidence record and its current implications.
+
 ## Target users
 
 Primary initial audience:
