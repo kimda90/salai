@@ -12,6 +12,7 @@ Each kind of information has one authoritative home:
 | Product requirements / success criteria | [`prd.md`](prd.md) |
 | Discovery observations | [`research-notes.md`](research-notes.md) |
 | Spike 0A types, invariants, operations, fixtures/tests | [`narrative-ir-spec.md`](narrative-ir-spec.md) |
+| Spike 0A result / resolved implementation questions | [`spike-0a-assessment.md`](spike-0a-assessment.md) |
 | Creative workflow behavior | [`workflows.md`](workflows.md) |
 | System/runtime/persistence architecture | [`architecture.md`](architecture.md) |
 | Validation/implementation sequence | [`mvp.md`](mvp.md) |
@@ -42,7 +43,8 @@ In particular, the Narrative IR operation vocabulary must only be maintained in 
 | [`glossary.md`](glossary.md) | Canonical product/domain terminology | Living |
 | [`scripting.md`](scripting.md) | Conceptual rationale and scripting research | Living |
 | [`workflows.md`](workflows.md) | Familiar working surfaces: Story Wall, AV Script, Paper/Radio Edit, Outline, boards, and projections | Living |
-| [`narrative-ir-spec.md`](narrative-ir-spec.md) | Authoritative TDD / implementation contract for Spike 0A | Draft while spike is active |
+| [`narrative-ir-spec.md`](narrative-ir-spec.md) | Authoritative TDD / implementation contract for Spike 0A | Implemented baseline; revise when evidence changes contract |
+| [`spike-0a-assessment.md`](spike-0a-assessment.md) | Spike 0A result and resolutions of implementation questions | Completed assessment |
 
 ## Architecture and engineering decisions
 
@@ -80,7 +82,7 @@ Use an RFC for a major proposal whose consequences deserve discussion before com
 Draft → Proposed → Accepted / Rejected / Superseded
 ```
 
-The PR containing the RFC is the discussion surface.
+The PR containing an RFC is the discussion surface.
 
 ## ADRs
 
@@ -92,8 +94,8 @@ Accepted → Superseded
 
 # Current development focus
 
-**Spike 0A — Narrative IR implementation is now scaffolded in `packages/script-model/`.**
+**Spike 0A — Narrative IR is implemented and assessed as a pass.**
 
-The authoritative gate is [`narrative-ir-spec.md`](narrative-ir-spec.md). Implementation should use its operation vocabulary, invariants, fixture ownership, and pass/fail criteria directly.
+See [`spike-0a-assessment.md`](spike-0a-assessment.md) for the evidence and resolved open questions.
 
-Spike 0B will validate the Workspace/Board concepts through familiar UX before Phase 2 makes that workspace state durable.
+The next validation milestone is **Spike 0B — Authoring UX**, which will test Story Wall, Outline, AV Script, and Paper/Radio Edit over the same IR and define the minimum in-memory Workspace/Board model before Phase 2 persistence.
