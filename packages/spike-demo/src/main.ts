@@ -36,8 +36,13 @@ const fixtures: DemoFixture[] = [
   },
 ];
 
-const app = document.querySelector<HTMLElement>("#app");
-if (!app) throw new Error("Missing #app root");
+function getAppRoot(): HTMLElement {
+  const root = document.querySelector<HTMLElement>("#app");
+  if (!root) throw new Error("Missing #app root");
+  return root;
+}
+
+const app = getAppRoot();
 
 function escapeHtml(value: string): string {
   return value
