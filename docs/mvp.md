@@ -2,146 +2,289 @@
 
 ## MVP goal
 
-Validate that Salai's semantic scripting and production-graph model is useful before investing in broad Resolve, GenAI, or production-platform implementation.
+Validate Salai's semantic scripting and production-graph model before investing in broad Resolve, GenAI, or production-platform implementation.
 
 The largest current product uncertainty is not whether Resolve can be automated. CutMaster provides a credible path for that infrastructure. The larger unknown is whether one structured narrative model can support:
 
 - blank-page/script-first authoring;
 - AV-style visual/audio planning;
 - stable links to ShotIntents and later production assets;
-- runtime-constrained rewriting;
+- duration-aware restructuring;
 - footage-first/reverse scripting;
 - AI-assisted structural editing without destroying production relationships.
 
 The MVP should ultimately prove six things:
 
-1. A semantic script with stable object identity feels natural to author.
-2. Outline, AV Script, Teleprompter, and later coverage views can derive from the same model.
+1. One semantic narrative model can represent script-first and footage-first work.
+2. Narrative and audiovisual timing concepts can remain distinct without becoming cumbersome.
 3. Script objects can remain linked to ShotIntents/assets through revisions.
-4. Existing footage can become evidence for a narrative structure using the same model.
+4. Existing media can act as source evidence rather than being flattened into editable prose.
 5. Resolve can consume downstream decisions through CutMaster without Salai becoming an NLE.
 6. Generated media can enter the same production flow as captured media.
 
-## Phase 0 — Structured scripting spike
+# Phase 0 — Scripting foundation
 
-This is the current highest-priority product-risk spike.
+The previous single scripting spike is intentionally split into three smaller experiments so failures remain attributable.
 
-It should run without Resolve and without real footage analysis.
+## Phase 0A — Narrative IR
 
-### Core hypothesis
+This is the immediate implementation priority.
 
-A Salai script is not an opaque text document and is not necessarily a screenplay.
+### Core question
 
-It is a structured narrative model with stable IDs. Different authoring/production views are projections of that model.
+Can one stable semantic model represent:
 
-Initial semantic hierarchy:
+1. a short script-first product video;
+2. an audio-driven interview/corporate piece;
+3. a footage-first mini-documentary;
+
+without separate schemas or large amounts of workflow-specific logic?
+
+### Model hypothesis
 
 ```text
 Script
-├── Section / optional Scene
-│   ├── Beat
-│   │   ├── visual content
-│   │   ├── audio content
-│   │   ├── duration intent
-│   │   └── relationships
-│   └── Beat
 └── Section
+    └── Beat                 semantic narrative unit
+        ├── Cue              audiovisual/temporal moment
+        │   ├── visual[]
+        │   └── audio[]
+        └── Cue
 ```
 
-`Beat` is the initial smallest narrative unit Salai reasons about.
+`Scene` is optional for projects that need traditional scene structure.
 
-### Initial editor direction
-
-Prototype with Tiptap / ProseMirror using custom schema nodes and stable IDs.
-
-Keep the first schema intentionally small:
+The important distinction to validate is:
 
 ```text
-salaiDocument
-section
-beat
-visualBlock
-voiceoverBlock
-dialogueBlock
-onscreenTextBlock
-noteBlock
+Beat = what the story means/does
+Cue  = what happens audiovisually at a moment
 ```
 
-Lexical remains a fallback candidate if the spike reveals a materially better fit.
+A Beat can therefore contain several AV rows/moments without being split into several narrative ideas.
 
-### Required experiments
+### Content semantics
 
-1. Create sections and Beats.
-2. Edit visual and audio content naturally.
-3. Move/reorder Beats while preserving identity.
-4. Split and merge Beats and define relationship behavior.
-5. Toggle between Outline and AV Script views.
-6. Derive a Teleprompter view from the same document.
-7. Link dummy ShotIntents to Beats.
-8. Persist/reopen with IDs and links intact.
-9. Set a target duration and continuously estimate runtime.
-10. Have an LLM propose a rewrite as explicit structured operations rather than replacement text.
-11. Review/apply/reject the AI patch.
-12. Import/export a small Fountain example.
-13. Build a small reverse-script structure from mocked footage-derived MediaSegments.
-
-### Structural identity rules to validate
-
-Initial hypothesis:
-
-- text edits preserve object ID;
-- move/reorder preserves object ID;
-- split creates a new object and requires explicit relationship redistribution;
-- merge retains one canonical ID and records provenance from the merged object;
-- delete does not silently delete linked production objects;
-- structural operations are transactional and undoable.
-
-### AI editing rule
-
-Do not use:
+The first model must distinguish authored copy from media-backed source material.
 
 ```text
-script blob → LLM → replacement script blob
+AuthoredSpeech
+- editable text created for the production
+
+SourceExcerpt
+- reference to an existing MediaSegment
+- source in/out
+- transcript display/snapshot
 ```
 
-Prefer:
+Editing a SourceExcerpt transcript must not imply that the underlying recorded media changed.
+
+### Implementation boundary
+
+Implement as a pure TypeScript package:
 
 ```text
-structured script
-      ↓
-LLM proposed operations
-      ↓
-reviewable patch
-      ↓
-transaction
+packages/script-model/
 ```
 
-Example operations:
+Do not introduce UI/runtime/infrastructure dependencies in 0A.
+
+### Required capabilities
+
+- explicit `Script`, `Section`, optional `Scene`, `Beat`, `Cue`, and `ContentBlock` types;
+- stable IDs;
+- minimal typed visual/audio blocks;
+- `AuthoredSpeech` and `SourceExcerpt` semantics;
+- Beat/Cue ↔ ShotIntent references;
+- SourceExcerpt ↔ MediaSegment references;
+- create/update/move/split/merge/delete operations;
+- serialization/deserialization;
+- duration estimation;
+- validation/invariants;
+- explicit structural operation format;
+- invertible/undoable operations where practical.
+
+### Required fixtures
+
+#### Fixture A — 30-second product video
+
+Script-first:
 
 ```text
-update beat_17.audio.voiceover
-remove beat_16
-move beat_18 before beat_17
-insert new beat after beat_21
+Hook
+Problem
+Demo
+Benefit
+CTA
 ```
+
+Exercises authored VO, graphics/visual descriptions, several Cues per Beat, ShotIntent references, and target duration.
+
+#### Fixture B — 2-minute interview/corporate piece
+
+Exercises SourceExcerpts, authored VO bridges, B-roll over interview audio, and audiovisual overlap.
+
+#### Fixture C — footage-first mini-documentary
+
+Starts from mocked `MediaSegment[]` and constructs the narrative using sourced evidence.
+
+The same core domain types must support all three fixtures.
+
+### Identity rules to test
+
+```text
+edit fields
+→ same ID
+
+move/reorder
+→ same ID and links
+
+split Beat
+→ one original ID retained
+→ one new ID created
+→ relationship policy explicit
+
+merge Beats
+→ one canonical ID retained
+→ provenance from merged Beat recorded
+
+delete narrative object
+→ linked external production objects are not silently deleted
+
+serialize/deserialize
+→ IDs/order/content/relationships preserved
+```
+
+### Duration hypothesis
+
+A Cue is approximately concurrent audiovisual content:
+
+```text
+Cue duration = explicit duration
+  OR max(
+    authored speech estimate,
+    SourceExcerpt duration,
+    visual hold estimate
+  )
+
+Beat duration = sum(Cues)
+```
+
+The estimate needs to be useful for authoring, not frame-accurate.
+
+### Operation vocabulary
+
+Useful changes should be expressible as explicit operations before any real LLM is introduced.
+
+Candidate operations:
+
+```text
+createSection
+createBeat
+createCue
+updateBlock
+moveBeat
+moveCue
+splitBeat
+mergeBeats
+deleteBeat
+linkShotIntent
+unlinkShotIntent
+linkSourceExcerpt
+```
+
+A manually authored patch should be able to restructure a script while preserving IDs and reporting relationship effects.
 
 ### Success criterion
 
-The scripting spike succeeds when one semantic model can support Outline, AV Script, and Teleprompter views while preserving stable IDs/relationships through common edits, and when both script-first and mocked footage-first authoring fit the same model.
+0A succeeds if:
 
-See `docs/scripting.md` for the detailed model and open questions.
+- all three fixtures fit the same core model without special-case schemas;
+- Beat and Cue remain meaningfully different concepts;
+- authored and sourced speech coexist naturally;
+- common edits preserve identity predictably;
+- relationship outcomes are explicit;
+- runtime estimation is structurally useful;
+- meaningful revisions can be represented as domain operations.
 
-## Phase 0.5 — Electron / local service shell
+No UI is required to pass 0A.
 
-Build only enough desktop runtime to host the scripting prototype and prove local application lifecycle.
+See `docs/scripting.md` for the detailed model.
+
+## Phase 0B — Authoring UX
+
+Only after the Narrative IR is credible, test whether humans can comfortably edit it.
+
+### Minimal UI
+
+Build a small React prototype supporting:
+
+- Outline view: Section → Beat;
+- AV Script view: Beat → Cue → Visual | Audio;
+- derived Teleprompter view;
+- create/edit/reorder Beats and Cues;
+- authored text editing;
+- read-only/media-backed SourceExcerpt presentation;
+- target and estimated runtime;
+- simple ShotIntent relationship display.
+
+### Editor framework decision
+
+Do not assume Tiptap/ProseMirror is the canonical document model.
+
+First test a normal React projection of the domain model. Add Tiptap/ProseMirror or Lexical only if richer text editing materially improves the authoring experience.
+
+### Success criterion
+
+A user can author naturally without feeling like they are editing database rows, while the UI remains a projection of the same domain model validated in 0A.
+
+## Phase 0C — Assisted authoring
+
+Only after the operation API and authoring UI are stable enough to inspect changes.
+
+### Core question
+
+Can an LLM propose useful structural changes without bypassing stable identity and relationship rules?
+
+### Flow
+
+```text
+Narrative IR
+    ↓
+LLM proposes domain operations
+    ↓
+validate patch
+    ↓
+show structural/runtime/relationship diff
+    ↓
+review / apply / reject
+```
+
+Example:
+
+```text
+update authored speech in cue_12
+move beat_4 after beat_1
+delete beat_2
+```
+
+The UI should show runtime before/after and any relationship impact.
+
+### Success criterion
+
+AI-assisted restructuring behaves like a reviewable transaction against the same operation system humans use, rather than whole-document replacement.
+
+# Phase 1 — Minimal desktop/local service shell
+
+Once the narrative model and basic authoring UX are viable, package the prototype as real local production software.
 
 ### Electron responsibilities
 
 - launch the local Python service;
 - wait for a health/ready signal;
-- open the React renderer;
-- choose/open a real local project directory;
-- retain the project path across sessions;
+- host the React renderer;
+- choose/open a real project directory;
+- retain local project access;
 - expose a narrow secure preload API.
 
 Use:
@@ -153,21 +296,18 @@ Use:
 
 - FastAPI HTTP/WebSocket API;
 - SQLite project state;
-- scripting/domain persistence;
 - later filesystem/media/Resolve/GenAI integrations.
 
-### Success criterion
+Do not move the canonical Narrative IR into Python merely because persistence lives there; TypeScript and Python boundaries should use an explicit versioned schema.
 
-The structured scripting prototype persists as a real local Salai project inside the Electron application without relying on browser filesystem permissions.
+# Phase 2 — Production graph foundation
 
-## Phase 1 — Production graph foundation
-
-Once the scripting model is validated, formalize the minimum domain graph around it.
+Formalize downstream relationships after the script model is stable.
 
 Implement:
 
 - Project
-- NarrativeNode
+- Script/domain narrative objects
 - ShotIntent
 - Asset
 - MediaSegment
@@ -179,22 +319,15 @@ Use SQLite. Do not introduce a graph database.
 
 ### Required flow
 
-1. Create a script containing Sections/Beats.
-2. Link one Beat to several ShotIntents.
-3. Link a dummy Asset/MediaSegment realization to a ShotIntent.
-4. Edit/reorder/split narrative content and inspect how those links behave.
+1. Persist the validated Narrative IR.
+2. Link Beat/Cue objects to ShotIntents.
+3. Link dummy MediaSegments/Assets to ShotIntents or SourceExcerpts.
+4. Edit/reorder/split narrative content and inspect relationship behavior.
 5. Query coverage from the graph.
 
-Success means Salai can answer:
+# Phase 3 — CutMaster / Resolve vertical slice
 
-- What visual/production intent supports this Beat?
-- Which ShotIntents have no realization?
-- Which assets/segments realize a ShotIntent?
-- Which production relationships changed when the script structure changed?
-
-## Phase 1.5 — CutMaster / Resolve vertical slice
-
-Resolve integration is still required, but it follows the scripting model rather than driving it.
+Resolve integration follows the scripting/production model rather than driving it.
 
 Do not write broad Resolve wrappers from scratch.
 
@@ -204,7 +337,7 @@ Prove:
 Salai → CutMaster → DaVinci Resolve Studio
 ```
 
-### Required experiments
+Required experiments:
 
 - read current project/timeline context;
 - identify Media Pool/timeline items;
@@ -218,11 +351,9 @@ Salai → CutMaster → DaVinci Resolve Studio
 - inspect identifier behavior across restart/duplication/export-import;
 - determine polling/event strategy for current Resolve context.
 
-### Adoption criterion
+If CutMaster covers the required vertical slice reliably, keep it as upstream Resolve infrastructure.
 
-If CutMaster covers the required vertical slice reliably, keep it as upstream Resolve infrastructure and add only small Salai-specific adapters where required.
-
-## Phase 2 — Asset boundary / OpenAssetIO spike
+# Phase 4 — Asset boundary / OpenAssetIO spike
 
 Use OpenAssetIO only at the asset boundary.
 
@@ -242,41 +373,29 @@ Required experiments:
 - resolve it to a local path;
 - publish/register a new asset;
 - preserve identity if concrete location changes;
-- determine the minimal Salai trait set;
-- confirm narrative queries remain ordinary domain operations rather than OpenAssetIO calls.
+- determine the minimal Salai trait set.
 
-## Phase 3 — Reverse scripting with real media
+# Phase 5 — Reverse scripting with real media
 
-Move from mocked MediaSegments to real footage-derived material.
+Replace mocked SourceExcerpts/MediaSegments with real media-derived material.
 
-The purpose is not to build a full semantic-search product. It is to test whether footage can become narrative evidence.
-
-### Minimal pipeline
+Minimal pipeline:
 
 ```text
 local media
    ↓
-transcript / simple visual description / metadata
+transcript / lightweight visual description / metadata
    ↓
 MediaSegments
    ↓
-topic/moment grouping
+user/AI selection and grouping
    ↓
-proposed Beats with source relationships
+Beats/Cues with SourceExcerpt relationships
 ```
 
-### Required flow
+Success means the Narrative IR behaves the same way with real evidence as it did with mocked Fixture C.
 
-1. Ingest a small interview/B-roll dataset.
-2. Produce transcript-derived segments and lightweight visual descriptions.
-3. Let the user select moments as narrative evidence.
-4. Ask AI to propose a short structure.
-5. Create Beats already linked to their source MediaSegments.
-6. Rewrite/reorder the structure while retaining those links.
-
-Success means footage-first work uses the same scripting model as blank-page authoring.
-
-## Phase 4 — Paper edit
+# Phase 6 — Paper edit
 
 Create a story-level edit representation independent from a Resolve timeline.
 
@@ -284,32 +403,18 @@ A PaperEdit is an ordered set of narrative/media choices with approximate durati
 
 Required operations:
 
-- select narrative Beats;
+- select narrative Beats/Cues;
 - choose linked MediaSegments/realizations;
 - reorder structure;
 - duplicate into alternatives;
 - compare structural differences;
 - materialize the chosen version as a Resolve timeline through CutMaster.
 
-OpenTimelineIO may be derived for interchange, but the Salai PaperEdit model retains narrative information beyond OTIO.
+OpenTimelineIO may be derived for interchange, but PaperEdit retains Salai narrative semantics.
 
-No frame-accurate NLE UI should be built.
+# Phase 7 — GenAI production-media spike
 
-## Phase 5 — GenAI backend spike
-
-Add generation only after ShotIntent and asset relationships work with ordinary media.
-
-Initial provider-neutral interface:
-
-```text
-GenerationBackend
-- capabilities()
-- validate(request)
-- submit(request)
-- status(job)
-- cancel(job)
-- result(job)
-```
+Add generation only after ShotIntent and ordinary media relationships work.
 
 Initial operations:
 
@@ -320,84 +425,57 @@ Initial backend: ComfyUI.
 
 Required flow:
 
-1. Beat requires a ShotIntent.
-2. ShotIntent has no usable realization.
+1. Beat/Cue requires a ShotIntent.
+2. ShotIntent lacks a realization.
 3. User requests a generated alternative.
-4. Salai fills a registered Comfy workflow manifest.
-5. Output is copied/published into project-controlled storage.
-6. Output becomes a normal Salai Asset.
-7. Asset is linked as a ShotIntent realization.
-8. Asset is imported into Resolve through CutMaster.
-9. Where useful, it is added as another Resolve take.
+4. Salai executes a registered Comfy workflow.
+5. Output becomes a normal Asset with provenance.
+6. Asset is linked to the ShotIntent.
+7. Asset is imported into Resolve through CutMaster.
+8. Where useful, it becomes another Resolve take.
 
-Generated output never overwrites source media and retains provenance.
+# Interchange after the model stabilizes
 
-## Phase 6 — Broader AI-assisted reasoning
+Fountain and FDX are useful interoperability targets, but they are intentionally excluded from Narrative IR Spike 0A.
 
-Only after the structured script and production graph work manually.
+Once the model is validated:
 
-Potential capabilities:
+```text
+Fountain / FDX
+      ↕ adapters
+Salai Narrative IR
+```
 
-- develop an idea into sections/beats;
-- rewrite to target duration;
-- compare alternative structures;
-- suggest ShotIntents from visual narrative needs;
-- suggest MediaSegment ↔ ShotIntent relationships;
-- identify missing coverage;
-- propose footage-first structures;
-- explain changes before applying them;
-- decide whether a missing realization should be searched, shot, generated, or left as placeholder.
+Do not let interchange formats determine canonical storage or relationship semantics.
 
-AI suggestions remain reviewable and should carry provenance/confidence where appropriate.
-
-## Explicit non-goals for early MVP
+# Explicit non-goals for Spike 0A
 
 Do not build:
 
-- a complete Final Draft replacement;
-- page-perfect screenplay formatting;
-- locked pages/revision colors;
-- a frame-accurate NLE;
-- a standalone color/compositing/audio system;
-- broad custom Resolve scripting already covered by CutMaster;
-- a custom asset-resolution standard already covered by OpenAssetIO;
-- a ComfyUI node editor;
-- a generic MAM;
-- broad cloud collaboration;
-- full CRDT/multi-user editing before the local model is validated;
-- every screenplay interchange format;
-- every GenAI provider.
+- Electron;
+- Python/FastAPI;
+- SQLite;
+- Tiptap/ProseMirror/Lexical integration;
+- real LLM calls;
+- Fountain/FDX parsing;
+- Resolve integration;
+- real transcription/computer vision;
+- collaboration/CRDT;
+- polished UI;
+- full screenplay formatting.
 
-## First product validation scenario
+# Immediate implementation stack
 
-Use one concrete 30–60 second piece.
+For **Spike 0A only**:
 
-### Script-first
+```text
+TypeScript
+pnpm
+unit tests
+packages/script-model/
+```
 
-1. Start with an idea.
-2. Build 5–8 Beats using Outline view.
-3. Switch to AV Script view and author visual/audio intent.
-4. Set a 30- or 60-second target and refine against runtime estimate.
-5. Link 8–15 ShotIntents.
-6. Ask AI for a shorter structural alternative and review the patch.
-
-### Footage-first
-
-7. Start a second version from a small set of interview/B-roll MediaSegments.
-8. Build/propose Beats with source relationships.
-9. Compare the footage-first and blank-page structures.
-
-### Downstream production
-
-10. Link real footage realizations.
-11. Observe coverage gaps.
-12. Generate one missing realization through ComfyUI.
-13. Build two PaperEdit alternatives.
-14. Materialize one into Resolve through CutMaster.
-
-The first milestone should stop much earlier than step 14: the immediate goal is to validate steps 1–9 before expanding downstream.
-
-## Initial implementation stack
+Broader planned stack remains:
 
 ```text
 Desktop/UI
@@ -405,7 +483,6 @@ Desktop/UI
 - React
 - TypeScript
 - Vite
-- Tiptap / ProseMirror (initial scripting editor candidate)
 - pnpm
 
 Backend
@@ -416,13 +493,11 @@ Backend
 - uv
 
 Infrastructure
-- CutMaster (Resolve automation)
-- OpenAssetIO (asset identity/resolution boundary)
-- OpenTimelineIO (editorial interchange)
-- ComfyUI (initial GenAI execution)
-- FFmpeg / ffprobe (media utilities)
-
-Interchange
-- Fountain import/export initially
-- FDX later if justified
+- CutMaster
+- OpenAssetIO
+- OpenTimelineIO
+- ComfyUI
+- FFmpeg / ffprobe
 ```
+
+The immediate goal is intentionally smaller than the application architecture: prove the narrative model before building the application around it.
