@@ -1,0 +1,13 @@
+{
+  "name": "@salai/spike-demo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "vite": "^7.1.0"
+  }
+}
