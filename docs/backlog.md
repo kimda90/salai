@@ -4,101 +4,76 @@ This is the lightweight product backlog while Salai is still in discovery and sp
 
 ## Priority model
 
-- **NOW** — required to retire the current Narrative IR risk.
-- **NEXT** — only after the current milestone succeeds.
+- **DONE** — validated enough to move to the next risk; revisit only when new evidence requires it.
+- **NOW** — required to retire the current product/technical risk.
+- **NEXT** — follows the current milestone.
 - **LATER** — important product direction, intentionally deferred.
 
-# NOW — Spike 0A: Narrative IR
+# DONE — Spike 0A: Narrative IR
 
-## Epic: semantic narrative model
+Spike 0A implemented and validated the core Narrative IR in `packages/script-model/`.
 
-- As a videographer, I want a story represented as stable semantic units so normal rewriting does not disconnect it from production context.
-- As a writer/editor, I want Beats to represent narrative progression independently from the number of shots or spoken lines needed to express them.
-- As a writer/editor, I want Cues to represent audiovisual moments within a Beat so one idea can span several visual/audio changes.
-- As an editor, I want sourced interview material distinguished from authored copy so changing the script never pretends recorded words changed.
+Completed evidence includes:
 
-### Acceptance work
+- stable `Script / Section / Scene? / Beat / Cue / ContentBlock` identity;
+- authored `AuthoredSpeech` vs media-backed `SourceExcerpt` semantics;
+- mocked `ShotIntent` and `MediaSegment` references;
+- the authoritative 27-operation structural API;
+- move/split/merge/delete relationship behavior;
+- transactional validation;
+- schema-versioned serialization round trip;
+- runtime estimation;
+- three representative fixtures for product, interview/corporate, and footage-first documentary work.
 
-- Define `Script`, `Section`, optional `Scene`, `Beat`, `Cue`, and minimal content-block types.
-- Define stable ID rules.
-- Define `AuthoredSpeech` and `SourceExcerpt` semantics.
-- Define Beat/Cue links to `ShotIntent`.
-- Define SourceExcerpt links to mocked `MediaSegment`.
+See [`spike-0a-assessment.md`](spike-0a-assessment.md) for the conclusions and known limitations.
 
-## Epic: structural editing semantics
+# NOW — Spike 0B: familiar authoring workflows
 
-- As a user, I want to reorder story units without losing their identity or links.
-- As a user, I want to split or merge Beats without hidden relationship loss.
-- As a user, I want deleting narrative structure to leave linked production material intact unless I explicitly delete that material too.
-- As a future AI-assisted user, I want changes represented as reviewable operations rather than opaque whole-document replacement.
+## Epic: shared UX foundation
 
-### Acceptance work
-
-- Implement create/update/move/delete operations.
-- Implement split/merge semantics.
-- Define relationship effects explicitly.
-- Support operation validation and useful failure states.
-- Make operations invertible where practical.
-
-## Epic: serialization and timing
-
-- As a user, I want the project to reopen with the same narrative identity, ordering, content, and relationships.
-- As a videographer, I want approximate duration while writing so I can target 15/30/60/90-second formats before the timeline exists.
+- As a creator, I want familiar working surfaces to manipulate one Narrative IR rather than separate documents.
+- As a user, I want the same Beat/Cue/source identity to survive when I switch working methods.
+- As a user, I should not need to understand graph/database concepts to use Salai.
 
 ### Acceptance work
 
-- Add schema versioning.
-- Serialize/deserialize all Spike 0A objects.
-- Verify round-trip invariants.
-- Estimate authored speech duration.
-- Use source duration for SourceExcerpt.
-- Support explicit Cue duration and simple visual-hold estimates.
-
-## Epic: representative fixtures
-
-- As the product team, we want the model exercised against realistic work rather than toy examples.
-
-### Required fixtures
-
-1. 30-second product/branded video.
-2. 2-minute interview/corporate piece with authored VO and source excerpts.
-3. Footage-first mini-documentary built from mocked MediaSegments.
-
-### Exit criterion
-
-All three use the same core model without separate schemas or workflow-specific hacks.
-
-# NEXT — Spike 0B: familiar authoring workflows
+- Build the smallest React prototype needed to exercise the validated script model.
+- Define the minimum in-memory `Workspace / Board / BoardItem / IdeaCard` model.
+- Keep workspace layout state separate from canonical narrative semantics.
+- Test mixed Scene/direct-Beat hierarchy in real authoring UI.
+- Test whether `Cue` needs to be exposed as user-facing terminology in each surface.
 
 ## Epic: Outline
 
-- As a writer, I want a compact hierarchical view of Sections/Scenes/Beats so I can shape overall structure quickly.
-- As a writer, I want reordering in Outline to modify the same Narrative IR used everywhere else.
+- As a writer/editor, I want a compact hierarchical view of Sections/Scenes/Beats so I can shape overall structure quickly.
+- As a writer/editor, I want reordering in Outline to invoke the same Narrative IR operations used everywhere else.
 
 ## Epic: AV Script
 
 - As a videographer, I want visual and audio intent side by side so I can plan how each Beat is expressed.
-- As a videographer, I want several Cues inside one Beat so I do not have to turn every shot change into a new narrative idea.
+- As a videographer, I want several Cues inside one Beat so shot/AV changes do not force artificial narrative fragmentation.
+- As a user, I want runtime feedback while authoring.
 
 ## Epic: Story Wall / Beat Board
 
 - As an editor, I want scene/beat cards arranged spatially so I can reason about structure before touching a timeline.
 - As an editor, I want to move rejected or uncertain ideas to a visible parking-lot area instead of deleting them.
 - As a creator, I want loose IdeaCards that do not become canonical narrative objects until I choose to promote them.
+- As a user, I want spatial movement distinguished from intentional narrative reordering.
 
 ## Epic: Paper / Radio Edit
 
-- As a documentary editor, I want source excerpts arranged into a story while preserving their source time ranges.
-- As an interview editor, I want to build an audio-first radio edit before solving visuals.
-- As a user, I want authored VO and sourced interview excerpts to coexist clearly.
+- As a documentary editor, I want SourceExcerpts arranged into a story while preserving their source ranges.
+- As an interview editor, I want an audio-first radio-edit workflow before solving visuals.
+- As a user, I want authored VO and sourced interview excerpts to remain visually and semantically distinct.
 
-## Epic: cross-workflow coherence
+## Spike 0B exit criterion
 
-- As a user, I want to switch between Story Wall, Outline, AV Script, and Paper/Radio Edit without exporting or maintaining duplicate documents.
+Users can recognize and move between Story Wall, Outline, AV Script, and Paper/Radio Edit without export/import, duplicate story documents, or exposure to the underlying production-graph implementation.
 
 # NEXT — Spike 0C: assisted authoring
 
-- As a user, I want AI to propose shorter or structurally different versions as explicit operations.
+- As a user, I want AI to propose shorter or structurally different versions as explicit Narrative IR operations.
 - As a user, I want to review structural, runtime, and relationship consequences before accepting AI changes.
 - As a user, I want AI suggestions to respect sourced evidence and never rewrite recorded speech as if it were authored copy.
 
@@ -113,6 +88,7 @@ All three use the same core model without separate schemas or workflow-specific 
 
 - As a user, I want project state stored locally and recoverable after restart/crash.
 - As the product, we want a versioned persistence boundary that does not make UI/editor state canonical.
+- Persist the workspace semantics proven in 0B without moving layout metadata into Narrative IR objects.
 
 # LATER — production graph and coverage
 
@@ -156,6 +132,6 @@ These are explicit research directions, not committed product requirements.
 
 # Backlog hygiene
 
-A backlog item should only move into **NOW** if it directly contributes to the current milestone's pass/fail question.
+A backlog item belongs in **NOW** only if it directly contributes to the current milestone's pass/fail question.
 
-For Spike 0A, avoid adding UI, Electron, Python, SQLite, Resolve, real LLM calls, Fountain/FDX, real transcription, GenAI implementation, previs implementation, or mixed-media canvas work.
+For Spike 0B, avoid pulling in Electron packaging, Python/FastAPI, SQLite persistence, Resolve integration, real LLM calls, real transcription/media analysis, GenAI execution, or the speculative mixed-media canvas unless a small mock is directly necessary to answer a workflow-UX question.

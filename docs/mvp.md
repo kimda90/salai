@@ -23,52 +23,22 @@ The MVP should ultimately prove:
 
 ## Spike 0A — Narrative IR
 
-**Current implementation priority.**
+**Status: complete / pass.**
 
-### Question
+The pure TypeScript Narrative IR is implemented in `packages/script-model/` and satisfies the current fixture/operation/serialization/runtime acceptance criteria.
 
-Can one stable semantic model represent:
+See:
 
-- a short script-first product video;
-- an interview/corporate piece mixing sourced and authored audio;
-- a footage-first mini-documentary;
+- [`narrative-ir-spec.md`](narrative-ir-spec.md) — implemented baseline contract;
+- [`spike-0a-assessment.md`](spike-0a-assessment.md) — result, evidence, resolved open questions, and remaining pressure points.
 
-without separate workflow-specific schemas?
-
-### Implementation boundary
-
-```text
-packages/script-model/
-TypeScript
-pnpm
-unit tests
-```
-
-No Electron, React, Python, SQLite, Resolve, real LLM, Fountain/FDX, or real media analysis is required.
-
-### Contract
-
-Use [`narrative-ir-spec.md`](narrative-ir-spec.md) as the single source of truth for:
-
-- hierarchy and type constraints;
-- stable identity rules;
-- authoritative structural operation vocabulary;
-- SourceExcerpt semantics;
-- split/merge/delete behavior;
-- serialization/versioning;
-- duration estimation;
-- required fixtures/tests;
-- open-question ownership and pass/fail criteria.
-
-### Exit criterion
-
-All required fixtures fit the same model and meaningful restructuring can be expressed through the authoritative operation API without a generic mutation escape hatch.
-
-Failure is valid evidence: change the model before building UI.
+The implementation demonstrated one model across product, interview/corporate, and footage-first documentary fixtures without a workflow-specific schema or generic mutation escape hatch.
 
 ## Spike 0B — Familiar authoring UX
 
-Only after 0A is credible, test whether people can comfortably author/restructure the model through familiar workflows.
+**Current validation priority.**
+
+Test whether people can comfortably author/restructure the validated model through familiar workflows.
 
 ### Minimum surfaces
 
@@ -93,6 +63,14 @@ IdeaCard
 This model may store layout/grouping metadata such as position, size, color, rotation, lane/group, and parking-lot state.
 
 0B does **not** require durable persistence yet. Phase 2 owns persisted Workspace state once the UX proves what needs to be stored.
+
+### 0A findings to pressure-test in UX
+
+- mixed direct Beats and Scenes inside one Section are allowed by the model; test whether this is understandable in Outline/Story Wall;
+- ShotIntent links may exist at Beat or Cue level; prefer Cue for concrete AV coverage and Beat for earlier high-level intent;
+- `Cue` is a useful domain concept but does not need to be exposed as terminology in every surface;
+- split relationship choices stay explicit at the domain layer even if the UI makes common choices easier;
+- workspace parking/layout state must not leak into Narrative IR semantics.
 
 ### Editor framework decision
 
@@ -292,4 +270,4 @@ Introduce only when required by validated workflows:
 
 # Current gate
 
-Implementation can proceed on Spike 0A once [`narrative-ir-spec.md`](narrative-ir-spec.md) is internally consistent. The spec's operation vocabulary and fixture-owned open questions are the implementation contract; summary docs should not duplicate them.
+Proceed to **Spike 0B — Familiar authoring UX** using the implemented `@salai/script-model` package as the canonical semantic model. If familiar workflow prototypes expose a genuine semantic failure, revise the Narrative IR based on that evidence rather than compensating with UI-specific state.

@@ -1,4 +1,7 @@
-// Spike 0A Narrative IR implementation entrypoint.
-// Domain types and operations will be added only as they are validated
-// against docs/narrative-ir-spec.md and the required fixtures.
-export {};
+export * from "./duration.js";
+export * from "./factory.js";
+export * from "./fixtures.js";
+export * from "./operation-api.js";
+export * from "./serialization.js";
+export * from "./types.js";
+export * from "./validation.js";
