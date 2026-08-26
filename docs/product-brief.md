@@ -27,6 +27,20 @@ Current hypothesis:
 
 The first implementation should test this model without Electron, Resolve, a real LLM, or a rich-text editor framework.
 
+## Product discovery evidence
+
+Current workflow observations reinforce several constraints without turning them into architecture commitments:
+
+- creators often think first in terms of the idea or narrative progression they want the audience to receive;
+- one Beat may require several audiovisual Cues;
+- no additional semantic layer below Cue has yet been justified by a concrete workflow need;
+- creative validation is progressive across reading/imagining, capture or generation, watching material, and editing in context;
+- rejected material is often retained nearby or in alternate versions rather than permanently deleted;
+- low-friction previs could move useful creative feedback earlier;
+- a mixed-media spatial canvas is a shelved research idea rather than a committed product surface.
+
+See `docs/research-notes.md` for the discovery record.
+
 ## Beat and Cue
 
 The working model separates narrative meaning from audiovisual timing.
