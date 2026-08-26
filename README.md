@@ -63,6 +63,7 @@ Start with [`docs/README.md`](docs/README.md) for the documentation map and life
 - [`docs/product-brief.md`](docs/product-brief.md) — concise product thesis, users, principles, and current direction.
 - [`docs/prd.md`](docs/prd.md) — Product Requirements Document: problem, users, requirements, objectives, non-goals, and success criteria.
 - [`docs/backlog.md`](docs/backlog.md) — user stories and NOW/NEXT/LATER backlog.
+- [`docs/research-notes.md`](docs/research-notes.md) — concrete workflow observations from product discovery; evidence rather than decisions.
 - [`docs/service-levels.md`](docs/service-levels.md) — SLA applicability and reliability policy; no external SLA at the current stage.
 - [`docs/mvp.md`](docs/mvp.md) — ordered technical/product validation phases and acceptance criteria.
 
