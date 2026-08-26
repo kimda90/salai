@@ -2,18 +2,37 @@ import {
   DomainOperationError,
   applyOperation as applyRawOperation,
   type DomainWarning,
-  type NarrativeOperation,
+  type NarrativeOperation as RawNarrativeOperation,
   type OperationResult,
   type ParentRef,
   type RelationshipEffect,
   type SplitRelationshipAssignment,
 } from "./operations.js";
-import type { NarrativeProject } from "./types.js";
+import type { Id, NarrativeProject } from "./types.js";
+
+type NonPatchOperation = Exclude<
+  RawNarrativeOperation,
+  | { op: "updateSection" }
+  | { op: "updateScene" }
+  | { op: "updateBeat" }
+  | { op: "updateCue" }
+>;
+
+export type NarrativeOperation =
+  | NonPatchOperation
+  | { op: "updateSection"; sectionId: Id; title?: string | null }
+  | { op: "updateScene"; sceneId: Id; title?: string | null }
+  | {
+      op: "updateBeat";
+      beatId: Id;
+      title?: string | null;
+      summary?: string | null;
+    }
+  | { op: "updateCue"; cueId: Id; explicitDurationMs?: number | null };
 
 export {
   DomainOperationError,
   type DomainWarning,
-  type NarrativeOperation,
   type OperationResult,
   type ParentRef,
   type RelationshipEffect,
@@ -23,34 +42,85 @@ export {
 function normalizePatchOperation(
   project: NarrativeProject,
   operation: NarrativeOperation,
-): NarrativeOperation {
+): RawNarrativeOperation {
   switch (operation.op) {
     case "updateSection": {
-      if ("title" in operation) return operation;
       const current = project.sections[operation.sectionId];
-      if (current === undefined) return operation;
-      return { ...operation, title: current.title };
+      if (current === undefined) {
+        return {
+          op: "updateSection",
+          sectionId: operation.sectionId,
+          title: operation.title === null ? undefined : operation.title,
+        };
+      }
+      return {
+        op: "updateSection",
+        sectionId: operation.sectionId,
+        title:
+          "title" in operation
+            ? operation.title === null
+              ? undefined
+              : operation.title
+            : current.title,
+      };
     }
     case "updateScene": {
-      if ("title" in operation) return operation;
       const current = project.scenes[operation.sceneId];
-      if (current === undefined) return operation;
-      return { ...operation, title: current.title };
+      if (current === undefined) {
+        return {
+          op: "updateScene",
+          sceneId: operation.sceneId,
+          title: operation.title === null ? undefined : operation.title,
+        };
+      }
+      return {
+        op: "updateScene",
+        sceneId: operation.sceneId,
+        title:
+          "title" in operation
+            ? operation.title === null
+              ? undefined
+              : operation.title
+            : current.title,
+      };
     }
     case "updateBeat": {
       const current = project.beats[operation.beatId];
-      if (current === undefined) return operation;
+      if (current === undefined) {
+        return {
+          op: "updateBeat",
+          beatId: operation.beatId,
+          title: operation.title === null ? undefined : operation.title,
+          summary: operation.summary === null ? undefined : operation.summary,
+        };
+      }
       return {
-        ...operation,
-        ...( "title" in operation ? {} : { title: current.title }),
-        ...( "summary" in operation ? {} : { summary: current.summary }),
+        op: "updateBeat",
+        beatId: operation.beatId,
+        title:
+          "title" in operation
+            ? operation.title === null
+              ? undefined
+              : operation.title
+            : current.title,
+        summary:
+          "summary" in operation
+            ? operation.summary === null
+              ? undefined
+              : operation.summary
+            : current.summary,
       };
     }
     case "updateCue": {
-      if ("explicitDurationMs" in operation) return operation;
       const current = project.cues[operation.cueId];
-      if (current === undefined) return operation;
-      return { ...operation, explicitDurationMs: current.explicitDurationMs };
+      return {
+        op: "updateCue",
+        cueId: operation.cueId,
+        explicitDurationMs:
+          "explicitDurationMs" in operation
+            ? operation.explicitDurationMs
+            : current?.explicitDurationMs,
+      };
     }
     default:
       return operation;
@@ -69,12 +139,12 @@ export function applyOperations(
   operations: readonly NarrativeOperation[],
 ): OperationResult {
   let model = input;
-  const changedIds = new Set<string>();
-  const createdIds = new Set<string>();
-  const removedIds = new Set<string>();
+  const changedIds = new Set<Id>();
+  const createdIds = new Set<Id>();
+  const removedIds = new Set<Id>();
   const relationshipEffects: RelationshipEffect[] = [];
   const warnings: DomainWarning[] = [];
-  let mergedBeatIds: string[] | undefined;
+  let mergedBeatIds: Id[] | undefined;
 
   for (const operation of operations) {
     const result = applyOperation(model, operation);
