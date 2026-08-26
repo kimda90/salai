@@ -197,7 +197,7 @@ The exact relationship redistribution rules for split/merge are product question
 
 ## Structural operation API
 
-The Narrative IR should expose explicit operations such as:
+The Narrative IR should expose explicit operations such as (abbreviated; the authoritative Spike 0A list is defined in [`narrative-ir-spec.md`](narrative-ir-spec.md)):
 
 ```text
 createSection
@@ -211,7 +211,8 @@ mergeBeats
 deleteBeat
 linkShotIntent
 unlinkShotIntent
-linkSourceExcerpt
+linkMediaSegment
+trimSourceExcerpt
 ```
 
 This API provides the common control surface for:
@@ -437,6 +438,7 @@ Backend
 - FastAPI
 - Pydantic
 - SQLite
+- uv
 
 Infrastructure
 - CutMaster

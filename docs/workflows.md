@@ -563,9 +563,9 @@ AI proposals should remain reviewable and should preserve the familiar workspace
 
 The Narrative IR remains Spike 0A.
 
-These familiar workflow surfaces primarily change **Spike 0B — Authoring UX**.
+These familiar workflow surfaces primarily shape **Spike 0B — Authoring UX**.
 
-0B should no longer test only Outline + AV Script. It should test whether the same Narrative IR can move naturally between several recognizable working methods.
+0B tests whether the same Narrative IR can move naturally between several recognizable working methods, not only Outline + AV Script.
 
 ### Minimum 0B surfaces
 

@@ -381,7 +381,7 @@ Potential later projection for scene headings, action, characters, and dialogue.
 
 The domain should expose explicit operations rather than arbitrary mutation.
 
-Candidate operation vocabulary:
+Candidate operation vocabulary (abbreviated; the authoritative Spike 0A list is defined in [`narrative-ir-spec.md`](narrative-ir-spec.md)):
 
 ```text
 createSection
@@ -395,7 +395,8 @@ mergeBeats
 deleteBeat
 linkShotIntent
 unlinkShotIntent
-linkSourceExcerpt
+linkMediaSegment
+trimSourceExcerpt
 ```
 
 The operation layer provides:
@@ -609,13 +610,19 @@ If the fixtures require fundamentally different data models, the hypothesis fail
 
 ### Question
 
-Can humans comfortably author and restructure the validated Narrative IR?
+Can humans comfortably author and restructure the validated Narrative IR through familiar working methods?
 
-Only after 0A succeeds, build a small React prototype exposing:
+Only after 0A succeeds, build a small React prototype testing four familiar surfaces over the same model (see `workflows.md`):
 
-- Outline view;
-- AV Script view;
-- derived Teleprompter view;
+- **Story Wall** — Beat/Scene cards for structural reordering;
+- **Outline** — hierarchical Section/Beat structure;
+- **AV Script** — Cue-based Visual/Audio authoring;
+- **Paper/Radio Edit** — SourceExcerpt-driven construction.
+
+Teleprompter remains a simple derived projection.
+
+The prototype must cover:
+
 - reordering;
 - Cue creation/removal;
 - editing authored blocks;
