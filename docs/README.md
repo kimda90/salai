@@ -52,6 +52,12 @@ In particular, the Narrative IR operation vocabulary must only be maintained in 
 | [`rfcs/`](rfcs/) | Major proposals that need review before commitment | Proposed / accepted / rejected |
 | [`adr/`](adr/) | Append-only records of accepted architectural decisions | Append-only |
 
+## Review records
+
+| Document | Role |
+| --- | --- |
+| [`review-response-2026-08.md`](review-response-2026-08.md) | Resolution record for the August 2026 documentation feedback pass |
+
 # Document lifecycle
 
 ## Discovery notes
