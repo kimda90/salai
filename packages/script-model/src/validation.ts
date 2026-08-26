@@ -32,6 +32,19 @@ function hasDuplicateIds(ids: readonly Id[]): boolean {
   return new Set(ids).size !== ids.length;
 }
 
+function isNonNegativeFinite(value: number): boolean {
+  return Number.isFinite(value) && value >= 0;
+}
+
+function isValidRange(sourceInMs: number, sourceOutMs: number): boolean {
+  return (
+    Number.isFinite(sourceInMs) &&
+    Number.isFinite(sourceOutMs) &&
+    sourceInMs >= 0 &&
+    sourceOutMs > sourceInMs
+  );
+}
+
 export function validateNarrativeProject(
   project: NarrativeProject,
 ): ValidationResult {
@@ -84,12 +97,12 @@ export function validateNarrativeProject(
 
   if (
     project.script.targetDurationMs !== undefined &&
-    project.script.targetDurationMs < 0
+    !isNonNegativeFinite(project.script.targetDurationMs)
   ) {
     issue(
       "invalid_duration",
       "script.targetDurationMs",
-      "targetDurationMs must be non-negative",
+      "targetDurationMs must be a non-negative finite number",
     );
   }
 
@@ -179,11 +192,14 @@ export function validateNarrativeProject(
     validateOrderedIds(cue.visualBlockIds, `cues.${cue.id}.visualBlockIds`);
     validateOrderedIds(cue.audioBlockIds, `cues.${cue.id}.audioBlockIds`);
 
-    if (cue.explicitDurationMs !== undefined && cue.explicitDurationMs < 0) {
+    if (
+      cue.explicitDurationMs !== undefined &&
+      !isNonNegativeFinite(cue.explicitDurationMs)
+    ) {
       issue(
         "invalid_duration",
         `cues.${cue.id}.explicitDurationMs`,
-        "explicitDurationMs must be non-negative",
+        "explicitDurationMs must be a non-negative finite number",
       );
     }
 
@@ -230,11 +246,11 @@ export function validateNarrativeProject(
   requireHierarchyOwner(project.blocks, "blocks");
 
   for (const segment of Object.values(project.mediaSegments)) {
-    if (segment.sourceInMs < 0 || segment.sourceOutMs <= segment.sourceInMs) {
+    if (!isValidRange(segment.sourceInMs, segment.sourceOutMs)) {
       issue(
         "invalid_media_range",
         `mediaSegments.${segment.id}`,
-        "MediaSegment sourceOutMs must be greater than non-negative sourceInMs",
+        "MediaSegment sourceOutMs must be a finite value greater than non-negative finite sourceInMs",
       );
     }
   }
@@ -324,11 +340,11 @@ function validateSourceExcerpt(
     return;
   }
 
-  if (block.sourceInMs < 0 || block.sourceOutMs <= block.sourceInMs) {
+  if (!isValidRange(block.sourceInMs, block.sourceOutMs)) {
     issue(
       "invalid_source_range",
       path,
-      "SourceExcerpt sourceOutMs must be greater than non-negative sourceInMs",
+      "SourceExcerpt sourceOutMs must be a finite value greater than non-negative finite sourceInMs",
     );
     return;
   }
