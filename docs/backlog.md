@@ -136,10 +136,21 @@ All three use the same core model without separate schemas or workflow-specific 
 - As a creator, I want a missing ShotIntent represented quickly as a generated storyboard/previs so I can feel the structure before shooting.
 - As a creator, I want generated alternatives ingested and reviewed like normal production media.
 - As an editor, I want generation provenance preserved so I can regenerate, vary, or promote previews to finals.
+- As a creator, I want writing or restructuring to produce a low-friction visual approximation so I can discover weak ideas before expensive production or timeline work.
+
+# LATER — workflow research
+
+These are explicit research directions, not committed product requirements.
+
+- Investigate whether a PureRef-like mixed-media canvas improves story construction beyond the established Story Wall, Paper Edit, AV Script, and related workflows.
+- Test a workspace where text fragments, images, video excerpts, references, and previs material can coexist spatially.
+- Test whether optional links/arrows or spatial arrangements can usefully inform a script, paper edit, previs, or timeline without turning the product into a generic node editor.
+- Promote this direction only if real workflow testing demonstrates a clear advantage over simpler familiar surfaces.
 
 # LATER — review / alternatives / versioning
 
 - As an editor, I want tried/rejected material preserved outside the active structure so I can revisit it later.
+- As an editor, I want removing something from the active structure to remain distinct from permanently deleting the underlying idea/media.
 - As an editor, I want alternative narrative versions without duplicating the entire project manually.
 - As a reviewer, I want annotations tied to narrative/media identity rather than only fragile timeline timecodes.
 
@@ -147,4 +158,4 @@ All three use the same core model without separate schemas or workflow-specific 
 
 A backlog item should only move into **NOW** if it directly contributes to the current milestone's pass/fail question.
 
-For Spike 0A, avoid adding UI, Electron, Python, SQLite, Resolve, real LLM calls, Fountain/FDX, real transcription, or GenAI implementation.
+For Spike 0A, avoid adding UI, Electron, Python, SQLite, Resolve, real LLM calls, Fountain/FDX, real transcription, GenAI implementation, previs implementation, or mixed-media canvas work.
