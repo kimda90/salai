@@ -23,6 +23,30 @@ The central hypothesis is:
 
 > One Narrative IR can support several familiar ways of constructing a story. Salai should preserve the user's preferred working method while keeping all of those methods connected to the same underlying production data.
 
+## Observed creative validation loop
+
+Current product discovery suggests that narrative intent is often evaluated progressively rather than committed once:
+
+```text
+read / imagine
+    ↓
+shoot or generate
+    ↓
+watch the material
+    ↓
+place it in the timeline
+    ↓
+edit until it feels right
+```
+
+An idea may read well and still fail when captured; footage may look good and still fail in context. Salai should therefore help users test intent earlier without pretending that script or previs can replace the final editorial judgment.
+
+A related observation is that rejected material is often moved aside rather than destroyed. Workspaces should make it natural to keep alternatives nearby, place them in a parking lot or alternate version, and distinguish removal from active structure from permanent deletion.
+
+Previs is a later opportunity to move part of this feedback loop earlier: writing or restructuring may eventually produce a cheap visual approximation so users can feel an idea before expensive production. This remains outside Spike 0A.
+
+See [`research-notes.md`](research-notes.md) for the discovery evidence record, including the currently shelved mixed-media canvas idea.
+
 ## Projection vs Workspace
 
 Not every way of looking at a project is the same kind of UI.
