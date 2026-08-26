@@ -2,9 +2,13 @@
 
 ## Status
 
-**Draft — Spike 0A implementation contract**
+**Draft — authoritative implementation contract for Spike 0A**
 
-This document is the Technical Design Document for the first Narrative IR implementation. It intentionally describes the domain model independently from Electron, React, Python, SQLite, Resolve, AI providers, or rich-text editor frameworks.
+This document is the single source of truth for Spike 0A implementation semantics: domain constraints, invariants, structural operations, serialization behavior, fixtures, tests, and open questions.
+
+Other docs may summarize the model, but must link here instead of maintaining duplicate operation lists or implementation rules.
+
+Product terminology is defined in [`glossary.md`](glossary.md).
 
 ## Purpose
 
@@ -13,7 +17,7 @@ Validate whether one small, stable semantic representation can support both:
 - script-first narrative construction; and
 - footage-first narrative construction.
 
-The spike should answer product-model questions before application architecture makes them expensive to change.
+The spike should make domain-model failures cheap to discover before UI, persistence, Resolve, or AI integration make them expensive.
 
 ## Core hypothesis
 
@@ -27,26 +31,18 @@ Script
         └── Cue
 ```
 
-Definitions:
-
-- **Beat** — the smallest intentional unit of narrative progression. It may advance information, action, argument, emotion, revelation, or audience understanding.
-- **Cue** — an audiovisual/temporal moment used to express part of a Beat.
-- **ContentBlock** — typed visual or audio content attached to a Cue.
-- **ShotIntent** — production intent describing material needed to express narrative intent, independent from its realization.
-- **MediaSegment** — a referenced range of existing media used as evidence/source material.
-
 The model deliberately stops at Cue for Spike 0A. Do not introduce a more atomic narrative level unless a required fixture cannot be represented cleanly without one.
 
 ## Design principles
 
-1. **Meaning before media.** A Beat is not a shot, clip, line of dialogue, or timeline item.
-2. **Stable identity.** Reordering or text editing does not recreate domain objects.
+1. **Meaning before media.** Narrative identity is not defined by a clip, shot, line, or timeline item.
+2. **Stable identity.** Normal edits and reordering preserve object IDs.
 3. **Authored and sourced material are semantically different.** Recorded evidence must not become silently editable prose.
-4. **Explicit structure over generic nesting.** Avoid an unrestricted graph/tree where any object can contain any other object.
-5. **Relationships are explicit but do not require a graph database.** Plain typed objects plus relationship records are sufficient for the spike.
-6. **Operations are the mutation API.** UI and future AI should eventually invoke the same validated structural operations.
-7. **No cascade destruction of production material.** Deleting narrative structure must not silently delete source media or ShotIntents.
-8. **Workspace layout is not Narrative IR.** Story Wall position/color/rotation/parking-lot state belong to a later workspace layer.
+4. **Explicit structure over unrestricted nesting.** Allowed parent/child relationships are validated.
+5. **Relationships are explicit but do not require a graph database.**
+6. **Operations are the mutation API.** UI and future AI should eventually invoke the same validated operations.
+7. **No silent destruction of external production data.** Deleting narrative structure must not delete MediaSegments, ShotIntents, Assets, or future Resolve objects.
+8. **Workspace layout is not Narrative IR.** Story Wall/Board layout belongs to Spike 0B and later persistence layers.
 
 # Scope
 
@@ -56,9 +52,9 @@ The model deliberately stops at Cue for Spike 0A. Do not introduce a more atomic
 - stable IDs;
 - explicit hierarchy validation;
 - minimal visual/audio content types;
-- AuthoredSpeech vs SourceExcerpt;
-- mocked ShotIntent and MediaSegment references;
-- create/update/move/delete operations;
+- `AuthoredSpeech` vs `SourceExcerpt`;
+- mocked `ShotIntent` and `MediaSegment` references;
+- explicit create/update/move/delete operations;
 - Beat split/merge semantics;
 - serialization/deserialization and schema versioning;
 - runtime estimation;
@@ -67,23 +63,21 @@ The model deliberately stops at Cue for Spike 0A. Do not introduce a more atomic
 
 ## Out of scope
 
-- Electron;
-- React UI;
-- Tiptap/ProseMirror/Lexical;
-- Python/FastAPI;
-- SQLite;
+- Electron / React;
+- editor frameworks;
+- Python/FastAPI / SQLite;
 - Resolve/CutMaster;
 - OpenAssetIO/OTIO integration;
 - real transcription/media analysis;
 - real LLM calls;
 - Fountain/FDX;
 - collaboration/CRDT;
-- freeform canvas/workspace persistence;
+- Workspace/Board persistence;
 - production-ready performance optimization.
 
-# Proposed domain types
+# Proposed domain model
 
-The exact TypeScript syntax may evolve during implementation; the semantic boundaries should not change silently.
+Exact TypeScript syntax may evolve during the spike; semantic changes must be reflected in this spec.
 
 ```ts
 type Id = string;
@@ -125,7 +119,7 @@ type Cue = {
 
 ## Content blocks
 
-Start with the smallest types required by the fixtures.
+Start with only the block types required by the fixtures:
 
 ```ts
 type VisualDescription = {
@@ -175,11 +169,11 @@ type SFX = {
 };
 ```
 
-Do not add more block types until a required fixture demonstrates the need.
+Do not add additional block types until a required fixture demonstrates the need.
 
 # External-reference stubs
 
-Spike 0A does not implement the full production graph, but it must prove that narrative objects can retain stable references to downstream objects.
+Spike 0A does not implement the production graph, but it must prove stable narrative references to downstream objects.
 
 ```ts
 type MediaSegment = {
@@ -198,8 +192,6 @@ type ShotIntent = {
 
 ## Relationship records
 
-Use explicit relationship records instead of hidden foreign-key conventions for cross-domain links.
-
 ```ts
 type Relationship = {
   id: Id;
@@ -212,59 +204,44 @@ type Relationship = {
 };
 ```
 
-Spike 0A should validate semantics, not graph technology.
+The spike validates relationship semantics, not graph technology.
 
 # Hierarchy invariants
 
 At minimum:
 
 - a Script contains Sections;
-- a Section contains Beats directly or Scenes that contain Beats;
+- a Section contains Beats directly or Scenes containing Beats;
 - a Scene contains Beats;
 - a Beat contains Cues;
 - a Cue contains visual/audio ContentBlocks;
-- a Cue cannot contain another Beat/Cue;
-- a Beat cannot directly contain a Section;
-- references must target an object of an allowed type;
-- IDs are unique within the serialized project model.
+- objects cannot be nested outside the allowed hierarchy;
+- references must target allowed object types;
+- IDs are globally unique within the serialized NarrativeProject;
+- parent ordering arrays are canonical ordering state.
 
-If mixed direct Beats and Scenes inside one Section makes implementation/UX ambiguous, the fixtures should expose that and the hierarchy should be narrowed.
+The question of mixing direct Beats and Scenes inside one Section remains an explicit spike question, not an accidental implementation behavior.
 
-# Identity invariants
+# Identity and lifecycle invariants
 
 ## Edit
 
-Changing title/text/content preserves object identity.
-
-```text
-update Beat summary
-→ same Beat ID
-```
+Changing title/text/content preserves identity.
 
 ## Move
 
-Moving/reordering an object preserves identity and all external relationships.
+Moving/reordering preserves identity and external relationships.
 
-```text
-move beat_7 from position 4 to 2
-→ beat_7 remains beat_7
-```
-
-## Split
+## Split Beat
 
 Initial policy:
 
-- the first/left result retains the original Beat ID;
-- the second/right result receives a new ID;
-- Cue assignment is explicit in the operation input;
-- Beat-level external relationships must not be silently guessed.
+- left/first result retains the original Beat ID;
+- right/second result receives a new ID;
+- Cue assignment is explicit;
+- external Beat relationships are redistributed explicitly or reported unresolved.
 
-If the original Beat has external relationships, `splitBeat` must either:
-
-1. receive an explicit relationship redistribution policy; or
-2. return unresolved relationship effects requiring caller resolution.
-
-Allowed policies may include:
+Candidate relationship policies:
 
 ```text
 left
@@ -273,46 +250,47 @@ both
 manual
 ```
 
-The spike should determine whether this is sufficient or too cumbersome.
-
-## Merge
+## Merge Beats
 
 Initial policy:
 
 - caller identifies the canonical Beat whose ID survives;
-- Cues are ordered explicitly;
-- relationships from removed Beats are not discarded;
-- duplicate equivalent relationships may be normalized;
-- provenance of merged Beat IDs should be available in the operation result or metadata for undo/debugging.
+- Cue order is explicit;
+- relationships from removed Beats are not silently discarded;
+- equivalent duplicate relationships may be normalized;
+- provenance of merged IDs is exposed in operation/history metadata unless fixture evidence requires canonical persistence.
 
 ## Delete
 
-Deleting a Beat/Cue removes narrative structure only.
+Deletion may remove owned Narrative IR descendants, but must never silently delete external production objects.
 
-It must not silently delete:
+Examples:
 
-- MediaSegments;
-- ShotIntents;
-- source Assets;
-- future Resolve objects.
+- deleting a Section may remove its owned Scenes/Beats/Cues/blocks;
+- deleting a Beat may remove its owned Cues/blocks;
+- deleting a Cue may remove its owned ContentBlocks;
+- deleting a ContentBlock removes only that block;
+- referenced MediaSegments and ShotIntents survive;
+- relationship effects are returned explicitly.
 
-The operation result should report relationships that became detached/removed.
+Callers that want to preserve descendants must move them before deleting the container.
 
 # SourceExcerpt semantics
 
-`SourceExcerpt` represents recorded evidence, not editable authored speech.
+`SourceExcerpt` represents recorded evidence, not authored speech.
 
 Rules:
 
 - source in/out must remain inside the referenced MediaSegment range;
-- sourceOut must be greater than sourceIn;
-- transcriptSnapshot may be corrected for display/transcription purposes, but changing it does not change the underlying source media;
-- converting a sourced quote into rewritten VO must create/replace it with `AuthoredSpeech`, not mutate the SourceExcerpt into fictional recorded words;
-- trimming is an explicit source-range operation.
+- `sourceOutMs > sourceInMs`;
+- transcript snapshot corrections do not change source media;
+- rewriting a quote as new copy creates/replaces it with `AuthoredSpeech`;
+- trimming source range is explicit via `trimSourceExcerpt`;
+- moving/reordering a SourceExcerpt is handled as ContentBlock movement, not media mutation.
 
 # Structural operation API
 
-Candidate initial operations:
+This list is authoritative for Spike 0A. Summary docs must point here rather than restate it.
 
 ```text
 createSection
@@ -320,19 +298,28 @@ createScene
 createBeat
 createCue
 createBlock
+
 updateSection
 updateScene
 updateBeat
 updateCue
 updateBlock
+
+moveSection
 moveScene
 moveBeat
 moveCue
+moveBlock
+
 splitBeat
 mergeBeats
+
+deleteSection
 deleteScene
 deleteBeat
 deleteCue
+deleteBlock
+
 linkShotIntent
 unlinkShotIntent
 linkMediaSegment
@@ -340,13 +327,21 @@ unlinkMediaSegment
 trimSourceExcerpt
 ```
 
-Do not expose a generic unrestricted `mutate(path, value)` as the primary public editing API in Spike 0A.
+### Operation notes
+
+- `moveSection` reorders `Script.sectionIds`.
+- `moveScene`, `moveBeat`, and `moveCue` reorder or reparent within allowed hierarchy while preserving identity.
+- `moveBlock` reorders/reparents blocks between compatible Cue visual/audio lanes; block type determines its valid lane.
+- `deleteSection`, `deleteScene`, `deleteBeat`, and `deleteCue` follow the explicit narrative-descendant deletion semantics above.
+- `deleteBlock` is the inverse lifecycle operation for `createBlock`.
+- `linkMediaSegment` / `unlinkMediaSegment` represent generic narrative evidence/support relationships. A `SourceExcerpt` itself references its `MediaSegment` directly and therefore does not need a separate `linkSourceExcerpt` operation.
+- `trimSourceExcerpt` changes only the selected range within existing media evidence.
+
+Do not expose generic unrestricted `mutate(path, value)` as the primary public editing API.
 
 ## Operation contract
 
-Every operation should return enough information for validation, future undo, and future UI/AI diff presentation.
-
-Conceptually:
+Every operation returns enough information for validation, undo/history, and future UI/AI diff presentation.
 
 ```ts
 type OperationResult = {
@@ -359,15 +354,17 @@ type OperationResult = {
 };
 ```
 
-Implementation may use immutable or controlled mutable internals; externally the operation must behave transactionally.
+Requirements:
 
-If validation fails, do not return partially changed model state.
+- operations behave transactionally;
+- invalid operations return no partially mutated model;
+- relationship effects are explicit;
+- operation inputs/results are serializable;
+- inversion/undo should be possible where practical during the spike.
 
 # Serialization
 
-The serialized representation must contain an explicit schema version.
-
-Example:
+The serialized representation must include a schema version.
 
 ```json
 {
@@ -384,9 +381,9 @@ Example:
 }
 ```
 
-Map/object storage keyed by ID is preferable for the spike because identity is primary and ordering is stored explicitly in parent ID arrays.
+Object maps keyed by ID are preferred for Spike 0A; order is stored explicitly in parent ID arrays.
 
-A successful round trip must preserve:
+Round trip must preserve:
 
 - IDs;
 - ordering;
@@ -398,47 +395,25 @@ A successful round trip must preserve:
 
 # Runtime estimation
 
-Runtime is authoring feedback, not frame-accurate edit duration.
-
-## Cue duration
-
-Initial rule:
+Runtime is authoring feedback, not frame-accurate editorial duration.
 
 ```text
-if explicitDuration exists:
-    duration = explicitDuration
+if Cue.explicitDurationMs exists:
+    Cue duration = explicitDurationMs
 else:
-    duration = max(
+    Cue duration = max(
         authoredSpeechEstimate,
         longestSourceExcerptDuration,
         visualHoldEstimate
     )
+
+Beat duration    = sum(Cue durations)
+Scene duration   = sum(Beat durations)
+Section duration = sum(children durations)
+Script duration  = sum(Section durations)
 ```
 
-## Authored speech
-
-Use configurable words-per-minute with a reasonable default for the fixture tests. The exact default is a product setting, not an invariant.
-
-## SourceExcerpt
-
-```text
-duration = sourceOut - sourceIn
-```
-
-## Visual hold
-
-Visual-only Cues may supply an explicit estimate. Do not invent sophisticated computer-vision timing in Spike 0A.
-
-## Aggregation
-
-```text
-Beat duration    = sum(Cue duration)
-Scene duration   = sum(Beat duration)
-Section duration = sum(children duration)
-Script duration  = sum(Section duration)
-```
-
-The product should later compare estimated vs target duration.
+Authored speech uses configurable words-per-minute. SourceExcerpt uses `sourceOutMs - sourceInMs`. Visual-only Cues may carry a simple explicit hold estimate.
 
 # Required fixtures
 
@@ -458,11 +433,14 @@ Must exercise:
 
 - AuthoredSpeech;
 - visual descriptions;
-- OnScreenText/Graphic if required;
+- OnScreenText/Graphic if useful;
 - several Cues in at least one Beat;
 - ShotIntent relationships;
 - target duration;
-- Beat reorder/split.
+- Beat reorder/split/merge;
+- Section reorder/delete behavior;
+- block reorder/delete behavior;
+- a small Scene-structure variant to pressure-test Section hierarchy rules.
 
 ## Fixture B — 2-minute interview/corporate piece
 
@@ -470,74 +448,81 @@ Must exercise:
 
 - several SourceExcerpts;
 - authored VO bridge;
-- visual B-roll while sourced speech continues;
-- replacement/trimming of a SourceExcerpt;
-- Beat reordering while source identity survives.
+- B-roll while sourced speech continues;
+- replacement/trimming/reordering of SourceExcerpt blocks;
+- Beat reordering while source identity survives;
+- evidence relationships to MediaSegments.
 
 ## Fixture C — footage-first mini-documentary
 
-Starts from mocked MediaSegments rather than authored Beats.
+Starts from mocked MediaSegments.
 
 Must exercise:
 
 - SourceExcerpt creation from media evidence;
-- constructing Cues/Beats from existing source material;
+- constructing Cues/Beats from existing sources;
 - moving an excerpt to a different Beat;
-- adding authored connective material;
-- preserving all media references through restructure.
+- authored connective material;
+- media-reference preservation through restructuring;
+- relationship representation under footage-first pressure.
 
 # Required behavioral tests
 
 At minimum:
 
-1. Create each fixture from scratch.
-2. Serialize → deserialize → deep semantic equivalence.
+1. Create all fixtures from scratch.
+2. Serialize → deserialize → semantic equivalence.
 3. Edit text without ID churn.
-4. Move Beat without relationship loss.
-5. Move Cue between Beats.
-6. Split a Beat with relationships and verify explicit redistribution behavior.
-7. Merge Beats and verify no source relationship disappears.
-8. Delete narrative structure and verify MediaSegment/ShotIntent stubs survive.
-9. Trim SourceExcerpt and verify source constraints.
-10. Estimate runtime before and after structural edits.
-11. Reject invalid hierarchy operations.
-12. Reject duplicate IDs / dangling references on validation.
+4. Reorder Sections.
+5. Move Beat without relationship loss.
+6. Move Cue between Beats.
+7. Reorder/move ContentBlocks.
+8. Split a Beat with relationships and verify explicit redistribution behavior.
+9. Merge Beats and verify no source relationship disappears.
+10. Delete Section/Scene/Beat/Cue/Block and verify external MediaSegment/ShotIntent stubs survive.
+11. Trim SourceExcerpt and verify range constraints.
+12. Estimate runtime before/after structural edits.
+13. Reject invalid hierarchy operations.
+14. Reject duplicate IDs and dangling references.
+15. Verify operation failures are atomic.
 
 # Spike success criteria
 
 Spike 0A passes if:
 
-- all three fixtures use the same domain types;
+- all three fixtures use the same core domain model;
 - no fixture requires a parallel workflow-specific schema;
-- Beat and Cue remain useful and distinct across all fixtures;
-- AuthoredSpeech and SourceExcerpt semantics are unambiguous;
+- Beat and Cue remain useful and distinct;
+- authored and sourced content semantics remain unambiguous;
 - common restructuring preserves identity predictably;
-- split/merge/delete relationship effects are explicit rather than magical;
-- serialization round-trip preserves the full semantic model;
-- duration estimation is useful for structural authoring;
-- meaningful revisions can be expressed through the operation vocabulary without a generic escape-hatch mutation API.
+- split/merge/delete effects are explicit;
+- the authoritative operation vocabulary can express all required fixture edits without a generic mutation escape hatch;
+- serialization preserves the full semantic model;
+- runtime estimation is useful for structural authoring.
 
 ## Failure signals
 
-The spike should be considered evidence against the current model if:
+Treat these as evidence against the current model:
 
-- Cue repeatedly becomes redundant with Beat;
-- required workflows need hidden workflow-specific fields/schemas;
+- Cue repeatedly collapses into Beat;
+- fixtures require hidden workflow-specific fields/schemas;
 - common editing requires constant manual relationship repair;
-- SourceExcerpt semantics cannot represent documentary/radio-edit behavior cleanly;
-- the operation API becomes mostly special cases;
-- the hierarchy prevents natural fixture representation.
+- SourceExcerpt cannot represent documentary/radio-edit behavior cleanly;
+- operation API becomes mostly special cases;
+- hierarchy prevents natural fixture representation.
 
 Failure is a valid spike outcome. Change the model before building UI.
 
-# Open questions to resolve during implementation
+# Open questions and fixture ownership
 
-1. May a Section mix direct Beats and Scenes, or should each Section choose one structural mode?
-2. Are Beat-level and Cue-level ShotIntent links both necessary, or does one become the useful default?
-3. Is `Cue` the right user/domain term after fixture testing?
-4. What relationship redistribution UI/policy is least surprising for split operations?
-5. Should merge provenance live in the canonical model or only operation/history metadata?
-6. What minimal visual-only duration input feels useful without false precision?
-7. Is a separate generic Relationship collection clearer than typed relationship arrays on domain objects for this first package?
+| Open question | Primary evidence |
+| --- | --- |
+| May a Section mix direct Beats and Scenes, or should it choose one structural mode? | Fixture A Scene-structure variant |
+| Are Beat-level and Cue-level ShotIntent links both necessary? | Fixture A, checked against B |
+| Is `Cue` the right/useful domain term? | Fixtures A, B, and C |
+| What split relationship redistribution policy is least surprising? | Fixture A split tests |
+| Should merge provenance live in canonical state or operation/history metadata? | Fixture A merge tests |
+| What minimal visual-only duration input is useful without false precision? | Fixture A |
+| Is a generic Relationship collection clearer than typed relationship arrays? | Fixtures B and C |
 
-These are expected spike outputs, not prerequisites that must be solved by discussion alone.
+These are expected outputs of implementation. They should be resolved in the Spike 0A assessment before 0B begins, rather than by pre-implementation discussion alone.
