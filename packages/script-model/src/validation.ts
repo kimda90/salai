@@ -216,6 +216,19 @@ export function validateNarrativeProject(
     );
   }
 
+  const requireHierarchyOwner = (collection: Record<Id, { id: Id }>, kind: string): void => {
+    for (const entity of Object.values(collection)) {
+      if (hierarchyOwners.has(entity.id)) continue;
+      issue("orphaned_entity", `${kind}.${entity.id}`, `${entity.id} is not reachable from the Script hierarchy`);
+    }
+  };
+
+  requireHierarchyOwner(project.sections, "sections");
+  requireHierarchyOwner(project.scenes, "scenes");
+  requireHierarchyOwner(project.beats, "beats");
+  requireHierarchyOwner(project.cues, "cues");
+  requireHierarchyOwner(project.blocks, "blocks");
+
   for (const segment of Object.values(project.mediaSegments)) {
     if (segment.sourceInMs < 0 || segment.sourceOutMs <= segment.sourceInMs) {
       issue(
@@ -282,6 +295,12 @@ export function validateNarrativeProject(
           path,
           "source_excerpt_of must link a SourceExcerpt to a MediaSegment",
         );
+      } else if (sourceBlock.mediaSegmentId !== relationship.targetId) {
+        issue(
+          "source_relationship_mismatch",
+          path,
+          "source_excerpt_of target must match SourceExcerpt.mediaSegmentId",
+        );
       }
     }
   }
@@ -305,11 +324,11 @@ function validateSourceExcerpt(
     return;
   }
 
-  if (block.sourceOutMs <= block.sourceInMs) {
+  if (block.sourceInMs < 0 || block.sourceOutMs <= block.sourceInMs) {
     issue(
       "invalid_source_range",
       path,
-      "SourceExcerpt sourceOutMs must be greater than sourceInMs",
+      "SourceExcerpt sourceOutMs must be greater than non-negative sourceInMs",
     );
     return;
   }
