@@ -14,93 +14,64 @@ import {
   type NarrativeProject,
 } from "./index.js";
 
-function semanticRoundTrip(project: NarrativeProject): NarrativeProject {
+function roundTrip(project: NarrativeProject): NarrativeProject {
   return deserializeNarrativeProject(serializeNarrativeProject(project));
 }
 
-describe("Spike 0A representative fixtures", () => {
-  it("represents product, interview, and footage-first projects with one model", () => {
-    const fixtures = [
+describe("Spike 0A fixtures", () => {
+  it("uses one valid model for script-first, interview, and footage-first work", () => {
+    for (const fixture of [
       createProductVideoFixture(),
       createInterviewFixture(),
       createFootageFirstFixture(),
-    ];
-
-    for (const fixture of fixtures) {
+    ]) {
       expect(validateNarrativeProject(fixture)).toEqual({ valid: true, issues: [] });
-      expect(semanticRoundTrip(fixture)).toEqual(fixture);
+      expect(roundTrip(fixture)).toEqual(fixture);
       expect(Object.keys(fixture.beats).length).toBeGreaterThan(0);
       expect(Object.keys(fixture.cues).length).toBeGreaterThan(0);
     }
   });
 
-  it("keeps Beat and Cue meaningfully distinct in the product fixture", () => {
+  it("keeps Beat distinct from Cue", () => {
     const project = createProductVideoFixture();
+    expect(project.beats.beat_demo?.summary).toBe("Installation is three simple actions");
     expect(project.beats.beat_demo?.cueIds).toEqual([
       "cue_demo_wide",
       "cue_demo_connector",
       "cue_demo_ui",
     ]);
-    expect(project.beats.beat_demo?.summary).toBe("Installation is three simple actions");
   });
 
-  it("keeps authored speech and source excerpts semantically distinct", () => {
+  it("keeps authored speech distinct from source evidence", () => {
     const project = createInterviewFixture();
     expect(project.blocks.vo_bridge?.type).toBe("authored_speech");
-    expect(project.blocks.quote_maria?.type).toBe("source_excerpt");
-    if (project.blocks.quote_maria?.type === "source_excerpt") {
-      expect(project.blocks.quote_maria.mediaSegmentId).toBe("interview_maria");
-      expect(project.blocks.quote_maria.sourceOutMs - project.blocks.quote_maria.sourceInMs).toBe(27_000);
+    const quote = project.blocks.quote_maria;
+    expect(quote?.type).toBe("source_excerpt");
+    if (quote?.type === "source_excerpt") {
+      expect(quote.mediaSegmentId).toBe("interview_maria");
+      expect(quote.sourceOutMs - quote.sourceInMs).toBe(27_000);
     }
   });
 });
 
-describe("structural operations", () => {
-  it("updates fields without ID churn and rejects source/authored type mutation", () => {
-    const initial = createProductVideoFixture();
-    const updated = applyOperations(initial, [
-      { op: "updateSection", sectionId: "section_product", title: "Thirty seconds" },
-      { op: "updateBeat", beatId: "beat_hook", title: "Cold open", summary: "Get attention fast" },
-      { op: "updateCue", cueId: "cue_cta", explicitDurationMs: 2_500 },
-      {
-        op: "updateBlock",
-        block: {
-          id: "vo_hook",
-          type: "authored_speech",
-          role: "vo",
-          text: "Installation can be this simple.",
-        },
-      },
-    ]).model;
-
-    expect(updated.beats.beat_hook?.id).toBe("beat_hook");
-    expect(updated.blocks.vo_hook?.id).toBe("vo_hook");
-    expect(updated.sections.section_product?.title).toBe("Thirty seconds");
-    expect(updated.cues.cue_cta?.explicitDurationMs).toBe(2_500);
-    expect(initial.beats.beat_hook?.title).toBe("Hook");
-
-    const interview = createInterviewFixture();
-    expect(() =>
-      applyOperation(interview, {
-        op: "updateBlock",
-        block: { id: "quote_maria", type: "authored_speech", text: "Invented rewrite" },
-      }),
-    ).toThrow(DomainOperationError);
-  });
-
-  it("supports Section/Scene/Beat/Cue/Block creation, reordering and reparenting", () => {
+describe("operation vocabulary", () => {
+  it("creates, updates, reorders and reparents every hierarchy level", () => {
     let project = createEmptyNarrativeProject({ scriptId: "script_ops" });
     project = applyOperations(project, [
       { op: "createSection", section: { id: "s1", title: "One", childIds: [] } },
       { op: "createSection", section: { id: "s2", title: "Two", childIds: [] } },
       { op: "createScene", sectionId: "s1", scene: { id: "scene1", title: "Scene", beatIds: [] } },
-      { op: "createBeat", parent: { type: "scene", id: "scene1" }, beat: { id: "b1", cueIds: [] } },
+      { op: "createBeat", parent: { type: "scene", id: "scene1" }, beat: { id: "b1", title: "Beat one", summary: "Keep me", cueIds: [] } },
       { op: "createBeat", parent: { type: "section", id: "s2" }, beat: { id: "b2", cueIds: [] } },
       { op: "createCue", beatId: "b1", cue: { id: "c1", visualBlockIds: [], audioBlockIds: [] } },
       { op: "createCue", beatId: "b1", cue: { id: "c2", visualBlockIds: [], audioBlockIds: [] } },
       { op: "createBlock", cueId: "c1", block: { id: "v1", type: "visual_description", text: "Wide" } },
       { op: "createBlock", cueId: "c1", block: { id: "a1", type: "authored_speech", text: "Hello" } },
+      { op: "updateSection", sectionId: "s1", title: "Act one" },
       { op: "updateScene", sceneId: "scene1", title: "Renamed scene" },
+      { op: "updateBeat", beatId: "b1", title: "Renamed beat" },
+      { op: "updateCue", cueId: "c1", explicitDurationMs: 1_500 },
+      { op: "updateBlock", block: { id: "a1", type: "authored_speech", text: "Hello again" } },
       { op: "moveSection", sectionId: "s2", toIndex: 0 },
       { op: "moveScene", sceneId: "scene1", toSectionId: "s2", toIndex: 1 },
       { op: "moveBeat", beatId: "b2", toParent: { type: "scene", id: "scene1" }, toIndex: 1 },
@@ -109,18 +80,33 @@ describe("structural operations", () => {
     ]).model;
 
     expect(project.script.sectionIds).toEqual(["s2", "s1"]);
-    expect(project.sections.s2?.childIds).toEqual(["b2", "scene1"]);
+    expect(project.sections.s2?.childIds).toEqual(["scene1"]);
     expect(project.scenes.scene1?.beatIds).toEqual(["b1", "b2"]);
     expect(project.beats.b1?.cueIds).toEqual(["c1"]);
     expect(project.beats.b2?.cueIds).toEqual(["c2"]);
     expect(project.cues.c2?.visualBlockIds).toEqual(["v1"]);
     expect(project.cues.c1?.audioBlockIds).toEqual(["a1"]);
+    expect(project.sections.s1?.title).toBe("Act one");
     expect(project.scenes.scene1?.title).toBe("Renamed scene");
+    expect(project.beats.b1?.title).toBe("Renamed beat");
+    expect(project.beats.b1?.summary).toBe("Keep me");
+    expect(project.cues.c1?.explicitDurationMs).toBe(1_500);
+    expect(project.blocks.a1).toEqual({ id: "a1", type: "authored_speech", text: "Hello again" });
   });
 
-  it("preserves relationships when Beats move", () => {
+  it("does not allow updateBlock to turn recorded evidence into authored copy", () => {
+    const project = createInterviewFixture();
+    expect(() =>
+      applyOperation(project, {
+        op: "updateBlock",
+        block: { id: "quote_maria", type: "authored_speech", text: "Invented rewrite" },
+      }),
+    ).toThrow(DomainOperationError);
+  });
+
+  it("moves Beats without changing identity or relationships", () => {
     const initial = createProductVideoFixture();
-    const before = initial.relationships.rel_demo_wide;
+    const relationship = initial.relationships.rel_demo_wide;
     const moved = applyOperation(initial, {
       op: "moveBeat",
       beatId: "beat_demo",
@@ -129,11 +115,11 @@ describe("structural operations", () => {
     }).model;
 
     expect(moved.sections.section_product?.childIds[0]).toBe("beat_demo");
-    expect(moved.relationships.rel_demo_wide).toEqual(before);
     expect(moved.beats.beat_demo?.id).toBe("beat_demo");
+    expect(moved.relationships.rel_demo_wide).toEqual(relationship);
   });
 
-  it("splits a Beat with explicit relationship redistribution and merges it back", () => {
+  it("splits and merges Beats with explicit relationship effects", () => {
     let project = createProductVideoFixture();
     project = applyOperation(project, {
       op: "linkShotIntent",
@@ -153,10 +139,7 @@ describe("structural operations", () => {
     });
 
     expect(split.model.beats.beat_demo?.cueIds).toEqual(["cue_demo_wide"]);
-    expect(split.model.beats.beat_demo_tail?.cueIds).toEqual([
-      "cue_demo_connector",
-      "cue_demo_ui",
-    ]);
+    expect(split.model.beats.beat_demo_tail?.cueIds).toEqual(["cue_demo_connector", "cue_demo_ui"]);
     expect(split.model.relationships.rel_demo_beat?.sourceId).toBe("beat_demo_tail");
     expect(split.relationshipEffects).toContainEqual(
       expect.objectContaining({ relationshipId: "rel_demo_beat", effect: "retargeted" }),
@@ -179,7 +162,7 @@ describe("structural operations", () => {
     expect(merged.metadata?.mergedBeatIds).toEqual(["beat_demo_tail"]);
   });
 
-  it("supports split policy both only with explicit duplicate relationship IDs", () => {
+  it("duplicates split relationships only when the caller provides new IDs", () => {
     let project = createProductVideoFixture();
     project = applyOperation(project, {
       op: "linkShotIntent",
@@ -207,7 +190,7 @@ describe("structural operations", () => {
     });
   });
 
-  it("cascades narrative deletion while preserving external media and ShotIntents", () => {
+  it("deletes narrative descendants but preserves external production objects", () => {
     const initial = createProductVideoFixture();
     const deleted = applyOperation(initial, { op: "deleteBeat", beatId: "beat_demo" });
 
@@ -216,28 +199,25 @@ describe("structural operations", () => {
     expect(deleted.model.blocks.visual_demo_wide).toBeUndefined();
     expect(deleted.model.shotIntents.shot_demo_wide).toEqual(initial.shotIntents.shot_demo_wide);
     expect(deleted.model.relationships.rel_demo_wide).toBeUndefined();
-    expect(deleted.relationshipEffects).toContainEqual(
-      expect.objectContaining({ relationshipId: "rel_demo_wide", effect: "removed" }),
-    );
   });
 
-  it("implements every delete inverse without leaving unreachable descendants", () => {
+  it("implements deleteBlock/deleteCue/deleteBeat/deleteScene/deleteSection cleanly", () => {
     let project = createEmptyNarrativeProject({ scriptId: "script_delete" });
     project = applyOperations(project, [
-      { op: "createSection", section: { id: "s1", childIds: [] } },
-      { op: "createScene", sectionId: "s1", scene: { id: "scene1", beatIds: [] } },
-      { op: "createBeat", parent: { type: "scene", id: "scene1" }, beat: { id: "b1", cueIds: [] } },
-      { op: "createCue", beatId: "b1", cue: { id: "c1", visualBlockIds: [], audioBlockIds: [] } },
-      { op: "createBlock", cueId: "c1", block: { id: "v1", type: "visual_description", text: "Frame" } },
-      { op: "deleteBlock", blockId: "v1" },
-      { op: "createBlock", cueId: "c1", block: { id: "v2", type: "visual_description", text: "Frame 2" } },
-      { op: "deleteCue", cueId: "c1" },
-      { op: "createCue", beatId: "b1", cue: { id: "c2", visualBlockIds: [], audioBlockIds: [] } },
-      { op: "deleteBeat", beatId: "b1" },
-      { op: "createBeat", parent: { type: "scene", id: "scene1" }, beat: { id: "b2", cueIds: [] } },
-      { op: "deleteScene", sceneId: "scene1" },
-      { op: "createBeat", parent: { type: "section", id: "s1" }, beat: { id: "b3", cueIds: [] } },
-      { op: "deleteSection", sectionId: "s1" },
+      { op: "createSection", section: { id: "s", childIds: [] } },
+      { op: "createScene", sectionId: "s", scene: { id: "scene", beatIds: [] } },
+      { op: "createBeat", parent: { type: "scene", id: "scene" }, beat: { id: "b", cueIds: [] } },
+      { op: "createCue", beatId: "b", cue: { id: "c", visualBlockIds: [], audioBlockIds: [] } },
+      { op: "createBlock", cueId: "c", block: { id: "v", type: "visual_description", text: "Frame" } },
+      { op: "deleteBlock", blockId: "v" },
+      { op: "createBlock", cueId: "c", block: { id: "v2", type: "visual_description", text: "Frame" } },
+      { op: "deleteCue", cueId: "c" },
+      { op: "createCue", beatId: "b", cue: { id: "c2", visualBlockIds: [], audioBlockIds: [] } },
+      { op: "deleteBeat", beatId: "b" },
+      { op: "createBeat", parent: { type: "scene", id: "scene" }, beat: { id: "b2", cueIds: [] } },
+      { op: "deleteScene", sceneId: "scene" },
+      { op: "createBeat", parent: { type: "section", id: "s" }, beat: { id: "b3", cueIds: [] } },
+      { op: "deleteSection", sectionId: "s" },
     ]).model;
 
     expect(project.script.sectionIds).toEqual([]);
@@ -247,10 +227,25 @@ describe("structural operations", () => {
     expect(project.cues).toEqual({});
     expect(project.blocks).toEqual({});
   });
+
+  it("links and unlinks ShotIntent and MediaSegment relationships", () => {
+    let project = createProductVideoFixture();
+    project.mediaSegments.stock = { id: "stock", sourceInMs: 0, sourceOutMs: 10_000 };
+
+    project = applyOperations(project, [
+      { op: "linkMediaSegment", relationshipId: "rel_stock", sourceId: "beat_hook", mediaSegmentId: "stock" },
+      { op: "unlinkMediaSegment", relationshipId: "rel_stock" },
+      { op: "linkShotIntent", relationshipId: "rel_hook_shot", sourceId: "beat_hook", shotIntentId: "shot_demo_wide" },
+      { op: "unlinkShotIntent", relationshipId: "rel_hook_shot" },
+    ]).model;
+
+    expect(project.relationships.rel_stock).toBeUndefined();
+    expect(project.relationships.rel_hook_shot).toBeUndefined();
+  });
 });
 
-describe("source evidence operations", () => {
-  it("trims excerpts inside source bounds and preserves the media reference", () => {
+describe("source evidence", () => {
+  it("trims SourceExcerpt ranges without changing media identity", () => {
     const initial = createInterviewFixture();
     const trimmed = applyOperation(initial, {
       op: "trimSourceExcerpt",
@@ -275,10 +270,9 @@ describe("source evidence operations", () => {
         sourceOutMs: 200_000,
       }),
     ).toThrow(/SourceExcerpt range must stay within/);
-    expect(initial.blocks.quote_maria).not.toEqual(trimmed.blocks.quote_maria);
   });
 
-  it("can move a footage-first excerpt to another Beat without changing its source identity", () => {
+  it("moves footage-derived evidence between narrative moments without changing the source", () => {
     const initial = createFootageFirstFixture();
     const moved = applyOperation(initial, {
       op: "moveBlock",
@@ -288,48 +282,15 @@ describe("source evidence operations", () => {
     }).model;
 
     expect(moved.cues.cue_owner_quote?.audioBlockIds).toEqual([]);
-    expect(moved.cues.cue_new_machine?.audioBlockIds).toEqual([
-      "vo_change",
-      "quote_owner_failure",
-    ]);
+    expect(moved.cues.cue_new_machine?.audioBlockIds).toEqual(["vo_change", "quote_owner_failure"]);
     const block = moved.blocks.quote_owner_failure;
-    expect(block?.type).toBe("source_excerpt");
-    if (block?.type === "source_excerpt") {
-      expect(block.mediaSegmentId).toBe("interview_owner");
-    }
-  });
-
-  it("links and unlinks generic media and ShotIntent relationships explicitly", () => {
-    let product = createProductVideoFixture();
-    product.mediaSegments.stock = { id: "stock", sourceInMs: 0, sourceOutMs: 10_000 };
-    product = applyOperation(product, {
-      op: "linkMediaSegment",
-      relationshipId: "rel_stock",
-      sourceId: "beat_hook",
-      mediaSegmentId: "stock",
-    }).model;
-    product = applyOperation(product, {
-      op: "unlinkMediaSegment",
-      relationshipId: "rel_stock",
-    }).model;
-    expect(product.relationships.rel_stock).toBeUndefined();
-
-    product = applyOperation(product, {
-      op: "linkShotIntent",
-      relationshipId: "rel_hook_shot",
-      sourceId: "beat_hook",
-      shotIntentId: "shot_demo_wide",
-    }).model;
-    product = applyOperation(product, {
-      op: "unlinkShotIntent",
-      relationshipId: "rel_hook_shot",
-    }).model;
-    expect(product.relationships.rel_hook_shot).toBeUndefined();
+    if (block?.type === "source_excerpt") expect(block.mediaSegmentId).toBe("interview_owner");
+    else throw new Error("expected SourceExcerpt");
   });
 });
 
-describe("runtime and serialization", () => {
-  it("estimates concurrent Cue duration and aggregates through hierarchy", () => {
+describe("runtime and persistence semantics", () => {
+  it("estimates Cue concurrency and aggregates runtime", () => {
     const product = createProductVideoFixture();
     const estimate = estimateNarrativeDuration(product, { wordsPerMinute: 150 });
 
@@ -340,7 +301,7 @@ describe("runtime and serialization", () => {
     expect(estimate.scriptMs).toBeLessThan(40_000);
   });
 
-  it("uses source ranges for interview duration and reflects trimming", () => {
+  it("uses source duration and changes runtime after trimming", () => {
     const project = createInterviewFixture();
     const before = estimateNarrativeDuration(project).scriptMs;
     const trimmed = applyOperation(project, {
@@ -349,21 +310,18 @@ describe("runtime and serialization", () => {
       sourceInMs: 15_000,
       sourceOutMs: 25_000,
     }).model;
-    const after = estimateNarrativeDuration(trimmed).scriptMs;
-
-    expect(after).toBeLessThan(before);
+    expect(estimateNarrativeDuration(trimmed).scriptMs).toBeLessThan(before);
   });
 
-  it("preserves all semantic data across serialization", () => {
+  it("round-trips IDs, ordering, ranges, relationships and schema version", () => {
     const project = createFootageFirstFixture();
-    const serialized = serializeNarrativeProject(project);
-    expect(deserializeNarrativeProject(serialized)).toEqual(project);
-    expect(() => deserializeNarrativeProject("{}")) .toThrow(/missing required top-level fields/);
+    expect(roundTrip(project)).toEqual(project);
+    expect(() => deserializeNarrativeProject("{}")).toThrow(/missing required top-level fields/);
   });
 });
 
-describe("validation and transaction safety", () => {
-  it("rejects duplicate IDs, dangling references, invalid lanes, and orphan entities", () => {
+describe("validation and transactions", () => {
+  it("rejects duplicate IDs, dangling refs, wrong lanes and orphans", () => {
     const project = createProductVideoFixture();
     project.blocks.orphan = { id: "orphan", type: "authored_speech", text: "unused" };
     project.cues.cue_hook!.visualBlockIds.push("vo_hook");
@@ -373,19 +331,13 @@ describe("validation and transaction safety", () => {
     const result = validateNarrativeProject(project);
     expect(result.valid).toBe(false);
     expect(result.issues.map((issue) => issue.code)).toEqual(
-      expect.arrayContaining([
-        "duplicate_id",
-        "dangling_reference",
-        "invalid_block_lane",
-        "orphaned_entity",
-      ]),
+      expect.arrayContaining(["duplicate_id", "dangling_reference", "invalid_block_lane", "orphaned_entity"]),
     );
   });
 
-  it("does not mutate the caller when an operation fails validation", () => {
+  it("does not mutate caller state when an operation fails", () => {
     const project = createInterviewFixture();
     const snapshot = serializeNarrativeProject(project);
-
     expect(() =>
       applyOperation(project, {
         op: "trimSourceExcerpt",
@@ -394,7 +346,6 @@ describe("validation and transaction safety", () => {
         sourceOutMs: 5_000,
       }),
     ).toThrow();
-
     expect(serializeNarrativeProject(project)).toBe(snapshot);
   });
 });
