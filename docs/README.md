@@ -1,6 +1,6 @@
 # Salai Documentation Map
 
-This directory separates product intent, implementation planning, architecture, proposals, and accepted decisions so the same information is not duplicated across several documents.
+This directory separates product intent, implementation planning, architecture, proposals, accepted decisions, and discovery evidence so the same information is not duplicated across several documents.
 
 ## Product and strategy
 
@@ -9,6 +9,7 @@ This directory separates product intent, implementation planning, architecture, 
 | [`product-brief.md`](product-brief.md) | Concise product thesis, target users, product boundary, and current direction | Living |
 | [`prd.md`](prd.md) | Product Requirements Document: what Salai must accomplish, for whom, why, scope, requirements, and success criteria | Living |
 | [`backlog.md`](backlog.md) | User stories and ordered product/engineering backlog | Living |
+| [`research-notes.md`](research-notes.md) | Concrete workflow observations from product discovery; evidence rather than decisions | Living research record |
 | [`service-levels.md`](service-levels.md) | SLA applicability and future reliability/support commitments | Living; no external SLA yet |
 | [`mvp.md`](mvp.md) | Validation sequence and staged implementation plan | Living |
 
@@ -29,6 +30,10 @@ This directory separates product intent, implementation planning, architecture, 
 | [`adr/`](adr/) | Append-only Architecture Decision Records for accepted technical decisions | Append-only |
 
 ## Document lifecycle
+
+### Discovery notes
+
+`research-notes.md` records concrete observations from product discovery. These notes are evidence, not decisions. When an observation becomes a requirement, proposal, or accepted technical choice, promote it explicitly into the PRD/backlog, an RFC, or an ADR.
 
 ### PRD / backlog / architecture / product docs
 
@@ -74,3 +79,5 @@ Before coding, the Narrative IR spec should define:
 - pass/fail criteria.
 
 The purpose of the spike is to validate the semantic model before UI, Resolve, persistence, or AI integration make changes expensive.
+
+Current discovery observations should pressure-test the spike without expanding it unnecessarily. In particular, one Beat may require several Cues, no additional semantic level below Cue has yet been justified, and later work should preserve alternatives without equating removal from active structure with permanent deletion.
