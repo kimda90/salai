@@ -56,10 +56,26 @@ Resolve integration is intentionally downstream because CutMaster already provid
 
 ## Documentation
 
-- [`docs/product-brief.md`](docs/product-brief.md) — product thesis, users, principles, and current MVP priority.
-- [`docs/scripting.md`](docs/scripting.md) — Narrative IR, Beat/Cue model, stable identity, authored vs sourced content, and scripting spikes.
-- [`docs/workflows.md`](docs/workflows.md) — familiar editorial paradigms, Projection vs Workspace, boards/cards, Story Wall, Paper/Radio Edit, AV Script, and UX validation.
-- [`docs/architecture.md`](docs/architecture.md) — runtime, domain model, OSS infrastructure boundaries, and downstream integrations.
+Start with [`docs/README.md`](docs/README.md) for the documentation map and lifecycle.
+
+### Product and strategy
+
+- [`docs/product-brief.md`](docs/product-brief.md) — concise product thesis, users, principles, and current direction.
+- [`docs/prd.md`](docs/prd.md) — Product Requirements Document: problem, users, requirements, objectives, non-goals, and success criteria.
+- [`docs/backlog.md`](docs/backlog.md) — user stories and NOW/NEXT/LATER backlog.
+- [`docs/service-levels.md`](docs/service-levels.md) — SLA applicability and reliability policy; no external SLA at the current stage.
 - [`docs/mvp.md`](docs/mvp.md) — ordered technical/product validation phases and acceptance criteria.
+
+### Narrative and workflows
+
+- [`docs/scripting.md`](docs/scripting.md) — Narrative IR research, Beat/Cue model, stable identity, and authored-vs-sourced content.
+- [`docs/workflows.md`](docs/workflows.md) — familiar editorial paradigms, Projection vs Workspace, boards/cards, Story Wall, Paper/Radio Edit, AV Script, and UX validation.
+- [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md) — Technical Design Document / implementation contract for Spike 0A.
+
+### Architecture and decisions
+
+- [`docs/architecture.md`](docs/architecture.md) — System Architecture Document covering runtime, domain boundaries, OSS infrastructure, and downstream integrations.
+- [`docs/rfcs/`](docs/rfcs/) — collaborative proposals for major changes; RFC 0001 covers one Narrative IR with multiple familiar workflows.
+- [`docs/adr/`](docs/adr/) — append-only Architecture Decision Records for accepted decisions.
 
 This repository is currently in product/technical discovery.
