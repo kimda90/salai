@@ -8,19 +8,21 @@ Salai is presently a local-first product in discovery/alpha development, not a h
 
 ## Why SLA is not applicable yet
 
-The initial product is expected to run primarily on the user's own workstation and interact with local software/services such as DaVinci Resolve, local project storage, and optional local GenAI backends.
+The initial product is expected to run primarily on the user's workstation and interact with local software/services such as DaVinci Resolve, project storage, and optional local GenAI backends.
 
-Traditional hosted-service metrics such as `99.9% API uptime` do not describe the most important reliability risks for this product.
+Traditional hosted-service metrics such as `99.9% API uptime` do not describe the most important current reliability risks.
 
-Early reliability concerns are instead:
+Early concerns are instead:
 
 - project data integrity;
 - deterministic save/reopen behavior;
 - crash recovery;
 - safe structural editing;
-- explicit degraded states when Resolve/ComfyUI/other dependencies are unavailable;
+- explicit degraded states when integrations are unavailable;
 - no silent loss of relationships or source identity;
 - predictable behavior when local files move or disappear.
+
+The Narrative IR implementation-level data-integrity contract is authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md), especially its hierarchy, identity, deletion, relationship, atomic-operation, and serialization invariants. This document states quality expectations rather than duplicating those technical rules.
 
 ## Non-contractual engineering quality goals
 
@@ -28,9 +30,10 @@ These are product-quality expectations, **not customer SLAs**.
 
 ### Data integrity
 
-- Salai must not silently discard narrative objects, relationships, source references, or production assets during ordinary editing operations.
+- Ordinary edits must not silently discard narrative identity, source references, or production relationships.
 - Schema migrations must be versioned and testable.
-- Failed writes/migrations should surface clearly rather than leave partially mutated project state.
+- Failed writes/migrations must surface clearly rather than leave partially mutated project state.
+- Persistence tests should cover the authoritative domain invariants rather than restating a parallel rule set here.
 
 ### Local dependency failures
 
@@ -43,14 +46,14 @@ When an optional dependency such as Resolve, CutMaster, ComfyUI, or a hosted mod
 
 ### User work preservation
 
-Before public alpha, Salai should define and test:
+Before public alpha, define and test:
 
 - autosave/manual-save behavior;
 - crash recovery expectations;
 - backup/project-copy behavior;
 - rollback behavior for failed migrations.
 
-Numeric targets should be established after the real desktop runtime can be instrumented and measured.
+Numeric targets should be established only after the real desktop runtime can be instrumented and measured.
 
 ## When an SLA becomes necessary
 
@@ -74,7 +77,7 @@ At that point, define separate commitments for:
 
 ## Relationship to SLOs and SLIs
 
-Before contractual SLAs, internal engineering should introduce measurable **Service Level Indicators (SLIs)** and **Service Level Objectives (SLOs)** for the components that actually exist.
+Before contractual SLAs, introduce measurable Service Level Indicators (SLIs) and Service Level Objectives (SLOs) only for components that actually exist.
 
 Possible future desktop/local SLIs include:
 
@@ -86,4 +89,4 @@ Possible future desktop/local SLIs include:
 - time to detect a disconnected dependency;
 - operation failure/recovery rate.
 
-Do not assign numeric targets until the implementation can collect representative measurements.
+Do not assign numeric targets until implementation can collect representative measurements.

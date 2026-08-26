@@ -1,82 +1,100 @@
 # Salai
 
-Salai is an experimental local-first DaVinci Resolve companion for scripted and footage-first video production.
+Salai is an experimental local-first, narrative-aware production companion for DaVinci Resolve.
 
-The core idea is to keep **story, narrative intent, ShotIntents, captured/generated media, review notes, and Resolve timelines connected** throughout a project.
+The core idea is to keep **story intent, source material, ShotIntents, captured/generated media, alternatives, review context, and Resolve editorial state connected** throughout a project.
 
-## Current product hypothesis
+## Product hypothesis
 
-A Salai script is not only formatted text. It is a structured narrative model with stable identity.
+> **One Narrative IR, multiple familiar creative workflows.**
 
-The same Narrative IR should support both derived projections and familiar persistent creative workspaces.
+A project may begin from a blank idea/script or from existing footage/interviews/selects. The same underlying narrative/production data should be usable through workflows filmmakers already understand:
 
 ### Projections
 
-- **Outline** — sections/scenes/beats and structural authoring;
-- **AV Script** — Beat/Cue visual and audio intent side by side;
-- **Teleprompter** — derived spoken copy;
-- **Coverage** — narrative objects linked to ShotIntents and realizations.
+- Outline
+- AV Script
+- Teleprompter
+- Coverage
 
-### Familiar workspaces
+### Workspaces
 
-- **Story Wall** — scene/beat cards for spatial structural reasoning, inspired by established index-card/sticky-note editorial methods;
-- **Beat Board / Scratch Board** — loose ideas that can later become or attach to canonical narrative objects;
-- **Paper Edit** — source excerpts and visual evidence arranged into story structure;
-- **Radio Edit** — audio-first interview/VO construction;
-- **Frame Wall** — later spatial exploration of selected frames/takes;
-- **Selects/Coverage** — production intent connected to available realizations.
+- Story Wall / sticky-note scene construction
+- Beat Board / Scratch Board
+- Paper Edit
+- Radio Edit
+- later Frame Wall / Selects / previs-oriented surfaces
 
-Projects can start from a blank idea, an AV script, a wall of cards, transcripts/interview selects, or existing footage. These are different ways of manipulating the same underlying production graph rather than separate project types.
+Salai should make the production graph disappear behind those familiar workflows rather than ask users to think in database concepts.
 
-A core UX principle is:
+DaVinci Resolve remains the media, frame-accurate editing, Fusion, color, Fairlight, and delivery environment.
 
-> Salai should make the production graph disappear behind familiar creative workflows.
+## Current development state
+
+Implementation has started with **Spike 0A — Narrative IR**.
+
+The repository now contains a TypeScript/pnpm workspace and:
+
+```text
+packages/script-model/
+```
+
+Spike 0A validates:
+
+- stable narrative identity;
+- Beat/Cue usefulness across three representative workflows;
+- authored vs source-backed content;
+- structural operations and relationship effects;
+- serialization/versioning;
+- approximate runtime estimation.
+
+The authoritative implementation contract is [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md). Summary docs should not duplicate its operation vocabulary or invariants.
+
+After 0A:
+
+- **0B — Authoring UX** validates Story Wall, Outline, AV Script, and Paper/Radio Edit over the same IR and defines the minimum Workspace/Board model.
+- **0C — Assisted authoring** validates AI-proposed domain operations with reviewable structural/runtime/relationship consequences.
+
+Resolve and broader persistence/integration work remain downstream.
 
 ## Architecture direction
 
-- **Narrative IR in TypeScript** as the canonical scripting/domain model, independent from any editor framework.
-- **Electron + React/TypeScript** for the eventual local desktop runtime and UI.
-- **Python/FastAPI + SQLite** for the local production service and graph persistence after the Narrative IR is validated.
-- **CutMaster** as the preferred Resolve automation infrastructure rather than rebuilding broad Resolve API coverage.
-- **OpenAssetIO** at the asset identity/resolution/publishing boundary.
-- **OpenTimelineIO** for editorial interchange where useful.
-- **ComfyUI** as the initial GenAI execution backend.
-- **FFmpeg/ffprobe** for media utilities.
-- **Fountain/FDX** as later screenplay interchange adapters, not canonical storage.
+Current broader direction:
 
-DaVinci Resolve remains the media, editing, Fusion, color, Fairlight, and delivery engine. Generated media is treated as ordinary production media: generate, ingest, review, edit, and finish normally.
+- TypeScript Narrative IR;
+- Electron + React/TypeScript desktop UI/runtime;
+- local Python/FastAPI service;
+- SQLite persistence after model/UX validation;
+- CutMaster for Resolve automation where practical;
+- OpenAssetIO / OpenTimelineIO at interoperability boundaries;
+- ComfyUI and other providers for generation;
+- FFmpeg/ffprobe for media utilities.
 
-## Current development priority
-
-The immediate milestone is **Spike 0A — Narrative IR**: validate the Beat/Cue model, authored-vs-sourced content, stable IDs, structural operations, runtime estimation, and three realistic fixtures in a pure TypeScript package.
-
-The next UX spike, **0B**, will test whether the same IR feels natural through familiar working methods: Story Wall, Outline, AV Script, and Paper/Radio Edit. Rich-text/editor frameworks should be chosen only after the working surfaces demonstrate what they actually need.
-
-Resolve integration is intentionally downstream because CutMaster already provides a credible open-source path for the generic Resolve automation layer.
+See [`docs/architecture.md`](docs/architecture.md) for system-level ownership.
 
 ## Documentation
 
-Start with [`docs/README.md`](docs/README.md) for the documentation map and lifecycle.
+Start with [`docs/README.md`](docs/README.md), which defines the canonical owner for each kind of information.
 
-### Product and strategy
+Key documents:
 
-- [`docs/product-brief.md`](docs/product-brief.md) — concise product thesis, users, principles, and current direction.
-- [`docs/prd.md`](docs/prd.md) — Product Requirements Document: problem, users, requirements, objectives, non-goals, and success criteria.
-- [`docs/backlog.md`](docs/backlog.md) — user stories and NOW/NEXT/LATER backlog.
-- [`docs/research-notes.md`](docs/research-notes.md) — concrete workflow observations from product discovery; evidence rather than decisions.
-- [`docs/service-levels.md`](docs/service-levels.md) — SLA applicability and reliability policy; no external SLA at the current stage.
-- [`docs/mvp.md`](docs/mvp.md) — ordered technical/product validation phases and acceptance criteria.
+- [`docs/product-brief.md`](docs/product-brief.md) — concise product thesis and positioning;
+- [`docs/prd.md`](docs/prd.md) — product requirements and success criteria;
+- [`docs/glossary.md`](docs/glossary.md) — canonical product/domain terminology;
+- [`docs/competitive-landscape.md`](docs/competitive-landscape.md) — named adjacent products and positioning pressure tests;
+- [`docs/research-notes.md`](docs/research-notes.md) — product-discovery evidence;
+- [`docs/scripting.md`](docs/scripting.md) — conceptual scripting rationale;
+- [`docs/workflows.md`](docs/workflows.md) — familiar editorial workflow/Workspace semantics;
+- [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md) — authoritative Spike 0A TDD;
+- [`docs/mvp.md`](docs/mvp.md) — validation/implementation roadmap;
+- [`docs/backlog.md`](docs/backlog.md) — current work ordering;
+- [`docs/architecture.md`](docs/architecture.md) — System Architecture Document;
+- [`docs/rfcs/`](docs/rfcs/) — proposals;
+- [`docs/adr/`](docs/adr/) — accepted architecture decisions;
+- [`docs/service-levels.md`](docs/service-levels.md) — current reliability/SLA policy.
 
-### Narrative and workflows
+## Contributing and license
 
-- [`docs/scripting.md`](docs/scripting.md) — Narrative IR research, Beat/Cue model, stable identity, and authored-vs-sourced content.
-- [`docs/workflows.md`](docs/workflows.md) — familiar editorial paradigms, Projection vs Workspace, boards/cards, Story Wall, Paper/Radio Edit, AV Script, and UX validation.
-- [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md) — Technical Design Document / implementation contract for Spike 0A.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development/documentation conventions.
 
-### Architecture and decisions
-
-- [`docs/architecture.md`](docs/architecture.md) — System Architecture Document covering runtime, domain boundaries, OSS infrastructure, and downstream integrations.
-- [`docs/rfcs/`](docs/rfcs/) — collaborative proposals for major changes; RFC 0001 covers one Narrative IR with multiple familiar workflows.
-- [`docs/adr/`](docs/adr/) — append-only Architecture Decision Records for accepted decisions.
-
-This repository is currently in product/technical discovery.
+Salai does not currently publish an open-source license. See [`LICENSE`](LICENSE) for the current status; third-party dependencies retain their own licenses.

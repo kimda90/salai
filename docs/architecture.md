@@ -1,329 +1,201 @@
-# Salai Architecture
+# Salai System Architecture
+
+## Status
+
+Living System Architecture Document (SAD).
+
+This document owns system-level boundaries, runtime topology, component responsibilities, persistence ownership, and staged infrastructure direction. It does **not** own Narrative IR field-level semantics or the operation vocabulary; those are authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md).
+
+Product terminology is centralized in [`glossary.md`](glossary.md).
 
 ## Architectural thesis
 
-Salai owns the production and narrative context of a video project while reusing mature open-source infrastructure for Resolve automation, asset resolution, editorial interchange, media processing, and generative execution.
+Salai owns the narrative and production context around a video while reusing mature infrastructure for editing, media processing, asset interchange, and generation.
 
-The product-specific engineering effort should concentrate on the relationship between:
+The product-specific layer connects:
 
-`idea ↔ narrative IR ↔ shot intent ↔ asset realization ↔ editorial use ↔ review/revision`
+```text
+idea / story intent
+       ↕
+Narrative IR
+       ↕
+ShotIntent / source evidence
+       ↕
+assets / generated or captured realizations
+       ↕
+editorial use / review / revision
+```
 
-The current highest-risk part of this architecture is the **Narrative IR / scripting model**, not Resolve automation.
+DaVinci Resolve remains the downstream NLE and finishing environment.
 
-Salai should avoid rebuilding infrastructure that can be consumed behind a stable, permissively licensed interface.
-
-## High-level shape
+## High-level system shape
 
 ```text
                          SALAI
 
                    Narrative IR
                          │
-          ┌──────────────┼──────────────┐
-          │              │              │
-       Story          Shot Intent      Assets
-          │              │              │
- Sections/Beats       Coverage      OpenAssetIO
-      Cues               │              │
- Visual / Audio          │              │
-          └──────────────┼──────────────┘
+       ┌─────────────────┼─────────────────┐
+       │                 │                 │
+   Workspaces         ShotIntent         Assets
+       │                 │                 │
+Story Wall /        Coverage          local media /
+Paper Edit /            │             generated media
+AV surfaces             │                 │
+       └─────────────────┼─────────────────┘
                          │
-             ┌───────────┴───────────┐
-             │                       │
-          Editorial                GenAI
-             │                       │
-      OpenTimelineIO          Generation Core
-             │                 ┌─────┴──────┐
-             │               ComfyUI    Hosted APIs
-             │                 └─────┬──────┘
-             │                       │
-             └───────────┬───────────┘
+                Local production graph
+                         │
+            ┌────────────┴────────────┐
+            │                         │
+       Editorial                  Generation
+            │                         │
+     OpenTimelineIO                ComfyUI /
+            │                     hosted APIs
+            └────────────┬────────────┘
                          │
                      CutMaster
                          │
                   DaVinci Resolve
 ```
 
-# Narrative IR
+## Canonical layers
 
-## Script is domain data, not an editor document
+### 1. Narrative IR
 
-The canonical scripting model should exist independently from React, Tiptap, ProseMirror, Lexical, HTML, Fountain, or any particular persistence layer.
+Owns stable semantic narrative identity and authored/source-backed content.
 
-Initial explicit domain hierarchy:
+Core concepts:
 
 ```text
 Script
-└── Section
-    ├── optional Scene
-    │   └── Beat
-    │       └── Cue
-    └── Beat
-        ├── Cue
-        └── Cue
+Section
+Scene?
+Beat
+Cue
+ContentBlock
+Relationship stubs
 ```
 
-The implementation should use explicit discriminated types and allowed relationships rather than a generic recursively nestable `NarrativeNode` as the primary data structure.
+The authoritative hierarchy, invariants, operation API, serialization contract, and Spike 0A fixtures live in [`narrative-ir-spec.md`](narrative-ir-spec.md).
 
-`NarrativeNode` may remain useful shorthand in diagrams and generic relationship APIs.
+### 2. Workspace layer
 
-## Beat and Cue have different responsibilities
+Owns persistent human organization that should not pollute Narrative IR semantics.
 
-### Beat
-
-A Beat is the semantic narrative unit: the idea, revelation, argument, action, or change that advances the story.
-
-### Cue
-
-A Cue is an audiovisual/temporal unit inside a Beat: a moment where visual and audio content occur together or overlap approximately.
-
-This distinction allows one narrative idea to contain several AV rows without incorrectly turning every shot/moment into a separate Beat.
+Core concepts:
 
 ```text
-Beat: installation is simple
-
-Cue 1  wide installation      VO begins
-Cue 2  connector close-up     VO continues
-Cue 3  UI confirmation        SFX
-Cue 4  reaction               music rises
+Workspace
+Board
+BoardItem
+IdeaCard
 ```
 
-`Cue` is a working domain term and remains subject to validation in Spike 0A.
+Typical state includes:
 
-## ContentBlock semantics
+- spatial position;
+- size;
+- color;
+- rotation;
+- lanes/groups;
+- notes;
+- parking-lot/alternate placement;
+- references to canonical narrative/media/ShotIntent objects.
 
-Cues contain typed content blocks.
+A BoardItem can reference the same Beat/Scene/etc. from multiple workspaces while carrying different layout metadata in each.
 
-Minimal initial types:
+#### Ownership by phase
 
-```text
-Visual
-- VisualDescription
-- OnScreenText
-- Graphic
+- **Spike 0B:** define the minimum in-memory Workspace/Board model necessary to validate Story Wall and Paper/Radio Edit UX.
+- **Phase 2:** persist Workspace/Board/BoardItem/IdeaCard state together with the production graph.
 
-Audio
-- AuthoredSpeech
-- SourceExcerpt
-- Music
-- SFX
-```
+This keeps Workspace out of Spike 0A without leaving persistence architecturally orphaned.
 
-The model should grow only when real fixtures require additional types.
+### 3. Production graph
 
-## Authored content and sourced evidence are different
+Owns persistent relationships between narrative intent and actual production/editorial objects.
 
-`AuthoredSpeech` represents editable copy created for the production.
-
-`SourceExcerpt` represents a specific time range in existing recorded media and points to a `MediaSegment`.
+Core concepts:
 
 ```text
-AuthoredSpeech
-- id
-- text
-- role/type
-
-SourceExcerpt
-- id
-- mediaSegmentId
-- source in/out
-- transcript snapshot/display text
-```
-
-Changing authored copy changes the intended words.
-
-Changing the displayed transcript of a SourceExcerpt must not pretend the underlying recording changed. Trimming, replacing, unlinking, or paraphrasing sourced material are distinct operations.
-
-This distinction is central to using one Narrative IR for both script-first and footage-first workflows.
-
-## Views are projections
-
-The same Narrative IR should support multiple UIs:
-
-```text
-                     Narrative IR
-                         │
-       ┌─────────────────┼─────────────────┐
-       │                 │                 │
-    Outline          AV Script        Teleprompter
-       │                 │                 │
- Section/Beat       Beat/Cue V|A      AuthoredSpeech
-       │
-       └──────────── Coverage / ShotIntent
-```
-
-No view is canonical storage.
-
-A later screenplay-like projection may add scene headings, action, character/dialogue formatting, but it should not determine the first data model.
-
-## ShotIntent relationships
-
-`ShotIntent` remains separate from narrative content.
-
-Relationships may exist at Beat or Cue granularity:
-
-```text
-Beat ↔ ShotIntent
-Cue  ↔ ShotIntent
-```
-
-The correct default granularity is deliberately left to the spike.
-
-A ShotIntent is later realized by Assets or MediaSegments:
-
-```text
+Project
 ShotIntent
-├── storyboard
-├── captured takes
-├── generated takes
-├── stock material
-└── graphics/composites
+Asset
+MediaSegment
+Relationship
+Annotation
+ResolveBinding
 ```
 
-## Stable identity and structural operations
-
-Narrative objects participate in the production graph, so structural editing must preserve identity and relationships intentionally.
-
-Initial invariants:
-
-- field/text edit preserves ID;
-- move/reorder preserves ID and relationships;
-- split creates new identity while retaining one original identity;
-- merge retains one canonical identity and records provenance;
-- deleting narrative structure never silently deletes linked external production objects;
-- operations should be transactional and invertible/undoable where possible.
-
-The exact relationship redistribution rules for split/merge are product questions to validate, not assumptions to hide in UI behavior.
-
-## Structural operation API
-
-The Narrative IR should expose explicit operations such as (abbreviated; the authoritative Spike 0A list is defined in [`narrative-ir-spec.md`](narrative-ir-spec.md)):
+Later domain concepts are introduced in the phase that needs them rather than all being required in Phase 2:
 
 ```text
-createSection
-createBeat
-createCue
-updateBlock
-moveBeat
-moveCue
-splitBeat
-mergeBeats
-deleteBeat
-linkShotIntent
-unlinkShotIntent
-linkMediaSegment
-trimSourceExcerpt
+PaperEdit / alternate edit materialization  → later editorial phases
+GenerationJob / GenerationArtifact         → GenAI phase
+Deliverable                                → delivery/product phase
 ```
 
-This API provides the common control surface for:
+A Paper Edit may initially be represented as a Workspace over SourceExcerpts/Beats/Cues. If later materialization/versioning requirements justify a distinct `PaperEdit` domain object, that decision should be made when Phase 6 is implemented rather than assumed now.
 
-- human editing;
-- validation;
-- undo;
-- persistence transactions;
-- future collaboration;
-- future AI-assisted changes.
+## Narrative and production relationships
 
-A real LLM is not needed to validate this layer.
-
-## Runtime estimation
-
-Cue-level timing is the initial runtime abstraction.
+Representative relationships:
 
 ```text
-Cue duration = explicit duration
-  OR max(
-    authored speech estimate,
-    SourceExcerpt source duration,
-    visual hold estimate
-  )
-
-Beat duration = sum(Cue durations)
+Beat/Cue ↔ ShotIntent
+SourceExcerpt → MediaSegment
+Beat/Cue ↔ supporting MediaSegment
+ShotIntent ↔ Asset/MediaSegment realization
+MediaSegment ↔ Resolve object
+Annotation ↔ narrative/media/editorial object
+GenerationJob ↔ ShotIntent
 ```
 
-The goal is useful 15/30/60/90-second authoring feedback, not frame-accurate editorial timing.
+Plain typed records and normal persistence are sufficient initially. No graph database is required.
 
-## Reverse scripting
+## Workspace vs projection
 
-Footage-first work uses the same Narrative IR.
+A **Projection** is deterministically derived from canonical state:
 
 ```text
-MediaSegments
-     ↓
-SourceExcerpts / visual evidence
-     ↓
-Cues
-     ↓
-Beats / Sections
+Outline
+AV Script
+Teleprompter
+Coverage
 ```
 
-A Beat can therefore emerge from existing material while retaining direct source relationships.
-
-# Implementation staging
-
-## Spike 0A — pure TypeScript Narrative IR
-
-The first implementation should be isolated from application architecture:
+A **Workspace** stores human organizational decisions:
 
 ```text
-packages/script-model/
+Story Wall
+Beat Board
+Paper Edit
+Radio Edit
+Frame Wall
+Selects board
 ```
 
-Dependencies should be minimal.
+No projection becomes canonical storage. Workspace metadata does not redefine Beat/Scene semantics.
 
-Do not introduce:
-
-- Electron;
-- React;
-- editor frameworks;
-- Python/FastAPI;
-- SQLite;
-- Resolve;
-- real LLM calls;
-- Fountain/FDX.
-
-The purpose is to make domain-model changes cheap.
-
-## Spike 0B — authoring UI
-
-After 0A succeeds, build a React projection of the domain model.
-
-Test plain React authoring controls first. Use Tiptap/ProseMirror or Lexical only where richer text editing provides concrete value.
-
-The editor framework must not become the canonical domain representation.
-
-## Spike 0C — assisted authoring
-
-After the operation API and UX are inspectable, allow an LLM to propose validated operation patches.
-
-```text
-Narrative IR
-   ↓
-LLM proposed operations
-   ↓
-validation
-   ↓
-structural/runtime/relationship diff
-   ↓
-review/apply/reject
-```
+See [`workflows.md`](workflows.md) for UX behavior.
 
 # Runtime architecture
 
-The broader application remains a local desktop production application.
+After Narrative IR and authoring UX are validated, Salai remains a local-first desktop application.
 
 ```text
 ┌─────────────────────────────────────────────┐
 │                SALAI ELECTRON               │
 │                                             │
 │ Main process                                │
-│ - native file/folder dialogs                │
+│ - file/folder dialogs                       │
 │ - filesystem access/watching                │
 │ - process lifecycle                         │
 │ - OS integration                            │
 │                                             │
 │ Preload                                     │
-│ - narrow typed IPC API                      │
+│ - narrow typed IPC                          │
 │                                             │
 │ Renderer                                    │
 │ - React + TypeScript                        │
@@ -331,114 +203,93 @@ The broader application remains a local desktop production application.
                     │ localhost HTTP / WS
                     ▼
 ┌─────────────────────────────────────────────┐
-│              SALAI PYTHON SERVICE           │
+│              SALAI LOCAL SERVICE            │
 │                                             │
-│ FastAPI                                     │
+│ Python / FastAPI                            │
 │ SQLite                                      │
-│ production persistence                      │
+│ media/filesystem services                   │
 │ CutMaster integration                       │
-│ OpenAssetIO                                 │
-│ OpenTimelineIO                              │
+│ OpenAssetIO / OpenTimelineIO                │
 │ ComfyUI / GenAI adapters                    │
-│ ffmpeg / ffprobe / analysis                 │
+│ FFmpeg / ffprobe                            │
 └─────────────────────────────────────────────┘
 ```
 
-This runtime architecture should not be pulled into Narrative IR Spike 0A.
+Electron remains the OS/runtime shell; the local service owns heavier media/integration concerns. Spike 0A must not depend on this runtime.
 
 # Infrastructure boundaries
 
+## DaVinci Resolve
+
+Resolve owns:
+
+- frame-accurate editing;
+- media playback/proxies/codecs;
+- Fusion;
+- color;
+- Fairlight/audio post;
+- rendering/delivery.
+
+Salai owns the story/production context that should survive around those operations.
+
 ## CutMaster
 
-Use the MIT-licensed CutMaster project as preferred Resolve automation infrastructure through stable/public surfaces where practical.
-
-Salai decides *why* an operation occurs; CutMaster handles generic Resolve automation.
+Preferred Resolve automation infrastructure where its stable/public interfaces cover Salai's needs. Salai decides *why* an operation occurs; CutMaster performs generic Resolve automation.
 
 ## OpenAssetIO
 
-Use OpenAssetIO at the asset identity/resolution/publishing boundary only. It does not replace narrative or production-graph data.
+Use at the asset identity/resolution/publishing boundary. It does not replace narrative or production-graph state.
 
 ## OpenTimelineIO
 
-Use OTIO for editorial interchange where useful. `PaperEdit` remains a Salai domain model because it carries narrative intent beyond editorial interchange.
+Use for editorial interchange where useful. It does not carry all Salai narrative/workspace semantics.
 
-## ComfyUI
+## ComfyUI / generation providers
 
-Treat GenAI as another source of production media. Register known workflows and expose only production-relevant parameters; do not recreate ComfyUI's node editor.
+Treat generated outputs as normal production assets with provenance. Salai should register useful workflows and expose production-relevant parameters rather than recreate a node editor.
 
-# Core data model direction
+## FFmpeg / ffprobe
 
-```text
-Project
-Script
-Section
-Scene?
-Beat
-Cue
-ContentBlock
-ShotIntent
-Asset
-MediaSegment
-Relationship
-PaperEdit
-Annotation
-GenerationJob
-ResolveBinding
-Deliverable
-```
-
-Important relationships include:
-
-```text
-Beat/Cue ↔ ShotIntent
-SourceExcerpt ↔ MediaSegment
-ShotIntent ↔ Asset/MediaSegment
-MediaSegment ↔ Resolve timeline item
-Annotation ↔ narrative/media/editorial object
-GenerationJob ↔ ShotIntent
-```
+Use as commodity local media utilities where appropriate.
 
 # Persistence boundary
 
-Spike 0A validates serialization semantics only.
+Spike 0A validates versioned serialization only.
 
-Later, the local project may use normalized SQLite tables, structured JSON plus indexes, or a hybrid. The storage choice must preserve the versioned Narrative IR and must not make editor state canonical.
+Phase 2 introduces durable local persistence for:
 
-# Interchange
+- validated Narrative IR;
+- production graph objects/relationships;
+- Workspace/Board state needed by 0B workflows;
+- annotations and Resolve bindings as they become real.
 
-Fountain and FDX are later adapters, not Spike 0A dependencies and not canonical storage.
-
-```text
-Fountain / FDX
-      ↕
-Narrative IR
-```
+SQLite remains the default direction. The schema should preserve domain versioning and stable IDs without making UI/editor state canonical.
 
 # Technology baseline
 
-Immediate Spike 0A:
+## Spike 0A
 
 ```text
 TypeScript
 pnpm
-unit tests
+Vitest/unit tests
+packages/script-model/
 ```
 
-Broader application:
+## Broader application
 
 ```text
-Frontend/runtime
+Desktop/UI
 - Electron
 - React
 - TypeScript
 - Vite
 
-Backend
+Local service
 - Python 3.11+
 - FastAPI
 - Pydantic
 - SQLite
-- uv
 
 Infrastructure
 - CutMaster
@@ -448,31 +299,15 @@ Infrastructure
 - FFmpeg / ffprobe
 ```
 
-No Rust/Tauri dependency is currently justified.
+No Rust/Tauri or graph-database dependency is currently justified.
 
-# Current open questions
+# Architecture questions not owned by Spike 0A
 
-## Narrative IR — highest priority
+- final Workspace persistence schema after 0B UX evidence;
+- CutMaster coverage for the required Resolve vertical slice;
+- OpenAssetIO trait/entity design;
+- cross-platform Electron + Python packaging;
+- GenAI operation set and provider abstraction details;
+- eventual collaboration/sync architecture.
 
-1. Is `Beat` semantically distinct enough from `Cue` to justify both levels?
-2. Does `Cue` remain useful across product video, interview/corporate, and footage-first documentary fixtures?
-3. Which content types are truly necessary in the smallest model?
-4. Do `AuthoredSpeech` and `SourceExcerpt` cover the crucial authored-vs-sourced distinction cleanly?
-5. Should ShotIntent links default to Beat, Cue, or allow both equally?
-6. What split/merge relationship policies are least surprising?
-7. Can runtime estimation be expressed cleanly at Cue level?
-8. Can the operation vocabulary represent meaningful restructuring without escape-hatch mutation?
-9. Does serialization preserve all required identity/invariants without committing to persistence technology?
-
-## Authoring UX
-
-10. Can a plain React projection make the domain model pleasant to author?
-11. Where, if anywhere, is Tiptap/ProseMirror/Lexical actually needed?
-12. Can Outline, AV Script, and Teleprompter remain projections rather than diverging documents?
-
-## Downstream infrastructure
-
-13. Which CutMaster public tools cover the required Resolve vertical slice?
-14. What is the smallest useful OpenAssetIO trait/entity design?
-15. How should Electron + Python be packaged cross-platform?
-16. Which GenAI operations belong in the first production vertical slice?
+Narrative IR questions belong in [`narrative-ir-spec.md`](narrative-ir-spec.md), not here.

@@ -1,0 +1,29 @@
+# Node / pnpm
+node_modules/
+.pnpm-store/
+
+# Build / test
+packages/*/dist/
+coverage/
+.vitest/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment / local config
+.env
+.env.*
+!.env.example
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Logs
+*.log
+pnpm-debug.log*
+
+# Future local project/runtime artifacts
+*.salai/
+cache/

@@ -2,349 +2,174 @@
 
 ## Product thesis
 
-Salai is a local-first DaVinci Resolve companion for scripted and footage-first video creation.
+Salai is a local-first, narrative-aware production companion for DaVinci Resolve.
 
-Its core responsibility is not to replace Resolve. Salai maintains production context that traditional NLEs do not model well: what story is being told, why a piece of footage exists, what narrative intent it serves, what was planned before shooting, what source evidence exists, what coverage is missing, and how those relationships evolve across revisions and edits.
+Its job is not to replace the NLE. Salai keeps story intent, source evidence, production needs, real/generated media, alternatives, and later editorial use connected across a project.
 
-The central model is a persistent relationship between:
+The central product idea is:
 
-`idea ↔ narrative IR ↔ shot intent ↔ asset/source evidence ↔ timeline use ↔ review/revision`
+> **One Narrative IR, multiple familiar creative workflows.**
 
-Projects may enter this graph in either direction:
-
-1. **Script-first** — idea → narrative structure → ShotIntents → capture/generation → edit.
-2. **Footage-first** — existing media → meaningful MediaSegments → sourced evidence → narrative structure → paper edit/edit.
-
-# Current product-risk focus: Narrative IR
-
-Resolve automation has a credible infrastructure path through CutMaster. The larger unknown is the scripting/authoring model.
-
-Salai should not assume that every project is a traditional screenplay or that a script is only formatted text.
-
-Current hypothesis:
-
-> A Salai script is stable semantic production data. Outline, AV Script, Teleprompter, Coverage, and later screenplay-like views are projections of the same Narrative IR rather than independent documents.
-
-The first implementation should test this model without Electron, Resolve, a real LLM, or a rich-text editor framework.
-
-## Product discovery evidence
-
-Current workflow observations reinforce several constraints without turning them into architecture commitments:
-
-- creators often think first in terms of the idea or narrative progression they want the audience to receive;
-- one Beat may require several audiovisual Cues;
-- no additional semantic layer below Cue has yet been justified by a concrete workflow need;
-- creative validation is progressive across reading/imagining, capture or generation, watching material, and editing in context;
-- rejected material is often retained nearby or in alternate versions rather than permanently deleted;
-- low-friction previs could move useful creative feedback earlier;
-- a mixed-media spatial canvas is a shelved research idea rather than a committed product surface.
-
-See `docs/research-notes.md` for the discovery record.
-
-## Beat and Cue
-
-The working model separates narrative meaning from audiovisual timing.
+Projects may begin from either direction:
 
 ```text
-Beat = semantic narrative unit
-Cue  = audiovisual/temporal moment within a Beat
+script-first
+idea → narrative → production intent → capture/generation → edit
+
+footage-first
+media → source evidence/selects → narrative → edit
 ```
 
-Example:
+The same underlying project should be usable through workflows filmmakers already understand rather than through exposed database/graph concepts.
 
-```text
-Beat: installation is simple
+## Problem
 
-Cue 1  wide installation      VO begins
-Cue 2  connector close-up     VO continues
-Cue 3  UI confirmation        SFX
-Cue 4  reaction               music rises
-```
+Video production context is fragmented across scripts, notes, cards, shot lists, bins, transcripts, review systems, AI tools, and timelines.
 
-This allows one narrative idea to contain several AV-script rows/moments without forcing each shot into a separate Beat.
+Traditional NLEs are excellent at manipulating media but are not designed to preserve all of the broader questions editors carry in their heads:
 
-`Cue` is intentionally a working term that the spike may validate or reject.
+- What idea is this moment trying to communicate?
+- Which footage or interview quote supports it?
+- What coverage is missing?
+- Which alternatives were tried and rejected?
+- What changed when the narrative was restructured?
+- Can a missing element be shot, found, generated, or represented as previs?
 
-## Authored vs sourced material
+When those answers live in separate documents or memory, story intent drifts away from media and the edit.
 
-Footage-first work requires a distinction that normal screenwriting tools often do not need.
+## Solution direction
 
-### AuthoredSpeech
+Salai maintains stable narrative/production identity while presenting familiar working surfaces such as:
 
-Editable copy created for the production: voiceover, presenter copy, scripted dialogue.
+- Outline;
+- AV Script;
+- Story Wall / sticky-note scene construction;
+- Beat Board / scratch board;
+- Paper Edit;
+- Radio Edit;
+- Coverage / shot planning;
+- later Frame Wall, Selects, previs, and timeline-oriented views.
 
-### SourceExcerpt
+Some surfaces are derived **Projections**; others are persistent **Workspaces**. See [`glossary.md`](glossary.md) for canonical terminology and [`workflows.md`](workflows.md) for UX semantics.
 
-A reference to words that already exist in recorded media, linked to a `MediaSegment` and source in/out.
+Generated media is treated like ordinary production media: it can represent previs, missing coverage, alternatives, plates, graphics, etc., and then be reviewed/edited normally.
 
-The transcript of a SourceExcerpt is evidence/display data, not freely editable authored copy. Trimming, replacing, unlinking, or paraphrasing sourced material have different semantics.
+DaVinci Resolve remains the actual editing, finishing, color, audio, VFX, and delivery environment.
 
-This distinction is central to allowing script-first and footage-first projects to use the same Narrative IR.
+## Target users
 
-# Target user
+Initial audience:
 
-Initial target:
-
-- solo videographers;
+- solo professional videographers;
 - small production teams and agencies;
 - branded/corporate content producers;
 - documentary/interview editors;
-- YouTube and educational creators with professional post workflows.
+- professional YouTube/educational creators;
+- Resolve Studio users with recurring story-driven work.
 
-The initial audience is expected to be comfortable with DaVinci Resolve Studio, but the scripting workflow must remain useful with Resolve closed.
+The scripting/production-planning side should remain useful with Resolve closed.
 
-# Product principles
+## Product principles
 
-## Local-first production software
+1. **Meaning before media.** Narrative intent is not defined by whichever clip currently represents it.
+2. **Familiar workflows over internal abstractions.** Users work with cards, scenes, quotes, beats, frames, scripts, and selects.
+3. **One source of narrative truth.** Workspaces/projections should not become drifting duplicate documents.
+4. **Stable identity.** Normal restructuring should preserve source/production/editorial relationships.
+5. **Authored and sourced material stay distinct.** Recorded evidence is not editable fiction.
+6. **Alternatives remain recoverable.** Rejected/tried material can move aside without being permanently lost.
+7. **Local-first media handling.** Large originals should not require cloud upload.
+8. **Resolve remains the NLE.** Salai should not rebuild frame-accurate editing, color, Fusion, Fairlight, or delivery.
+9. **AI is assistive and reviewable.** AI should propose operations/media/alternatives without silently replacing project state.
 
-Salai is a desktop production application, not a cloud-first media service.
+## Product discovery evidence
 
-It should be comfortable with large camera originals, project folders, NAS/network paths, local GenAI services, and Resolve without requiring all source media to be uploaded.
+Current observed workflow facts include:
 
-The broader application runtime remains Electron + React/TypeScript with a local Python service, but this runtime is downstream of validating the Narrative IR.
+- creators often think first in terms of the narrative progression the audience should receive;
+- one Beat may require several audiovisual Cues;
+- no additional semantic level below Cue has yet been justified;
+- creative validation is progressive across reading/imagining, capture or generation, watching material, and editing in context;
+- rejected material is often kept nearby or in alternate versions;
+- low-friction previs may move useful feedback earlier;
+- a mixed-media spatial canvas is a shelved research direction rather than a committed feature.
 
-## Domain model before editor framework
+See [`research-notes.md`](research-notes.md) for the evidence record.
 
-The canonical script must not be defined by Tiptap, ProseMirror, Lexical, HTML, Fountain, or another presentation/interchange format.
+## Product boundary
 
-First validate explicit domain types and operations in pure TypeScript.
+### Salai owns
 
-A later authoring UI may use normal React controls, Tiptap/ProseMirror, Lexical, or a combination, depending on what the validated model actually needs.
-
-## Stable identity
-
-Narrative objects have stable IDs because they may link to:
-
-- ShotIntents;
-- source MediaSegments;
-- annotations;
-- production Assets;
-- generated alternatives;
-- editorial/Resolve objects.
-
-Normal edits and moves should preserve identity. Split, merge, and delete must have explicit relationship policies.
-
-## Multiple views, one narrative
-
-The same Narrative IR should support:
-
-- **Outline** — Section/Beat structural authoring;
-- **AV Script** — Beat/Cue visual and audio intent;
-- **Teleprompter** — derived authored spoken content;
-- **Coverage** — Beat/Cue relationships to ShotIntents and realizations;
-- later screenplay-like presentation where useful.
-
-These are projections, not independent documents.
-
-## Structural operations are the editing API
-
-Useful changes should be represented by validated operations such as:
-
-```text
-createBeat
-createCue
-updateBlock
-moveBeat
-splitBeat
-mergeBeats
-deleteBeat
-linkShotIntent
-linkMediaSegment
-trimSourceExcerpt
-```
-
-The authoritative Spike 0A operation list is defined in [`docs/narrative-ir-spec.md`](narrative-ir-spec.md).
-
-This operation layer should eventually serve human edits, undo, persistence transactions, collaboration, and AI-assisted changes.
-
-## AI proposes operations, not replacement documents
-
-A real LLM is not part of the first Narrative IR spike.
-
-First prove that meaningful revisions can be expressed manually through the operation vocabulary while preserving stable IDs and relationships.
-
-Later:
-
-```text
-Narrative IR
-    ↓
-LLM proposes operations
-    ↓
-validate
-    ↓
-show structural/runtime/relationship diff
-    ↓
-review / apply / reject
-```
-
-## Duration is part of authoring
-
-Target runtime is often a hard creative constraint.
-
-Cue-level timing should support useful 15/30/60/90-second estimates based on:
-
-- authored speech reading rate;
-- SourceExcerpt source duration;
-- explicit duration;
-- visual-hold estimate.
-
-The goal is structural feedback, not frame accuracy.
-
-## Reverse scripting is first-class
-
-Existing footage can be the starting point.
-
-```text
-MediaSegments
-    ↓
-SourceExcerpts / visual evidence
-    ↓
-Cues
-    ↓
-Beats / Sections
-```
-
-The user can restructure the resulting story while retaining links to the original material.
-
-The goal is not merely semantic media search; it is turning available material into editable narrative structure.
-
-## Intent is independent from realization
-
-A `ShotIntent` represents what the production needs independently from how it is fulfilled.
-
-A Beat or Cue may link to several ShotIntents, and a ShotIntent may support several narrative objects.
-
-A ShotIntent may later be realized by:
-
-- storyboard;
-- generated previs;
-- captured camera takes;
-- generated takes;
-- stock footage;
-- graphics/composites.
-
-## Reuse infrastructure; own production intelligence
-
-Prefer mature, permissively licensed infrastructure instead of rebuilding commodity pipeline layers.
-
-Current downstream direction:
-
-- **CutMaster** for Resolve automation;
-- **OpenAssetIO** at the asset identity/resolution/publishing boundary;
-- **OpenTimelineIO** for editorial interchange;
-- **ComfyUI** for initial local GenAI execution;
-- **FFmpeg/ffprobe** for media utilities.
-
-Fountain/FDX are later script interchange adapters, not canonical storage and not part of the first Narrative IR spike.
-
-# Product boundary
-
-## Salai owns
-
-- Narrative IR and structural authoring semantics;
-- Section/Scene?/Beat/Cue structures;
-- typed visual/audio content;
-- AuthoredSpeech vs SourceExcerpt semantics;
-- stable narrative identity;
-- duration-aware authoring;
-- reverse scripting from media evidence;
+- narrative structure/identity;
+- authored vs source-backed story material;
 - ShotIntent and coverage state;
-- relationships between narrative, source material, assets, and editorial state;
-- paper edits and alternative structures;
-- review/annotations that survive editorial changes;
-- AI-assisted structural/production reasoning;
-- generation provenance and orchestration;
-- synchronization with Resolve.
+- relationships among narrative, source media, assets, alternatives, review, and editorial context;
+- familiar narrative/editorial workspaces;
+- reverse scripting from existing material;
+- AI-assisted production reasoning;
+- generation intent/provenance;
+- synchronization/handoff with Resolve.
 
-## Resolve owns
+### Resolve owns
 
-- production media playback/management;
-- proxies/codecs;
+- media playback/proxies/codecs;
 - frame-accurate editing;
-- Fusion compositing;
+- Fusion;
 - color;
 - Fairlight/audio post;
-- delivery.
+- rendering/delivery.
 
-## Infrastructure projects own
+### Reused infrastructure
 
-Where suitable:
+Where suitable, Salai should reuse mature infrastructure such as CutMaster, OpenAssetIO, OpenTimelineIO, ComfyUI, and FFmpeg rather than rebuilding commodity pipeline layers.
 
-- CutMaster: generic Resolve automation;
-- OpenAssetIO: standardized asset-manager integration;
-- OpenTimelineIO: editorial interchange;
-- ComfyUI/providers: model execution.
+System-level ownership is defined in [`architecture.md`](architecture.md).
 
-# Core user stories
+## Differentiation
 
-## Script-first
-
-- As a videographer, I want to turn an idea into an editable narrative before shooting.
-- I want structural Beats to remain distinct from the individual audiovisual moments needed to express them.
-- I want to move between Outline and AV Script views without maintaining separate documents.
-- I want to see whether the current structure fits a duration target.
-- I want to derive presenter/VO copy without copying it into another document.
-- I want narrative objects to stay linked to their production intent through revisions.
-
-## Footage-first
-
-- As an editor, I want recorded interview excerpts to remain linked to their real source media.
-- I want to mix sourced excerpts with newly authored VO without confusing the two.
-- I want existing media to become evidence for Beats/Cues.
-- I want to restructure a footage-derived narrative without losing source relationships.
-
-## Assisted authoring
-
-- I want AI to propose shorter or structurally different versions as explicit changes.
-- I want to see runtime and relationship consequences before accepting those changes.
-- I do not want the whole script silently replaced by generated text.
-
-## Production / coverage
-
-- I want Beat/Cue objects linked to ShotIntents so I know what needs to be captured, found, or generated.
-- I want to know which ShotIntents already have usable realizations and which remain missing.
-
-# Differentiation
-
-Salai should not compete primarily on:
+Salai should not depend on any single feature as its moat, including:
 
 - traditional screenplay formatting;
 - transcription;
-- generic semantic search;
-- automatic rough cuts;
-- chat-controlled Resolve operations;
+- transcript/text-based editing;
+- semantic media search;
+- script-to-rough-cut;
+- sticky-note boards;
+- review/comments;
 - standalone GenAI generation;
-- effects.
+- chat-controlled Resolve actions.
 
-The differentiator is a persistent **production graph whose narrative side is itself structured, editable, media-aware data**.
+The thesis is the **combination**: persistent narrative intent and production context across several familiar creative methods, with real/source/generated media staying connected through to Resolve.
 
-Positioning hypothesis:
+See [`competitive-landscape.md`](competitive-landscape.md) for named adjacent products and positioning pressure tests.
 
-> A workspace where the story, source material, production intent, generated assets, and Resolve edit stay connected.
+## Business model
 
-More specific scripting hypothesis:
+**Not decided yet.**
 
-> Write from a blank page or from the footage you already have without losing the difference between authored story and recorded evidence.
+Pricing/licensing should be explored after the Narrative IR and authoring workflow demonstrate clear value. The current discovery phase should not optimize the product model around an unvalidated pricing assumption.
 
-# Current MVP priority
+Questions to revisit after 0A/0B include:
 
-The immediate milestone is **Spike 0A — Narrative IR**.
+- one-time desktop license vs subscription;
+- paid upgrades/support;
+- optional hosted/AI services;
+- individual vs team/agency tiers;
+- whether an offline/local-only tier remains viable without hosted dependencies.
 
-Implement only a pure TypeScript `packages/script-model/` and validate three realistic fixtures:
+## Current product-risk focus
 
-1. 30-second script-first product video;
-2. 2-minute interview/corporate piece;
-3. footage-first mini-documentary from mocked MediaSegments.
+The highest current uncertainty is the Narrative IR, not broad Resolve automation.
 
-The spike must validate:
+Implementation details are canonical in [`narrative-ir-spec.md`](narrative-ir-spec.md); this brief intentionally does not duplicate its types, operation list, or invariants.
 
-- Beat vs Cue;
-- AuthoredSpeech vs SourceExcerpt;
-- stable IDs;
-- structural operation semantics;
-- ShotIntent/MediaSegment references;
-- split/merge/delete relationship behavior;
-- serialization round-trip;
-- duration estimation.
+Current sequence:
 
-Do **not** add Electron, React editor frameworks, Python, SQLite, Resolve, a real LLM, or Fountain/FDX until this model is credible.
+1. **Spike 0A — Narrative IR**: validate semantic model/operations/fixtures in pure TypeScript.
+2. **Spike 0B — Authoring UX**: validate familiar surfaces over the same model.
+3. **Spike 0C — Assisted authoring**: validate AI-proposed operations with reviewable consequences.
+
+See [`mvp.md`](mvp.md) for the full roadmap and [`backlog.md`](backlog.md) for current ordering.
+
+## Positioning hypothesis
+
+> **A workspace where the story, source material, production intent, generated assets, alternatives, and Resolve edit stay connected.**
