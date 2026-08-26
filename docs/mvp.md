@@ -26,7 +26,7 @@ The MVP should ultimately prove six things:
 
 The previous single scripting spike is intentionally split into three smaller experiments so failures remain attributable.
 
-## Phase 0A — Narrative IR
+## Spike 0A — Narrative IR
 
 This is the immediate implementation priority.
 
@@ -176,7 +176,7 @@ The estimate needs to be useful for authoring, not frame-accurate.
 
 Useful changes should be expressible as explicit operations before any real LLM is introduced.
 
-Candidate operations:
+Candidate operations (abbreviated; the authoritative Spike 0A list is defined in [`narrative-ir-spec.md`](narrative-ir-spec.md)):
 
 ```text
 createSection
@@ -190,7 +190,8 @@ mergeBeats
 deleteBeat
 linkShotIntent
 unlinkShotIntent
-linkSourceExcerpt
+linkMediaSegment
+trimSourceExcerpt
 ```
 
 A manually authored patch should be able to restructure a script while preserving IDs and reporting relationship effects.
@@ -211,17 +212,23 @@ No UI is required to pass 0A.
 
 See `docs/scripting.md` for the detailed model.
 
-## Phase 0B — Authoring UX
+## Spike 0B — Authoring UX
 
-Only after the Narrative IR is credible, test whether humans can comfortably edit it.
+Only after the Narrative IR is credible, test whether humans can comfortably author and restructure it through familiar working methods.
 
-### Minimal UI
+### Minimal surfaces
 
-Build a small React prototype supporting:
+Build a small React prototype testing four familiar surfaces over the same model (see `docs/workflows.md`):
 
-- Outline view: Section → Beat;
-- AV Script view: Beat → Cue → Visual | Audio;
-- derived Teleprompter view;
+1. **Story Wall** — Beat/Scene cards for structural reordering, including a parking-lot area and freeform IdeaCards;
+2. **Outline** — hierarchical Section/Beat structure;
+3. **AV Script** — Beat → Cue → Visual | Audio authoring;
+4. **Paper/Radio Edit** — SourceExcerpt-driven construction.
+
+Teleprompter remains a simple derived projection.
+
+Across these surfaces the prototype must support:
+
 - create/edit/reorder Beats and Cues;
 - authored text editing;
 - read-only/media-backed SourceExcerpt presentation;
@@ -236,9 +243,9 @@ First test a normal React projection of the domain model. Add Tiptap/ProseMirror
 
 ### Success criterion
 
-A user can author naturally without feeling like they are editing database rows, while the UI remains a projection of the same domain model validated in 0A.
+A user can recognize each workflow without learning Salai's internal graph terminology, move between surfaces without export/import or duplicate story documents, and author naturally without feeling like they are editing database rows, while every surface remains a projection of the same domain model validated in 0A.
 
-## Phase 0C — Assisted authoring
+## Spike 0C — Assisted authoring
 
 Only after the operation API and authoring UI are stable enough to inspect changes.
 

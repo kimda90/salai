@@ -149,8 +149,11 @@ splitBeat
 mergeBeats
 deleteBeat
 linkShotIntent
-linkSourceExcerpt
+linkMediaSegment
+trimSourceExcerpt
 ```
+
+The authoritative Spike 0A operation list is defined in [`docs/narrative-ir-spec.md`](narrative-ir-spec.md).
 
 This operation layer should eventually serve human edits, undo, persistence transactions, collaboration, and AI-assisted changes.
 
