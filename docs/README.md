@@ -1,15 +1,37 @@
 # Salai Documentation Map
 
-This directory separates product intent, implementation planning, architecture, proposals, accepted decisions, and discovery evidence so the same information is not duplicated across several documents.
+This directory separates product intent, discovery evidence, implementation contracts, architecture, proposals, and accepted decisions so the same information does not drift across several files.
+
+## Canonical ownership rule
+
+Each kind of information has one authoritative home:
+
+| Information | Canonical source |
+| --- | --- |
+| Product/domain term definitions | [`glossary.md`](glossary.md) |
+| Product requirements / success criteria | [`prd.md`](prd.md) |
+| Discovery observations | [`research-notes.md`](research-notes.md) |
+| Spike 0A types, invariants, operations, fixtures/tests | [`narrative-ir-spec.md`](narrative-ir-spec.md) |
+| Creative workflow behavior | [`workflows.md`](workflows.md) |
+| System/runtime/persistence architecture | [`architecture.md`](architecture.md) |
+| Validation/implementation sequence | [`mvp.md`](mvp.md) |
+| Current work ordering | [`backlog.md`](backlog.md) |
+| Major proposal under discussion | [`rfcs/`](rfcs/) |
+| Accepted architectural decision | [`adr/`](adr/) |
+
+Other documents may summarize these concepts for context, but should **link to the canonical source rather than copy implementation lists, invariants, or exact definitions**.
+
+In particular, the Narrative IR operation vocabulary must only be maintained in `narrative-ir-spec.md`.
 
 ## Product and strategy
 
 | Document | Role | Status |
 | --- | --- | --- |
-| [`product-brief.md`](product-brief.md) | Concise product thesis, target users, product boundary, and current direction | Living |
-| [`prd.md`](prd.md) | Product Requirements Document: what Salai must accomplish, for whom, why, scope, requirements, and success criteria | Living |
-| [`backlog.md`](backlog.md) | User stories and ordered product/engineering backlog | Living |
-| [`research-notes.md`](research-notes.md) | Concrete workflow observations from product discovery; evidence rather than decisions | Living research record |
+| [`product-brief.md`](product-brief.md) | Concise product thesis, audience, boundary, positioning, and current direction | Living |
+| [`prd.md`](prd.md) | Product Requirements Document: what/why/scope/success criteria | Living |
+| [`competitive-landscape.md`](competitive-landscape.md) | Named adjacent products and positioning pressure tests | Living research |
+| [`backlog.md`](backlog.md) | NOW/NEXT/LATER product/engineering backlog | Living |
+| [`research-notes.md`](research-notes.md) | Concrete workflow observations; evidence rather than decisions | Living research record |
 | [`service-levels.md`](service-levels.md) | SLA applicability and future reliability/support commitments | Living; no external SLA yet |
 | [`mvp.md`](mvp.md) | Validation sequence and staged implementation plan | Living |
 
@@ -17,67 +39,55 @@ This directory separates product intent, implementation planning, architecture, 
 
 | Document | Role | Status |
 | --- | --- | --- |
-| [`scripting.md`](scripting.md) | Narrative model concepts and scripting research | Living |
-| [`workflows.md`](workflows.md) | Familiar creative working surfaces: Story Wall, AV Script, Paper/Radio Edit, Outline, boards, and projections | Living |
-| [`narrative-ir-spec.md`](narrative-ir-spec.md) | Technical Design Document for Spike 0A Narrative IR | Draft / implementation contract |
+| [`glossary.md`](glossary.md) | Canonical product/domain terminology | Living |
+| [`scripting.md`](scripting.md) | Conceptual rationale and scripting research | Living |
+| [`workflows.md`](workflows.md) | Familiar working surfaces: Story Wall, AV Script, Paper/Radio Edit, Outline, boards, and projections | Living |
+| [`narrative-ir-spec.md`](narrative-ir-spec.md) | Authoritative TDD / implementation contract for Spike 0A | Draft while spike is active |
 
 ## Architecture and engineering decisions
 
 | Document | Role | Status |
 | --- | --- | --- |
-| [`architecture.md`](architecture.md) | System Architecture Document: system boundaries, major components, data flows, runtime topology, and technology direction | Living SAD |
-| [`rfcs/`](rfcs/) | Major proposals that need review before they become commitments | Proposed / accepted / rejected |
-| [`adr/`](adr/) | Append-only Architecture Decision Records for accepted technical decisions | Append-only |
+| [`architecture.md`](architecture.md) | System Architecture Document: boundaries, runtime, persistence ownership, infrastructure | Living SAD |
+| [`rfcs/`](rfcs/) | Major proposals that need review before commitment | Proposed / accepted / rejected |
+| [`adr/`](adr/) | Append-only records of accepted architectural decisions | Append-only |
 
-## Document lifecycle
+# Document lifecycle
 
-### Discovery notes
+## Discovery notes
 
-`research-notes.md` records concrete observations from product discovery. These notes are evidence, not decisions. When an observation becomes a requirement, proposal, or accepted technical choice, promote it explicitly into the PRD/backlog, an RFC, or an ADR.
+`research-notes.md` records observed workflow evidence. Observation does not automatically become requirement or architecture. Promote it explicitly when evidence supports doing so.
 
-### PRD / backlog / architecture / product docs
+## PRD / backlog / product / architecture docs
 
-These are living documents and should be updated as the product changes.
+Living documents. They should stay at their own abstraction level and link to deeper canonical documents rather than duplicating them.
 
-### Technical Design Documents
+## Technical Design Documents
 
-A TDD/spec is written before implementing a sufficiently complex feature or subsystem. It should describe the implementation contract and unresolved trade-offs for that feature. Once implementation diverges materially, update the spec or explicitly supersede it.
+A TDD/spec is written before or during a complex implementation spike and acts as its contract. When implementation evidence changes the contract, update the TDD and record the result rather than leaving contradictory summary docs behind.
 
-### RFCs
+## RFCs
 
-Use an RFC when a proposal changes shared architecture, domain semantics, a major dependency, or a team-wide engineering convention and benefits from discussion before commitment.
-
-Typical lifecycle:
+Use an RFC for a major proposal whose consequences deserve discussion before commitment.
 
 ```text
 Draft → Proposed → Accepted / Rejected / Superseded
 ```
 
-The pull request containing an RFC is the discussion surface.
+The PR containing the RFC is the discussion surface.
 
-### ADRs
+## ADRs
 
-ADRs record decisions after they are accepted. Do not rewrite history. If a decision changes, add a new ADR that supersedes the previous one.
-
-Typical status:
+ADRs record accepted decisions. Do not rewrite history; supersede old ADRs with new ones.
 
 ```text
 Accepted → Superseded
 ```
 
-## Current development focus
+# Current development focus
 
-The current implementation target is **Spike 0A — Narrative IR**.
+**Spike 0A — Narrative IR implementation is now scaffolded in `packages/script-model/`.**
 
-Before coding, the Narrative IR spec should define:
+The authoritative gate is [`narrative-ir-spec.md`](narrative-ir-spec.md). Implementation should use its operation vocabulary, invariants, fixture ownership, and pass/fail criteria directly.
 
-- domain terms;
-- invariants;
-- operation semantics;
-- serialization/versioning;
-- fixture expectations;
-- pass/fail criteria.
-
-The purpose of the spike is to validate the semantic model before UI, Resolve, persistence, or AI integration make changes expensive.
-
-Current discovery observations should pressure-test the spike without expanding it unnecessarily. In particular, one Beat may require several Cues, no additional semantic level below Cue has yet been justified, and later work should preserve alternatives without equating removal from active structure with permanent deletion.
+Spike 0B will validate the Workspace/Board concepts through familiar UX before Phase 2 makes that workspace state durable.
