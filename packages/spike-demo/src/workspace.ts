@@ -1,18 +1,14 @@
 import type { Id, NarrativeProject } from "@salai/script-model";
 
-export type WorkspaceKind = "story-wall" | "paper-edit";
 export type ParkingState = "active" | "parked";
-export type CanonicalReferenceType = "section" | "scene" | "beat" | "cue" | "source-excerpt";
 
-export type CanonicalReference = {
-  type: CanonicalReferenceType;
-  id: Id;
-};
+export type CanonicalReference =
+  | { type: "scene"; id: Id }
+  | { type: "beat"; id: Id };
 
 export type IdeaCard = {
   id: Id;
   text: string;
-  kind?: "idea" | "question" | "alternative";
 };
 
 export type BoardItem = {
@@ -21,13 +17,6 @@ export type BoardItem = {
   ideaCard?: IdeaCard;
   x?: number;
   y?: number;
-  width?: number;
-  height?: number;
-  color?: string;
-  rotation?: number;
-  label?: string;
-  note?: string;
-  lane?: string;
   parkingState?: ParkingState;
 };
 
@@ -39,15 +28,18 @@ export type Board = {
 export type Workspace = {
   id: Id;
   name: string;
-  kind: WorkspaceKind;
+  kind: "story-wall";
   board: Board;
 };
 
-export function createWorkspace(kind: WorkspaceKind, name: string, id = `${kind}-workspace`): Workspace {
+export function createWorkspace(
+  name = "Story Wall",
+  id = "story-wall-workspace",
+): Workspace {
   return {
     id,
     name,
-    kind,
+    kind: "story-wall",
     board: { items: {}, itemIds: [] },
   };
 }
@@ -63,8 +55,12 @@ function withBoardItem(workspace: Workspace, item: BoardItem): Workspace {
   };
 }
 
+function referenceKey(reference: CanonicalReference): string {
+  return `${reference.type}:${reference.id}`;
+}
+
 export function boardItemIdForReference(reference: CanonicalReference): string {
-  return `ref:${reference.type}:${reference.id}`;
+  return `ref:${referenceKey(reference)}`;
 }
 
 export function addBoardReference(
@@ -81,7 +77,12 @@ export function addBoardReference(
   });
 }
 
-export function moveBoardItem(workspace: Workspace, itemId: Id, x: number, y: number): Workspace {
+export function moveBoardItem(
+  workspace: Workspace,
+  itemId: Id,
+  x: number,
+  y: number,
+): Workspace {
   const item = workspace.board.items[itemId];
   if (!item) throw new Error(`Unknown BoardItem: ${itemId}`);
   return withBoardItem(workspace, { ...item, x, y });
@@ -124,7 +125,11 @@ export function createIdeaCard(
   });
 }
 
-export function updateIdeaCardText(workspace: Workspace, itemId: Id, text: string): Workspace {
+export function updateIdeaCardText(
+  workspace: Workspace,
+  itemId: Id,
+  text: string,
+): Workspace {
   const item = workspace.board.items[itemId];
   if (!item?.ideaCard) throw new Error(`BoardItem ${itemId} is not an IdeaCard`);
   return withBoardItem(workspace, {
@@ -147,67 +152,25 @@ export function promoteIdeaCardReference(
   });
 }
 
-export type MovementIntent =
-  | { kind: "workspace"; itemId: Id; x: number; y: number }
-  | {
-      kind: "narrative";
-      objectType: "beat" | "scene" | "section";
-      objectId: Id;
-      targetParentId?: Id;
-      targetParentType?: "section" | "scene";
-      toIndex: number;
-    };
-
-export function interpretMovementIntent(input: {
-  mode: "free" | "structural";
-  itemId: Id;
-  reference?: CanonicalReference;
-  x?: number;
-  y?: number;
-  toIndex?: number;
-  targetParentId?: Id;
-  targetParentType?: "section" | "scene";
-}): MovementIntent {
-  if (input.mode === "free") {
-    return {
-      kind: "workspace",
-      itemId: input.itemId,
-      x: input.x ?? 0,
-      y: input.y ?? 0,
-    };
-  }
-
-  if (!input.reference || !["beat", "scene", "section"].includes(input.reference.type)) {
-    throw new Error("Structural movement requires a section, scene, or beat reference");
-  }
-
-  return {
-    kind: "narrative",
-    objectType: input.reference.type as "beat" | "scene" | "section",
-    objectId: input.reference.id,
-    targetParentId: input.targetParentId,
-    targetParentType: input.targetParentType,
-    toIndex: input.toIndex ?? 0,
-  };
-}
-
-export function projectWorkspaceReferences(project: NarrativeProject): CanonicalReference[] {
-  const refs: CanonicalReference[] = [];
+function storyWallReferences(project: NarrativeProject): CanonicalReference[] {
+  const references: CanonicalReference[] = [];
   for (const sectionId of project.script.sectionIds) {
-    refs.push({ type: "section", id: sectionId });
     const section = project.sections[sectionId];
     if (!section) continue;
+
     for (const childId of section.childIds) {
       const scene = project.scenes[childId];
       if (scene) {
-        refs.push({ type: "scene", id: scene.id });
-        for (const beatId of scene.beatIds) refs.push({ type: "beat", id: beatId });
+        references.push({ type: "scene", id: scene.id });
+        for (const beatId of scene.beatIds) {
+          references.push({ type: "beat", id: beatId });
+        }
       } else if (project.beats[childId]) {
-        refs.push({ type: "beat", id: childId });
+        references.push({ type: "beat", id: childId });
       }
     }
   }
-  return refs;
+  return references;
 }
 
 function defaultPosition(index: number): { x: number; y: number } {
@@ -219,11 +182,8 @@ function defaultPosition(index: number): { x: number; y: number } {
 }
 
 export function createStoryWallWorkspace(project: NarrativeProject): Workspace {
-  let workspace = createWorkspace("story-wall", "Story Wall");
-  const references = projectWorkspaceReferences(project).filter(
-    (reference) => reference.type === "scene" || reference.type === "beat",
-  );
-  references.forEach((reference, index) => {
+  let workspace = createWorkspace();
+  storyWallReferences(project).forEach((reference, index) => {
     workspace = addBoardReference(
       workspace,
       boardItemIdForReference(reference),
@@ -234,31 +194,33 @@ export function createStoryWallWorkspace(project: NarrativeProject): Workspace {
   return workspace;
 }
 
-export function syncWorkspaceWithProject(workspace: Workspace, project: NarrativeProject): Workspace {
-  const validReferences = projectWorkspaceReferences(project).filter(
-    (reference) => reference.type === "scene" || reference.type === "beat",
-  );
-  const validKeys = new Set(validReferences.map((reference) => `${reference.type}:${reference.id}`));
+export function syncWorkspaceWithProject(
+  workspace: Workspace,
+  project: NarrativeProject,
+): Workspace {
+  const validReferences = storyWallReferences(project);
+  const validKeys = new Set(validReferences.map(referenceKey));
 
   let next = workspace;
   for (const itemId of workspace.board.itemIds) {
     const item = workspace.board.items[itemId];
-    if (!item?.reference) continue;
-    const key = `${item.reference.type}:${item.reference.id}`;
-    if (!validKeys.has(key)) next = removeBoardItem(next, itemId);
+    if (item?.reference && !validKeys.has(referenceKey(item.reference))) {
+      next = removeBoardItem(next, itemId);
+    }
   }
 
   const existingReferenceKeys = new Set(
     next.board.itemIds.flatMap((itemId) => {
       const reference = next.board.items[itemId]?.reference;
-      return reference ? [`${reference.type}:${reference.id}`] : [];
+      return reference ? [referenceKey(reference)] : [];
     }),
   );
 
   let index = next.board.itemIds.length;
   for (const reference of validReferences) {
-    const key = `${reference.type}:${reference.id}`;
+    const key = referenceKey(reference);
     if (existingReferenceKeys.has(key)) continue;
+
     next = addBoardReference(
       next,
       boardItemIdForReference(reference),
