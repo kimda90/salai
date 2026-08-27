@@ -63,6 +63,10 @@ function withBoardItem(workspace: Workspace, item: BoardItem): Workspace {
   };
 }
 
+export function boardItemIdForReference(reference: CanonicalReference): string {
+  return `ref:${reference.type}:${reference.id}`;
+}
+
 export function addBoardReference(
   workspace: Workspace,
   itemId: Id,
@@ -129,6 +133,20 @@ export function updateIdeaCardText(workspace: Workspace, itemId: Id, text: strin
   });
 }
 
+export function promoteIdeaCardReference(
+  workspace: Workspace,
+  itemId: Id,
+  reference: CanonicalReference,
+): Workspace {
+  const item = workspace.board.items[itemId];
+  if (!item?.ideaCard) throw new Error(`BoardItem ${itemId} is not an IdeaCard`);
+  return withBoardItem(workspace, {
+    ...item,
+    ideaCard: undefined,
+    reference,
+  });
+}
+
 export type MovementIntent =
   | { kind: "workspace"; itemId: Id; x: number; y: number }
   | {
@@ -190,4 +208,53 @@ export function projectWorkspaceReferences(project: NarrativeProject): Canonical
     }
   }
   return refs;
+}
+
+function defaultPosition(index: number): { x: number; y: number } {
+  const columns = 4;
+  return {
+    x: 28 + (index % columns) * 246,
+    y: 28 + Math.floor(index / columns) * 170,
+  };
+}
+
+export function createStoryWallWorkspace(project: NarrativeProject): Workspace {
+  let workspace = createWorkspace("story-wall", "Story Wall");
+  const references = projectWorkspaceReferences(project).filter(
+    (reference) => reference.type === "scene" || reference.type === "beat",
+  );
+  references.forEach((reference, index) => {
+    workspace = addBoardReference(
+      workspace,
+      boardItemIdForReference(reference),
+      reference,
+      defaultPosition(index),
+    );
+  });
+  return workspace;
+}
+
+export function syncWorkspaceWithProject(workspace: Workspace, project: NarrativeProject): Workspace {
+  const validReferences = projectWorkspaceReferences(project).filter(
+    (reference) => reference.type === "scene" || reference.type === "beat",
+  );
+  const validKeys = new Set(validReferences.map((reference) => `${reference.type}:${reference.id}`));
+
+  let next = workspace;
+  for (const itemId of workspace.board.itemIds) {
+    const item = workspace.board.items[itemId];
+    if (!item?.reference) continue;
+    const key = `${item.reference.type}:${item.reference.id}`;
+    if (!validKeys.has(key)) next = removeBoardItem(next, itemId);
+  }
+
+  let index = next.board.itemIds.length;
+  for (const reference of validReferences) {
+    const itemId = boardItemIdForReference(reference);
+    if (next.board.items[itemId]) continue;
+    next = addBoardReference(next, itemId, reference, defaultPosition(index));
+    index += 1;
+  }
+
+  return next;
 }
