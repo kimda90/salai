@@ -44,7 +44,7 @@ It now includes:
 - stable `Script / Section / Scene? / Beat / Cue / ContentBlock` identity;
 - authored vs source-backed content;
 - mocked `MediaSegment` / `ShotIntent` references;
-- the 27-operation structural editing vocabulary;
+- the structural editing operation vocabulary;
 - transactional validation and explicit relationship effects;
 - split/merge/delete semantics;
 - serialization/versioning;
@@ -53,27 +53,31 @@ It now includes:
 
 The authoritative implementation contract remains [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md). The implementation result and resolved open questions are recorded in [`docs/spike-0a-assessment.md`](docs/spike-0a-assessment.md).
 
-The next validation milestone is:
+**The current validation milestone is Spike 0B — Familiar Authoring UX.**
 
-- **0B — Authoring UX:** Story Wall, Outline, AV Script, and Paper/Radio Edit over the same IR, including the minimum in-memory Workspace/Board model.
+0B tests Story Wall, Outline, AV Script, and Paper/Radio Edit over the same IR, including the minimum in-memory Workspace/Board model and the distinction between workspace organization and semantic narrative edits. See [`docs/authoring-ux-spec.md`](docs/authoring-ux-spec.md).
+
+After that:
+
 - **0C — Assisted authoring:** AI-proposed domain operations with reviewable structural/runtime/relationship consequences.
-
-Resolve and broader persistence/integration work remain downstream.
+- **Phase 1+ — Local production application:** Electron/local service, persistence, Resolve integration, real-media reverse scripting, alternatives, and generated production media.
 
 ## Architecture direction
 
 Current broader direction:
 
 - TypeScript Narrative IR;
-- Electron + React/TypeScript desktop UI/runtime;
-- local Python/FastAPI service;
+- React/TypeScript authoring UI, with normal DOM controls and reusable interaction primitives for 0B;
+- Electron desktop shell after authoring UX validation;
+- local Python 3.11/3.12 + FastAPI service;
 - SQLite persistence after model/UX validation;
-- CutMaster for Resolve automation where practical;
-- OpenAssetIO / OpenTimelineIO at interoperability boundaries;
+- CutMaster as the default Resolve automation boundary behind a Salai-owned adapter;
+- OpenTimelineIO at editorial interchange/materialization boundaries;
+- OpenAssetIO only when external asset-management interoperability is justified;
 - ComfyUI and other providers for generation;
-- FFmpeg/ffprobe for media utilities.
+- FFmpeg/ffprobe and established local analysis tools for media utilities/reverse scripting.
 
-See [`docs/architecture.md`](docs/architecture.md) for system-level ownership.
+See [`docs/architecture.md`](docs/architecture.md) for system-level ownership and [`docs/adr/0004-cutmaster-default-resolve-boundary.md`](docs/adr/0004-cutmaster-default-resolve-boundary.md) for the Resolve automation decision.
 
 ## Documentation
 
@@ -90,6 +94,7 @@ Key documents:
 - [`docs/workflows.md`](docs/workflows.md) — familiar editorial workflow/Workspace semantics;
 - [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md) — authoritative Spike 0A TDD;
 - [`docs/spike-0a-assessment.md`](docs/spike-0a-assessment.md) — Spike 0A result and open-question resolutions;
+- [`docs/authoring-ux-spec.md`](docs/authoring-ux-spec.md) — active Spike 0B technical/UX contract;
 - [`docs/mvp.md`](docs/mvp.md) — validation/implementation roadmap;
 - [`docs/backlog.md`](docs/backlog.md) — current work ordering;
 - [`docs/architecture.md`](docs/architecture.md) — System Architecture Document;
