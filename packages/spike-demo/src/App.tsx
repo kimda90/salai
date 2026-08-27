@@ -3,10 +3,11 @@ import { FIXTURES, getFixtureDefinition } from "./fixtures";
 import { useSalaiController, useSalaiState } from "./controller";
 import { formatDuration, getDurationEstimate } from "./model-utils";
 import { Outline } from "./Outline";
+import { StoryWall } from "./StoryWall";
 
 const SURFACES = [
   { key: "outline", label: "Outline", ready: true },
-  { key: "story-wall", label: "Story Wall", ready: false },
+  { key: "story-wall", label: "Story Wall", ready: true },
   { key: "av-script", label: "AV Script", ready: false },
   { key: "paper-edit", label: "Paper / Radio Edit", ready: false },
 ] as const;
@@ -101,7 +102,7 @@ export function App() {
 
       <main className="workspace-frame">
         {state.activeSurface === "outline" ? <Outline /> : null}
-        {state.activeSurface === "story-wall" ? <PlaceholderSurface label="Story Wall" /> : null}
+        {state.activeSurface === "story-wall" ? <StoryWall /> : null}
         {state.activeSurface === "av-script" ? <PlaceholderSurface label="AV Script" /> : null}
         {state.activeSurface === "paper-edit" ? <PlaceholderSurface label="Paper / Radio Edit" /> : null}
       </main>
