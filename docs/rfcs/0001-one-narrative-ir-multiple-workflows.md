@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed. Under review in the current structured-scripting spike.
+Proposed. Spike 0A validated the Narrative IR side of the proposal; Spike 0B is now validating the multiple-workflow/Workspace side before final acceptance.
 
 ## Summary
 
@@ -174,15 +174,17 @@ Cons:
 
 ## Validation plan
 
-### Spike 0A
+### Spike 0A — complete / pass
 
-Validate the Narrative IR independently from UI using three fixtures:
+Validated the Narrative IR independently from UI using three fixtures:
 
 1. short script-first product video;
 2. interview/corporate piece;
 3. footage-first mini-documentary.
 
-### Spike 0B
+The result supports proceeding to workflow validation without a workflow-specific Narrative IR fork.
+
+### Spike 0B — current
 
 Validate recognizable workflows over the same IR:
 
@@ -191,7 +193,9 @@ Validate recognizable workflows over the same IR:
 - AV Script;
 - Paper/Radio Edit.
 
-The important test is whether users can move naturally between those paradigms without maintaining duplicate story documents.
+The important test is whether users can move naturally between those paradigms without maintaining duplicate story documents, while keeping Workspace organization separate from canonical story semantics.
+
+See [`../authoring-ux-spec.md`](../authoring-ux-spec.md) for the implementation contract.
 
 ## Open questions
 
@@ -204,6 +208,6 @@ The important test is whether users can move naturally between those paradigms w
 
 ## Decision / outcome
 
-Pending validation and review.
+Pending Spike 0B validation and review.
 
 If accepted, the final architectural decision should be captured in an ADR without copying all exploratory detail from this RFC.
