@@ -1,4 +1,20 @@
-import { estimateNarrativeDuration, type Id, type NarrativeProject, type ParentRef } from "@salai/script-model";
+import {
+  estimateNarrativeDuration,
+  type Id,
+  type NarrativeProject,
+  type ParentRef,
+} from "@salai/script-model";
+
+const durationCache = new WeakMap<
+  NarrativeProject,
+  ReturnType<typeof estimateNarrativeDuration>
+>();
+
+export type OrderedBeatRef = {
+  beatId: Id;
+  sectionId: Id;
+  sceneId?: Id;
+};
 
 export function formatDuration(ms: number | undefined): string {
   const value = ms ?? 0;
@@ -11,7 +27,32 @@ export function formatDuration(ms: number | undefined): string {
 }
 
 export function getDurationEstimate(project: NarrativeProject) {
-  return estimateNarrativeDuration(project, { visualHoldMs: 2000 });
+  const cached = durationCache.get(project);
+  if (cached) return cached;
+
+  const estimate = estimateNarrativeDuration(project, { visualHoldMs: 2000 });
+  durationCache.set(project, estimate);
+  return estimate;
+}
+
+export function orderedBeatRefs(project: NarrativeProject): OrderedBeatRef[] {
+  const result: OrderedBeatRef[] = [];
+  for (const sectionId of project.script.sectionIds) {
+    const section = project.sections[sectionId];
+    if (!section) continue;
+
+    for (const childId of section.childIds) {
+      const scene = project.scenes[childId];
+      if (scene) {
+        for (const beatId of scene.beatIds) {
+          result.push({ beatId, sectionId, sceneId: scene.id });
+        }
+      } else if (project.beats[childId]) {
+        result.push({ beatId: childId, sectionId });
+      }
+    }
+  }
+  return result;
 }
 
 export function findSceneSection(project: NarrativeProject, sceneId: Id): Id | null {
@@ -29,12 +70,6 @@ export function findBeatParent(project: NarrativeProject, beatId: Id): ParentRef
     if (scene.beatIds.includes(beatId)) return { type: "scene", id: scene.id };
   }
   return null;
-}
-
-export function parentBeatIds(project: NarrativeProject, parent: ParentRef): Id[] {
-  return parent.type === "section"
-    ? project.sections[parent.id]?.childIds.filter((id) => project.beats[id] !== undefined) ?? []
-    : project.scenes[parent.id]?.beatIds ?? [];
 }
 
 export function makeId(prefix: string): string {
