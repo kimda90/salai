@@ -57,6 +57,8 @@ The authoritative implementation contract remains [`docs/narrative-ir-spec.md`](
 
 0B tests Story Wall, Outline, AV Script, and Paper/Radio Edit over the same IR, including the minimum in-memory Workspace/Board model and the distinction between workspace organization and semantic narrative edits. See [`docs/authoring-ux-spec.md`](docs/authoring-ux-spec.md).
 
+The executable Spike 0B task plan and completion tracker lives in [`docs/spike-0b-implementation-plan.md`](docs/spike-0b-implementation-plan.md). Implementation PRs should update that tracker as tasks are merged and verified.
+
 After that:
 
 - **0C — Assisted authoring:** AI-proposed domain operations with reviewable structural/runtime/relationship consequences.
@@ -95,6 +97,7 @@ Key documents:
 - [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md) — authoritative Spike 0A TDD;
 - [`docs/spike-0a-assessment.md`](docs/spike-0a-assessment.md) — Spike 0A result and open-question resolutions;
 - [`docs/authoring-ux-spec.md`](docs/authoring-ux-spec.md) — active Spike 0B technical/UX contract;
+- [`docs/spike-0b-implementation-plan.md`](docs/spike-0b-implementation-plan.md) — executable Spike 0B task plan and completion tracker;
 - [`docs/mvp.md`](docs/mvp.md) — validation/implementation roadmap;
 - [`docs/backlog.md`](docs/backlog.md) — current work ordering;
 - [`docs/architecture.md`](docs/architecture.md) — System Architecture Document;
