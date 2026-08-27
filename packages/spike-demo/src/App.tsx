@@ -5,12 +5,13 @@ import { formatDuration, getDurationEstimate } from "./model-utils";
 import { Outline } from "./Outline";
 import { StoryWall } from "./StoryWall";
 import { AVScript } from "./AVScript";
+import { PaperEdit } from "./PaperEdit";
 
 const SURFACES = [
   { key: "outline", label: "Outline", ready: true },
   { key: "story-wall", label: "Story Wall", ready: true },
   { key: "av-script", label: "AV Script", ready: true },
-  { key: "paper-edit", label: "Paper / Radio Edit", ready: false },
+  { key: "paper-edit", label: "Paper / Radio Edit", ready: true },
 ] as const;
 
 function FeedbackPanel() {
@@ -31,18 +32,6 @@ function FeedbackPanel() {
       </div>
       <button type="button" className="ghost-button" onClick={() => controller.clearFeedback()}>Dismiss</button>
     </aside>
-  );
-}
-
-function PlaceholderSurface({ label }: { label: string }) {
-  const { selection } = useSalaiState();
-  return (
-    <div className="surface placeholder-surface">
-      <div className="eyebrow">Spike 0B</div>
-      <h2>{label}</h2>
-      <p>This surface is intentionally still behind the current implementation slice. It will subscribe to the same controller and canonical project.</p>
-      {selection ? <div className="selection-chip">Shared selection: {selection.type} · {selection.id}</div> : null}
-    </div>
   );
 }
 
@@ -105,7 +94,7 @@ export function App() {
         {state.activeSurface === "outline" ? <Outline /> : null}
         {state.activeSurface === "story-wall" ? <StoryWall /> : null}
         {state.activeSurface === "av-script" ? <AVScript /> : null}
-        {state.activeSurface === "paper-edit" ? <PlaceholderSurface label="Paper / Radio Edit" /> : null}
+        {state.activeSurface === "paper-edit" ? <PaperEdit /> : null}
       </main>
 
       <footer className="app-footer">
