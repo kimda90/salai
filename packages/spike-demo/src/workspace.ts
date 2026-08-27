@@ -248,11 +248,24 @@ export function syncWorkspaceWithProject(workspace: Workspace, project: Narrativ
     if (!validKeys.has(key)) next = removeBoardItem(next, itemId);
   }
 
+  const existingReferenceKeys = new Set(
+    next.board.itemIds.flatMap((itemId) => {
+      const reference = next.board.items[itemId]?.reference;
+      return reference ? [`${reference.type}:${reference.id}`] : [];
+    }),
+  );
+
   let index = next.board.itemIds.length;
   for (const reference of validReferences) {
-    const itemId = boardItemIdForReference(reference);
-    if (next.board.items[itemId]) continue;
-    next = addBoardReference(next, itemId, reference, defaultPosition(index));
+    const key = `${reference.type}:${reference.id}`;
+    if (existingReferenceKeys.has(key)) continue;
+    next = addBoardReference(
+      next,
+      boardItemIdForReference(reference),
+      reference,
+      defaultPosition(index),
+    );
+    existingReferenceKeys.add(key);
     index += 1;
   }
 
