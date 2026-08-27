@@ -14,6 +14,7 @@ Each kind of information has one authoritative home:
 | Spike 0A types, invariants, operations, fixtures/tests | [`narrative-ir-spec.md`](narrative-ir-spec.md) |
 | Spike 0A result / resolved implementation questions | [`spike-0a-assessment.md`](spike-0a-assessment.md) |
 | Creative workflow behavior | [`workflows.md`](workflows.md) |
+| Spike 0B authoring/workspace implementation contract | [`authoring-ux-spec.md`](authoring-ux-spec.md) |
 | System/runtime/persistence architecture | [`architecture.md`](architecture.md) |
 | Validation/implementation sequence | [`mvp.md`](mvp.md) |
 | Current work ordering | [`backlog.md`](backlog.md) |
@@ -45,6 +46,7 @@ In particular, the Narrative IR operation vocabulary must only be maintained in 
 | [`workflows.md`](workflows.md) | Familiar working surfaces: Story Wall, AV Script, Paper/Radio Edit, Outline, boards, and projections | Living |
 | [`narrative-ir-spec.md`](narrative-ir-spec.md) | Authoritative TDD / implementation contract for Spike 0A | Implemented baseline; revise when evidence changes contract |
 | [`spike-0a-assessment.md`](spike-0a-assessment.md) | Spike 0A result and resolutions of implementation questions | Completed assessment |
+| [`authoring-ux-spec.md`](authoring-ux-spec.md) | Spike 0B authoring/workspace technical design and validation contract | Active implementation contract |
 
 ## Architecture and engineering decisions
 
@@ -98,4 +100,6 @@ Accepted → Superseded
 
 See [`spike-0a-assessment.md`](spike-0a-assessment.md) for the evidence and resolved open questions.
 
-The next validation milestone is **Spike 0B — Authoring UX**, which will test Story Wall, Outline, AV Script, and Paper/Radio Edit over the same IR and define the minimum in-memory Workspace/Board model before Phase 2 persistence.
+The current validation milestone is **Spike 0B — Familiar Authoring UX**, which tests Story Wall, Outline, AV Script, and Paper/Radio Edit over the same IR and defines the minimum in-memory Workspace/Board model before Phase 2 persistence.
+
+See [`authoring-ux-spec.md`](authoring-ux-spec.md) for the active implementation contract.
