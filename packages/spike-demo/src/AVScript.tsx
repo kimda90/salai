@@ -37,7 +37,7 @@ function BlockEditor({ blockId }: { blockId: Id }) {
         {block.type === "authored_speech" && block.role ? <small>{block.role}</small> : null}
         {sourceEvidence ? <small>{sourceRangeLabel(block)}</small> : null}
       </div>
-      {sourceEvidence ? (
+      {block.type === "source_excerpt" ? (
         <div className="source-evidence-copy">
           <p>{blockDisplayText(block)}</p>
           <span>Source: {block.mediaSegmentId}</span>
