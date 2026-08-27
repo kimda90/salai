@@ -1,6 +1,6 @@
 # Salai Documentation Map
 
-This directory separates product intent, discovery evidence, implementation contracts, architecture, proposals, and accepted decisions so the same information does not drift across several files.
+This directory separates product intent, discovery evidence, implementation contracts, architecture, proposals, accepted decisions, and execution tracking so the same information does not drift across several files.
 
 ## Canonical ownership rule
 
@@ -15,15 +15,16 @@ Each kind of information has one authoritative home:
 | Spike 0A result / resolved implementation questions | [`spike-0a-assessment.md`](spike-0a-assessment.md) |
 | Creative workflow behavior | [`workflows.md`](workflows.md) |
 | Spike 0B authoring/workspace implementation contract | [`authoring-ux-spec.md`](authoring-ux-spec.md) |
+| Spike 0B task breakdown / completion status / implementation evidence | [`spike-0b-implementation-plan.md`](spike-0b-implementation-plan.md) |
 | System/runtime/persistence architecture | [`architecture.md`](architecture.md) |
 | Validation/implementation sequence | [`mvp.md`](mvp.md) |
 | Current work ordering | [`backlog.md`](backlog.md) |
 | Major proposal under discussion | [`rfcs/`](rfcs/) |
 | Accepted architectural decision | [`adr/`](adr/) |
 
-Other documents may summarize these concepts for context, but should **link to the canonical source rather than copy implementation lists, invariants, or exact definitions**.
+Other documents may summarize these concepts for context, but should **link to the canonical source rather than copy implementation lists, invariants, exact definitions, or task status**.
 
-In particular, the Narrative IR operation vocabulary must only be maintained in `narrative-ir-spec.md`.
+In particular, the Narrative IR operation vocabulary must only be maintained in `narrative-ir-spec.md`, and Spike 0B task completion must only be tracked in `spike-0b-implementation-plan.md`.
 
 ## Product and strategy
 
@@ -47,6 +48,7 @@ In particular, the Narrative IR operation vocabulary must only be maintained in 
 | [`narrative-ir-spec.md`](narrative-ir-spec.md) | Authoritative TDD / implementation contract for Spike 0A | Implemented baseline; revise when evidence changes contract |
 | [`spike-0a-assessment.md`](spike-0a-assessment.md) | Spike 0A result and resolutions of implementation questions | Completed assessment |
 | [`authoring-ux-spec.md`](authoring-ux-spec.md) | Spike 0B authoring/workspace technical design and validation contract | Active implementation contract |
+| [`spike-0b-implementation-plan.md`](spike-0b-implementation-plan.md) | Spike 0B executable task plan, checkboxes, gates, and completion evidence | Active execution tracker |
 
 ## Architecture and engineering decisions
 
@@ -76,6 +78,17 @@ Living documents. They should stay at their own abstraction level and link to de
 
 A TDD/spec is written before or during a complex implementation spike and acts as its contract. When implementation evidence changes the contract, update the TDD and record the result rather than leaving contradictory summary docs behind.
 
+## Execution trackers
+
+An implementation tracker breaks an accepted spike/phase contract into executable tasks and records completion evidence. It does not replace the contract or roadmap.
+
+For Spike 0B:
+
+- `authoring-ux-spec.md` says **what must be proven and how the UX/domain boundary behaves**;
+- `spike-0b-implementation-plan.md` says **which implementation tasks remain and which have been verified**.
+
+Implementation PRs should update the tracker in the same PR, checking only tasks that are fully merged and validated.
+
 ## RFCs
 
 Use an RFC for a major proposal whose consequences deserve discussion before commitment.
@@ -102,4 +115,4 @@ See [`spike-0a-assessment.md`](spike-0a-assessment.md) for the evidence and reso
 
 The current validation milestone is **Spike 0B — Familiar Authoring UX**, which tests Story Wall, Outline, AV Script, and Paper/Radio Edit over the same IR and defines the minimum in-memory Workspace/Board model before Phase 2 persistence.
 
-See [`authoring-ux-spec.md`](authoring-ux-spec.md) for the active implementation contract.
+See [`authoring-ux-spec.md`](authoring-ux-spec.md) for the active implementation contract and [`spike-0b-implementation-plan.md`](spike-0b-implementation-plan.md) for the executable task tracker.
