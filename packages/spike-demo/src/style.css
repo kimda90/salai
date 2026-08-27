@@ -146,12 +146,90 @@ button { color: inherit; }
 .primary-button { margin: 4px 12px 18px; padding: 9px 13px; font-weight: 700; background: #f4f4f5; color: #15161a; border-color: #f4f4f5; }
 .primary-button:hover { background: #d9dce2; }
 
+.story-wall-surface { overflow: hidden; }
+.wall-add-idea { margin: 0; flex: 0 0 auto; }
+.story-wall-layout { display: grid; grid-template-columns: minmax(0, 1fr) 290px; min-height: 620px; }
+.story-wall-main { min-width: 0; display: grid; grid-template-rows: minmax(460px, 1fr) auto; border-right: 1px solid #292d35; }
+.story-board-canvas {
+  position: relative;
+  min-height: 560px;
+  overflow: auto;
+  background-color: #121418;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.empty-board { position: absolute; inset: 0; display: grid; place-items: center; color: #68707d; font-size: 12px; pointer-events: none; }
+.wall-card {
+  position: absolute;
+  width: 220px;
+  min-height: 132px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #3b404a;
+  background: #20232a;
+  box-shadow: 0 10px 28px rgba(0,0,0,.22);
+  user-select: none;
+}
+.wall-card.selected { border-color: #d5d9e0; box-shadow: 0 0 0 1px #d5d9e0, 0 12px 32px rgba(0,0,0,.28); }
+.scene-wall-card { background: #25241f; border-color: #4a4737; }
+.idea-wall-card { background: #2c2519; border-color: #5c4c2f; }
+.wall-card-topline { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 7px; margin-bottom: 8px; }
+.wall-card-kind { color: #89919d; font-size: 9px; text-transform: uppercase; letter-spacing: .14em; font-weight: 800; }
+.wall-card-runtime { color: #8e96a2; font-size: 10px; font-variant-numeric: tabular-nums; }
+.drag-handle { border: 0; background: transparent; color: #858d99; cursor: grab; padding: 2px 4px; font-size: 17px; line-height: 1; }
+.drag-handle:active { cursor: grabbing; }
+.wall-card-title {
+  width: 100%; background: transparent; border: 1px solid transparent; border-radius: 6px; color: #f4f5f7;
+  padding: 4px 5px; margin: 0 0 4px; font-weight: 750; outline: none;
+}
+.wall-card-title:focus { background: #15171b; border-color: #474d59; }
+.wall-card p { margin: 5px 5px 12px; color: #929aa6; font-size: 11px; line-height: 1.45; }
+.wall-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #737b87; font-size: 10px; }
+.wall-small-button {
+  border: 1px solid #414751; background: #292d34; border-radius: 6px; color: #c5cad2; padding: 4px 7px; cursor: pointer; font-size: 10px;
+}
+.wall-small-button:hover:not(:disabled) { background: #343943; }
+.wall-small-button:disabled { opacity: .35; cursor: not-allowed; }
+.wall-small-button.danger { color: #e4a0a0; border-color: #56383a; background: #302022; }
+.scene-beat-preview { display: grid; gap: 3px; margin: 8px 4px 12px; }
+.scene-beat-preview span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #a29d88; font-size: 10px; }
+.idea-card-text {
+  width: 100%; resize: vertical; border: 1px solid #51442f; background: #201b14; color: #f1e4c5; border-radius: 7px; padding: 7px; outline: none; font-size: 12px;
+}
+.wall-parent-select { width: 100%; margin: 7px 0; border: 1px solid #51442f; background: #201b14; color: #d8c9a7; border-radius: 6px; padding: 5px; font-size: 10px; }
+.parking-lot { border-top: 1px solid #292d35; background: #17191e; padding: 13px; min-height: 120px; }
+.parking-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.parking-heading h3 { margin: 2px 0 0; font-size: 13px; }
+.parking-heading > span { color: #7d8490; font-size: 11px; }
+.parking-empty, .order-explainer { color: #737b87; font-size: 10px; line-height: 1.45; }
+.parking-list { margin-top: 9px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 7px; }
+.parked-item { display: flex; align-items: center; justify-content: space-between; gap: 9px; background: #20232a; border: 1px solid #343943; border-radius: 7px; padding: 7px 8px; }
+.parked-item span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #9ba2ae; font-size: 10px; }
+.story-order-panel { padding: 14px; background: #15171b; overflow: auto; }
+.order-section { margin-top: 14px; border-top: 1px solid #292d35; padding-top: 10px; }
+.order-section > strong { display: block; color: #d9dde3; font-size: 11px; margin-bottom: 6px; }
+.order-item { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: center; padding: 6px 0; border-top: 1px solid #22262d; }
+.order-item > span { min-width: 0; color: #a4abb5; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.order-item small { display: inline-block; min-width: 38px; margin-right: 5px; color: #68707d; text-transform: uppercase; font-size: 8px; letter-spacing: .08em; }
+.order-buttons { display: flex; gap: 3px; }
+.order-buttons button { width: 24px; height: 24px; padding: 0; border: 1px solid #343943; background: #22262d; color: #aeb4be; border-radius: 5px; cursor: pointer; }
+.order-buttons button:disabled { opacity: .25; cursor: not-allowed; }
+.wall-notice { padding: 9px 16px; border-top: 1px solid #493f2a; background: #211e16; color: #c4b98f; font-size: 10px; }
+
 .placeholder-surface { padding: 36px; display: grid; align-content: start; gap: 5px; }
 .selection-chip { margin-top: 18px; width: fit-content; border: 1px solid #383d48; background: #1d2027; color: #b8bfca; border-radius: 999px; padding: 7px 10px; font-size: 11px; }
 
 .app-footer {
   padding: 10px 24px; border-top: 1px solid #272a31; background: #121418;
   display: flex; justify-content: space-between; gap: 16px; color: #707785; font-size: 10px;
+}
+
+@media (max-width: 1180px) {
+  .story-wall-layout { grid-template-columns: 1fr; }
+  .story-wall-main { border-right: 0; }
+  .story-order-panel { border-top: 1px solid #292d35; }
 }
 
 @media (max-width: 980px) {
@@ -174,4 +252,6 @@ button { color: inherit; }
   .row-runtime { grid-column: 1; text-align: left; }
   .row-actions { grid-column: 2; flex-wrap: wrap; }
   .parent-select { max-width: 130px; }
+  .wall-card { width: 190px; }
+  .story-board-canvas { min-height: 520px; }
 }
