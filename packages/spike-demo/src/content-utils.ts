@@ -34,10 +34,6 @@ export function updateBlockDisplayText(
   }
 }
 
-export function isSourceEvidence(block: ContentBlock): boolean {
-  return block.type === "source_excerpt";
-}
-
 export function sourceRangeLabel(block: ContentBlock): string | null {
   if (block.type !== "source_excerpt") return null;
   const format = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
