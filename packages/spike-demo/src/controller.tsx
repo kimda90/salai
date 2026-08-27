@@ -1,5 +1,4 @@
 import {
-  DomainOperationError,
   applyOperation,
   type DomainWarning,
   type NarrativeOperation,
@@ -13,7 +12,7 @@ import {
   useContext,
   useSyncExternalStore,
 } from "react";
-import { createFixture, getFixtureDefinition, type FixtureKey } from "./fixtures";
+import { createFixture, type FixtureKey } from "./fixtures";
 import {
   createStoryWallWorkspace,
   promoteIdeaCardReference,
@@ -21,7 +20,7 @@ import {
   type Workspace,
 } from "./workspace";
 
-export type SelectionType = "section" | "scene" | "beat" | "cue" | "source-excerpt";
+export type SelectionType = "section" | "scene" | "beat" | "cue";
 
 export type CanonicalSelection = {
   type: SelectionType;
@@ -78,6 +77,19 @@ function feedbackFromResult(result: ReturnType<typeof applyOperation>): Operatio
   };
 }
 
+function changesStoryWallMembership(
+  previous: NarrativeProject,
+  result: ReturnType<typeof applyOperation>,
+): boolean {
+  const createsStoryCard = result.createdIds.some(
+    (id) => result.model.beats[id] !== undefined || result.model.scenes[id] !== undefined,
+  );
+  const removesStoryCard = result.removedIds.some(
+    (id) => previous.beats[id] !== undefined || previous.scenes[id] !== undefined,
+  );
+  return createsStoryCard || removesStoryCard;
+}
+
 export class SalaiController {
   private state: SalaiAppState;
   private listeners = new Set<() => void>();
@@ -99,10 +111,7 @@ export class SalaiController {
   }
 
   private publishError(error: unknown): void {
-    const message =
-      error instanceof DomainOperationError || error instanceof Error
-        ? error.message
-        : String(error);
+    const message = error instanceof Error ? error.message : String(error);
     this.publish({
       ...this.state,
       feedback: { ...EMPTY_FEEDBACK, error: message },
@@ -139,15 +148,19 @@ export class SalaiController {
 
   dispatchNarrative(operation: NarrativeOperation): boolean {
     try {
-      const result = applyOperation(this.state.project, operation);
+      const previousProject = this.state.project;
+      const result = applyOperation(previousProject, operation);
       const selection = this.state.selection;
       const selectionRemoved =
         selection !== null && result.removedIds.includes(selection.id);
+      const workspace = changesStoryWallMembership(previousProject, result)
+        ? syncWorkspaceWithProject(this.state.workspace, result.model)
+        : this.state.workspace;
 
       this.publish({
         ...this.state,
         project: result.model,
-        workspace: syncWorkspaceWithProject(this.state.workspace, result.model),
+        workspace,
         selection: selectionRemoved ? null : selection,
         feedback: feedbackFromResult(result),
       });
@@ -176,12 +189,11 @@ export class SalaiController {
         },
         parent,
       });
-      let workspace = promoteIdeaCardReference(
-        this.state.workspace,
-        itemId,
-        { type: "beat", id: beatId },
-      );
-      workspace = syncWorkspaceWithProject(workspace, result.model);
+      const workspace = promoteIdeaCardReference(this.state.workspace, itemId, {
+        type: "beat",
+        id: beatId,
+      });
+
       this.publish({
         ...this.state,
         project: result.model,
@@ -198,10 +210,6 @@ export class SalaiController {
 
   clearFeedback(): void {
     this.publish({ ...this.state, feedback: { ...EMPTY_FEEDBACK } });
-  }
-
-  getFixtureLabel(): string {
-    return getFixtureDefinition(this.state.fixtureKey).label;
   }
 }
 
@@ -222,5 +230,9 @@ export function useSalaiController(): SalaiController {
 
 export function useSalaiState(): SalaiAppState {
   const controller = useSalaiController();
-  return useSyncExternalStore(controller.subscribe, controller.getSnapshot, controller.getSnapshot);
+  return useSyncExternalStore(
+    controller.subscribe,
+    controller.getSnapshot,
+    controller.getSnapshot,
+  );
 }

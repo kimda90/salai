@@ -1,7 +1,6 @@
 import { applyOperation, createProductVideoFixture } from "@salai/script-model";
 import { describe, expect, it } from "vitest";
 import { SalaiController } from "./controller";
-import { createSectionChildMoveOperation } from "./story-order";
 import {
   createIdeaCard,
   createStoryWallWorkspace,
@@ -9,23 +8,24 @@ import {
 } from "./workspace";
 
 describe("Story Wall semantics", () => {
-  it("maps explicit story-order movement to a Narrative operation with stable identity", () => {
-    const project = createProductVideoFixture();
+  it("keeps structural movement on the Narrative operation path", () => {
+    const controller = new SalaiController("product");
+    const project = controller.getSnapshot().project;
     const sectionId = project.script.sectionIds[0]!;
-    const section = project.sections[sectionId]!;
-    const childId = section.childIds[1]!;
-    const operation = createSectionChildMoveOperation(project, sectionId, childId, -1);
+    const beatId = project.sections[sectionId]!.childIds[1]!;
 
-    expect(operation).toEqual({
+    const accepted = controller.dispatchNarrative({
       op: "moveBeat",
-      beatId: childId,
+      beatId,
       toParent: { type: "section", id: sectionId },
       toIndex: 0,
     });
 
-    const result = applyOperation(project, operation!);
-    expect(result.model.sections[sectionId]?.childIds[0]).toBe(childId);
-    expect(result.model.beats[childId]?.id).toBe(childId);
+    expect(accepted).toBe(true);
+    expect(controller.getSnapshot().project.sections[sectionId]?.childIds[0]).toBe(
+      beatId,
+    );
+    expect(controller.getSnapshot().project.beats[beatId]?.id).toBe(beatId);
   });
 
   it("preserves BoardItem identity when an IdeaCard is promoted to a Beat", () => {
@@ -33,14 +33,24 @@ describe("Story Wall semantics", () => {
     const sectionId = controller.getSnapshot().project.script.sectionIds[0]!;
     const itemId = "idea-item-test";
     controller.updateWorkspace((workspace) =>
-      createIdeaCard(workspace, itemId, { id: "idea-test", text: "Cold open with the finished result" }, { x: 77, y: 91 }),
+      createIdeaCard(
+        workspace,
+        itemId,
+        { id: "idea-test", text: "Cold open with the finished result" },
+        { x: 77, y: 91 },
+      ),
     );
 
     const beatCountBefore = Object.keys(controller.getSnapshot().project.beats).length;
-    const beatId = controller.promoteIdeaCardToBeat(itemId, { type: "section", id: sectionId });
+    const beatId = controller.promoteIdeaCardToBeat(itemId, {
+      type: "section",
+      id: sectionId,
+    });
 
     expect(beatId).not.toBeNull();
-    expect(Object.keys(controller.getSnapshot().project.beats)).toHaveLength(beatCountBefore + 1);
+    expect(Object.keys(controller.getSnapshot().project.beats)).toHaveLength(
+      beatCountBefore + 1,
+    );
     const item = controller.getSnapshot().workspace.board.items[itemId];
     expect(item?.id).toBe(itemId);
     expect(item?.ideaCard).toBeUndefined();

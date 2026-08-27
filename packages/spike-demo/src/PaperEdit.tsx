@@ -1,26 +1,28 @@
-import type { ContentBlock, Cue, Id } from "@salai/script-model";
-import { useMemo } from "react";
+import type { Cue, Id } from "@salai/script-model";
+import {
+  blockDisplayText,
+  sourceExcerptDurationMs,
+  sourceRangeLabel,
+  updateBlockDisplayText,
+} from "./content-utils";
 import { useSalaiController, useSalaiState } from "./controller";
-import { blockDisplayText, orderedBeatRefs, sourceRangeLabel } from "./av-script-utils";
-import { formatDuration, getDurationEstimate, makeId } from "./model-utils";
-import { isEditablePaperAudio, orderedPaperAudioItems, sourceExcerptDurationMs } from "./paper-edit-utils";
+import {
+  formatDuration,
+  getDurationEstimate,
+  makeId,
+  orderedBeatRefs,
+} from "./model-utils";
+import { orderedPaperAudioItems } from "./paper-edit-utils";
 
-function updatePaperAudioBlock(block: ContentBlock, value: string): ContentBlock {
-  switch (block.type) {
-    case "authored_speech":
-      return { ...block, text: value };
-    case "music":
-      return { ...block, description: value };
-    case "sfx":
-      return { ...block, description: value };
-    default:
-      return block;
-  }
-}
+type CueOption = {
+  cueId: Id;
+  beatTitle: string;
+};
 
 function VisualCompanion({ cue }: { cue: Cue }) {
   const controller = useSalaiController();
   const { project } = useSalaiState();
+
   return (
     <div className="paper-visual-companion">
       <div className="paper-visual-heading">
@@ -28,15 +30,20 @@ function VisualCompanion({ cue }: { cue: Cue }) {
         <button
           type="button"
           className="wall-small-button"
-          onClick={() => {
-            const id = makeId("visual");
+          onClick={() =>
             controller.dispatchNarrative({
               op: "createBlock",
               cueId: cue.id,
-              block: { id, type: "visual_description", text: "Add visual intent" },
-            });
-          }}
-        >+ Visual</button>
+              block: {
+                id: makeId("visual"),
+                type: "visual_description",
+                text: "Add visual intent",
+              },
+            })
+          }
+        >
+          + Visual
+        </button>
       </div>
       {cue.visualBlockIds.length === 0 ? <p>No visual intent yet.</p> : null}
       {cue.visualBlockIds.map((blockId) => {
@@ -47,7 +54,19 @@ function VisualCompanion({ cue }: { cue: Cue }) {
   );
 }
 
-function AudioCard({ blockId, cueId, beatId, blockIndex }: { blockId: Id; cueId: Id; beatId: Id; blockIndex: number }) {
+function AudioCard({
+  blockId,
+  cueId,
+  beatId,
+  blockIndex,
+  cueOptions,
+}: {
+  blockId: Id;
+  cueId: Id;
+  beatId: Id;
+  blockIndex: number;
+  cueOptions: CueOption[];
+}) {
   const controller = useSalaiController();
   const { project, selection } = useSalaiState();
   const block = project.blocks[blockId];
@@ -55,53 +74,85 @@ function AudioCard({ blockId, cueId, beatId, blockIndex }: { blockId: Id; cueId:
   const beat = project.beats[beatId];
   if (!block || !cue || !beat) return null;
 
-  const allCues = orderedBeatRefs(project).flatMap(({ beatId: orderedBeatId }) => {
-    const targetBeat = project.beats[orderedBeatId];
-    return targetBeat?.cueIds.map((id) => ({ cueId: id, beatId: targetBeat.id, beatTitle: targetBeat.title ?? targetBeat.id })) ?? [];
-  });
-  const editable = isEditablePaperAudio(block);
+  const sourceEvidence = block.type === "source_excerpt";
   const sourceDuration = sourceExcerptDurationMs(block);
 
   return (
     <article
-      className={`paper-audio-card ${block.type === "source_excerpt" ? "source-card" : "authored-card"} ${selection?.type === "cue" && selection.id === cue.id ? "selected" : ""}`}
+      className={`paper-audio-card ${sourceEvidence ? "source-card" : "authored-card"} ${selection?.type === "cue" && selection.id === cue.id ? "selected" : ""}`}
       onClick={() => controller.select({ type: "cue", id: cue.id })}
     >
       <header className="paper-card-header">
         <div>
-          <span className="paper-card-kind">{block.type === "source_excerpt" ? "Recorded source" : block.type.replaceAll("_", " ")}</span>
+          <span className="paper-card-kind">
+            {sourceEvidence ? "Recorded source" : block.type.replaceAll("_", " ")}
+          </span>
           <strong>{beat.title ?? beat.id}</strong>
         </div>
         <div className="paper-card-time">
-          {block.type === "source_excerpt" ? sourceRangeLabel(block) : null}
-          {sourceDuration !== null ? <small>{formatDuration(sourceDuration)}</small> : null}
+          {sourceEvidence ? sourceRangeLabel(block) : null}
+          {sourceDuration !== null ? (
+            <small>{formatDuration(sourceDuration)}</small>
+          ) : null}
         </div>
       </header>
 
       {block.type === "source_excerpt" ? (
         <div className="paper-source-copy">
-          <blockquote>{block.transcriptSnapshot ?? "Source excerpt"}</blockquote>
+          <blockquote>{blockDisplayText(block)}</blockquote>
           <div>
             <span>MediaSegment: {block.mediaSegmentId}</span>
             <span>Range preserved · not authored prose</span>
           </div>
         </div>
-      ) : editable ? (
+      ) : (
         <textarea
           className="paper-authored-editor"
           rows={3}
           value={blockDisplayText(block)}
           onClick={(event) => event.stopPropagation()}
-          onChange={(event) => controller.dispatchNarrative({ op: "updateBlock", block: updatePaperAudioBlock(block, event.target.value) })}
+          onChange={(event) =>
+            controller.dispatchNarrative({
+              op: "updateBlock",
+              block: updateBlockDisplayText(block, event.target.value),
+            })
+          }
         />
-      ) : (
-        <p className="paper-static-audio">{blockDisplayText(block)}</p>
       )}
 
-      <div className="paper-card-actions" onClick={(event) => event.stopPropagation()}>
+      <div
+        className="paper-card-actions"
+        onClick={(event) => event.stopPropagation()}
+      >
         <div className="paper-order-buttons">
-          <button type="button" disabled={blockIndex === 0} onClick={() => controller.dispatchNarrative({ op: "moveBlock", blockId: block.id, toCueId: cue.id, toIndex: blockIndex - 1 })}>↑</button>
-          <button type="button" disabled={blockIndex === cue.audioBlockIds.length - 1} onClick={() => controller.dispatchNarrative({ op: "moveBlock", blockId: block.id, toCueId: cue.id, toIndex: blockIndex + 1 })}>↓</button>
+          <button
+            type="button"
+            disabled={blockIndex === 0}
+            onClick={() =>
+              controller.dispatchNarrative({
+                op: "moveBlock",
+                blockId: block.id,
+                toCueId: cue.id,
+                toIndex: blockIndex - 1,
+              })
+            }
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            disabled={blockIndex === cue.audioBlockIds.length - 1}
+            onClick={() =>
+              controller.dispatchNarrative({
+                op: "moveBlock",
+                blockId: block.id,
+                toCueId: cue.id,
+                toIndex: blockIndex + 1,
+              })
+            }
+          >
+            ↓
+          </button>
         </div>
         <label>
           Attach to
@@ -110,15 +161,30 @@ function AudioCard({ blockId, cueId, beatId, blockIndex }: { blockId: Id; cueId:
             onChange={(event) => {
               const targetCue = project.cues[event.target.value];
               if (!targetCue || targetCue.id === cue.id) return;
-              controller.dispatchNarrative({ op: "moveBlock", blockId: block.id, toCueId: targetCue.id, toIndex: targetCue.audioBlockIds.length });
+              controller.dispatchNarrative({
+                op: "moveBlock",
+                blockId: block.id,
+                toCueId: targetCue.id,
+                toIndex: targetCue.audioBlockIds.length,
+              });
             }}
           >
-            {allCues.map((target) => (
-              <option key={target.cueId} value={target.cueId}>{target.beatTitle} · {target.cueId}</option>
+            {cueOptions.map((target) => (
+              <option key={target.cueId} value={target.cueId}>
+                {target.beatTitle} · {target.cueId}
+              </option>
             ))}
           </select>
         </label>
-        <button type="button" className="wall-small-button danger" onClick={() => controller.dispatchNarrative({ op: "deleteBlock", blockId: block.id })}>Remove</button>
+        <button
+          type="button"
+          className="wall-small-button danger"
+          onClick={() =>
+            controller.dispatchNarrative({ op: "deleteBlock", blockId: block.id })
+          }
+        >
+          Remove
+        </button>
       </div>
 
       <VisualCompanion cue={cue} />
@@ -130,9 +196,23 @@ export function PaperEdit() {
   const controller = useSalaiController();
   const { project } = useSalaiState();
   const items = orderedPaperAudioItems(project);
-  const duration = useMemo(() => getDurationEstimate(project), [project]);
-  const sourceCount = items.filter((item) => item.block.type === "source_excerpt").length;
-  const authoredCount = items.filter((item) => item.block.type === "authored_speech").length;
+  const duration = getDurationEstimate(project);
+  const beatRefs = orderedBeatRefs(project);
+  const cueOptions: CueOption[] = beatRefs.flatMap(({ beatId }) => {
+    const beat = project.beats[beatId];
+    if (!beat) return [];
+    return beat.cueIds.map((cueId) => ({
+      cueId,
+      beatTitle: beat.title ?? beat.id,
+    }));
+  });
+  const firstCueId = cueOptions[0]?.cueId;
+  const sourceCount = items.filter(
+    (item) => item.block.type === "source_excerpt",
+  ).length;
+  const authoredCount = items.filter(
+    (item) => item.block.type === "authored_speech",
+  ).length;
 
   return (
     <div className="surface paper-edit-surface">
@@ -140,7 +220,11 @@ export function PaperEdit() {
         <div>
           <div className="eyebrow">Workspace / audio-first projection</div>
           <h2>Paper / Radio Edit</h2>
-          <p>Recorded excerpts stay tied to source ranges while authored bridges remain editable. Move material between Cues without flattening it into transcript prose.</p>
+          <p>
+            Recorded excerpts stay tied to source ranges while authored bridges
+            remain editable. Move material between Cues without flattening it
+            into transcript prose.
+          </p>
         </div>
         <div className="paper-summary">
           <span>{sourceCount} sourced</span>
@@ -151,26 +235,35 @@ export function PaperEdit() {
 
       <div className="paper-toolbar">
         <span>Audio-first story sequence</span>
-        {project.script.sectionIds[0] ? (
+        {firstCueId ? (
           <button
             type="button"
             className="wall-small-button"
-            onClick={() => {
-              const firstBeat = orderedBeatRefs(project)[0];
-              const cueId = firstBeat ? project.beats[firstBeat.beatId]?.cueIds[0] : undefined;
-              if (!cueId) return;
+            onClick={() =>
               controller.dispatchNarrative({
                 op: "createBlock",
-                cueId,
-                block: { id: makeId("bridge"), type: "authored_speech", role: "vo", text: "New authored bridge" },
-              });
-            }}
-          >+ Authored bridge</button>
+                cueId: firstCueId,
+                block: {
+                  id: makeId("bridge"),
+                  type: "authored_speech",
+                  role: "vo",
+                  text: "New authored bridge",
+                },
+              })
+            }
+          >
+            + Authored bridge
+          </button>
         ) : null}
       </div>
 
       <div className="paper-sequence">
-        {items.length === 0 ? <div className="paper-empty">No audio-backed material yet. Add VO in AV Script or use a source-backed fixture.</div> : null}
+        {items.length === 0 ? (
+          <div className="paper-empty">
+            No audio-backed material yet. Add VO in AV Script or use a
+            source-backed fixture.
+          </div>
+        ) : null}
         {items.map((item) => (
           <AudioCard
             key={item.blockId}
@@ -178,6 +271,7 @@ export function PaperEdit() {
             cueId={item.cueId}
             beatId={item.beatId}
             blockIndex={item.blockIndex}
+            cueOptions={cueOptions}
           />
         ))}
       </div>

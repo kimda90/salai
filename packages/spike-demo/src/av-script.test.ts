@@ -5,7 +5,11 @@ import {
   estimateNarrativeDuration,
 } from "@salai/script-model";
 import { describe, expect, it } from "vitest";
-import { blockDisplayText, isSourceEvidence, orderedBeatRefs, sourceRangeLabel } from "./av-script-utils";
+import {
+  blockDisplayText,
+  sourceRangeLabel,
+} from "./content-utils";
+import { orderedBeatRefs } from "./model-utils";
 
 describe("AV Script projection", () => {
   it("preserves narrative Beat order while exposing multiple Cues", () => {
@@ -28,10 +32,9 @@ describe("AV Script projection", () => {
   it("keeps SourceExcerpt blocks identifiable as immutable source evidence", () => {
     const project = createInterviewFixture();
     const block = project.blocks.quote_maria!;
-    expect(isSourceEvidence(block)).toBe(true);
+    expect(block.type).toBe("source_excerpt");
     expect(blockDisplayText(block)).toContain("two days");
     expect(sourceRangeLabel(block)).toBe("10.0s–37.0s");
-    expect(block.type).toBe("source_excerpt");
     if (block.type === "source_excerpt") {
       expect(block.mediaSegmentId).toBe("interview_maria");
     }
@@ -59,7 +62,9 @@ describe("AV Script projection", () => {
       cueId: "cue_demo_wide",
       explicitDurationMs: 10_000,
     });
-    const after = estimateNarrativeDuration(result.model, { visualHoldMs: 2000 }).scriptMs;
+    const after = estimateNarrativeDuration(result.model, {
+      visualHoldMs: 2000,
+    }).scriptMs;
     expect(after).toBeGreaterThan(before);
   });
 });
