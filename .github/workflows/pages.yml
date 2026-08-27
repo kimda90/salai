@@ -1,4 +1,4 @@
-name: Deploy Spike 0A demo to Pages
+name: Deploy Spike 0B prototype to Pages
 
 on:
   push:
@@ -35,10 +35,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Typecheck demo
+      - name: Typecheck authoring prototype
         run: pnpm --filter @salai/spike-demo typecheck
 
-      - name: Build demo
+      - name: Test authoring prototype
+        run: pnpm --filter @salai/spike-demo test
+
+      - name: Build authoring prototype
         run: pnpm --filter @salai/spike-demo build
 
       - name: Setup Pages
