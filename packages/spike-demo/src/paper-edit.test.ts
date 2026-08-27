@@ -1,6 +1,7 @@
 import { applyOperation, createInterviewFixture } from "@salai/script-model";
 import { describe, expect, it } from "vitest";
-import { orderedPaperAudioItems, sourceExcerptDurationMs } from "./paper-edit-utils";
+import { sourceExcerptDurationMs } from "./content-utils";
+import { orderedPaperAudioItems } from "./paper-edit-utils";
 
 describe("Paper / Radio Edit projection", () => {
   it("orders source-backed and authored audio in canonical story order", () => {
@@ -38,7 +39,9 @@ describe("Paper / Radio Edit projection", () => {
       expect(after.mediaSegmentId).toBe("interview_maria");
       expect(after.sourceInMs).toBe(10_000);
       expect(after.sourceOutMs).toBe(37_000);
-      expect(after.transcriptSnapshot).toBe("We were spending almost two days doing this manually.");
+      expect(after.transcriptSnapshot).toBe(
+        "We were spending almost two days doing this manually.",
+      );
     }
     expect(result.model.cues.cue_maria?.audioBlockIds).not.toContain("quote_maria");
     expect(result.model.cues.cue_juan?.audioBlockIds).toContain("quote_maria");
