@@ -19,10 +19,15 @@ export type OrderedBeatRef = {
 export function formatDuration(ms: number | undefined): string {
   const value = ms ?? 0;
   if (value < 1000) return `${value}ms`;
+
   const seconds = value / 1000;
-  if (seconds < 60) return `${seconds.toFixed(seconds % 1 === 0 ? 0 : 1)}s`;
-  const minutes = Math.floor(seconds / 60);
-  const remainder = Math.round(seconds % 60);
+  if (seconds < 60) {
+    return `${seconds.toFixed(seconds % 1 === 0 ? 0 : 1)}s`;
+  }
+
+  const roundedSeconds = Math.round(seconds);
+  const minutes = Math.floor(roundedSeconds / 60);
+  const remainder = roundedSeconds % 60;
   return `${minutes}:${String(remainder).padStart(2, "0")}`;
 }
 
@@ -55,19 +60,16 @@ export function orderedBeatRefs(project: NarrativeProject): OrderedBeatRef[] {
   return result;
 }
 
-export function findSceneSection(project: NarrativeProject, sceneId: Id): Id | null {
-  for (const section of Object.values(project.sections)) {
-    if (section.childIds.includes(sceneId)) return section.id;
-  }
-  return null;
-}
-
 export function findBeatParent(project: NarrativeProject, beatId: Id): ParentRef | null {
   for (const section of Object.values(project.sections)) {
-    if (section.childIds.includes(beatId)) return { type: "section", id: section.id };
+    if (section.childIds.includes(beatId)) {
+      return { type: "section", id: section.id };
+    }
   }
   for (const scene of Object.values(project.scenes)) {
-    if (scene.beatIds.includes(beatId)) return { type: "scene", id: scene.id };
+    if (scene.beatIds.includes(beatId)) {
+      return { type: "scene", id: scene.id };
+    }
   }
   return null;
 }
