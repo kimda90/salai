@@ -4,7 +4,7 @@
 
 Living implementation/validation sequence.
 
-This document owns **when** product/technical risks are tested. It does not own the Narrative IR operation list or field-level semantics; those are authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md).
+This document owns **when** product/technical risks are tested. It does not own the Narrative IR operation list or field-level semantics; those are authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md). Spike 0B implementation details are authoritative in [`authoring-ux-spec.md`](authoring-ux-spec.md).
 
 ## MVP goal
 
@@ -40,6 +40,8 @@ The implementation demonstrated one model across product, interview/corporate, a
 
 Test whether people can comfortably author/restructure the validated model through familiar workflows.
 
+See [`authoring-ux-spec.md`](authoring-ux-spec.md) for the implementation contract.
+
 ### Minimum surfaces
 
 1. **Story Wall** — Beat/Scene cards, spatial organization, parking-lot material, loose IdeaCards.
@@ -49,9 +51,18 @@ Test whether people can comfortably author/restructure the validated model throu
 
 Teleprompter remains a simple projection.
 
-### Workspace-layer ownership
+### Implementation sequence
 
-0B must define the **minimum in-memory** workspace model required for UX validation:
+#### 0B.0 — React prototype shell
+
+- create the smallest React/TypeScript/Vite prototype package;
+- integrate `@salai/script-model` as the only canonical narrative model;
+- establish shared selection/navigation and one narrative-operation dispatch boundary;
+- load existing deterministic fixtures into UI development/test surfaces.
+
+#### 0B.1 — Minimum Workspace model
+
+Define the minimum in-memory:
 
 ```text
 Workspace
@@ -60,21 +71,80 @@ BoardItem
 IdeaCard
 ```
 
-This model may store layout/grouping metadata such as position, size, color, rotation, lane/group, and parking-lot state.
+Store only human organizational metadata proven necessary by the spike. Do not persist it yet.
 
-0B does **not** require durable persistence yet. Phase 2 owns persisted Workspace state once the UX proves what needs to be stored.
+#### 0B.2 — Outline
 
-### 0A findings to pressure-test in UX
+- render Sections / optional Scenes / direct Beats;
+- test the mixed Scene/direct-Beat hierarchy in real UI;
+- support quick text editing where the IR permits it;
+- route structural reorder/move through Narrative operations;
+- expose approximate runtime.
 
-- mixed direct Beats and Scenes inside one Section are allowed by the model; test whether this is understandable in Outline/Story Wall;
-- ShotIntent links may exist at Beat or Cue level; prefer Cue for concrete AV coverage and Beat for earlier high-level intent;
-- `Cue` is a useful domain concept but does not need to be exposed as terminology in every surface;
-- split relationship choices stay explicit at the domain layer even if the UI makes common choices easier;
-- workspace parking/layout state must not leak into Narrative IR semantics.
+#### 0B.3 — Story Wall
 
-### Editor framework decision
+- render Beat/Scene cards spatially;
+- support loose IdeaCards;
+- support parking-lot/alternate placement;
+- distinguish free spatial movement from intentional narrative reorder;
+- support promotion of IdeaCards into canonical narrative objects.
 
-Start with normal React controls. Add Tiptap/ProseMirror/Lexical only where rich text materially improves the validated workflows. No editor framework becomes canonical story storage.
+#### 0B.4 — AV Script
+
+- present Beat/Cue structure as visual/audio planning;
+- support multiple Cues per Beat;
+- keep authored and sourced content semantically distinct;
+- expose runtime feedback.
+
+#### 0B.5 — Paper / Radio Edit
+
+- present SourceExcerpts with source identity/range intact;
+- distinguish sourced recorded speech from authored bridges/VO;
+- support source-driven story ordering/attachment;
+- test the audio-first path into the same Cue/Beat structure.
+
+#### 0B.6 — Cross-surface workflow test
+
+Exercise at least one representative project continuously through:
+
+```text
+Story Wall
+   ↓
+Outline
+   ↓
+AV Script
+   ↓
+Paper / Radio Edit
+   ↓
+Story Wall
+```
+
+Verify:
+
+- stable Beat/Cue/source identity;
+- edits propagate between surfaces without export/import;
+- Workspace organization survives surface changes in memory;
+- Workspace changes do not mutate Narrative IR unless explicitly intended;
+- SourceExcerpt remains source-backed;
+- authored and sourced material remain visually distinguishable;
+- parking/removal/deletion remain separate concepts;
+- runtime feedback remains consistent.
+
+#### 0B.7 — Assessment
+
+Record:
+
+- which Workspace fields were actually necessary;
+- whether mixed Scene/direct-Beat hierarchy remains usable;
+- which surfaces should expose the term `Cue`;
+- which gestures users understand as spatial vs structural;
+- any genuine Narrative IR failures exposed by the UX.
+
+Revise the Narrative IR only when the UX supplies evidence of a semantic failure rather than compensating with workflow-specific state.
+
+### Editor / UI framework decision
+
+Use ordinary React/DOM controls with composable interaction infrastructure for 0B. Do not make a generic infinite canvas, graph editor, or rich-text framework canonical story storage.
 
 ### Exit criterion
 
@@ -91,14 +161,20 @@ Can an LLM propose useful narrative restructuring without bypassing stable ident
 ```text
 Narrative IR
     ↓
-LLM proposes domain operations
+structured model call proposes NarrativeOperation[]
     ↓
-validate
+validate/apply to preview state
     ↓
 show structural/runtime/relationship diff
     ↓
 review / apply / reject
 ```
+
+### Implementation constraint
+
+Do **not** introduce a general agent framework for the first 0C implementation. Begin with structured output/tool calling that produces explicit Narrative operations through the same domain boundary used by human editing.
+
+The model provider may be local or hosted; provider choice must not change proposal/review semantics.
 
 ### Exit criterion
 
@@ -117,9 +193,14 @@ Package the validated prototype as real local software.
 - `contextIsolation: true`;
 - `nodeIntegration: false`.
 
+Preferred tooling direction:
+
+- `electron-vite` for the Electron/Vite development and build boundary;
+- `electron-builder` for packaging/distribution unless implementation evidence justifies another tool.
+
 ## Local service
 
-- Python/FastAPI;
+- Python 3.11 or 3.12 / FastAPI;
 - initial project API;
 - filesystem/media services;
 - prepare for SQLite/integrations.
@@ -172,8 +253,10 @@ Use SQLite unless implementation evidence justifies another local persistence me
 Prove:
 
 ```text
-Salai → CutMaster → DaVinci Resolve Studio
+Salai → Salai Resolve adapter → CutMaster → DaVinci Resolve Studio
 ```
+
+CutMaster is the default Resolve automation boundary; direct Resolve scripting is reserved for capabilities not adequately exposed through CutMaster. See [`adr/0004-cutmaster-default-resolve-boundary.md`](adr/0004-cutmaster-default-resolve-boundary.md).
 
 Required experiments:
 
@@ -186,24 +269,14 @@ Required experiments:
 - create/modify timelines from explicit source ranges;
 - expose alternate realizations/takes where useful;
 - inspect identity behavior across restart/duplication/export-import;
-- determine event/polling strategy.
+- determine event/polling strategy;
+- document any required direct-Resolve exceptions.
 
 Resolve integration should follow Salai's narrative/production semantics rather than define them.
 
-# Phase 4 — Asset boundary / OpenAssetIO spike
+# Phase 4 — Reverse scripting with real media
 
-Validate stable Salai asset identity independently from concrete storage location.
-
-Required experiments:
-
-- create/resolve an asset entity reference;
-- publish/register local assets;
-- preserve identity if paths change;
-- determine the minimum Salai trait set.
-
-# Phase 5 — Reverse scripting with real media
-
-Replace mocked source evidence with real media-derived data.
+Replace mocked source evidence with real media-derived data before adding external asset-management infrastructure.
 
 ```text
 local media
@@ -217,9 +290,18 @@ SourceExcerpts / selected evidence
 Beats / Cues
 ```
 
-Success means the same Narrative IR semantics hold with real evidence.
+Initial reusable infrastructure may include:
 
-# Phase 6 — Alternative edits / paper-edit materialization
+- FFmpeg/ffprobe for media probing/extraction;
+- faster-whisper for local transcription;
+- WhisperX when alignment/diarization is required;
+- PySceneDetect for initial segmentation;
+- SQLite FTS5 for transcript retrieval;
+- sqlite-vec only if semantic retrieval proves useful.
+
+Success means the same Narrative IR semantics hold with real evidence and real local assets using Salai-owned stable asset identity.
+
+# Phase 5 — Alternative edits / paper-edit materialization
 
 Test story-level alternatives independent from a Resolve timeline.
 
@@ -236,7 +318,7 @@ Required capabilities:
 
 OpenTimelineIO may support interchange but does not replace Salai narrative semantics.
 
-# Phase 7 — GenAI / previs production-media spike
+# Phase 6 — GenAI / previs production-media spike
 
 Add generation only after ordinary ShotIntent/media relationships work.
 
@@ -257,6 +339,21 @@ Required flow:
 
 This phase is also where low-friction previs should be tested as an earlier creative feedback loop, not just as media generation.
 
+# Conditional interoperability spike — OpenAssetIO
+
+OpenAssetIO is not a prerequisite for local Asset identity or reverse scripting.
+
+Run an OpenAssetIO spike when a validated workflow requires external asset resolution/publishing or production asset-management interoperability.
+
+At that point test:
+
+- create/resolve an external asset entity reference;
+- publish/register local assets;
+- preserve Salai identity when concrete storage locations change;
+- determine the minimum Salai trait set.
+
+Until then, use Salai-owned stable Asset IDs plus paths/fingerprints/metadata.
+
 # Later product areas
 
 Introduce only when required by validated workflows:
@@ -266,8 +363,11 @@ Introduce only when required by validated workflows:
 - hosted review;
 - broader screenplay interchange;
 - richer generation operations;
-- mixed-media/freeform canvas research.
+- mixed-media/freeform canvas research;
+- external asset-management interoperability beyond the conditional OpenAssetIO spike.
 
 # Current gate
 
-Proceed to **Spike 0B — Familiar authoring UX** using the implemented `@salai/script-model` package as the canonical semantic model. If familiar workflow prototypes expose a genuine semantic failure, revise the Narrative IR based on that evidence rather than compensating with UI-specific state.
+Proceed to **Spike 0B — Familiar Authoring UX** using the implemented `@salai/script-model` package as the canonical semantic model and [`authoring-ux-spec.md`](authoring-ux-spec.md) as the implementation contract.
+
+Do not pull Electron, persistence, Resolve, real transcription, GenAI, or speculative canvas infrastructure into the spike unless a small mock is strictly necessary to answer the workflow validation question.
