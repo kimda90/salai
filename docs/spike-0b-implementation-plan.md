@@ -148,13 +148,14 @@ Some tasks within adjacent sections may be developed together when that reduces 
   - Do not translate the whole Narrative IR into a second UI-owned canonical model.
   - **Acceptance:** at least one existing fixture renders directly from the package model.
 
-- [ ] **0B.0.3 — Establish the approved UI primitives/dependencies.**
+- [x] **0B.0.3 — Establish the approved UI primitives/dependencies.**
   - Add shadcn/ui + Base UI only as needed by implemented surfaces.
   - Add Pragmatic Drag and Drop for drag/reorder mechanics.
   - Add TanStack Table when AV Script work begins if it materially helps.
   - Add TanStack Virtual only if real fixture size justifies it.
   - Confirm dependency licenses before adoption.
   - **Acceptance:** no tldraw, React Flow, rich-text framework, or agent framework is introduced without new documented evidence.
+  - **Result:** Pragmatic Drag and Drop is used for Story Wall movement. shadcn/Base UI, TanStack Table, and TanStack Virtual were not added because the implemented 0B surfaces did not require them.
 
 ## Development harness
 
@@ -194,7 +195,7 @@ Some tasks within adjacent sections may be developed together when that reduces 
   - Surface warnings/relationship consequences where relevant.
   - Never silently fall back to UI-only mutation after a rejected domain operation.
 
-- [ ] **0B.0.10 — Implement stable-ID shared selection/navigation.**
+- [x] **0B.0.10 — Implement stable-ID shared selection/navigation.**
   - Selection identifies canonical object type + stable ID.
   - Switching surfaces preserves selection when that object is represented there.
   - **Acceptance:** the same selected Beat can be recognized across at least Outline and Story Wall/AV Script.
@@ -207,7 +208,7 @@ Some tasks within adjacent sections may be developed together when that reduces 
   - warning/error propagation;
   - canonical state update visible to two test consumers.
 
-- [ ] **0B.0.GATE — Shared foundation is ready for workflow surfaces.**
+- [x] **0B.0.GATE — Shared foundation is ready for workflow surfaces.**
   - Application package builds/tests.
   - Existing fixtures load.
   - One canonical Narrative IR is shared.
@@ -234,10 +235,11 @@ Some tasks within adjacent sections may be developed together when that reduces 
   - Minimal editable text/type metadata.
   - It does not become a Beat/Scene simply by existing.
 
-- [ ] **0B.1.4 — Determine initial Workspace metadata fields.**
+- [x] **0B.1.4 — Determine initial Workspace metadata fields.**
   - Start with only fields needed for implemented interactions.
   - Candidate fields: x/y, width/height, color, rotation, label, note, lane/group, parking state.
   - Mark unused speculative fields for removal during assessment.
+  - **Result:** 0B currently retains only x/y and parking state as layout metadata. Unused speculative presentation/grouping fields were removed in PR #17.
 
 ## Workspace operations
 
@@ -255,7 +257,7 @@ Some tasks within adjacent sections may be developed together when that reduces 
   - delete.
   - **Acceptance:** all remain Workspace-only until explicit promotion.
 
-- [ ] **0B.1.7 — Implement explicit IdeaCard promotion.**
+- [x] **0B.1.7 — Implement explicit IdeaCard promotion.**
   - Promote to Beat and/or Scene where supported by the chosen UX.
   - Use Narrative operations to create canonical identity.
   - Replace/link the BoardItem to that canonical identity.
@@ -267,8 +269,9 @@ Some tasks within adjacent sections may be developed together when that reduces 
   - Input: surface/context + gesture result.
   - Output: Workspace operation or Narrative operation intent.
   - Drag-library event types do not enter Narrative IR/domain types.
+  - **Result:** the implemented boundary is structural rather than a generic interpreter: free board drag calls Workspace operations; the explicit Story order UI calls Narrative operations. PR #17 removed the unused test-only generic movement interpreter.
 
-- [ ] **0B.1.9 — Implement explicit Workspace-vs-Narrative movement semantics.**
+- [x] **0B.1.9 — Implement explicit Workspace-vs-Narrative movement semantics.**
   - Free spatial movement → Workspace only.
   - Explicit structural movement → Narrative operation.
   - Parking → Workspace organization unless a separate explicit semantic removal action is invoked.
@@ -276,11 +279,11 @@ Some tasks within adjacent sections may be developed together when that reduces 
 ## Workspace tests
 
 - [x] **0B.1.10 — Test free movement does not change Narrative IR.**
-- [ ] **0B.1.11 — Test structural movement emits expected Narrative operation.**
+- [x] **0B.1.11 — Test structural movement emits expected Narrative operation.**
 - [x] **0B.1.12 — Test parking is not deletion.**
-- [ ] **0B.1.13 — Test IdeaCard promotion creates identity once and preserves BoardItem continuity.**
+- [x] **0B.1.13 — Test IdeaCard promotion creates identity once and preserves BoardItem continuity.**
 
-- [ ] **0B.1.GATE — Workspace semantics are sufficient to build Story Wall/Paper Edit without polluting Narrative IR.**
+- [x] **0B.1.GATE — Workspace semantics are sufficient to build Story Wall/Paper Edit without polluting Narrative IR.**
 
 ---
 
@@ -348,25 +351,26 @@ Purpose: spatial story construction and recoverable alternatives without conflat
 
 ## Card projection
 
-- [ ] **0B.3.1 — Render canonical Beat cards.**
+- [x] **0B.3.1 — Render canonical Beat cards.**
   - Canonical content from Narrative IR.
   - Layout/organization from Workspace.
 
-- [ ] **0B.3.2 — Render canonical Scene cards where useful.**
-- [ ] **0B.3.3 — Preserve shared stable-ID selection between board and other surfaces.**
+- [x] **0B.3.2 — Render canonical Scene cards where useful.**
+- [x] **0B.3.3 — Preserve shared stable-ID selection between board and other surfaces.**
 
 ## Spatial organization
 
-- [ ] **0B.3.4 — Implement free spatial positioning.**
+- [x] **0B.3.4 — Implement free spatial positioning.**
   - Use approved drag mechanics.
   - Store positions in Workspace only.
 
-- [ ] **0B.3.5 — Implement parking-lot/alternate area.**
+- [x] **0B.3.5 — Implement parking-lot/alternate area.**
   - Cards can move into/out of parking without deleting canonical objects.
   - Visually distinguish parked/alternate material from active structural material.
 
 - [ ] **0B.3.6 — Add lanes/groups if required to express structural or thematic organization.**
   - Do not add until an interaction actually needs them.
+  - **CANCELLED:** no implemented Story Wall interaction currently requires lanes/groups in Spike 0B.
 
 - [ ] **0B.3.7 — Add optional card presentation metadata only when validated.**
   - color;
@@ -374,30 +378,32 @@ Purpose: spatial story construction and recoverable alternatives without conflat
   - rotation;
   - label/note.
   - Remain Workspace-owned.
+  - **CANCELLED:** no validated 0B need. Speculative fields were removed in PR #17 rather than retained for future use.
 
 ## IdeaCards
 
-- [ ] **0B.3.8 — Implement create/edit/move/delete IdeaCards on the wall.**
-- [ ] **0B.3.9 — Implement explicit IdeaCard → Beat promotion.**
+- [x] **0B.3.8 — Implement create/edit/move/delete IdeaCards on the wall.**
+- [x] **0B.3.9 — Implement explicit IdeaCard → Beat promotion.**
 - [ ] **0B.3.10 — Implement IdeaCard → Scene promotion if the UX demonstrates a real need.**
+  - **CANCELLED:** the current 0B UX demonstrates a concrete need for Beat promotion only; no Scene-promotion evidence has emerged.
 
 ## Structural ordering
 
-- [ ] **0B.3.11 — Implement an explicit structural-order interaction.**
+- [x] **0B.3.11 — Implement an explicit structural-order interaction.**
   - Ordered lane, structural mode, explicit reorder affordance, or equivalent.
   - Arbitrary x/y position alone must not silently redefine narrative order.
 
-- [ ] **0B.3.12 — Dispatch structural wall moves through Narrative operations.**
+- [x] **0B.3.12 — Dispatch structural wall moves through Narrative operations.**
 
 ## Tests
 
-- [ ] **0B.3.13 — Test free card movement leaves Narrative IR unchanged.**
-- [ ] **0B.3.14 — Test structural wall movement changes narrative order correctly.**
-- [ ] **0B.3.15 — Test parking vs delete distinction.**
+- [x] **0B.3.13 — Test free card movement leaves Narrative IR unchanged.**
+- [x] **0B.3.14 — Test structural wall movement changes narrative order correctly.**
+- [x] **0B.3.15 — Test parking vs delete distinction.**
 - [ ] **0B.3.16 — Test canonical text edit updates card while preserving layout.**
-- [ ] **0B.3.17 — Test IdeaCard promotion keeps one canonical identity and one appropriate BoardItem reference.**
+- [x] **0B.3.17 — Test IdeaCard promotion keeps one canonical identity and one appropriate BoardItem reference.**
 
-- [ ] **0B.3.GATE — Story Wall provides useful spatial organization without making layout canonical narrative state.**
+- [x] **0B.3.GATE — Story Wall provides useful spatial organization without making layout canonical narrative state.**
 
 ---
 
@@ -407,26 +413,26 @@ Purpose: production-oriented visual/audio authoring over Beat/Cue semantics.
 
 ## Rendering
 
-- [ ] **0B.4.1 — Render Beats as AV Script groups.**
-- [ ] **0B.4.2 — Render multiple Cues within each Beat.**
-- [ ] **0B.4.3 — Present Visual and Audio content side by side.**
+- [x] **0B.4.1 — Render Beats as AV Script groups.**
+- [x] **0B.4.2 — Render multiple Cues within each Beat.**
+- [x] **0B.4.3 — Present Visual and Audio content side by side.**
   - Preserve Cue identity.
   - Do not flatten the model into anonymous table rows.
 
-- [ ] **0B.4.4 — Render authored and source-backed material distinctly.**
+- [x] **0B.4.4 — Render authored and source-backed material distinctly.**
 
 ## Authoring
 
-- [ ] **0B.4.5 — Implement create Cue action.**
-- [ ] **0B.4.6 — Implement supported Cue/content edits.**
-- [ ] **0B.4.7 — Implement Cue reorder/move actions required for normal AV planning.**
-- [ ] **0B.4.8 — Implement Cue deletion where required.**
+- [x] **0B.4.5 — Implement create Cue action.**
+- [x] **0B.4.6 — Implement supported Cue/content edits.**
+- [x] **0B.4.7 — Implement Cue reorder/move actions required for normal AV planning.**
+- [x] **0B.4.8 — Implement Cue deletion where required.**
   - Route all structural changes through Narrative operations.
 
 ## Runtime
 
-- [ ] **0B.4.9 — Render explicit Cue duration where present.**
-- [ ] **0B.4.10 — Render derived Beat/project runtime feedback during authoring.**
+- [x] **0B.4.9 — Render explicit Cue duration where present.**
+- [x] **0B.4.10 — Render derived Beat/project runtime feedback during authoring.**
 
 ## Terminology pressure test
 
@@ -439,11 +445,11 @@ Purpose: production-oriented visual/audio authoring over Beat/Cue semantics.
 - [ ] **0B.4.12 — Test multiple Cue rendering/identity.**
 - [ ] **0B.4.13 — Test Visual/Audio editing dispatch.**
 - [ ] **0B.4.14 — Test authored/source-backed distinction.**
-- [ ] **0B.4.15 — Test Cue reorder/move and identity stability.**
-- [ ] **0B.4.16 — Test runtime feedback updates.**
+- [x] **0B.4.15 — Test Cue reorder/move and identity stability.**
+- [x] **0B.4.16 — Test runtime feedback updates.**
 - [ ] **0B.4.17 — Test changes are reflected in Outline/Story Wall where relevant.**
 
-- [ ] **0B.4.GATE — AV Script can author audiovisual realization without forcing additional narrative fragmentation.**
+- [x] **0B.4.GATE — AV Script can author audiovisual realization without forcing additional narrative fragmentation.**
 
 ---
 
@@ -453,39 +459,40 @@ Purpose: footage-first/source-evidence-driven story construction while preservin
 
 ## Source presentation
 
-- [ ] **0B.5.1 — Render SourceExcerpt source identity.**
-- [ ] **0B.5.2 — Render source range/timing clearly.**
-- [ ] **0B.5.3 — Render source-backed wording as evidence rather than ordinary authored text.**
+- [x] **0B.5.1 — Render SourceExcerpt source identity.**
+- [x] **0B.5.2 — Render source range/timing clearly.**
+- [x] **0B.5.3 — Render source-backed wording as evidence rather than ordinary authored text.**
 
 ## Authored material
 
-- [ ] **0B.5.4 — Render authored VO/bridge material distinctly.**
-- [ ] **0B.5.5 — Allow supported authored bridge editing through Narrative operations.**
+- [x] **0B.5.4 — Render authored VO/bridge material distinctly.**
+- [x] **0B.5.5 — Allow supported authored bridge editing through Narrative operations.**
 
 ## Paper Edit behavior
 
-- [ ] **0B.5.6 — Arrange SourceExcerpt-backed material into narrative structure.**
+- [x] **0B.5.6 — Arrange SourceExcerpt-backed material into narrative structure.**
   - Preserve source ranges and canonical source identity.
 
 - [ ] **0B.5.7 — Implement Workspace organization required by Paper Edit.**
   - references/grouping/notes only as evidence justifies.
+  - **CANCELLED:** the current Paper/Radio Edit projection requires no additional Workspace state. Add it later only if cross-surface validation produces concrete evidence.
 
-- [ ] **0B.5.8 — Implement source excerpt reorder/attachment actions required by the fixture workflows.**
+- [x] **0B.5.8 — Implement source excerpt reorder/attachment actions required by the fixture workflows.**
 
 ## Radio Edit behavior
 
-- [ ] **0B.5.9 — Implement audio-first sequencing presentation.**
-- [ ] **0B.5.10 — Show useful timing/runtime information for spoken sequence.**
-- [ ] **0B.5.11 — Provide a path to reveal/add visual Cue intent without creating a separate canonical document.**
+- [x] **0B.5.9 — Implement audio-first sequencing presentation.**
+- [x] **0B.5.10 — Show useful timing/runtime information for spoken sequence.**
+- [x] **0B.5.11 — Provide a path to reveal/add visual Cue intent without creating a separate canonical document.**
 
 ## Tests
 
 - [ ] **0B.5.12 — Test SourceExcerpt wording cannot accidentally become authored mutable content.**
-- [ ] **0B.5.13 — Test source ranges survive narrative reorder.**
-- [ ] **0B.5.14 — Test authored bridge remains authored after movement/editing.**
+- [x] **0B.5.13 — Test source ranges survive narrative reorder.**
+- [x] **0B.5.14 — Test authored bridge remains authored after movement/editing.**
 - [ ] **0B.5.15 — Test Paper/Radio changes propagate to other surfaces.**
 
-- [ ] **0B.5.GATE — Footage-first authoring works over the same Narrative IR without losing evidence identity.**
+- [x] **0B.5.GATE — Footage-first authoring works over the same Narrative IR without losing evidence identity.**
 
 ---
 
@@ -635,12 +642,12 @@ Add concise phase/subphase evidence here as work lands. Keep detailed implementa
 
 | Area | Evidence | Result |
 | --- | --- | --- |
-| 0B.0 Foundation | PR #12 — React/Vite app, public `@salai/script-model` integration, fixture controller, canonical operation dispatch, visible domain feedback; CI typecheck/tests/build green. | Partial |
-| 0B.1 Workspace | PR #12 — in-memory Workspace/Board/BoardItem/IdeaCard model, Workspace-only move/parking/IdeaCard operations, movement-intent boundary, isolation tests. | Partial |
-| 0B.2 Outline | PR #12 — mixed Section/Scene/Beat rendering, inline domain edits, create/move/delete actions, cross-parent movement, derived runtime. | Partial |
-| 0B.3 Story Wall | — | Pending |
-| 0B.4 AV Script | — | Pending |
-| 0B.5 Paper/Radio | — | Pending |
+| 0B.0 Foundation | PR #12 — React/Vite app, public `@salai/script-model` integration, fixture controller, canonical operation dispatch, visible domain feedback. PRs #14–#16 proved one shared selection/controller across all four surfaces. PR #17 simplified and optimized the shared boundary; CI typecheck/tests/build green. | Partial — Storybook, browser smoke coverage, and the complete controller smoke-test criterion remain. |
+| 0B.1 Workspace | PR #12 — in-memory Workspace/Board/BoardItem/IdeaCard model and isolation tests. PR #14 — free spatial movement, parking, explicit structural order, IdeaCard promotion and continuity tests. PR #17 — removed speculative fields and the unused generic movement interpreter. | Semantic gate passed. |
+| 0B.2 Outline | PR #12 — mixed Section/Scene/Beat rendering, inline domain edits, create/move/delete actions, cross-parent movement, derived runtime. PR #17 — shared duration derivation and maintenance cleanup. | Partial — dedicated UI interaction tests remain. |
+| 0B.3 Story Wall | PR #14 — canonical Beat/Scene cards, Pragmatic DnD positioning, parking, IdeaCards, promotion, explicit structural order and boundary tests. PR #17 — reduced Workspace state and removed test-only abstractions. | Semantic gate passed; canonical-edit/layout interaction test remains. |
+| 0B.4 AV Script | PR #15 — Beat/Cue projection, Visual/Audio lanes, authored/source distinction, Cue/content authoring and runtime tests. PR #17 — shared projection/content helpers and cached derivation. | Implementation gate passed; terminology, browser interaction and cross-surface tests remain. |
+| 0B.5 Paper/Radio | PR #16 — source identity/ranges, authored bridges, audio-first sequence, block reorder/attachment and visual-intent path. PR #17 — removed unnecessary Paper-specific projection state and confirmed no extra Workspace state is currently needed. | Implementation gate passed; source-mutation and cross-surface tests remain. |
 | 0B.6 Cross-surface | — | Pending |
 | 0B.7 Assessment | — | Pending |
 | 0B.GATE | — | Pending |
