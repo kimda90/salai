@@ -4,6 +4,7 @@ import { App } from "./App";
 import { SalaiController, SalaiProvider } from "./controller";
 import "./style.css";
 import "./av-script.css";
+import "./paper-edit.css";
 
 const rootElement = document.querySelector<HTMLElement>("#app");
 if (!rootElement) throw new Error("Missing #app root");
