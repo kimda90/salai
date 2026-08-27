@@ -136,14 +136,14 @@ Some tasks within adjacent sections may be developed together when that reduces 
 
 ## Application package
 
-- [ ] **0B.0.1 — Create the React/TypeScript/Vite authoring prototype package.**
+- [x] **0B.0.1 — Create the React/TypeScript/Vite authoring prototype package.**
   - Add it to the pnpm workspace.
   - Provide development, typecheck, test, and build scripts.
   - Keep it browser-based; no Electron dependency.
   - Render a minimal Salai application shell.
   - **Acceptance:** root `pnpm typecheck`, `pnpm test`, and `pnpm build` include the package successfully.
 
-- [ ] **0B.0.2 — Integrate `@salai/script-model` through its public API.**
+- [x] **0B.0.2 — Integrate `@salai/script-model` through its public API.**
   - Do not import internal implementation paths.
   - Do not translate the whole Narrative IR into a second UI-owned canonical model.
   - **Acceptance:** at least one existing fixture renders directly from the package model.
@@ -158,7 +158,7 @@ Some tasks within adjacent sections may be developed together when that reduces 
 
 ## Development harness
 
-- [ ] **0B.0.4 — Build a deterministic fixture selector.**
+- [x] **0B.0.4 — Build a deterministic fixture selector.**
   - Load all existing Narrative IR fixtures.
   - Switch fixtures without page reload where practical.
   - Reset the active fixture to its original state.
@@ -176,20 +176,20 @@ Some tasks within adjacent sections may be developed together when that reduces 
 
 ## Shared state and operation boundary
 
-- [ ] **0B.0.7 — Implement a thin application controller/store.**
+- [x] **0B.0.7 — Implement a thin application controller/store.**
   - Own current Narrative IR model value/reference.
   - Own current Workspace state.
   - Own shared selection/navigation state.
   - UI-local drafts, hover, menus, drag previews, etc. remain ephemeral.
   - **Acceptance:** no surface owns a drifting canonical copy of Sections/Scenes/Beats/Cues/content.
 
-- [ ] **0B.0.8 — Implement the shared Narrative operation dispatcher.**
+- [x] **0B.0.8 — Implement the shared Narrative operation dispatcher.**
   - All semantic story changes use `@salai/script-model` public operations.
   - Replace/update current model from operation results.
   - Preserve warnings, relationship effects, changed/created/removed IDs.
   - **Acceptance:** one semantic operation updates all subscribed views of the same model.
 
-- [ ] **0B.0.9 — Implement operation error/warning feedback.**
+- [x] **0B.0.9 — Implement operation error/warning feedback.**
   - Surface domain rejection/errors visibly enough for the spike.
   - Surface warnings/relationship consequences where relevant.
   - Never silently fall back to UI-only mutation after a rejected domain operation.
@@ -219,17 +219,17 @@ Some tasks within adjacent sections may be developed together when that reduces 
 
 ## Types and ownership
 
-- [ ] **0B.1.1 — Define `Workspace` and `Board` types.**
+- [x] **0B.1.1 — Define `Workspace` and `Board` types.**
   - In-memory only.
   - Stable Workspace identity.
   - Workspace kind/name/settings only as needed by 0B.
 
-- [ ] **0B.1.2 — Define `BoardItem` canonical-reference representation.**
+- [x] **0B.1.2 — Define `BoardItem` canonical-reference representation.**
   - BoardItem has its own Workspace identity.
   - Reference canonical objects by stable ID + supported object type.
   - Do not copy canonical titles/content as persisted BoardItem data.
 
-- [ ] **0B.1.3 — Define `IdeaCard` as Workspace-only state.**
+- [x] **0B.1.3 — Define `IdeaCard` as Workspace-only state.**
   - Stable Workspace identity.
   - Minimal editable text/type metadata.
   - It does not become a Beat/Scene simply by existing.
@@ -241,14 +241,14 @@ Some tasks within adjacent sections may be developed together when that reduces 
 
 ## Workspace operations
 
-- [ ] **0B.1.5 — Implement Workspace-only BoardItem operations.**
+- [x] **0B.1.5 — Implement Workspace-only BoardItem operations.**
   - add/remove workspace reference;
   - update spatial position;
   - update lane/group/parking where required;
   - update other validated layout metadata.
   - **Acceptance:** these operations do not mutate Narrative IR.
 
-- [ ] **0B.1.6 — Implement IdeaCard lifecycle.**
+- [x] **0B.1.6 — Implement IdeaCard lifecycle.**
   - create;
   - edit;
   - move/organize;
@@ -263,7 +263,7 @@ Some tasks within adjacent sections may be developed together when that reduces 
 
 ## Intent interpretation
 
-- [ ] **0B.1.8 — Define the gesture-intent mapping boundary.**
+- [x] **0B.1.8 — Define the gesture-intent mapping boundary.**
   - Input: surface/context + gesture result.
   - Output: Workspace operation or Narrative operation intent.
   - Drag-library event types do not enter Narrative IR/domain types.
@@ -275,9 +275,9 @@ Some tasks within adjacent sections may be developed together when that reduces 
 
 ## Workspace tests
 
-- [ ] **0B.1.10 — Test free movement does not change Narrative IR.**
+- [x] **0B.1.10 — Test free movement does not change Narrative IR.**
 - [ ] **0B.1.11 — Test structural movement emits expected Narrative operation.**
-- [ ] **0B.1.12 — Test parking is not deletion.**
+- [x] **0B.1.12 — Test parking is not deletion.**
 - [ ] **0B.1.13 — Test IdeaCard promotion creates identity once and preserves BoardItem continuity.**
 
 - [ ] **0B.1.GATE — Workspace semantics are sufficient to build Story Wall/Paper Edit without polluting Narrative IR.**
@@ -290,42 +290,42 @@ Purpose: compact hierarchical structural authoring and the first pressure test o
 
 ## Rendering
 
-- [ ] **0B.2.1 — Render Sections.**
-- [ ] **0B.2.2 — Render optional Scenes within Sections.**
-- [ ] **0B.2.3 — Render direct Beats and Scene-contained Beats in the same Section.**
+- [x] **0B.2.1 — Render Sections.**
+- [x] **0B.2.2 — Render optional Scenes within Sections.**
+- [x] **0B.2.3 — Render direct Beats and Scene-contained Beats in the same Section.**
   - **Acceptance:** mixed hierarchy is visually distinguishable and navigable.
 
-- [ ] **0B.2.4 — Render useful Beat text and runtime information.**
+- [x] **0B.2.4 — Render useful Beat text and runtime information.**
   - title/summary as available;
   - derived approximate duration where useful.
 
 ## Editing
 
-- [ ] **0B.2.5 — Implement supported inline text edits.**
+- [x] **0B.2.5 — Implement supported inline text edits.**
   - Section title;
   - Scene title;
   - Beat title/summary.
   - Use Narrative operations.
 
-- [ ] **0B.2.6 — Implement create Section action.**
-- [ ] **0B.2.7 — Implement create Scene action.**
-- [ ] **0B.2.8 — Implement create Beat under valid parent.**
+- [x] **0B.2.6 — Implement create Section action.**
+- [x] **0B.2.7 — Implement create Scene action.**
+- [x] **0B.2.8 — Implement create Beat under valid parent.**
   - **Acceptance:** newly created object identity appears in every subscribed surface.
 
 ## Structural movement
 
-- [ ] **0B.2.9 — Implement reorder within a parent.**
-- [ ] **0B.2.10 — Implement valid cross-parent Beat moves.**
-- [ ] **0B.2.11 — Implement Scene/structural moves required by normal Outline use.**
+- [x] **0B.2.9 — Implement reorder within a parent.**
+- [x] **0B.2.10 — Implement valid cross-parent Beat moves.**
+- [x] **0B.2.11 — Implement Scene/structural moves required by normal Outline use.**
 - [ ] **0B.2.12 — Reject invalid drop/move targets with understandable feedback.**
 
 ## Removal and runtime
 
-- [ ] **0B.2.13 — Implement deletion/removal actions needed by the spike.**
+- [x] **0B.2.13 — Implement deletion/removal actions needed by the spike.**
   - Surface warnings/relationship effects.
   - Avoid inventing separate UI semantics that contradict the domain operation contract.
 
-- [ ] **0B.2.14 — Implement runtime summaries.**
+- [x] **0B.2.14 — Implement runtime summaries.**
   - Project total.
   - Section/Beat-level summaries where useful.
   - Always derived from current Narrative IR.
@@ -635,9 +635,9 @@ Add concise phase/subphase evidence here as work lands. Keep detailed implementa
 
 | Area | Evidence | Result |
 | --- | --- | --- |
-| 0B.0 Foundation | — | Pending |
-| 0B.1 Workspace | — | Pending |
-| 0B.2 Outline | — | Pending |
+| 0B.0 Foundation | PR #12 — React/Vite app, public `@salai/script-model` integration, fixture controller, canonical operation dispatch, visible domain feedback; CI typecheck/tests/build green. | Partial |
+| 0B.1 Workspace | PR #12 — in-memory Workspace/Board/BoardItem/IdeaCard model, Workspace-only move/parking/IdeaCard operations, movement-intent boundary, isolation tests. | Partial |
+| 0B.2 Outline | PR #12 — mixed Section/Scene/Beat rendering, inline domain edits, create/move/delete actions, cross-parent movement, derived runtime. | Partial |
 | 0B.3 Story Wall | — | Pending |
 | 0B.4 AV Script | — | Pending |
 | 0B.5 Paper/Radio | — | Pending |
