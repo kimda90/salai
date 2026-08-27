@@ -4,6 +4,7 @@ import {
   type DomainWarning,
   type NarrativeOperation,
   type NarrativeProject,
+  type ParentRef,
   type RelationshipEffect,
 } from "@salai/script-model";
 import {
@@ -13,7 +14,12 @@ import {
   useSyncExternalStore,
 } from "react";
 import { createFixture, getFixtureDefinition, type FixtureKey } from "./fixtures";
-import { createWorkspace, type Workspace } from "./workspace";
+import {
+  createStoryWallWorkspace,
+  promoteIdeaCardReference,
+  syncWorkspaceWithProject,
+  type Workspace,
+} from "./workspace";
 
 export type SelectionType = "section" | "scene" | "beat" | "cue" | "source-excerpt";
 
@@ -50,13 +56,25 @@ const EMPTY_FEEDBACK: OperationFeedback = {
 };
 
 function initialState(fixtureKey: FixtureKey): SalaiAppState {
+  const project = createFixture(fixtureKey);
   return {
     fixtureKey,
-    project: createFixture(fixtureKey),
-    workspace: createWorkspace("story-wall", "Story Wall"),
+    project,
+    workspace: createStoryWallWorkspace(project),
     selection: null,
     activeSurface: "outline",
     feedback: EMPTY_FEEDBACK,
+  };
+}
+
+function feedbackFromResult(result: ReturnType<typeof applyOperation>): OperationFeedback {
+  return {
+    error: null,
+    warnings: result.warnings,
+    relationshipEffects: result.relationshipEffects,
+    changedIds: result.changedIds,
+    createdIds: result.createdIds,
+    removedIds: result.removedIds,
   };
 }
 
@@ -78,6 +96,17 @@ export class SalaiController {
   private publish(nextState: SalaiAppState): void {
     this.state = nextState;
     for (const listener of this.listeners) listener();
+  }
+
+  private publishError(error: unknown): void {
+    const message =
+      error instanceof DomainOperationError || error instanceof Error
+        ? error.message
+        : String(error);
+    this.publish({
+      ...this.state,
+      feedback: { ...EMPTY_FEEDBACK, error: message },
+    });
   }
 
   setFixture(fixtureKey: FixtureKey): void {
@@ -104,13 +133,7 @@ export class SalaiController {
         feedback: { ...EMPTY_FEEDBACK },
       });
     } catch (error) {
-      this.publish({
-        ...this.state,
-        feedback: {
-          ...EMPTY_FEEDBACK,
-          error: error instanceof Error ? error.message : String(error),
-        },
-      });
+      this.publishError(error);
     }
   }
 
@@ -124,27 +147,52 @@ export class SalaiController {
       this.publish({
         ...this.state,
         project: result.model,
+        workspace: syncWorkspaceWithProject(this.state.workspace, result.model),
         selection: selectionRemoved ? null : selection,
-        feedback: {
-          error: null,
-          warnings: result.warnings,
-          relationshipEffects: result.relationshipEffects,
-          changedIds: result.changedIds,
-          createdIds: result.createdIds,
-          removedIds: result.removedIds,
-        },
+        feedback: feedbackFromResult(result),
       });
       return true;
     } catch (error) {
-      const message =
-        error instanceof DomainOperationError || error instanceof Error
-          ? error.message
-          : String(error);
+      this.publishError(error);
+      return false;
+    }
+  }
+
+  promoteIdeaCardToBeat(itemId: string, parent: ParentRef): string | null {
+    const item = this.state.workspace.board.items[itemId];
+    if (!item?.ideaCard) {
+      this.publishError(new Error(`BoardItem ${itemId} is not an IdeaCard`));
+      return null;
+    }
+
+    const beatId = `beat-${crypto.randomUUID()}`;
+    try {
+      const result = applyOperation(this.state.project, {
+        op: "createBeat",
+        beat: {
+          id: beatId,
+          title: item.ideaCard.text.trim() || "New beat",
+          cueIds: [],
+        },
+        parent,
+      });
+      let workspace = promoteIdeaCardReference(
+        this.state.workspace,
+        itemId,
+        { type: "beat", id: beatId },
+      );
+      workspace = syncWorkspaceWithProject(workspace, result.model);
       this.publish({
         ...this.state,
-        feedback: { ...EMPTY_FEEDBACK, error: message },
+        project: result.model,
+        workspace,
+        selection: { type: "beat", id: beatId },
+        feedback: feedbackFromResult(result),
       });
-      return false;
+      return beatId;
+    } catch (error) {
+      this.publishError(error);
+      return null;
     }
   }
 
