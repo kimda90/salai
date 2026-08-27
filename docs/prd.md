@@ -205,6 +205,8 @@ Quantitative adoption/retention targets should be set only after an instrumented
 
 ## Current milestone
 
-**Spike 0A — Narrative IR.**
+**Spike 0B — Familiar Authoring UX.**
 
-The immediate goal is to validate the semantic model in a pure TypeScript package before implementing application UI, persistence, Resolve, or AI integrations.
+Spike 0A has validated the current Narrative IR baseline. The immediate goal is now to validate Story Wall, Outline, AV Script, and Paper/Radio Edit over the same canonical model, while defining the minimum in-memory Workspace/Board semantics required by those workflows.
+
+See [`authoring-ux-spec.md`](authoring-ux-spec.md) for the Spike 0B implementation contract and [`mvp.md`](mvp.md) for the validation sequence.
