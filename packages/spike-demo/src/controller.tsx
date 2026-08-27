@@ -1,5 +1,4 @@
 import {
-  DomainOperationError,
   applyOperation,
   type DomainWarning,
   type NarrativeOperation,
@@ -13,7 +12,7 @@ import {
   useContext,
   useSyncExternalStore,
 } from "react";
-import { createFixture, getFixtureDefinition, type FixtureKey } from "./fixtures";
+import { createFixture, type FixtureKey } from "./fixtures";
 import {
   createStoryWallWorkspace,
   promoteIdeaCardReference,
@@ -99,10 +98,7 @@ export class SalaiController {
   }
 
   private publishError(error: unknown): void {
-    const message =
-      error instanceof DomainOperationError || error instanceof Error
-        ? error.message
-        : String(error);
+    const message = error instanceof Error ? error.message : String(error);
     this.publish({
       ...this.state,
       feedback: { ...EMPTY_FEEDBACK, error: message },
@@ -198,10 +194,6 @@ export class SalaiController {
 
   clearFeedback(): void {
     this.publish({ ...this.state, feedback: { ...EMPTY_FEEDBACK } });
-  }
-
-  getFixtureLabel(): string {
-    return getFixtureDefinition(this.state.fixtureKey).label;
   }
 }
 
