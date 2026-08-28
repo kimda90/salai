@@ -116,6 +116,10 @@ Costs/risks:
 - Workspace semantics must remain explicitly separate;
 - the shared IR may still need revision when genuinely new workflows expose a semantic gap.
 
+## Open questions
+
+None for the accepted canonical-model decision. Questions about the primary interaction model are tracked in RFC 0002 and Spike 0C.
+
 ## Decision / outcome
 
 **Accepted:** one canonical Narrative IR with synchronized Projections/Workspaces is Salai's architectural baseline.
