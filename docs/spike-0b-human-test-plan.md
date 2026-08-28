@@ -1,27 +1,44 @@
 # Spike 0B — Human Workflow Test Plan
 
-## Purpose
+## Status
 
-Validate the questions that code tests cannot answer: whether the four Salai authoring surfaces are recognizable, understandable, and useful as different ways of working with one story.
+**Closed after the first UX test exposed a higher-order workflow failure.**
 
-This is not a usability-polish test and not a feature-request session. The goal is to pressure-test the product model before moving beyond Spike 0B.
+This document remains as the test procedure that produced the decisive 0B human finding. Further sessions focused on polishing the same direct-manipulation workflow are paused while Salai tests the new agent-mediated authoring direction.
 
-## Participants
+The observed result was:
 
-Prioritize people who actually edit or shape video stories:
+> **It needs too much user interaction to be creatively useful.**
 
-- editors;
-- filmmakers who edit their own work;
-- documentary / interview-driven editors;
-- optionally one script-first writer/director who regularly hands material into editorial.
+See [`spike-0b-assessment.md`](spike-0b-assessment.md) for the interpretation and [`agent-mediated-authoring.md`](agent-mediated-authoring.md) for the next validation contract.
 
-Three useful sessions are enough to start making decisions if patterns are strong. Add sessions when evidence conflicts rather than targeting a fixed sample size for its own sake.
+## Why the test stopped here
 
-## Setup
+The original plan attempted to resolve several local questions:
 
-Use the deployed Spike 0B web build and its existing deterministic fixtures.
+- Story Wall spatial vs structural interaction;
+- mixed Scene/direct-Beat hierarchy;
+- visible `Cue` terminology;
+- Paper/Radio workflow fit;
+- shared selection expectations.
 
-Ask participants to think aloud. Do not explain the Narrative IR, Workspace model, or the intended answer to any interaction question before they attempt it.
+The first human test produced a more fundamental finding that cuts across all of them: **the prototype asks the user to operate Salai's structure too often.**
+
+Continuing to optimize individual controls before testing a lower-friction authoring model would risk polishing the wrong primary workflow.
+
+The unresolved local questions are therefore deferred until the product knows when users actually choose to enter each specialized view.
+
+## Original purpose
+
+Validate whether the four Salai authoring surfaces are recognizable, understandable, and useful as different ways of working with one story.
+
+This was not intended as a usability-polish test or feature-request session. It pressure-tested the product model before moving beyond Spike 0B.
+
+## Original setup
+
+Use the deployed Spike 0B web build and its deterministic fixtures.
+
+Ask participants to think aloud. Do not explain the Narrative IR, Workspace model, or intended interaction answers before they attempt the tasks.
 
 Capture:
 
@@ -31,9 +48,9 @@ Capture:
 - terminology they used naturally;
 - moments where they believed data/story intent had been lost;
 - workarounds they invented;
-- explicit requests only after observing the underlying problem.
+- how many interactions were required to express a creative intention.
 
-## Session structure
+## Original session structure
 
 ### 1. Orientation — one story or four tools?
 
@@ -45,31 +62,18 @@ Ask the participant to:
 2. switch through Story Wall, AV Script, and Paper / Radio Edit;
 3. explain what they believe changes and what remains the same between views.
 
-Do not explain that the surfaces share one model.
-
-**Observe:**
-
-- whether the surfaces feel related;
-- whether switching feels like navigation or opening another document;
-- whether the participant expects edits to propagate.
+Observe whether the surfaces feel related and whether switching feels like navigation or opening another document.
 
 ### 2. Story Wall — spatial vs structural intent
 
-In Story Wall, ask the participant to:
+Ask the participant to:
 
-1. move a Beat card somewhere that feels useful spatially;
-2. change the story order so one Beat comes before another;
-3. park an idea they do not want in the active flow;
+1. move a Beat card somewhere useful spatially;
+2. change story order;
+3. park an idea;
 4. bring it back.
 
-Do not tell them which control changes story order.
-
-**Observe:**
-
-- whether they expect free x/y movement to reorder narrative structure;
-- whether they discover and understand Story Order;
-- whether parking feels different from deletion;
-- whether the spatial board feels useful enough to justify Workspace state.
+Observe whether free placement vs narrative order is predictable and whether parking feels distinct from deletion.
 
 ### 3. Outline — hierarchy pressure test
 
@@ -77,17 +81,12 @@ Use or create a Section containing both a Scene and a direct Beat.
 
 Ask the participant to:
 
-1. explain the hierarchy in their own words;
+1. explain the hierarchy;
 2. move a Beat into a Scene;
-3. move it back to the Section;
+3. move it back;
 4. create a new Beat where they think it belongs.
 
-**Observe:**
-
-- whether mixed Scene/direct-Beat hierarchy is understandable;
-- whether Scene feels necessary or artificial;
-- whether invalid destinations are obvious;
-- whether restructuring feels like editing the same story seen on the wall.
+Observe whether hierarchy supports the work or forces the user to reason about the model.
 
 ### 4. AV Script — Cue terminology and audiovisual planning
 
@@ -95,18 +94,13 @@ Open a Beat with multiple Cues.
 
 Ask the participant to:
 
-1. explain how they would plan several audiovisual moments inside the Beat;
+1. plan several audiovisual moments;
 2. edit visual intent;
 3. edit authored audio;
-4. move a Cue to another Beat;
-5. describe what the word `Cue` means to them, without offering a definition first.
+4. move a Cue;
+5. explain what `Cue` means to them.
 
-**Observe:**
-
-- whether Beat vs Cue is a useful distinction;
-- whether `Cue` is understandable or implementation jargon;
-- whether visual/audio side-by-side planning feels familiar;
-- whether users need a different label such as moment, shot, event, or no visible label at all.
+Observe whether Beat/Cue helps or becomes implementation vocabulary the user must manage.
 
 ### 5. Paper / Radio Edit — source evidence vs authored material
 
@@ -114,121 +108,81 @@ Switch to the interview fixture.
 
 Ask the participant to:
 
-1. identify which text came from recorded media and which text was written;
+1. identify sourced vs authored text;
 2. try to change a sourced quote;
-3. edit the authored bridge;
+3. edit authored material;
 4. rearrange source-backed material;
-5. add or inspect visual intent associated with an audio moment.
+5. inspect/add visual intent.
 
-**Observe:**
-
-- whether sourced material is immediately recognizable as evidence;
-- whether read-only source wording is expected;
-- whether range/media identity information is useful or noisy;
-- whether the participant wants a separate Paper Edit document or is comfortable with this being another projection of the same story.
+Observe whether source identity is clear and whether arranging evidence requires too much explicit structural wiring.
 
 ### 6. Return loop — continuity check
 
-Return to Story Wall and then Outline.
+Return to Story Wall and Outline.
 
-Ask:
+Ask what the participant expects to have changed and what should remain stable.
 
-- What do you expect to have changed here?
-- What do you expect to have stayed exactly where you put it?
-- Is anything missing or unexpectedly changed?
+Observe trust in cross-surface propagation.
 
-**Observe:**
+## The finding that superseded the local rubrics
 
-- trust in cross-surface propagation;
-- whether Workspace positions are expected to survive;
-- whether source/authored identity still makes sense after moving through several workflows.
+The important outcome was not simply that one gesture or term was confusing. The overall workflow imposed too much interaction overhead.
 
-## Debrief questions
+A representative pattern was:
 
-Ask only after the participant has performed the tasks:
+```text
+creative intention
+     ↓
+choose view
+     ↓
+choose/create structural object
+     ↓
+choose parent/target
+     ↓
+perform edit
+     ↓
+repeat for supporting structure
+```
 
-1. Which view would you start from for a blank-page project?
-2. Which view would you start from with hours of interviews or footage?
-3. Which view felt most familiar? Least familiar?
-4. Did any two concepts feel like the same thing with different names?
-5. Was there a moment where you did not know whether you were changing presentation or changing the story?
-6. What did `Beat`, `Scene`, and `Cue` mean to you by the end?
-7. What information did you expect to follow you between views but did not?
-8. Would you expect undo to cross view changes, or only undo actions inside the current view?
+This creates a context switch from creative thinking into model management.
 
-## Decision rubric
+The new hypothesis is that the user should state the intended result and Salai should perform this normalization internally through typed operations.
+
+## Evidence retained from the original plan
+
+The following questions remain useful later, but no longer block moving into 0C:
 
 ### Story Wall spatial vs structural
 
-**Keep current split** if participants reliably distinguish free placement from Story Order after minimal discovery.
-
-**Revise interaction** if they repeatedly assume x/y position is canonical order or cannot predict which action changes narrative structure.
+Revisit when users choose Story Wall voluntarily as a spatial inspection/precision view. Do not assume Story Wall must solve ordinary narrative reordering for the primary flow.
 
 ### Mixed hierarchy
 
-**Keep** if participants can explain direct Beats and Scene-contained Beats and use both intentionally.
-
-**Constrain** if they repeatedly treat the hierarchy as an error or cannot predict move/create destinations.
+Revisit when the agent-mediated workflow reveals when users actually need to inspect or edit Scene/direct-Beat structure explicitly.
 
 ### `Cue` terminology
 
-**Expose in AV Script** if participants naturally understand or quickly adopt it as a useful audiovisual unit.
-
-**Rename or hide per surface** if it reads as implementation language without helping the workflow.
+Keep `Cue` as implementation/domain identity. Decide user-facing labels only in views where exposing the concept demonstrably helps.
 
 ### Paper Edit domain state
 
-**Keep projection-only model** unless participants repeatedly need persistent paper-specific organization that cannot be represented as canonical Narrative IR or existing Workspace state.
+Continue to avoid a paper-specific canonical model unless agent-mediated source-first testing demonstrates a real missing semantic concept.
 
 ### Narrative IR
 
-Open an IR change only when a participant's desired workflow cannot be expressed without losing meaning or source identity. Do not change the model merely because a UI affordance is awkward.
+The first human test did not expose a semantic representation failure. It exposed an interaction-model failure. Continue to change the IR only when desired meaning cannot be represented safely.
 
-## Session record template
+## Next human validation
 
-For each participant, record:
+The next human session should test [`agent-mediated-authoring.md`](agent-mediated-authoring.md), not repeat this workflow unchanged.
 
-```text
-Participant role:
-Primary workflow: script-first / footage-first / mixed
+Measure:
 
-Strong successes:
-- 
+- how many explicit interactions are needed for the same creative task;
+- whether the user can stay primarily in free-form text/conversation;
+- whether media can be supplied without manual wiring;
+- whether Salai's assumptions are understandable without approval spam;
+- whether grouped undo/revert creates enough trust;
+- whether structured views are opened because they help rather than because they are required.
 
-Confusions:
-- 
-
-Story Wall spatial-vs-structural observation:
-- 
-
-Mixed hierarchy observation:
-- 
-
-Cue terminology observation:
-- 
-
-Paper/Radio source-vs-authored observation:
-- 
-
-Cross-surface continuity observation:
-- 
-
-Potential Narrative IR failure:
-- none / describe
-
-Do not solve yet:
-- feature requests or polish notes that are not model/workflow blockers
-```
-
-## Exit criteria
-
-Human validation is sufficient to finish Spike 0B when there is evidence to make the outstanding decisions in `spike-0b-assessment.md`:
-
-- Story Wall spatial vs structural interaction;
-- mixed Scene/direct-Beat hierarchy;
-- visible `Cue` terminology per surface;
-- Paper / Radio workflow fit;
-- shared selection expectations;
-- any genuine Narrative IR failure.
-
-At that point, update the assessment, tracker, RFC status, and roadmap/current-focus docs.
+The key comparison is the same creative goal under 0B direct manipulation vs 0C agent-mediated normalization.

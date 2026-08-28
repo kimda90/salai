@@ -6,88 +6,144 @@ Living PRD. Current product stage: discovery and validation.
 
 ## Product statement
 
-Salai is a local-first, narrative-aware production companion for DaVinci Resolve. It keeps story intent, source material, shot intent, generated/captured media, and editorial decisions connected while letting filmmakers work through familiar creative workflows.
+Salai is a local-first, narrative-aware production companion for DaVinci Resolve. It lets filmmakers express story intent naturally through writing, conversation, and media, normalizes that input into structured narrative/production context, and lets creators deliberately inspect and reshape that context through **Narrative Lenses** before eventual materialization into Resolve.
 
 ## Problem
 
-Video production is fragmented across writing, planning, shooting, reviewing, editing, VFX, audio, color, graphics, and increasingly GenAI.
+Video production is fragmented across writing, planning, shooting, media review, editing, VFX, sound, color, graphics, and GenAI.
 
-Traditional NLEs are strong at manipulating media on a timeline, but broader production context is usually distributed across documents, bins, notes, memory, and external tools.
+Story intent gets disconnected from source material and the edit. Editors repeatedly carry context in their heads:
 
-Users repeatedly need to answer questions such as:
+- what a scene or shot is trying to communicate;
+- which footage supports that idea;
+- what coverage is missing;
+- which interview excerpt supports which story point;
+- which alternatives were tried or rejected;
+- what changed after restructuring;
+- whether missing material should be shot, found, generated, or represented as previs.
 
-- What idea is this moment trying to communicate?
-- Which footage or quote supports that idea?
-- What coverage is missing?
-- Which alternatives were considered or rejected?
-- What changed when the structure changed?
-- Can a missing element be shot, found, generated, or represented as previs?
+Traditional NLEs manipulate media well but do not maintain this broader narrative/production context.
 
-The result is context loss between story, production, and edit.
+Spike 0B exposed an additional problem: even a correct structured representation can be creatively unusable when routine tasks force the user to manually manage too much hierarchy, parentage, wiring, and operation mechanics.
+
+However, the same test also left an important positive role for structured UI: exposing the narrative system can help a creator understand its **pulse** and modify the story from a different angle.
+
+The product must therefore balance two needs:
+
+1. **reduce structural bookkeeping for ordinary creative intent**; and
+2. **preserve intentional structural visibility for creative understanding and direct manipulation**.
 
 ## Product thesis
 
-> One Narrative IR, multiple familiar creative workflows.
+> **Express intent naturally; Salai structures it for production. See and reshape that structure through narrative lenses.**
 
-Salai should maintain one semantic project model while allowing users to work through established creative paradigms such as:
+The underlying architectural principle remains:
 
-- Outline;
-- AV Script;
-- Story Wall / sticky-note scene construction;
-- Beat Board / scratch board;
-- Paper Edit;
-- Radio Edit;
-- Shot/Coverage planning;
-- later Frame Wall, Selects boards, previs, and timeline-oriented views.
+> **One Narrative IR, multiple synchronized views.**
 
-Users should not need to understand Salai's internal data model to use the product.
+The practical UX principle is:
 
-## Product discovery observations
+> **Hide structural bookkeeping, not narrative structure.**
 
-Current product discovery has surfaced several concrete workflow observations that inform, but do not by themselves commit, requirements:
+## Primary authoring model
 
-- narrative thinking is often idea-first: the creator cares first about what the audience should understand or experience, not how many shots or lines are required;
-- one Beat may therefore need several Cues, while no additional semantic level below Cue has yet been justified;
-- creative validation is progressive: an idea may work on the page, fail when shot, or only reveal its strengths/weaknesses once edited in context;
-- rejected material is commonly retained nearby or in alternate timelines/versions rather than permanently deleted;
-- spatial proximity helps keep alternates "in hand" without cluttering the active sequence;
-- lower-friction previs could move meaningful creative feedback earlier, before expensive production or timeline work;
-- a mixed-media freeform canvas is a future research direction, not a committed product surface.
+The user can begin with:
 
-See [`research-notes.md`](research-notes.md) for the evidence record and its current implications.
+- free-form text;
+- conversational instructions/questions;
+- media/source material;
+- later references and generated/previs material.
+
+A Salai-owned agent/normalization layer interprets that input and compiles it into validated canonical project operations.
+
+```text
+write / talk / drop media
+          ↓
+agent interpretation
+          ↓
+Salai authoring commands
+          ↓
+typed canonical operations
+          ↓
+Narrative IR / production context
+```
+
+The user should not need to manually create or wire every Beat, Cue, source relationship, or parent target for ordinary changes.
+
+## Narrative Lenses
+
+A Narrative Lens is a structured representation of the same canonical project that emphasizes one creative dimension.
+
+Examples:
+
+| Lens | Creative dimension |
+| --- | --- |
+| Outline | hierarchy, progression, proportion |
+| Story Wall | spatial rhythm, balance, alternatives |
+| AV Script | audiovisual density and realization |
+| Paper / Radio Edit | evidence, voice, source pacing |
+| Coverage | gaps between intent and realization |
+| later Frame Wall / Selects | visual coverage and alternatives |
+
+Narrative Lenses are **first-class creative tools**, not merely fallback editors.
+
+They should expose structure when that structure helps the user reason, while hiding incidental mechanics such as raw IDs, `ParentRef`s, insertion indices, or unnecessary object creation.
+
+Direct manipulation inside a lens remains supported when the lens itself is the user's chosen way of thinking.
+
+See [`narrative-lenses.md`](narrative-lenses.md).
 
 ## Target users
 
 Primary initial audience:
 
-- solo professional videographers;
-- small production teams and agencies;
-- branded/corporate content producers;
-- documentary and interview editors;
+- solo filmmakers/editors;
+- small production companies;
+- documentary/interview editors;
+- videographers producing commercial/corporate work;
 - professional YouTube/educational creators;
-- Resolve Studio users with recurring scripted or story-driven work.
+- DaVinci Resolve Studio users with recurring story-driven work.
 
 ## Jobs to be done
+
+### Low-friction authoring
+
+- Write or paste a rough story without deciding final hierarchy first.
+- Ask Salai to restructure, shorten, expand, compare, or explain the story in ordinary language.
+- Drop media/source material into the project without manually converting it into story objects first.
+- Ask what is missing, unsupported, unresolved, repetitive, or contradictory.
+- Make one creative request without manually executing every underlying structural operation.
+- Understand and undo what Salai changed without reviewing every low-level operation.
+
+### Narrative understanding
+
+- Open a structured lens when prose/chat no longer makes the story's shape obvious.
+- See hierarchy, proportion, density, pacing, source distribution, or coverage gaps.
+- Compare alternatives spatially or structurally.
+- Understand how one narrative idea is realized through several audiovisual moments.
+- Inspect why a section feels crowded, slow, repetitive, unsupported, or overproduced.
+- Modify the story directly from the representation that best matches the current creative problem.
 
 ### Script-first
 
 - Develop an idea into a usable narrative before shooting.
 - Explore structure without committing to a timeline.
-- Plan visual/audio expression and required coverage.
+- Plan visual/audio expression and required coverage when useful.
 - Understand approximate runtime while writing.
-- Preserve intent from script through capture and edit.
+- Preserve intent from authored material through capture and edit.
 
 ### Footage-first
 
-- Review existing footage and interview material.
+- Provide existing footage/interviews without manual story-object wiring.
 - Turn source material into a narrative without losing source identity.
 - Associate source excerpts and visuals with story intent.
-- Build paper/radio edits before committing to a timeline.
+- Build a radio/paper-edit structure before committing to a timeline.
+- Preserve exact recorded wording/ranges while allowing authored bridges and summaries.
 
 ### Production and edit
 
 - Know what material exists for each narrative need.
-- Keep alternates and rejected ideas available without cluttering the active structure.
+- Keep alternatives/rejected ideas available without cluttering active structure.
 - Create downstream Resolve edits without duplicating story state.
 - Treat generated media as normal production media with provenance.
 
@@ -95,38 +151,57 @@ Primary initial audience:
 
 ### Beat
 
-The smallest intentional unit of narrative progression. A Beat may advance information, dramatic action, argument, emotion, or understanding.
+The smallest intentional unit of narrative progression.
 
 ### Cue
 
-An audiovisual/temporal moment used to express part of a Beat.
+An audiovisual/temporal moment used to express part of a Beat. Cue is canonical domain identity and does not need to be visible in every workflow.
 
 ### ShotIntent
 
-A statement of what production material is needed, independent of whether it is captured, found, generated, or represented as previs.
+A required piece of production material independent from whether it has been captured, found, generated, or represented as previs.
 
 ### SourceExcerpt
 
-A media-backed excerpt whose words/timing come from recorded material rather than authored copy.
+A media-backed excerpt whose words/timing originate from recorded media rather than authored prose.
 
 ### Projection
 
-A deterministic view over canonical narrative data, such as Outline or AV Script.
+A deterministic view over canonical project data.
 
 ### Workspace
 
-Persistent human organization around canonical objects, such as a Story Wall or Paper Edit.
+Persistent human organization around canonical objects, such as Story Wall layout.
+
+### Narrative Lens
+
+A structured representation that deliberately exposes one aspect of the canonical narrative system so the creator can perceive and manipulate it from that angle.
+
+### Agent-mediated authoring
+
+The interaction layer in which the user expresses intent through free-form text, conversation, and media while Salai normalizes that input into constrained canonical project changes.
+
+### Change batch
+
+A user-understandable group of one or more typed project operations produced from one creative instruction and reversible as a unit during 0C.
 
 ## Product principles
 
-1. **Meaning before media.** Story intent is not defined by a clip, shot, or timeline item.
-2. **Familiar workflows over internal abstractions.** Users see cards, quotes, beats, scenes, selects, and scripts—not database relationships.
-3. **One source of narrative truth.** Workspaces and projections must not become drifting duplicate documents.
-4. **Stable identity.** Normal restructuring should not break source, production, or editorial relationships.
-5. **Alternatives stay recoverable.** Rejected/tried material should be easy to move aside, revisit, or use in another version.
-6. **Local-first media handling.** Large camera originals should not require cloud upload to use Salai.
-7. **Resolve remains the NLE.** Salai should not rebuild frame-accurate editing, color, Fusion, Fairlight, or delivery.
-8. **AI is assistive and reviewable.** AI should propose structure, media, or operations without silently replacing the user's project.
+1. **Creative intent before bookkeeping.** The user normally states the desired result instead of performing model mechanics.
+2. **Hide bookkeeping, not structure.** Expose structural information when it carries creative meaning.
+3. **Meaning before media.** Story intent is not defined by a clip, shot, or timeline item.
+4. **One source of truth.** Working text, chat, lenses, and Workspaces must not become competing canonical documents.
+5. **Narrative Lenses are first-class.** Structured views can be valuable ways to see and shape the story, not just administrative interfaces.
+6. **Interaction cost follows creative decisions.** A multi-operation change may still be one user action.
+7. **Direct manipulation remains available.** When a creator intentionally chooses a lens, manipulation inside that lens should feel native and precise.
+8. **Stable identity.** Normal restructuring should not break source, production, or editorial relationships.
+9. **Authored and sourced material stay distinct.** Recorded evidence is not editable fiction.
+10. **Agent changes are constrained and recoverable.** Typed operations, validation, grouped history, and undo provide trust.
+11. **Clarification is about creative meaning.** Do not ask users for internal object types/parents when Salai can infer them.
+12. **External/destructive effects require stronger review.** Resolve changes, irreversible deletion, publishing, and costly generation should not silently auto-apply.
+13. **Local-first media handling.** Large camera originals should not require cloud upload to use Salai.
+14. **Resolve remains the NLE.** Salai should not rebuild frame-accurate editing, color, Fusion, Fairlight, or delivery.
+15. **AI is a normalization/reasoning layer, not a second project model.**
 
 ## P0 product requirements
 
@@ -135,19 +210,28 @@ The first validated product must support:
 - one semantic narrative model for script-first and footage-first workflows;
 - stable Sections/optional Scenes/Beats/Cues;
 - authored content and source-backed excerpts;
-- structural operations such as create, edit, move, split, merge, and delete;
 - explicit relationships to ShotIntent and source material;
 - approximate duration feedback;
 - serialization without identity loss;
-- at least one familiar script-first workflow and one footage-first workflow over the same model.
+- free-form authoring input that does not require manual structural object creation;
+- conversational project instructions/questions;
+- attachment/media intake using mocked or fixture-backed metadata where necessary;
+- agent normalization into typed canonical operations;
+- grouped application and undo/revert of agent-generated operation batches;
+- source-backed material remaining source-backed through agent-mediated changes;
+- existing structured surfaces available as synchronized Narrative Lenses;
+- direct editing through those lenses when the representation is the user's chosen way of thinking;
+- active-lens context available to agent reasoning where useful.
 
 ## P1 product requirements
 
-After the Narrative IR is validated:
+After agent-mediated authoring + lens value are validated:
 
-- Story Wall / card-based restructuring;
-- AV Script authoring;
-- Paper/Radio Edit workflows;
+- persistent free-form/session context if evidence requires it;
+- richer Story Wall/lens behavior;
+- AV Script precision authoring/planning;
+- Paper/Radio source-evidence precision workflows;
+- Coverage and media-aware reasoning;
 - desktop/local project runtime;
 - persistent production graph;
 - Resolve handoff through reusable automation infrastructure;
@@ -160,53 +244,111 @@ After the Narrative IR is validated:
 Salai is not initially:
 
 - a replacement NLE;
-- a full screenplay-formatting competitor to Final Draft;
+- a full screenplay-formatting competitor;
 - a cloud MAM;
-- a generic AI chat frontend for Resolve;
+- a generic chatbot that converts natural language directly into Resolve commands;
+- a fully autonomous unattended editing agent;
 - a standalone GenAI video generator;
-- a full VFX, color, audio, or delivery application;
-- a graph-database product exposed to users.
+- a full VFX/color/audio/delivery application;
+- a graph database exposed to users;
+- a generic node/canvas editor;
+- a rich-text document used as the canonical project database;
+- a system that hides all narrative structure behind opaque AI output.
+
+## Agent trust requirements
+
+### Reversible local changes
+
+May apply as one batch when clearly requested, provided they can be inspected and undone.
+
+### Clarification-required changes
+
+Ask one focused question when ambiguity materially changes creative meaning and no safe reversible interpretation is reasonable.
+
+### Explicit-confirmation changes
+
+Require confirmation for high-impact or external effects such as:
+
+- irreversible deletion;
+- actual Resolve timeline changes;
+- destructive filesystem/media actions;
+- publishing/export;
+- expensive/paid generation;
+- replacing source identity when recovery is unclear.
+
+## Narrative-lens requirements
+
+A useful lens should:
+
+1. reveal a property of the story difficult to perceive in ordinary prose/chat;
+2. operate on the same canonical project;
+3. expose stable identity/relationships where useful;
+4. allow direct editing when that representation is intentionally chosen;
+5. avoid incidental domain mechanics unrelated to the creative question;
+6. reflect agent changes automatically;
+7. feed direct lens changes back into subsequent agent context;
+8. allow entry/exit without export/import or state drift.
+
+## Narrative pulse
+
+“Narrative pulse” is a working product metaphor for patterns across the story such as pacing, density, repetition, voice distribution, audiovisual complexity, coverage completeness, and structural balance.
+
+0C should test whether these patterns are usefully revealed through several lenses/derived indicators.
+
+Do not introduce a canonical `Pulse` score/object without evidence.
 
 ## Business / product objectives
 
-Near-term objectives are validation rather than revenue optimization:
+Near-term objectives remain validation rather than revenue optimization:
 
-1. Prove that the Narrative IR survives real creative restructuring.
-2. Prove that familiar workflows can manipulate the same model without drift.
-3. Prove that the model works from both blank-page and footage-first entry points.
-4. Demonstrate a credible path into Resolve without Salai becoming an NLE.
-5. Demonstrate that real and generated media can participate in the same production model.
+1. preserve the proven Narrative IR/source identity semantics;
+2. prove agent-mediated input can reduce routine interaction without making project state unpredictable;
+3. prove Narrative Lenses add creative understanding rather than merely exposing internals;
+4. prove direct manipulation remains valuable when intentionally chosen;
+5. prove the model works from blank-page and footage-first entry points under messy input;
+6. demonstrate a credible path into Resolve without Salai becoming an NLE or brittle chat shell.
 
 ## Success metrics
 
 ### Spike 0A — model validation
 
-- All three required fixtures use the same core schema without workflow-specific forks.
-- Stable IDs and relationships survive defined edit operations and serialization round-trips.
-- Beat and Cue remain meaningfully distinct in all fixtures.
-- AuthoredSpeech and SourceExcerpt can coexist without ambiguous semantics.
-- Runtime estimation is useful enough to detect structural over/under-duration.
+Complete/pass.
 
-### Spike 0B — workflow validation
+### Spike 0B — structured workflow validation
 
-- Target users can recognize the intended Story Wall, AV Script, Outline, and Paper/Radio Edit paradigms without learning Salai's internal model first.
-- Moving between those surfaces does not require export/import or duplicate story documents.
-- Users can preserve alternates/rejects without losing them or confusing them with active structure.
+Closed/mixed.
 
-### Early product validation
+Pass:
 
-Before claiming product-market fit, Salai should be tested on real projects covering at least:
+- multiple structured views share one canonical project;
+- stable identity/source semantics survive cross-surface edits;
+- Workspace state remains separate.
 
-- short scripted product/branded content;
-- interview/corporate content;
-- footage-first documentary/editorial work.
+Fail:
 
-Quantitative adoption/retention targets should be set only after an instrumented alpha exists.
+- making direct structured manipulation the routine path for ordinary creative work creates too much interaction burden.
+
+### Spike 0C — agent-mediated authoring + Narrative Lens validation
+
+0C should demonstrate:
+
+- a meaningful rough story can be created from free-form text without manual Beat/Cue creation;
+- common revisions can be expressed as one natural instruction;
+- media/source attachments can be incorporated without manual relationship wiring;
+- agent output resolves to valid typed operations;
+- SourceExcerpt identity/ranges remain intact;
+- one user intention can produce an understandable, undoable change batch;
+- lenses reflect the resulting canonical state immediately;
+- users voluntarily open at least some lenses because those views reveal useful narrative information;
+- direct manipulation within a lens feels creatively meaningful when chosen;
+- representative routine tasks require materially fewer explicit interactions than the 0B baseline;
+- human attention tracks creative choices more than software mechanics;
+- the combined agent + lens workflow preserves user agency better than either a form-heavy UI or blind chat alone.
 
 ## Current milestone
 
-**Spike 0B — Familiar Authoring UX.**
+**Spike 0C — Agent-Mediated Authoring + Narrative Lenses.**
 
-Spike 0A has validated the current Narrative IR baseline. The immediate goal is now to validate Story Wall, Outline, AV Script, and Paper/Radio Edit over the same canonical model, while defining the minimum in-memory Workspace/Board semantics required by those workflows.
+Spike 0A validated the Narrative IR. Spike 0B validated the synchronized-view architecture and exposed the routine interaction problem. The current goal is to validate free-form text + conversation + media normalized into grouped, reversible canonical changes while proving that structured Narrative Lenses remain valuable for understanding and shaping the story.
 
-See [`authoring-ux-spec.md`](authoring-ux-spec.md) for the Spike 0B implementation contract and [`mvp.md`](mvp.md) for the validation sequence.
+See [`agent-mediated-authoring.md`](agent-mediated-authoring.md), [`narrative-lenses.md`](narrative-lenses.md), and [`mvp.md`](mvp.md).

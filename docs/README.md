@@ -11,93 +11,98 @@ Each kind of information has one authoritative home:
 | Product/domain term definitions | [`glossary.md`](glossary.md) |
 | Product requirements / success criteria | [`prd.md`](prd.md) |
 | Discovery observations | [`research-notes.md`](research-notes.md) |
-| Spike 0A types, invariants, operations, fixtures/tests | [`narrative-ir-spec.md`](narrative-ir-spec.md) |
-| Spike 0A result / resolved implementation questions | [`spike-0a-assessment.md`](spike-0a-assessment.md) |
 | Creative workflow behavior | [`workflows.md`](workflows.md) |
-| Spike 0B authoring/workspace implementation contract | [`authoring-ux-spec.md`](authoring-ux-spec.md) |
-| Spike 0B task breakdown / completion status / implementation evidence | [`spike-0b-implementation-plan.md`](spike-0b-implementation-plan.md) |
-| Spike 0B assessment / decisions / remaining pressure points | [`spike-0b-assessment.md`](spike-0b-assessment.md) |
-| Spike 0B human workflow validation procedure | [`spike-0b-human-test-plan.md`](spike-0b-human-test-plan.md) |
+| Narrative Lens product/UX semantics | [`narrative-lenses.md`](narrative-lenses.md) |
+| Spike 0A types, invariants, operations, fixtures/tests | [`narrative-ir-spec.md`](narrative-ir-spec.md) |
+| Spike 0A result | [`spike-0a-assessment.md`](spike-0a-assessment.md) |
+| Historical Spike 0B structured-authoring contract | [`authoring-ux-spec.md`](authoring-ux-spec.md) |
+| Spike 0B task/evidence record | [`spike-0b-implementation-plan.md`](spike-0b-implementation-plan.md) |
+| Spike 0B result / human findings | [`spike-0b-assessment.md`](spike-0b-assessment.md) |
+| Historical 0B human-test procedure | [`spike-0b-human-test-plan.md`](spike-0b-human-test-plan.md) |
+| Active Spike 0C agent/free-form contract | [`agent-mediated-authoring.md`](agent-mediated-authoring.md) |
+| Spike 0C task breakdown / completion status | [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md) |
 | System/runtime/persistence architecture | [`architecture.md`](architecture.md) |
 | Validation/implementation sequence | [`mvp.md`](mvp.md) |
 | Current work ordering | [`backlog.md`](backlog.md) |
-| Major proposal under discussion | [`rfcs/`](rfcs/) |
-| Accepted architectural decision | [`adr/`](adr/) |
+| Reliability / service-level policy | [`service-levels.md`](service-levels.md) |
 
 Other documents may summarize these concepts for context, but should **link to the canonical source rather than copy implementation lists, invariants, exact definitions, or task status**.
 
-In particular, the Narrative IR operation vocabulary must only be maintained in `narrative-ir-spec.md`, and Spike 0B task completion must only be tracked in `spike-0b-implementation-plan.md`.
+In particular, the Narrative IR operation vocabulary must only be maintained in `narrative-ir-spec.md`.
 
-## Product and strategy
-
-| Document | Role | Status |
-| --- | --- | --- |
-| [`product-brief.md`](product-brief.md) | Concise product thesis, audience, boundary, positioning, and current direction | Living |
-| [`prd.md`](prd.md) | Product Requirements Document: what/why/scope/success criteria | Living |
-| [`competitive-landscape.md`](competitive-landscape.md) | Named adjacent products and positioning pressure tests | Living research |
-| [`backlog.md`](backlog.md) | NOW/NEXT/LATER product/engineering backlog | Living |
-| [`research-notes.md`](research-notes.md) | Concrete workflow observations; evidence rather than decisions | Living research record |
-| [`service-levels.md`](service-levels.md) | SLA applicability and future reliability/support commitments | Living; no external SLA yet |
-| [`mvp.md`](mvp.md) | Validation sequence and staged implementation plan | Living |
-
-## Product model and workflows
+# Product and strategy
 
 | Document | Role | Status |
 | --- | --- | --- |
+| [`product-brief.md`](product-brief.md) | Concise product thesis / positioning | Living |
+| [`prd.md`](prd.md) | Product requirements / success criteria | Living |
+| [`competitive-landscape.md`](competitive-landscape.md) | Adjacent products / positioning pressure tests | Living |
+| [`research-notes.md`](research-notes.md) | Discovery evidence and observed workflow facts | Living |
 | [`glossary.md`](glossary.md) | Canonical product/domain terminology | Living |
 | [`scripting.md`](scripting.md) | Conceptual rationale and scripting research | Living |
-| [`workflows.md`](workflows.md) | Familiar working surfaces: Story Wall, AV Script, Paper/Radio Edit, Outline, boards, and projections | Living |
-| [`narrative-ir-spec.md`](narrative-ir-spec.md) | Authoritative TDD / implementation contract for Spike 0A | Implemented baseline; revise when evidence changes contract |
-| [`spike-0a-assessment.md`](spike-0a-assessment.md) | Spike 0A result and resolutions of implementation questions | Completed assessment |
-| [`authoring-ux-spec.md`](authoring-ux-spec.md) | Spike 0B authoring/workspace technical design and validation contract | Active implementation contract |
-| [`spike-0b-implementation-plan.md`](spike-0b-implementation-plan.md) | Spike 0B executable task plan, checkboxes, gates, and completion evidence | Active execution tracker |
-| [`spike-0b-assessment.md`](spike-0b-assessment.md) | Spike 0B evidence, decisions, and unresolved human-validation questions | Partial assessment; human validation pending |
-| [`spike-0b-human-test-plan.md`](spike-0b-human-test-plan.md) | Structured editor/filmmaker workflow test procedure and decision rubric | Ready to run |
+| [`workflows.md`](workflows.md) | Agent-mediated workflow + Narrative Lens behavior | Living |
+| [`narrative-lenses.md`](narrative-lenses.md) | Canonical creative role/requirements of structured lenses | Living / active 0C concept |
 
-## Architecture and engineering decisions
+# Validation contracts and assessments
 
 | Document | Role | Status |
 | --- | --- | --- |
-| [`architecture.md`](architecture.md) | System Architecture Document: boundaries, runtime, persistence ownership, infrastructure | Living SAD |
-| [`rfcs/`](rfcs/) | Major proposals that need review before commitment | Proposed / accepted / rejected |
-| [`adr/`](adr/) | Append-only records of accepted architectural decisions | Append-only |
+| [`narrative-ir-spec.md`](narrative-ir-spec.md) | Authoritative Spike 0A TDD / implementation contract | Implemented baseline |
+| [`spike-0a-assessment.md`](spike-0a-assessment.md) | Spike 0A result and resolved questions | Completed |
+| [`authoring-ux-spec.md`](authoring-ux-spec.md) | Structured authoring/Workspace design tested by 0B | Historical |
+| [`spike-0b-implementation-plan.md`](spike-0b-implementation-plan.md) | Detailed 0B task/evidence record | Historical |
+| [`spike-0b-assessment.md`](spike-0b-assessment.md) | 0B semantic result, interaction-friction finding, Narrative Lens follow-up interpretation | Closed assessment |
+| [`spike-0b-human-test-plan.md`](spike-0b-human-test-plan.md) | 0B test procedure | Closed/historical |
+| [`agent-mediated-authoring.md`](agent-mediated-authoring.md) | 0C free-form/agent/trust contract | Active |
+| [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md) | 0C executable tasks/gates/evidence | Active |
 
-## Review records
+# Architecture and engineering decisions
 
-| Document | Role |
-| --- | --- |
-| [`review-response-2026-08.md`](review-response-2026-08.md) | Resolution record for the August 2026 documentation feedback pass |
+| Document | Role | Status |
+| --- | --- | --- |
+| [`architecture.md`](architecture.md) | System Architecture Document: boundaries, agent normalization, Narrative Lenses, persistence, integrations | Living SAD |
+| [`rfcs/0001-one-narrative-ir-multiple-workflows.md`](rfcs/0001-one-narrative-ir-multiple-workflows.md) | One canonical IR / synchronized views proposal with 0B evidence | Proposed; interaction assumption amended |
+| [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) | Agent-mediated authoring + Narrative Lenses proposal | Proposed / active review |
+| [`rfcs/`](rfcs/) | RFC process and proposals | Proposed / accepted / rejected |
+| [`adr/`](adr/) | Append-only accepted architecture decisions | Append-only |
+| [`service-levels.md`](service-levels.md) | Current reliability/SLA expectations | Living |
 
 # Document lifecycle
 
 ## Discovery notes
 
-`research-notes.md` records observed workflow evidence. Observation does not automatically become requirement or architecture. Promote it explicitly when evidence supports doing so.
+`research-notes.md` records observations. Observation does not automatically become requirement or architecture.
 
-## PRD / backlog / product / architecture docs
+The 0B evidence now contains two linked observations:
 
-Living documents. They should stay at their own abstraction level and link to deeper canonical documents rather than duplicating them.
+1. routine direct structured authoring creates too much interaction burden; and
+2. structured views remain useful when deliberately used to perceive/manipulate the narrative system.
 
-## Technical Design Documents
+## Technical Design Documents / spike contracts
 
-A TDD/spec is written before or during a complex implementation spike and acts as its contract. When implementation evidence changes the contract, update the TDD and record the result rather than leaving contradictory summary docs behind.
+A spike contract records what an experiment is trying to prove. When evidence changes the direction, preserve the old contract as historical evidence and create/update the next active contract.
+
+Current chain:
+
+- `authoring-ux-spec.md` records what 0B tested;
+- `spike-0b-assessment.md` records what 0B taught us;
+- `agent-mediated-authoring.md` defines the low-friction part of 0C;
+- `narrative-lenses.md` defines the structured-perception/direct-manipulation part of 0C.
 
 ## Execution trackers
 
-An implementation tracker breaks an accepted spike/phase contract into executable tasks and records completion evidence. It does not replace the contract or roadmap.
+Implementation trackers break an active spike contract into executable tasks and record evidence.
 
-For Spike 0B:
+For the current milestone, `spike-0c-implementation-plan.md` is the canonical task tracker.
 
-- `authoring-ux-spec.md` says **what must be proven and how the UX/domain boundary behaves**;
-- `spike-0b-implementation-plan.md` says **which implementation tasks remain and which have been verified**;
-- `spike-0b-assessment.md` records **what the implementation has taught us**;
-- `spike-0b-human-test-plan.md` defines **how to collect the remaining workflow evidence**.
+It must track both:
 
-Implementation PRs should update the tracker in the same PR, checking only tasks that are fully merged and validated.
+- interaction-compression work; and
+- Narrative Lens integration/validation.
 
 ## RFCs
 
-Use an RFC for a major proposal whose consequences deserve discussion before commitment.
+RFC lifecycle:
 
 ```text
 Draft → Proposed → Accepted / Rejected / Superseded
@@ -105,20 +110,32 @@ Draft → Proposed → Accepted / Rejected / Superseded
 
 The PR containing an RFC is the discussion surface.
 
+RFC 0002 is the current proposal created from 0B human evidence and follow-up interpretation.
+
 ## ADRs
 
 ADRs record accepted decisions. Do not rewrite history; supersede old ADRs with new ones.
 
-```text
-Accepted → Superseded
-```
-
 # Current development focus
 
-**Spike 0A — Narrative IR is implemented and assessed as a pass.**
+**Spike 0A — Narrative IR: complete/pass.**
 
-See [`spike-0a-assessment.md`](spike-0a-assessment.md) for the evidence and resolved open questions.
+**Spike 0B — Structured Authoring UX: closed/mixed.** The one-IR/multiple-view architecture works; routine direct manipulation is too interaction-heavy; structured views remain promising as Narrative Lenses.
 
-The current validation milestone is **Spike 0B — Familiar Authoring UX**. Automated semantic/state validation now passes for the shared Story Wall, Outline, AV Script, and Paper/Radio implementation. The remaining work is human workflow validation of recognizability, terminology, hierarchy comprehension, and spatial-vs-structural interaction expectations.
+**Current milestone: Spike 0C — Agent-Mediated Authoring + Narrative Lenses.**
 
-See [`spike-0b-assessment.md`](spike-0b-assessment.md) for the current partial assessment, [`spike-0b-human-test-plan.md`](spike-0b-human-test-plan.md) for the next validation step, and [`spike-0b-implementation-plan.md`](spike-0b-implementation-plan.md) for the canonical tracker.
+The goal is to test whether filmmakers can:
+
+- write, talk, and provide media naturally;
+- let Salai perform routine normalization into grouped, validated, reversible canonical changes;
+- deliberately open structured Narrative Lenses when those representations help them understand or reshape the story;
+- move between agent-mediated and direct-lens work without losing canonical continuity.
+
+Start with:
+
+- [`agent-mediated-authoring.md`](agent-mediated-authoring.md);
+- [`narrative-lenses.md`](narrative-lenses.md);
+- [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md);
+- [`spike-0b-assessment.md`](spike-0b-assessment.md);
+- [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md);
+- [`mvp.md`](mvp.md) and [`backlog.md`](backlog.md).
