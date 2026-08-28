@@ -10,18 +10,16 @@ The atomic creative concern is the **idea or piece of narrative progression the 
 
 A single idea may require one shot or many audiovisual moments.
 
-This supports the current working distinction:
+This supports keeping Beat and Cue separate:
 
-```text
-Beat = smallest intentional unit of narrative progression
-Cue  = audiovisual/temporal moment used to express part of a Beat
-```
-
-No additional semantic layer below `Cue` has yet been justified by the observed workflow. Add one only if a concrete editing or production behavior requires an independently manipulated lower-level object.
+- Beat = intended narrative progression;
+- Cue = audiovisual moment used to express that progression.
 
 ## Creative validation is progressive
 
-Creative intent is tested repeatedly against increasingly concrete representations:
+A production idea is rarely validated once.
+
+A common loop is closer to:
 
 ```text
 read / imagine
@@ -30,108 +28,163 @@ shoot or generate
     ↓
 watch the material
     ↓
-place it in the timeline
+place it in context
     ↓
 edit until it feels right
 ```
 
-Something that works as written can fail when captured. Something that works as footage can still fail in the edit.
+An idea may read well and fail when captured; footage may look good and fail in context.
 
-The timeline is therefore an important final validation environment, but it should not be the first place where an idea can be evaluated.
+Salai should preserve intent and alternatives as work moves through these levels rather than treating an early decision as permanently committed.
 
-## Rejected material is usually retained
+## Rejected material is often moved aside, not destroyed
 
-When an idea, shot, excerpt, or edit does not work in the active structure, a common behavior is to **move it aside rather than destroy it**.
+Editors commonly keep rejected ideas, takes, scenes, or alternate structures nearby rather than deleting them immediately.
 
-Examples include:
+This suggests that `remove from active structure` and `delete permanently` should remain distinct concepts.
 
-- parking a card off to the side of a story wall;
-- moving clips to the side of a timeline;
-- placing material in another timeline/version;
-- keeping unused material in an accessible folder/bin for possible reuse.
+## Spatial proximity can keep alternatives “in hand”
 
-This suggests that `remove from active structure` and `delete permanently` should remain different user actions wherever practical.
+Keeping alternatives physically or visually nearby is useful because material can remain accessible without cluttering the active sequence.
 
-## Spatial proximity matters
+The Story Wall / Workspace parking-lot concept preserves this behavior.
 
-Keeping alternatives physically or visually nearby is useful because material can remain "in hand" without cluttering the active sequence.
-
-The Story Wall / workspace parking-lot concept preserves this behavior, but the 0B human test also showed that spatial organization should not become mandatory interaction overhead. Spatial workspaces are useful when users choose to think spatially, not as the required path for every structural change.
+The 0B human test also showed that spatial organization should not become mandatory interaction overhead. Spatial organization is useful when the creator chooses to think spatially.
 
 ## Previs can move the feedback loop earlier
 
-Previsualization is valuable because it lets a creator evaluate whether an idea feels right before committing to a full shoot or edit.
-
-Traditional previs can be expensive enough that it is not used for many ordinary productions. A lower-friction workflow where writing or restructuring can produce an immediate visual approximation could materially change the feedback loop:
+Low-friction previs may let the creator feel the idea before expensive production or timeline work.
 
 ```text
 write / restructure
-      ↓
-cheap visual approximation / previs
-      ↓
+       ↓
+cheap visual approximation
+       ↓
 feel the idea earlier
-      ↓
+       ↓
 revise before expensive production
 ```
 
-This remains a concrete product opportunity, but it should attach to a low-friction authoring flow rather than require another manual production-planning surface.
+This remains a product opportunity, but it should connect to the same low-friction authoring and Narrative Lens model rather than becoming a separate GenAI workflow.
 
-## 0B human-test finding — structured authoring creates too much creative friction
+# Spike 0B human-test findings
+
+## Finding 1 — routine structured authoring creates too much creative friction
 
 The first human test of the 0B prototype produced a cross-cutting observation:
 
-> **The prototype requires too much user interaction to be creatively useful.**
+> **The prototype requires too much user interaction to be creatively useful as the routine authoring path.**
 
-The issue was broader than any one Story Wall, Outline, AV Script, or Paper Edit affordance. The user was repeatedly required to operate the structure of the product instead of simply expressing the intended story change.
+The issue was broader than any one Story Wall, Outline, AV Script, or Paper Edit affordance.
 
-Examples of the underlying friction include:
+The user was repeatedly required to operate the structure of the product instead of simply expressing the intended story change.
+
+Examples of friction include:
 
 - explicitly creating and parenting narrative objects;
 - selecting a structural destination before expressing an idea;
-- manually managing the distinction between spatial placement and narrative order;
+- manually managing spatial placement vs narrative order;
 - switching surfaces because a particular operation is exposed there;
 - translating one creative intention into several UI actions;
-- thinking about Beat/Cue/Scene mechanics before they are creatively relevant.
+- thinking about Beat/Cue/Scene mechanics before those distinctions are creatively relevant.
 
-This is important evidence because the 0B implementation simultaneously showed that the underlying Narrative IR can support these operations safely. The product problem is therefore not primarily "the model cannot represent the workflow." It is that **the user is being asked to manage the model directly.**
+This is important because the implementation simultaneously showed that the Narrative IR can support these operations safely.
 
-### Research implication
+The problem is therefore not primarily:
 
-The next hypothesis should move structural bookkeeping behind an agent-mediated normalization layer:
+> “The model cannot represent the workflow.”
+
+It is:
+
+> **“The user is being asked to manage the model too often.”**
+
+## Finding 2 — exposing the narrative system can still be creatively useful
+
+Follow-up reflection on the 0B test produced an important qualification.
+
+The structured views themselves can be useful precisely because they expose the internal narrative system.
+
+A creator may want to see:
+
+- hierarchy;
+- progression;
+- spatial balance;
+- turning points;
+- audiovisual density;
+- source/evidence distribution;
+- missing realizations;
+- runtime proportion;
+- alternatives.
+
+This can help the creator understand the story's **pulse** and modify it from a different angle.
+
+Therefore the 0B result should **not** be interpreted as:
+
+> “Hide the Narrative IR completely and replace the product with chat.”
+
+A better interpretation is:
+
+> **Hide structural bookkeeping, not narrative structure.**
+
+The structured surfaces remain potentially valuable when the representation itself contributes to the creative decision.
+
+## Narrative Lenses hypothesis
+
+The follow-up concept is a **Narrative Lens**: a structured representation of the same canonical project that emphasizes one creative dimension.
+
+Examples:
+
+- Outline → hierarchy/proportion;
+- Story Wall → spatial rhythm/alternatives;
+- AV Script → audiovisual density/realization;
+- Paper/Radio → evidence/voice/source pacing;
+- Coverage → gaps between intent and realization.
+
+A creator can deliberately enter a lens when that representation helps them think.
+
+Direct manipulation inside the lens remains useful when the structure being manipulated is itself the creative question.
+
+This is distinct from being forced into the lens because Salai exposes an operation only there.
+
+## Agent mediation and lenses are complementary
+
+The next hypothesis is:
 
 ```text
 user writes / talks / drops media
              ↓
         Salai interprets
              ↓
- typed narrative / source / workspace changes
+ typed canonical project changes
              ↓
-      canonical project state
+      Narrative IR
+       ↙   ↓   ↘
+   Narrative Lenses
 ```
 
-This direction should be tested before spending more time polishing direct-manipulation forms.
+The agent reduces routine model-management work.
 
-## Free-form multimodal authoring is now an active hypothesis
+The lenses preserve structural legibility and alternate creative modes.
 
-A previously shelved idea was a PureRef-like workspace where text, images, video, references, and previs could coexist. The 0B friction finding changes the research priority, but not in the direction of a generic canvas.
+The strongest product loop may be:
 
-The stronger hypothesis is now:
-
-- the user needs a **free-form place to think**;
-- that place can accept ordinary text, conversational instructions, and media;
-- an agent should normalize the material into structured project state;
-- structured surfaces should remain available as optional inspection/precision tools;
-- the user should not manually serialize creative thought into Salai's domain model.
-
-A spatial canvas may still become one possible Workspace later, but the core research question is **agent-mediated normalization**, not canvas mechanics.
+```text
+express intent
+     ↓
+Salai structures it
+     ↓
+see through a useful lens
+     ↓
+reshape directly or conversationally
+     ↓
+continue
+```
 
 ## Agent mediation should not become approval friction
 
-The 0B finding also creates a trust/review research question.
+If one natural instruction becomes several operations but the user must approve every operation independently, the product recreates the same interaction burden.
 
-If an agent converts one natural instruction into several operations but the user must approve every operation independently, the product recreates the same interaction burden in a different form.
-
-The next prototype should therefore test grouped, reversible actions:
+The next prototype should test grouped, reversible actions:
 
 ```text
 one creative instruction
@@ -140,22 +193,42 @@ one creative instruction
         ↓
 one understandable change batch
         ↓
-undo / inspect if needed
+revert / inspect if needed
 ```
 
-Clarification should be reserved for meaningful creative ambiguity or external/destructive effects, not ordinary model bookkeeping.
+Clarification should be reserved for meaningful creative ambiguity rather than ordinary model bookkeeping.
 
-## Implications for current validation
+## Narrative pulse is a metaphor, not yet a model
+
+“Narrative pulse” currently describes patterns the creator may perceive through one or more lenses:
+
+- pacing;
+- density;
+- alternation;
+- repetition;
+- source/voice distribution;
+- audiovisual complexity;
+- coverage completeness;
+- structural balance.
+
+This should not yet become a canonical `Pulse` object or universal AI quality score.
+
+0C should first test whether simple derived indicators and existing lenses make these patterns meaningfully useful.
+
+# Implications for current validation
 
 The evidence now suggests:
 
 - keep the existing Beat/Cue distinction until messy agent-mediated inputs prove it inadequate;
-- preserve the canonical Narrative IR and source-evidence rules validated in 0A/0B;
-- stop treating Story Wall, Outline, AV Script, and Paper/Radio Edit as mandatory or likely primary entry points;
-- test a free-form text + conversation + media interaction before adding more structured controls;
+- preserve canonical Narrative IR and source-evidence rules validated in 0A/0B;
+- stop treating Story Wall, Outline, AV Script, and Paper/Radio Edit as mandatory stages;
+- retain those views as first-class Narrative Lenses when their representation adds creative value;
+- test free-form text + conversation + media before adding more routine structured controls;
+- test agent + active-lens interaction, not agent and views as separate product modes;
 - make interaction compression a first-class success criterion;
-- make grouped undo/history part of the next agent-mediated spike;
-- do not introduce a generic canvas or rich-text document as canonical project storage;
-- keep Resolve downstream of normalized Salai state rather than letting conversational commands bypass product semantics.
+- make structural insight a second first-class success criterion;
+- make grouped revert/history part of the next spike;
+- do not introduce a generic canvas or rich-text document as canonical storage;
+- keep Resolve downstream of normalized Salai state.
 
-See [`agent-mediated-authoring.md`](agent-mediated-authoring.md) and [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) for the proposed next validation direction.
+See [`agent-mediated-authoring.md`](agent-mediated-authoring.md), [`narrative-lenses.md`](narrative-lenses.md), and [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md).
