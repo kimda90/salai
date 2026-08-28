@@ -56,7 +56,7 @@ This suggests that `remove from active structure` and `delete permanently` shoul
 
 Keeping alternatives physically or visually nearby is useful because material can remain "in hand" without cluttering the active sequence.
 
-The existing Story Wall / workspace parking-lot concept should preserve this behavior: rejected or uncertain material can stay visible and retrievable while being clearly outside the active narrative order.
+The Story Wall / workspace parking-lot concept preserves this behavior, but the 0B human test also showed that spatial organization should not become mandatory interaction overhead. Spatial workspaces are useful when users choose to think spatially, not as the required path for every structural change.
 
 ## Previs can move the feedback loop earlier
 
@@ -74,32 +74,88 @@ feel the idea earlier
 revise before expensive production
 ```
 
-This is a concrete product opportunity, but not part of Narrative IR Spike 0A.
+This remains a concrete product opportunity, but it should attach to a low-friction authoring flow rather than require another manual production-planning surface.
 
-## Shelved research idea — mixed-media spatial canvas
+## 0B human-test finding — structured authoring creates too much creative friction
 
-A future research direction is a PureRef-like freeform workspace where users can place:
+The first human test of the 0B prototype produced a cross-cutting observation:
 
-- text fragments;
-- images;
-- video clips or excerpts;
-- story cards;
-- references;
-- generated/previs material;
+> **The prototype requires too much user interaction to be creatively useful.**
 
-and optionally express relationships between them spatially or with links/arrows.
+The issue was broader than any one Story Wall, Outline, AV Script, or Paper Edit affordance. The user was repeatedly required to operate the structure of the product instead of simply expressing the intended story change.
 
-Potentially, sufficiently structured arrangements could inform or generate projections such as a script, paper edit, previs, or timeline.
+Examples of the underlying friction include:
 
-This idea is intentionally **shelved rather than committed**. The immediate product should first validate the Narrative IR and familiar workflow surfaces. The canvas should only be promoted if it solves a demonstrated workflow problem better than Story Wall, Paper Edit, AV Script, and related established paradigms.
+- explicitly creating and parenting narrative objects;
+- selecting a structural destination before expressing an idea;
+- manually managing the distinction between spatial placement and narrative order;
+- switching surfaces because a particular operation is exposed there;
+- translating one creative intention into several UI actions;
+- thinking about Beat/Cue/Scene mechanics before they are creatively relevant.
+
+This is important evidence because the 0B implementation simultaneously showed that the underlying Narrative IR can support these operations safely. The product problem is therefore not primarily "the model cannot represent the workflow." It is that **the user is being asked to manage the model directly.**
+
+### Research implication
+
+The next hypothesis should move structural bookkeeping behind an agent-mediated normalization layer:
+
+```text
+user writes / talks / drops media
+             ↓
+        Salai interprets
+             ↓
+ typed narrative / source / workspace changes
+             ↓
+      canonical project state
+```
+
+This direction should be tested before spending more time polishing direct-manipulation forms.
+
+## Free-form multimodal authoring is now an active hypothesis
+
+A previously shelved idea was a PureRef-like workspace where text, images, video, references, and previs could coexist. The 0B friction finding changes the research priority, but not in the direction of a generic canvas.
+
+The stronger hypothesis is now:
+
+- the user needs a **free-form place to think**;
+- that place can accept ordinary text, conversational instructions, and media;
+- an agent should normalize the material into structured project state;
+- structured surfaces should remain available as optional inspection/precision tools;
+- the user should not manually serialize creative thought into Salai's domain model.
+
+A spatial canvas may still become one possible Workspace later, but the core research question is **agent-mediated normalization**, not canvas mechanics.
+
+## Agent mediation should not become approval friction
+
+The 0B finding also creates a trust/review research question.
+
+If an agent converts one natural instruction into several operations but the user must approve every operation independently, the product recreates the same interaction burden in a different form.
+
+The next prototype should therefore test grouped, reversible actions:
+
+```text
+one creative instruction
+        ↓
+0..N typed operations
+        ↓
+one understandable change batch
+        ↓
+undo / inspect if needed
+```
+
+Clarification should be reserved for meaningful creative ambiguity or external/destructive effects, not ordinary model bookkeeping.
 
 ## Implications for current validation
 
-These observations should pressure-test the product without expanding Spike 0A unnecessarily:
+The evidence now suggests:
 
-- fixtures should allow one Beat to require several Cues;
-- Spike 0A should not add another semantic level below Cue without evidence;
-- structural removal should not imply deletion of linked production/source material;
-- later workspaces should support visible parking/recovery of alternatives;
-- previs should remain a later feedback-loop experiment;
-- the mixed-media canvas remains a research item, not a foundational architecture assumption.
+- keep the existing Beat/Cue distinction until messy agent-mediated inputs prove it inadequate;
+- preserve the canonical Narrative IR and source-evidence rules validated in 0A/0B;
+- stop treating Story Wall, Outline, AV Script, and Paper/Radio Edit as mandatory or likely primary entry points;
+- test a free-form text + conversation + media interaction before adding more structured controls;
+- make interaction compression a first-class success criterion;
+- make grouped undo/history part of the next agent-mediated spike;
+- do not introduce a generic canvas or rich-text document as canonical project storage;
+- keep Resolve downstream of normalized Salai state rather than letting conversational commands bypass product semantics.
+
+See [`agent-mediated-authoring.md`](agent-mediated-authoring.md) and [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) for the proposed next validation direction.
