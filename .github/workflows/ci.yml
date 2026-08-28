@@ -27,11 +27,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
+      - name: Install Chromium
+        run: pnpm --filter @salai/spike-demo exec playwright install --with-deps chromium
+
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Test
+      - name: Unit tests
         run: pnpm test
+
+      - name: Browser tests
+        run: pnpm test:browser
 
       - name: Build
         run: pnpm build
