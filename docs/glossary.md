@@ -22,7 +22,7 @@ The smallest intentional unit of narrative progression. A Beat may advance infor
 
 ### Cue
 
-An audiovisual/temporal moment used to express part of a Beat. A Beat may contain one or several Cues. `Cue` remains a working term until Spike 0A validates it across representative fixtures.
+An audiovisual/temporal moment used to express part of a Beat. A Beat may contain one or several Cues. Cue is canonical domain identity but does not need to be exposed as user-facing terminology in every workflow.
 
 ### ContentBlock
 
@@ -30,7 +30,7 @@ A typed piece of visual or audio content attached to a Cue, such as a visual des
 
 ### AuthoredSpeech
 
-Editable words created for the production, such as voiceover, presenter copy, or scripted dialogue.
+Editable words created for the production, such as voiceover, presenter copy, scripted dialogue, or agent-generated authored copy accepted into the project.
 
 ### SourceExcerpt
 
@@ -60,41 +60,61 @@ A persisted mapping between Salai identity and corresponding DaVinci Resolve pro
 
 ## UX terms
 
+### Agent-mediated authoring
+
+The primary interaction hypothesis introduced after Spike 0B: the user expresses creative intent through free-form text, conversation, and media, while Salai interprets and normalizes that input into constrained canonical project changes.
+
+The agent is an interaction/normalization layer, not a second source of project truth.
+
+### Working text
+
+Free-form authored material used to think, draft, instruct, and provide context to Salai before or alongside normalization into canonical project state. Working text is not automatically the canonical Script and may contain unresolved notes, questions, or production comments.
+
+### Attachment
+
+A media/document/reference item supplied to the current authoring context. In early spikes an attachment may use mocked metadata; later it may resolve to persistent Asset/MediaSegment identity.
+
+### Change batch
+
+A user-understandable group of one or more typed canonical operations produced from one creative instruction. During agent-mediated authoring, a batch is the minimum unit for change summary and undo/revert.
+
 ### Projection
 
 A deterministic presentation derived from canonical project data. Examples include Outline, AV Script, Teleprompter, and Coverage. A Projection does not own a separate drifting copy of the story.
 
 ### Workspace
 
-A persistent human working surface that can reference canonical objects while storing its own organizational state. Examples include Story Wall, Beat Board, Paper Edit, Radio Edit, Frame Wall, and Selects/Coverage boards.
+A persistent human working surface that can reference canonical objects while storing its own organizational state. Examples include Story Wall and future Frame/Selects/alternative boards.
+
+A Workspace is optional; ordinary authoring should not require spatial organization merely to modify the story.
 
 ### Board
 
-A spatial Workspace surface containing BoardItems. Board is currently a UX/workspace concept, not part of Spike 0A Narrative IR.
+A spatial Workspace surface containing BoardItems. Board is a UX/workspace concept, not part of Narrative IR.
 
 ### BoardItem
 
-An item placed in a Board. It may reference a canonical object such as a Beat, Scene, MediaSegment, or ShotIntent, while separately storing layout metadata such as position, size, color, rotation, lane, or notes.
+An item placed in a Board. It may reference a canonical object such as a Beat or Scene while separately storing validated layout metadata such as position or parking state.
 
 ### IdeaCard
 
-A freeform workspace item that has not yet become canonical narrative/production data. It can later be promoted or attached to a Beat, Scene, source item, or other domain object.
+A free-form Workspace item that has not yet become canonical narrative/production data. It can later be promoted or interpreted into canonical structure.
 
 ### Story Wall
 
-A card/sticky-note workspace for spatial narrative restructuring, including alternate/rejected material kept nearby rather than immediately deleted.
+A card/sticky-note Workspace for spatial narrative exploration, alternatives, and recoverable rejected material. Under the current direction it is a specialized optional view rather than the default authoring surface.
 
 ### Paper Edit
 
-A source-driven editorial workspace for arranging interview excerpts, visual evidence, and authored bridges into narrative structure before committing to a timeline.
+A source-driven editorial view/workspace for arranging interview excerpts, visual evidence, and authored bridges into narrative structure before committing to a timeline. Agent-mediated authoring may create or modify the underlying structure without requiring manual Paper Edit wiring.
 
 ### Radio Edit
 
-An audio-first editorial workspace focused on interview/source excerpts and authored spoken material before visual coverage is fully solved.
+An audio-first editorial view focused on interview/source excerpts and authored spoken material before visual coverage is fully solved.
 
 ### Frame Wall
 
-A later spatial workspace for comparing representative frames, takes, or selected moments from real media.
+A later spatial Workspace for comparing representative frames, takes, or selected moments from real media.
 
 ### Coverage
 
@@ -104,16 +124,26 @@ The state of how narrative needs/ShotIntents are or are not realized by availabl
 
 ### Narrative IR
 
-The versioned semantic representation that keeps narrative identity stable across authoring, source evidence, production planning, and later editorial integration.
+The versioned semantic representation that keeps narrative identity stable across authoring, source evidence, production planning, agent normalization, and later editorial integration.
+
+It acts as the structured intermediate representation between messy creative input and deterministic specialized views/downstream systems.
+
+### Normalization
+
+The process of interpreting free-form creative input and converting committed meaning into validated canonical project changes without requiring the user to perform each structural operation manually.
+
+### Graduated autonomy
+
+The trust model in which reversible local changes may apply as grouped undoable batches, meaningful ambiguity triggers focused clarification, and destructive/external side effects require explicit confirmation.
 
 ### Spike 0A
 
-The pure-TypeScript experiment that validates the Narrative IR before UI, persistence, Resolve, or real AI integration.
+The pure-TypeScript experiment that validated the Narrative IR before UI, persistence, Resolve, or real AI integration. Complete/pass.
 
 ### Spike 0B
 
-The authoring-UX experiment that tests familiar working surfaces over the validated Narrative IR.
+The structured authoring-UX experiment that tested Story Wall, Outline, AV Script, and Paper/Radio Edit over the validated Narrative IR. It validated the shared semantic architecture but failed the human creative-friction test for direct structured authoring as the primary workflow.
 
 ### Spike 0C
 
-The assisted-authoring experiment that tests AI-proposed, validated domain operations with reviewable diffs.
+The agent-mediated authoring experiment that tests free-form text, conversation, and media input normalized into grouped, validated, reversible canonical project changes.
