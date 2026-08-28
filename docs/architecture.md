@@ -6,25 +6,32 @@ Living System Architecture Document (SAD).
 
 This document owns system-level boundaries, runtime topology, component responsibilities, persistence ownership, and staged infrastructure direction. It does **not** own Narrative IR field-level semantics or the operation vocabulary; those are authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md).
 
-Product terminology is centralized in [`glossary.md`](glossary.md). Spike 0B authoring implementation details are owned by [`authoring-ux-spec.md`](authoring-ux-spec.md).
+Product terminology is centralized in [`glossary.md`](glossary.md). The active authoring interaction contract is [`agent-mediated-authoring.md`](agent-mediated-authoring.md). The completed 0B structured-authoring contract remains in [`authoring-ux-spec.md`](authoring-ux-spec.md) as historical evidence.
 
 ## Architectural thesis
 
-Salai owns the narrative and production context around a video while reusing mature infrastructure for interaction mechanics, editing automation, media processing, interchange, inference, and generation.
+Salai owns the narrative and production context around a video while reusing mature infrastructure for interaction mechanics, model inference, editing automation, media processing, interchange, and generation.
 
-The product-specific layer connects:
+The current product-specific shape is:
 
 ```text
-idea / story intent
-       ↕
-Narrative IR
-       ↕
-ShotIntent / source evidence
-       ↕
-assets / generated or captured realizations
-       ↕
-editorial use / review / revision
+messy creative input
+text / conversation / media
+          ↕
+Agent / Normalization layer
+          ↕
+typed project operations
+          ↕
+Narrative IR + production context
+          ↕
+source evidence / ShotIntent / assets
+          ↕
+specialized views / editorial materialization
+          ↕
+DaVinci Resolve
 ```
+
+The user does not need to manipulate every level directly. The structure remains explicit internally so agents, views, validation, persistence, and Resolve integration can share one deterministic project model.
 
 DaVinci Resolve remains the downstream NLE and finishing environment.
 
@@ -35,18 +42,20 @@ Salai should aggressively reuse commodity infrastructure while retaining ownersh
 Salai owns:
 
 - Narrative IR and stable narrative identity;
+- agent interpretation/normalization semantics;
+- typed operation/tool boundaries used by agents and human views;
+- grouped change/history and graduated-autonomy rules;
 - Workspace semantics and projection mapping;
-- the interpretation of gestures as Workspace changes vs narrative operations;
 - ShotIntent and narrative/media relationships;
 - source-evidence semantics;
 - alternatives/rejection/version behavior;
-- AI proposal/review semantics;
 - narrative-to-editorial materialization decisions;
 - generated/captured asset provenance within the production graph.
 
 Commodity infrastructure should provide mechanics such as:
 
 - UI primitives, dragging, virtualization, tables, docking;
+- model inference / structured tool calling;
 - media probing/transcoding/thumbnail extraction;
 - waveform/media preview;
 - transcription/alignment/scene detection;
@@ -55,42 +64,90 @@ Commodity infrastructure should provide mechanics such as:
 - local model execution;
 - generation execution.
 
+A third-party model or agent framework must not own Salai's canonical project semantics.
+
 ## High-level system shape
 
 ```text
-                         SALAI
+                                SALAI
 
-                   Narrative IR
-                         │
-       ┌─────────────────┼─────────────────┐
-       │                 │                 │
-   Workspaces         ShotIntent         Assets
-       │                 │                 │
-Story Wall /        Coverage          local media /
-Paper Edit /            │             generated media
-AV surfaces             │                 │
-       └─────────────────┼─────────────────┘
-                         │
-                Local production graph
-                         │
-            ┌────────────┴────────────┐
-            │                         │
-       Editorial                  Generation
-            │                         │
-     OpenTimelineIO                ComfyUI /
-            │                     hosted APIs
-            └────────────┬────────────┘
-                         │
-                 Salai Resolve adapter
-                         │
-                     CutMaster
-                         │
-                  DaVinci Resolve
+                  Free-form Authoring Surface
+                text · conversation · attachments
+                               │
+                        Agent / Normalizer
+                               │
+                   typed operation batches
+                               │
+                         Narrative IR
+                               │
+          ┌────────────────────┼────────────────────┐
+          │                    │                    │
+      Projections          Workspaces          Production Graph
+  Outline / AV Script      Story Wall        ShotIntent / Assets
+  Coverage / Teleprompt    future boards      MediaSegments / links
+          │                    │                    │
+          └────────────────────┼────────────────────┘
+                               │
+                     Local project state
+                               │
+               ┌───────────────┴───────────────┐
+               │                               │
+           Editorial                       Generation
+               │                               │
+        OpenTimelineIO                     ComfyUI /
+               │                          hosted APIs
+               └───────────────┬───────────────┘
+                               │
+                     Salai Resolve adapter
+                               │
+                           CutMaster
+                               │
+                        DaVinci Resolve
 ```
 
-## Canonical layers
+# Canonical layers
 
-### 1. Narrative IR
+## 1. Interaction / agent-normalization layer
+
+Owns the mapping from low-structure user input into explicit project changes.
+
+Inputs may include:
+
+- free-form working text;
+- conversational instructions/questions;
+- attachments/media context;
+- current canonical project state;
+- later Resolve/current-production context where appropriate.
+
+Outputs are constrained Salai changes:
+
+```text
+NarrativeOperation[]
+Workspace operations when relevant
+future production-graph operations
+```
+
+The layer may reason probabilistically, but committed state changes are explicit and validated.
+
+### Not canonical state
+
+The following are not automatically canonical narrative truth:
+
+- model chain-of-thought/reasoning;
+- chat transcript;
+- arbitrary LLM output;
+- unprocessed working text;
+- transient attachment presentation state.
+
+A later persistence phase may introduce durable working-session/document artifacts if 0C demonstrates they are required, but they do not replace the Narrative IR.
+
+### Agent runtime principle
+
+Start with a small Salai-owned tool/structured-output loop. Do not introduce a general agent framework before concrete orchestration needs exist.
+
+Provider choice—hosted, local, OpenAI-compatible, Ollama, `llama.cpp`, etc.—must not change canonical operation semantics.
+
+## 2. Narrative IR
 
 Owns stable semantic narrative identity and authored/source-backed content.
 
@@ -106,13 +163,15 @@ ContentBlock
 Relationship stubs
 ```
 
-The authoritative hierarchy, invariants, operation API, serialization contract, and Spike 0A fixtures live in [`narrative-ir-spec.md`](narrative-ir-spec.md).
+The authoritative hierarchy, invariants, operation API, serialization contract, and fixtures live in [`narrative-ir-spec.md`](narrative-ir-spec.md).
 
-### 2. Workspace layer
+The new agent-mediated direction makes the IR function as an **intermediate representation** between messy creative input and deterministic product behavior.
+
+## 3. Workspace layer
 
 Owns persistent human organization that should not pollute Narrative IR semantics.
 
-Core concepts:
+Validated 0B concepts:
 
 ```text
 Workspace
@@ -121,27 +180,21 @@ BoardItem
 IdeaCard
 ```
 
-Typical state includes:
+The current proven Story Wall metadata is intentionally small:
 
-- spatial position;
-- size;
-- color;
-- rotation;
-- lanes/groups;
-- notes;
-- parking-lot/alternate placement;
-- references to canonical narrative/media/ShotIntent objects.
+- canonical Beat/Scene reference or IdeaCard;
+- x/y position;
+- parking state.
 
-A BoardItem can reference the same Beat/Scene/etc. from multiple workspaces while carrying different layout metadata in each.
+Workspace is optional. It should not become the primary place users must manage structure merely because a board can represent it.
 
-#### Ownership by phase
+### Ownership by phase
 
-- **Spike 0B:** define the minimum in-memory Workspace/Board model necessary to validate Story Wall and Paper/Radio Edit UX.
-- **Phase 2:** persist Workspace/Board/BoardItem/IdeaCard state together with the production graph.
+- **Spike 0B:** minimum in-memory Story Wall semantics validated.
+- **Spike 0C:** reuse Workspace only where a specialized view benefits from it; do not expand it to solve free-form authoring.
+- **Phase 2:** persist only Workspace state still justified after agent-mediated workflow testing.
 
-This keeps Workspace out of Spike 0A without leaving persistence architecturally orphaned.
-
-### 3. Production graph
+## 4. Production graph
 
 Owns persistent relationships between narrative intent and actual production/editorial objects.
 
@@ -157,17 +210,18 @@ Annotation
 ResolveBinding
 ```
 
-Later domain concepts are introduced in the phase that needs them rather than all being required in Phase 2:
+Later domain concepts are introduced in the phase that needs them:
 
 ```text
-PaperEdit / alternate edit materialization  → later editorial phases
-GenerationJob / GenerationArtifact         → GenAI phase
-Deliverable                                → delivery/product phase
+alternative/versioned editorial plan     → later editorial phase
+GenerationJob / GenerationArtifact       → GenAI phase
+Deliverable                              → delivery/product phase
+WorkingDocument/session artifact         → only if 0C persistence evidence requires it
 ```
 
-A Paper Edit may initially be represented as a Workspace over SourceExcerpts/Beats/Cues. If later materialization/versioning requirements justify a distinct `PaperEdit` domain object, that decision should be made when alternative-edit behavior is implemented rather than assumed now.
+No graph database is required initially.
 
-## Narrative and production relationships
+# Narrative and production relationships
 
 Representative relationships:
 
@@ -181,9 +235,9 @@ Annotation ↔ narrative/media/editorial object
 GenerationJob ↔ ShotIntent
 ```
 
-Plain typed records and normal persistence are sufficient initially. No graph database is required.
+Agent mediation may create or query these relationships, but it does not change their domain meaning.
 
-## Workspace vs projection
+# Projection vs Workspace
 
 A **Projection** is deterministically derived from canonical state:
 
@@ -198,76 +252,142 @@ A **Workspace** stores human organizational decisions:
 
 ```text
 Story Wall
-Beat Board
-Paper Edit
-Radio Edit
-Frame Wall
-Selects board
+later Frame Wall
+later Selects/alternative boards
 ```
 
-No projection becomes canonical storage. Workspace metadata does not redefine Beat/Scene semantics.
+Paper/Radio may use projection/workspace behavior as required, but no independent canonical paper-edit document is justified yet.
 
-See [`workflows.md`](workflows.md) for UX behavior and [`authoring-ux-spec.md`](authoring-ux-spec.md) for the Spike 0B interaction contract.
+Structured surfaces are now treated as **specialized views/precision editors** rather than the default authoring entry point.
+
+See [`workflows.md`](workflows.md).
 
 # Authoring/UI architecture
 
-## Spike 0B baseline
+## Spike 0C baseline
 
-The current authoring prototype uses normal React/DOM controls and headless/composable interaction infrastructure rather than a generic editor framework.
+Reuse the existing React/TypeScript/Vite prototype and canonical controller boundary.
+
+The minimum new shape is:
 
 ```text
 React + TypeScript + Vite
-├── shadcn/ui + Base UI        UI primitives
-├── Pragmatic Drag and Drop    drag/reorder mechanics
-├── TanStack Table             AV Script/tabular surfaces
-├── TanStack Virtual           large-list virtualization when needed
-├── Storybook                  isolated workflow development
-└── Vitest Browser Mode        component/interaction tests
+│
+├── Free-form working text
+├── Conversation/instruction input
+├── Attachment/media-drop context
+├── AgentSession / model adapter
+│       ↓
+│   structured tool calls
+│       ↓
+├── grouped operation/history boundary
+│       ↓
+├── existing SalaiController
+│       ↓
+└── @salai/script-model
+
+Existing specialized views
+├── Outline
+├── Story Wall
+├── AV Script
+└── Paper / Radio Edit
 ```
 
-The important boundary is semantic rather than technological:
+No new editor framework is required to validate the first version. Start with normal DOM text controls unless a real interaction need justifies more.
+
+## Intent normalization boundary
+
+The 0B gesture boundary remains valid for direct view interactions, but the primary 0C boundary is higher-level:
 
 ```text
-user gesture
-    ↓
-Salai intent interpretation
-    │
-    ├── Workspace-only change
-    │
-    └── Narrative operation
-            ↓
-      @salai/script-model
+user creative intent
+        ↓
+agent interpretation
+        ↓
+operation plan/batch
+        ↓
+validation
+        ↓
+canonical project state
 ```
 
-Libraries must not mutate canonical narrative state directly.
+A single user request may legitimately produce many operations.
 
-## Explicit 0B non-dependencies
+Libraries/models must not mutate canonical state directly.
 
-Do not introduce these into Spike 0B without concrete validation evidence:
+## Grouped history / undo
 
-- tldraw or another general infinite-canvas SDK;
-- React Flow as the Story Wall abstraction;
+Agent mediation makes history a near-term requirement.
+
+Minimum 0C model:
+
+```text
+UserActionBatch
+- user intent/input reference
+- operations[]
+- before/after or inverse data sufficient for one-step revert
+- summary
+- status/error
+```
+
+This is an interaction-layer concept for the spike, not yet a persisted domain object.
+
+One agent request should normally correspond to one user-visible history entry even if it performs several operations.
+
+## Graduated autonomy boundary
+
+### Reversible local normalization
+
+May apply as grouped/undoable changes when clearly requested.
+
+### Material ambiguity
+
+Ask a focused creative clarification when necessary.
+
+### Destructive or external effects
+
+Require explicit confirmation before later executing:
+
+- irreversible deletion;
+- real Resolve mutations;
+- destructive filesystem operations;
+- publishing/export;
+- paid/expensive generation;
+- unrecoverable source-binding changes.
+
+This review policy belongs to Salai and should not be delegated to provider-specific agent behavior.
+
+## Explicit 0C non-dependencies
+
+Do not introduce without concrete evidence:
+
+- tldraw/general infinite-canvas SDK;
+- React Flow as primary authoring abstraction;
 - Tiptap/ProseMirror/Lexical as canonical story storage;
-- an agent framework.
+- general multi-agent framework;
+- autonomous background-agent runtime;
+- vector database;
+- Electron/persistence infrastructure merely to validate the interaction;
+- full media-analysis stack.
 
-A future relationship/mixed-media canvas may justify React Flow, Excalidraw, or another dedicated canvas after the simpler familiar workflows are validated.
+A future mixed-media canvas may become a Workspace after simpler free-form authoring is validated.
 
 ## Later UI infrastructure
 
-Introduce only when the product phase requires it:
+Introduce only when required:
 
 ```text
 Dockview        → multi-workspace/panel docking
 Vidstack        → local media preview
 wavesurfer.js   → waveform/radio-edit visualization
-Playwright      → packaged Electron end-to-end tests
+Playwright      → packaged Electron end-to-end tests when justified
 ```
 
-These libraries provide rendering/interaction mechanics; Salai remains responsible for narrative/source/workspace identity.
+These provide mechanics; Salai remains responsible for narrative/source/workspace identity.
 
 # Runtime architecture
 
-After Narrative IR and authoring UX are validated, Salai remains a local-first desktop application.
+After agent-mediated authoring is validated, Salai remains a local-first desktop application.
 
 ```text
 ┌─────────────────────────────────────────────┐
@@ -284,6 +404,7 @@ After Narrative IR and authoring UX are validated, Salai remains a local-first d
 │                                             │
 │ Renderer                                    │
 │ - React + TypeScript                        │
+│ - authoring / views                         │
 └───────────────────┬─────────────────────────┘
                     │ localhost HTTP / WS
                     ▼
@@ -293,6 +414,7 @@ After Narrative IR and authoring UX are validated, Salai remains a local-first d
 │ Python 3.11 / 3.12 + FastAPI                │
 │ SQLite                                      │
 │ media/filesystem services                   │
+│ model-provider adapters where justified     │
 │ CutMaster / Resolve adapter                 │
 │ OpenTimelineIO                              │
 │ optional OpenAssetIO integration            │
@@ -301,11 +423,27 @@ After Narrative IR and authoring UX are validated, Salai remains a local-first d
 └─────────────────────────────────────────────┘
 ```
 
-Electron remains the OS/runtime shell; the local service owns heavier media/integration concerns. The Narrative IR package remains independent from Electron and Python.
+Electron remains the OS/runtime shell; the local service owns heavier media/integration concerns. Narrative IR remains independent from Electron/Python.
 
-For the eventual packaged application, `electron-vite` and `electron-builder` are the preferred build/distribution direction unless implementation evidence justifies alternatives. The Python service should initially be packaged with a conventional standalone bundling approach such as PyInstaller; packaging details remain a Phase 1 implementation concern.
+For the packaged application, `electron-vite` and `electron-builder` remain the preferred direction unless evidence justifies alternatives. Python packaging remains a Phase 1 concern.
 
 # Infrastructure boundaries
+
+## Model / agent providers
+
+Providers supply inference. Salai supplies:
+
+- project context shaping;
+- tools/operation schemas;
+- validation;
+- change batching;
+- autonomy/confirmation policy;
+- history/undo semantics;
+- source/provenance rules.
+
+A provider response is never canonical until it resolves through Salai validation/application logic.
+
+Initial implementation should prefer simple structured output/tool calling. Add a framework only when measured requirements justify it.
 
 ## DaVinci Resolve
 
@@ -318,11 +456,13 @@ Resolve owns:
 - Fairlight/audio post;
 - rendering/delivery.
 
-Salai owns the story/production context that should survive around those operations.
+Salai owns the story/production context and the decision to materialize it.
+
+The agent should not turn free-form conversation directly into arbitrary Resolve mutations.
 
 ## CutMaster
 
-CutMaster is the **default Resolve automation boundary**. Salai decides *why* an editorial operation occurs; a Salai-owned Resolve adapter translates that intent into CutMaster operations. Direct Resolve scripting is an exception for capabilities unavailable or unsuitable through CutMaster.
+CutMaster remains the **default Resolve automation boundary**. Salai decides *why* an editorial operation occurs; a Salai-owned Resolve adapter translates canonical materialization intent into CutMaster operations. Direct Resolve scripting is an exception for capabilities unavailable or unsuitable through CutMaster.
 
 Salai domain types must not depend on CutMaster types.
 
@@ -330,31 +470,29 @@ See [`adr/0004-cutmaster-default-resolve-boundary.md`](adr/0004-cutmaster-defaul
 
 ## OpenTimelineIO
 
-Use for editorial interchange/materialization where useful. It does not carry all Salai narrative/workspace semantics and does not replace the Narrative IR.
+Use for editorial interchange/materialization where useful. It does not carry all Salai narrative/workspace/agent semantics and does not replace Narrative IR.
 
 ## OpenAssetIO
 
-OpenAssetIO is a **conditional interoperability integration**, not a prerequisite for Salai to have stable local Asset identity.
+OpenAssetIO is a conditional interoperability integration, not a prerequisite for stable local Asset identity.
 
-Early Salai projects may use Salai-owned stable IDs, paths/fingerprints, and metadata. Add OpenAssetIO when external asset resolution/publishing or production asset-management interoperability creates a concrete need.
-
-It does not replace narrative or production-graph state.
+Early Salai projects may use Salai-owned stable IDs, paths/fingerprints, and metadata. Add OpenAssetIO when external asset resolution/publishing creates a concrete need.
 
 ## ComfyUI / generation providers
 
-Treat generated outputs as normal production assets with provenance. Salai should register useful workflows and expose production-relevant parameters rather than recreate a node editor.
+Treat generated outputs as normal production assets with provenance. The agent may formulate generation intent later, but generation execution remains an explicit production effect with appropriate confirmation/cost visibility.
 
-Keep ComfyUI at a process/API boundary rather than importing its UI/editor model into Salai.
+Keep ComfyUI at a process/API boundary rather than importing its UI/editor model.
 
 ## FFmpeg / ffprobe
 
-Use as commodity local media utilities for probing, frame extraction, audio extraction, proxy/transcode work, and similar tasks.
+Use as commodity local media utilities for probing, frame/audio extraction, proxy/transcode work, and similar tasks.
 
-Use direct frame/packet libraries such as PyAV only when CLI/subprocess boundaries are insufficient for a specific implementation.
+Use direct libraries such as PyAV only when subprocess boundaries are insufficient for a specific need.
 
 ## Transcription and reverse-scripting infrastructure
 
-Later real-media phases should reuse established local media-analysis components rather than implement speech recognition from scratch.
+Real-media phases should reuse established components rather than implement speech recognition from scratch.
 
 Current candidates:
 
@@ -364,11 +502,13 @@ WhisperX        → alignment/diarization when required
 PySceneDetect   → initial scene/shot segmentation candidate
 ```
 
-These produce evidence/metadata that Salai converts into its own `MediaSegment` / `SourceExcerpt` semantics.
+These produce evidence/metadata that Salai converts into its own `MediaSegment` / `SourceExcerpt` semantics and exposes to the agent.
+
+0C may use mocked attachment metadata instead of pulling this stack forward.
 
 ## Local search
 
-Use SQLite capabilities before introducing separate infrastructure:
+Use SQLite capabilities before separate infrastructure:
 
 ```text
 SQLite relational data
@@ -376,26 +516,35 @@ SQLite relational data
 └── sqlite-vec  semantic retrieval if/when embeddings prove useful
 ```
 
-Do not introduce a standalone vector database service until project scale or measured requirements justify it.
+Do not introduce a standalone vector database until scale/measured requirements justify it.
 
 ## Local model execution
 
-Spike 0C should begin with structured model calls that return proposed Narrative operations, not with a general agent runtime.
+0C should remain provider-agnostic.
 
-Local providers may later be exposed through an adapter to engines such as Ollama or an OpenAI-compatible `llama.cpp` server. Provider choice must not change the AI proposal/review contract.
+Possible later local adapters include Ollama or an OpenAI-compatible `llama.cpp` server. Hosted providers can use the same tool/operation contract.
+
+Provider choice must not change:
+
+- canonical-state rules;
+- source/provenance semantics;
+- grouped-action history;
+- confirmation boundaries.
 
 # Persistence boundary
 
-Spike 0A validates versioned serialization only. Spike 0B validates Workspace semantics in memory only.
+Spike 0A validated versioned Narrative IR serialization. Spike 0B validated minimum Workspace semantics in memory. Spike 0C validates agent/session/history interaction semantics in memory.
 
 Phase 2 introduces durable local persistence for:
 
 - validated Narrative IR;
 - production graph objects/relationships;
-- Workspace/Board state proven by 0B;
-- annotations and Resolve bindings as they become real.
+- Workspace state still justified after 0C;
+- annotations and Resolve bindings;
+- agent action/history metadata required for recovery/audit;
+- a durable free-form WorkingDocument/session artifact only if 0C proves it necessary.
 
-SQLite remains the default direction. The schema should preserve domain versioning and stable IDs without making UI/editor state canonical.
+SQLite remains the default direction. The schema should preserve domain versioning/stable IDs without making transient UI or provider state canonical.
 
 # Technology baseline
 
@@ -408,19 +557,29 @@ Vitest/unit tests
 packages/script-model/
 ```
 
-## Spike 0B
+## Spike 0B — retained foundation
 
 ```text
 React
 TypeScript
 Vite
-shadcn/ui + Base UI
 Pragmatic Drag and Drop
-TanStack Table
-TanStack Virtual when needed
-Storybook
-Vitest Browser Mode
+Vitest deterministic tests
+GitHub Pages prototype
 ```
+
+## Spike 0C — added validation layer
+
+```text
+simple text/chat/attachment UI
+model provider adapter
+structured output / tool calling
+operation batching
+in-memory undo/history
+existing Narrative IR/controller/views
+```
+
+No general agent framework is assumed.
 
 ## Broader application
 
@@ -440,6 +599,7 @@ Local service
 - SQLite
 
 Infrastructure
+- model provider adapters
 - CutMaster as default Resolve boundary
 - OpenTimelineIO
 - OpenAssetIO when interoperability requires it
@@ -450,15 +610,17 @@ Infrastructure
 - SQLite FTS5 / sqlite-vec when retrieval requires them
 ```
 
-No Rust/Tauri, graph-database, standalone vector-database, generic infinite-canvas, or agent-framework dependency is currently justified for the active validation milestone.
+No Rust/Tauri, graph database, standalone vector database, generic infinite canvas, canonical rich-text document, or general multi-agent framework is currently justified for the active validation milestone.
 
-# Architecture questions not owned by Spike 0A/0B
+# Architecture questions for Spike 0C
 
-- final Workspace persistence schema after 0B UX evidence;
-- CutMaster coverage and direct-Resolve exceptions for the required Resolve vertical slice;
-- cross-platform Electron + Python packaging details;
-- whether/when external asset interoperability justifies OpenAssetIO;
-- GenAI operation set and provider abstraction details;
-- eventual collaboration/sync architecture.
+- What exact contract should the agent adapter expose above `NarrativeOperation[]`?
+- What constitutes one undoable action batch?
+- How should agent assumptions/uncertainty be represented without creating approval spam?
+- Does free-form working text need durable identity/state?
+- Which reversible changes may auto-apply?
+- What attachment metadata is sufficient before real media analysis?
+- Which structured surfaces remain important once they are no longer primary authoring paths?
+- Does messy agent-mediated input expose a real Narrative IR semantic gap?
 
-Narrative IR questions belong in [`narrative-ir-spec.md`](narrative-ir-spec.md), not here. Spike 0B implementation questions belong in [`authoring-ux-spec.md`](authoring-ux-spec.md).
+Narrative IR questions still belong in [`narrative-ir-spec.md`](narrative-ir-spec.md). The active 0C interaction questions belong in [`agent-mediated-authoring.md`](agent-mediated-authoring.md).
