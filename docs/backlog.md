@@ -45,7 +45,7 @@ See [`spike-0b-assessment.md`](spike-0b-assessment.md).
 - As a creator, I can write or describe a story change without manually creating and parenting every Beat/Cue.
 - As a creator, I can provide mocked/fixture-backed source material without manually wiring every source relationship.
 - As a creator, one instruction can become several canonical changes while still appearing as one understandable action.
-- As a creator, I can revert the last agent-applied action if Salai interpreted me incorrectly.
+- As a creator, I can immediately revert the current agent-applied action before making a subsequent canonical/Workspace edit.
 - As an editor, recorded source wording/ranges remain source evidence through agent-mediated changes.
 - As a creator, I can open an existing Narrative Lens when hierarchy, spatial arrangement, audiovisual realization, or source evidence is the thing I want to inspect or manipulate.
 - As a creator, a direct lens edit is visible to the next agent request because both operate on one canonical project.
@@ -57,7 +57,7 @@ See [`spike-0b-assessment.md`](spike-0b-assessment.md).
 
 - one script-first flow;
 - one footage/source-backed flow;
-- grouped apply + revert;
+- grouped apply + immediate revert;
 - one agent ↔ direct-lens round trip;
 - human comparison against 0B interaction burden.
 
