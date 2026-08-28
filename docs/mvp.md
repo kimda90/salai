@@ -4,7 +4,7 @@
 
 Living implementation/validation sequence.
 
-This document owns **when** product/technical risks are tested. Narrative IR semantics remain authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md). The next authoring interaction contract is [`agent-mediated-authoring.md`](agent-mediated-authoring.md).
+This document owns **when** product/technical risks are tested. Narrative IR semantics remain authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md). The active interaction contracts are [`agent-mediated-authoring.md`](agent-mediated-authoring.md) and [`narrative-lenses.md`](narrative-lenses.md).
 
 ## MVP goal
 
@@ -13,12 +13,13 @@ Validate Salai's narrative/production model and primary creative interaction bef
 The MVP should ultimately prove:
 
 1. one semantic narrative model can represent script-first and footage-first work;
-2. narrative meaning and audiovisual timing can remain distinct without becoming user workload;
+2. narrative meaning and audiovisual timing can remain distinct without becoming routine user workload;
 3. narrative objects retain stable links to source evidence and production intent through restructuring;
-4. users can express creative intent with substantially less interaction than manual model manipulation requires;
-5. specialized views can inspect/precisely edit the same underlying state without document drift;
-6. Resolve can consume normalized downstream choices without Salai becoming an NLE or opaque chat command shell;
-7. captured and generated media can participate in the same production flow.
+4. users can express ordinary creative intent with substantially less interaction than manual model manipulation requires;
+5. structured Narrative Lenses can expose useful story properties and support direct manipulation when that representation helps the creator think;
+6. agent-mediated authoring and direct lens editing can share one canonical state without document drift;
+7. Resolve can consume normalized downstream choices without Salai becoming an NLE or opaque chat command shell;
+8. captured and generated media can participate in the same production flow.
 
 # Phase 0 — Narrative and authoring foundation
 
@@ -26,14 +27,23 @@ The MVP should ultimately prove:
 
 **Status: complete / pass.**
 
-The pure TypeScript Narrative IR is implemented in `packages/script-model/` and satisfies the current fixture/operation/serialization/runtime acceptance criteria.
+The pure TypeScript Narrative IR is implemented in `packages/script-model/`.
+
+Validated:
+
+- stable Script / Section / optional Scene / Beat / Cue / ContentBlock identity;
+- authored vs source-backed content;
+- source/ShotIntent relationship stubs;
+- structural operations;
+- validation and relationship consequences;
+- serialization/versioning;
+- approximate runtime;
+- product, interview/corporate, and footage-first documentary fixtures.
 
 See:
 
-- [`narrative-ir-spec.md`](narrative-ir-spec.md) — implemented baseline contract;
-- [`spike-0a-assessment.md`](spike-0a-assessment.md) — result and evidence.
-
-The implementation demonstrated one model across product, interview/corporate, and footage-first documentary fixtures without a workflow-specific schema or generic mutation escape hatch.
+- [`narrative-ir-spec.md`](narrative-ir-spec.md);
+- [`spike-0a-assessment.md`](spike-0a-assessment.md).
 
 ## Spike 0B — Structured authoring UX
 
@@ -48,27 +58,36 @@ The implementation demonstrated one model across product, interview/corporate, a
 - Workspace isolation from narrative semantics;
 - authored/source-backed distinction;
 - structural/runtime changes through typed operations;
-- product/interview/documentary fixture coverage.
+- deterministic fixture coverage.
 
 ### What failed
 
 The first human UX test found:
 
-> **The direct structured workflow needs too much user interaction to be creatively useful.**
+> **Using direct structured manipulation as the routine path requires too much interaction to be creatively useful.**
 
-The primary failure is interaction architecture, not a discovered inability of the Narrative IR to represent the workflows.
+This was an interaction-architecture failure, not a discovered inability of the Narrative IR to represent the workflows.
 
-Structured surfaces are retained as specialized projections/workspaces, but they are no longer the assumed primary authoring entry point.
+### What remains valuable
 
-See [`spike-0b-assessment.md`](spike-0b-assessment.md).
+The structured views can expose useful properties of the narrative system and allow the creator to reshape it from different angles.
 
-## Spike 0C — Agent-Mediated Authoring
+Therefore they are retained as **Narrative Lenses**, not discarded or reduced to administrative forms.
+
+See [`spike-0b-assessment.md`](spike-0b-assessment.md) and [`narrative-lenses.md`](narrative-lenses.md).
+
+## Spike 0C — Agent-Mediated Authoring + Narrative Lenses
 
 **Current validation priority.**
 
 ### Question
 
-Can a filmmaker write, converse, and provide media naturally while Salai performs the structural normalization into one canonical project with enough trust, reversibility, and source fidelity to remain creatively useful?
+Can a filmmaker write, converse, and provide media naturally while Salai performs routine structural normalization, and can the same creator deliberately enter structured Narrative Lenses to understand and manipulate the story's hierarchy, rhythm, evidence, audiovisual density, gaps, and alternatives?
+
+0C must validate both:
+
+- **interaction compression**; and
+- **structural insight**.
 
 ### Primary flow
 
@@ -83,14 +102,12 @@ free-form text / conversation / media
                  ↓
      canonical Narrative IR/state
                  ↓
- specialized views / later Resolve
+          Narrative Lenses
+                 ↓
+ direct manipulation / further agent work
 ```
 
-See [`agent-mediated-authoring.md`](agent-mediated-authoring.md) for the detailed UX/implementation contract and [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) for the architectural proposal.
-
-### 0C.0 — Reuse the proven canonical boundary
-
-Do not rebuild the model.
+### 0C.0 — Reuse canonical boundary
 
 Reuse:
 
@@ -98,9 +115,9 @@ Reuse:
 - current shared controller/operation dispatch;
 - fixture loading;
 - duration/validation logic;
-- existing structured surfaces as inspection views.
+- existing structured surfaces.
 
-The agent must produce canonical changes through the same typed operation boundary.
+The model invokes Salai-owned authoring commands. Salai owns ID allocation/reference resolution and compiles commands to public Narrative operations.
 
 ### 0C.1 — Free-form working surface
 
@@ -109,76 +126,70 @@ Build the smallest useful authoring area:
 - plain/simple text editing;
 - messy notes allowed;
 - no requirement to classify each line as Section/Beat/Cue;
-- explicit process/interpret action first unless continuous processing proves necessary;
-- current project context visible enough to preserve orientation.
+- explicit process/interpret action first unless evidence favors continuous processing;
+- project/result orientation without forcing a lens switch.
 
 Do not make a rich-text document framework canonical project storage.
 
 ### 0C.2 — Project-aware conversation
 
-Add a conversational input that can:
+Support:
 
-- inspect the current project;
-- answer project/story questions;
-- request structural revisions;
-- request runtime changes;
-- request source/media substitutions;
-- produce a typed operation batch.
+- project/story questions;
+- structural revisions;
+- runtime changes;
+- source/media substitutions;
+- grouped operation batches.
 
-Conversation and working text share one project context. Do not make chat history the project model.
+Conversation and working text share one project context. Chat history is not the project model.
 
 ### 0C.3 — Attachment/media intake
 
-Allow the user to add attachments with fixture-backed or mocked metadata:
+Allow fixture-backed or mocked attachment metadata:
 
 ```text
-attachment
+Attachment
 - id
 - display/file name
 - media type
 - optional duration
 - optional transcript/description
-- optional mocked source ranges/MediaSegment identity
+- optional mocked source ranges / MediaSegment identity
 ```
 
-The goal is to validate the interaction and source semantics before implementing full media intelligence.
-
-Test:
-
-- script-first reference material;
-- interview/source evidence;
-- visual/B-roll context;
-- missing-coverage reasoning.
+The goal is to validate interaction/source semantics before full media intelligence.
 
 ### 0C.4 — Agent normalization loop
 
-Begin with a small Salai-owned loop, not a general agent framework.
+Use a small Salai-owned loop rather than a general agent framework.
 
 ```text
 current project + working input + attachments
                   ↓
              model call
                   ↓
- structured tools / NarrativeOperation[]
+         Salai authoring commands
                   ↓
-          validate + apply batch
+resolve refs / allocate IDs / compile operations
+                  ↓
+          validate complete batch
+                  ↓
+              publish once
 ```
 
-Provider may be local or hosted. Provider choice must not change operation/review semantics.
-
-Required agent behavior:
+Required behavior:
 
 - infer obvious hierarchy/order;
 - create supporting Cues when needed;
 - preserve source evidence;
-- make best-effort reversible assumptions when appropriate;
-- ask focused creative clarifications only when material ambiguity requires them.
+- preserve stable existing identity where possible;
+- ask focused creative clarifications only when necessary.
 
-### 0C.5 — Change batches and undo
+### 0C.5 — Grouped changes and revert
 
 One user intention may create multiple canonical operations.
 
-Represent those as one user-facing change batch:
+Represent them as one user-facing batch:
 
 ```text
 intent
@@ -188,57 +199,86 @@ intent
 one history entry
 ```
 
-Minimum prototype requirements:
+Minimum spike behavior:
 
-- summary of what changed;
-- last-batch undo/revert;
-- operation failure does not partially corrupt project state;
-- stable IDs preserved where possible.
+- creative-level change summary;
+- complete-batch validation before publishing;
+- pre-batch project/Workspace snapshot;
+- one-step revert;
+- no partial live-state mutation after failure.
 
-Do not require per-operation approval for clearly requested reversible changes.
+Do not introduce event sourcing or general inverse-operation synthesis for this spike.
 
-### 0C.6 — Graduated autonomy
+### 0C.6 — Narrative Lenses
 
-Validate three review boundaries.
+Existing surfaces remain first-class ways to perceive the canonical project:
 
-#### Reversible local project changes
+- **Outline** — hierarchy / progression / proportion;
+- **Story Wall** — spatial rhythm / alternatives / balance;
+- **AV Script** — audiovisual density / realization;
+- **Paper / Radio Edit** — evidence / voice / source pacing;
+- later **Coverage** — realization gaps.
 
-May apply as a grouped, undoable batch when clearly requested.
+Requirements:
 
-#### Meaningful creative ambiguity
+- agent changes appear immediately in relevant lenses;
+- direct lens edits use the same canonical/Workspace operation boundaries;
+- lenses expose useful structure without exposing incidental mechanics;
+- lens state ownership remains correct (Projection vs Workspace);
+- at least one lightweight derived indicator may be added if needed to test narrative insight.
 
-Ask one focused question if necessary. Use creative language, not internal model terminology.
+Examples of candidate indicators:
 
-#### External/destructive effects
+- Cue count/density per Beat;
+- section runtime proportion;
+- source-voice distribution;
+- unsupported/coverage count.
 
-Remain explicit-confirmation operations. Real Resolve execution is outside this spike, but the boundary must be designed now.
+Do not invent a universal narrative score.
 
-### 0C.7 — Structured-view continuity
-
-After agent changes, inspect the same state through existing views.
+### 0C.7 — Agent ↔ lens continuity
 
 Verify:
 
-- Outline reflects hierarchy;
-- AV Script reflects inferred Cue/Visual/Audio structure;
-- Paper/Radio preserves source evidence;
-- Story Wall references remain valid where relevant;
-- views do not require export/import or reconstruction.
+- direct lens edits are visible to the next agent request;
+- active lens identity can be included in context when useful;
+- lens-aware questions compile to canonical operations/queries;
+- Workspace-only requests remain Workspace-only;
+- source identity survives agent/lens round trips.
 
-The views are not the primary workflow test; they prove normalization produced usable structured state.
+Examples:
 
-### 0C.8 — Human interaction-compression test
+```text
+Story Wall: "Why does the middle feel crowded?"
+AV Script: "Reduce the visual changes in this Beat."
+Paper Edit: "Can this rely less on Maria?"
+Outline: "Which section is carrying too much weight?"
+```
 
-Run representative tasks comparable to 0B.
+### 0C.8 — Human validation
+
+Compare representative 0C tasks with the 0B baseline.
+
+#### Interaction compression
 
 Measure:
 
-- number of explicit user actions/inputs;
-- number of required clarifications;
-- number of times the user must reason about the internal hierarchy;
-- whether change summaries/undo create trust;
-- whether specialized views are opened voluntarily because they help;
-- perceived continuity of creative flow.
+- explicit user actions/inputs;
+- required clarifications;
+- times incidental hierarchy interrupts creative thinking;
+- perceived flow;
+- trust in grouped summary + revert.
+
+#### Structural insight
+
+Measure:
+
+- which Narrative Lens users open voluntarily;
+- what they are trying to understand;
+- whether the lens reveals something not obvious in free-form/chat;
+- whether direct manipulation feels creatively meaningful;
+- whether exposed internal concepts justify their cognitive cost;
+- whether agent + active-lens context is more useful than either alone.
 
 Required scenarios:
 
@@ -246,42 +286,48 @@ Required scenarios:
 2. messy draft → coherent restructure/runtime change;
 3. interview/media attachments → source-preserving radio/paper structure;
 4. mixed story + media → missing-coverage question;
-5. multi-operation natural-language change → one undoable batch.
+5. grouped multi-operation change → one-step revert;
+6. overloaded middle → lens-assisted diagnosis;
+7. source-voice imbalance → Paper/Radio diagnosis;
+8. disproportionate audiovisual complexity → AV Script diagnosis;
+9. direct lens edit → subsequent agent request.
 
 ### 0C exit criterion
 
 0C passes when:
 
-- users can remain primarily in free-form authoring for ordinary story construction/revision;
-- common creative intentions take materially fewer explicit interactions than 0B;
-- agent output always resolves through validated typed canonical operations;
+- routine story creation/revision can remain low-friction;
+- common intentions take materially fewer incidental interactions than 0B;
+- agent output resolves through validated typed canonical operations;
 - source-backed content remains source-backed;
-- users can understand and revert grouped agent changes;
-- structured views remain synchronized and useful for precision/inspection;
-- no second canonical free-form document is required;
-- the IR remains adequate for genuinely messy agent-interpreted input or any failure is documented explicitly.
+- users understand and revert grouped agent changes;
+- Narrative Lenses remain synchronized and directly editable;
+- at least some lenses reveal useful narrative information beyond prose/chat;
+- users enter lenses because they help think, not because software mechanics force them there;
+- direct lens edits become context for subsequent agent reasoning;
+- no second canonical free-form/lens document is required;
+- the IR remains adequate for messy agent-interpreted input or failures are documented explicitly.
+
+See [`agent-mediated-authoring.md`](agent-mediated-authoring.md), [`narrative-lenses.md`](narrative-lenses.md), and [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md).
 
 # Phase 1 — Minimal desktop/local-service shell
 
-Proceed only after the primary authoring interaction is validated.
+Proceed only after the primary interaction + Narrative Lens model is validated.
 
 ## Electron
 
-- launch/manage the local service;
-- host React UI;
-- open/retain real project folders;
-- filesystem/OS bridge through narrow secure IPC;
-- `contextIsolation: true`;
-- `nodeIntegration: false`.
+- desktop shell;
+- local project/file access;
+- packaging/distribution.
 
-Preferred tooling direction:
+Preferred direction:
 
 - `electron-vite` for Electron/Vite development/build;
 - `electron-builder` for packaging unless evidence justifies another tool.
 
 ## Local service
 
-- Python 3.11 or 3.12 / FastAPI;
+- Python 3.11/3.12 + FastAPI;
 - initial project API;
 - filesystem/media services;
 - model/media-provider adapters as justified;
@@ -291,32 +337,18 @@ Narrative IR remains a versioned explicit contract rather than being redefined b
 
 # Phase 2 — Durable project / production graph foundation
 
-Introduce local persistence after 0C clarifies what free-form/session context actually needs to survive.
+Introduce local persistence after 0C clarifies what free-form/session/lens context actually needs to survive.
 
-Persist:
+Persist as validated:
 
-### Narrative
+- Narrative IR;
+- production graph objects/relationships;
+- Workspace state still justified after 0C;
+- Resolve bindings/annotations when implemented;
+- agent action/history metadata required for recovery/audit;
+- a durable WorkingDocument/session artifact only if 0C proves it necessary.
 
-- Project;
-- validated Narrative IR;
-- version/schema metadata.
-
-### Production graph
-
-- ShotIntent;
-- Asset;
-- MediaSegment;
-- Relationship;
-- Annotation as needed;
-- ResolveBinding as integration begins.
-
-### Validated interaction/workspace state
-
-- Workspace/Board state proven useful;
-- agent change/history metadata required for recovery/audit;
-- a durable WorkingDocument/session artifact **only if 0C proves it necessary**.
-
-Use SQLite unless implementation evidence justifies another local persistence mechanism. Do not introduce a graph database.
+Use SQLite unless implementation evidence justifies another local mechanism. Do not introduce a graph database by default.
 
 # Phase 3 — CutMaster / Resolve vertical slice
 
@@ -334,22 +366,17 @@ CutMaster
 DaVinci Resolve Studio
 ```
 
-CutMaster remains the default Resolve automation boundary; direct Resolve scripting is reserved for capabilities not adequately exposed through CutMaster. See [`adr/0004-cutmaster-default-resolve-boundary.md`](adr/0004-cutmaster-default-resolve-boundary.md).
-
 Required experiments:
 
-- read current Resolve project/timeline context;
-- identify Media Pool/timeline items;
-- import media;
-- map timeline items to source items;
-- write/read useful metadata/custom data;
-- add/read markers;
+- inspect project/timeline state;
+- map media identity;
+- read/write useful metadata/markers;
 - create/modify timelines from explicit source ranges;
 - inspect identity behavior across restart/duplication/export-import;
 - determine event/polling strategy;
 - document direct-Resolve exceptions.
 
-Agent requests must materialize through canonical Salai state rather than bypassing this boundary.
+Agent requests and lens edits must materialize through canonical Salai state rather than bypassing this boundary.
 
 # Phase 4 — Reverse scripting with real media
 
@@ -358,16 +385,18 @@ Replace mocked 0C attachments/source evidence with real media-derived data.
 ```text
 local media
    ↓
-transcript / lightweight visual description / metadata
+transcript / visual description / metadata
    ↓
 MediaSegments
    ↓
 agent/source selection + normalization
    ↓
 SourceExcerpts / Beats / Cues
+   ↓
+Narrative Lenses
 ```
 
-Initial reusable infrastructure may include:
+Candidate infrastructure:
 
 - FFmpeg/ffprobe;
 - faster-whisper;
@@ -376,17 +405,17 @@ Initial reusable infrastructure may include:
 - SQLite FTS5;
 - sqlite-vec only if semantic retrieval proves useful.
 
-Success means the same Narrative IR/source semantics hold with real evidence and real local assets, and the agent can reason over them without losing provenance.
+Success means the same Narrative IR/source semantics hold with real evidence and the agent/lenses can reason over it without losing provenance.
 
-# Phase 5 — Alternative edits / materialization
+# Phase 5 — Alternatives / editorial materialization
 
 Test story-level alternatives independent from a Resolve timeline.
 
 Required capabilities:
 
-- ask for or create alternative narrative/source choices;
+- ask for or directly build alternative narrative/source choices;
 - keep rejected material recoverable;
-- compare alternatives;
+- compare alternatives through appropriate lenses;
 - approximate runtime;
 - choose one for Resolve materialization.
 
@@ -401,38 +430,37 @@ Required flow:
 1. narrative object requires a ShotIntent;
 2. ShotIntent lacks a realization;
 3. user requests a preview/alternative naturally;
-4. agent creates/updates the structured generation intent;
+4. agent creates/updates structured generation intent;
 5. generation executes through a registered backend;
 6. result becomes a normal Asset with provenance;
 7. Asset links to ShotIntent;
-8. Asset can be reviewed and handed into Resolve like captured media.
+8. result is visible through relevant Narrative Lenses and can be handed into Resolve.
 
-This is where low-friction previs can become part of the primary authoring feedback loop.
+# Conditional interoperability — OpenAssetIO
 
-# Conditional interoperability spike — OpenAssetIO
-
-OpenAssetIO remains conditional. Add it when a validated workflow requires external asset resolution/publishing or production asset-management interoperability.
+Add OpenAssetIO only when a validated workflow requires external asset resolution/publishing or production asset-management interoperability.
 
 Until then, use Salai-owned stable Asset IDs plus paths/fingerprints/metadata.
 
-# Later product areas
+# Later / conditional work
 
-Introduce only when required by validated workflows:
+Introduce only when validated workflows require it:
 
-- Deliverable/release management;
-- collaboration/sync/CRDT;
+- collaboration/sync;
 - hosted review;
 - broader screenplay interchange;
 - richer generation operations;
-- optional mixed-media/freeform spatial Workspace;
+- optional mixed-media spatial lenses/workspaces;
 - external asset-management interoperability.
 
 # Current gate
 
-Proceed to **Spike 0C — Agent-Mediated Authoring** using:
+Proceed to **Spike 0C — Agent-Mediated Authoring + Narrative Lenses** using:
 
-- the implemented `@salai/script-model` package as canonical semantic state;
-- the existing 0B controller/views as validation infrastructure;
-- [`agent-mediated-authoring.md`](agent-mediated-authoring.md) as the active interaction contract.
+- `@salai/script-model` as canonical semantic state;
+- existing 0B controller/views as validation infrastructure;
+- [`agent-mediated-authoring.md`](agent-mediated-authoring.md) as the agent/free-form contract;
+- [`narrative-lenses.md`](narrative-lenses.md) as the structured-view contract;
+- [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md) as the executable tracker.
 
-Do not pull Electron, persistence, real Resolve execution, full media analysis, GenAI execution, a rich-text canonical model, or a general agent framework into 0C unless a minimal piece is strictly necessary to answer the interaction-compression question.
+Do not pull Electron, persistence, real Resolve execution, full media analysis, GenAI execution, a canonical rich-text model, or a general agent framework into 0C unless a minimal piece is necessary to answer the interaction-compression or structural-insight question.
