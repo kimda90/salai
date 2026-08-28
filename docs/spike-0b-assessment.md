@@ -2,20 +2,28 @@
 
 ## Status
 
-**CLOSED — semantic architecture passes; direct structured authoring fails the creative-friction test.**
+**CLOSED — semantic architecture passes; routine direct structured authoring fails the creative-friction test; structured views remain valuable as Narrative Lenses.**
 
-Spike 0B answered two different questions with different results:
+Spike 0B answered three related questions with different results:
 
 1. **Can Story Wall, Outline, AV Script, and Paper/Radio Edit operate over one canonical Narrative IR without state drift?** Yes.
-2. **Are those structured surfaces, as direct authoring interfaces, low-friction enough to be the primary way people create in Salai?** No, based on the first human UX test.
+2. **Are those structured surfaces low-friction enough to be the routine/default path for ordinary creative changes?** No, based on the first human UX test.
+3. **Are the structured surfaces still creatively useful when the creator deliberately wants to understand or manipulate the narrative system from another angle?** Current follow-up interpretation says yes; this becomes an explicit 0C hypothesis to validate.
 
 The decisive human finding was:
 
 > **It needs too much user interaction to be creatively useful.**
 
-This is not treated as a request for more shortcuts or polish. It changes the authoring hypothesis.
+The important qualification is:
 
-The next milestone is [`agent-mediated-authoring.md`](agent-mediated-authoring.md): free-form writing, conversation, and media intake become the primary creative interaction; Salai normalizes that input into the already validated structured project state.
+> **The problem is compulsory structural bookkeeping, not structural visibility itself.**
+
+The next milestone is therefore not “replace the views with chat.” It is a dual interaction model:
+
+- free-form writing/conversation/media + agent normalization for routine authoring; and
+- first-class **Narrative Lenses** for structural perception and intentional direct manipulation.
+
+See [`agent-mediated-authoring.md`](agent-mediated-authoring.md) and [`narrative-lenses.md`](narrative-lenses.md).
 
 ## Evidence
 
@@ -29,74 +37,70 @@ The next milestone is [`agent-mediated-authoring.md`](agent-mediated-authoring.m
 | Paper / Radio Edit | PR #16, PR #20 | Semantically valid |
 | Cross-surface identity/state | PR #20, PR #21 | Pass in deterministic acceptance tests |
 | Fast CI | PR #20 | Typecheck + unit/acceptance tests + build |
-| Human UX | first 0B UX test | **Fail as primary direct-manipulation authoring model: excessive interaction burden** |
+| Human UX | first 0B UX test | **Fail as routine direct-manipulation authoring model: excessive interaction burden** |
+| Follow-up product interpretation | post-test reflection | **Structured views remain potentially valuable for understanding the narrative system/pulse and reshaping it from another angle** |
 
-## What 0B proved
+# What 0B proved
 
-### One Narrative IR can support all four surfaces
+## One Narrative IR can support all four structured surfaces
 
-The prototype does not maintain separate canonical story documents per workflow. Outline, Story Wall, AV Script, and Paper / Radio Edit all read and modify the same `NarrativeProject` through the shared controller and public Narrative operations.
+The same canonical project can be rendered and modified through:
 
-The continuous acceptance flow switches:
-
-```text
-Story Wall
-  → Outline
-  → AV Script
-  → Paper / Radio Edit
-  → Story Wall
-```
+- Outline;
+- Story Wall;
+- AV Script;
+- Paper / Radio Edit;
 
 without replacing or translating the canonical project.
 
-**Assessment:** pass at the model/application-state level.
+**Assessment:** pass.
 
-### Stable identity is sufficient for cross-surface continuity
+## Stable identity survives restructuring
 
 Beat identity survives edits and structural moves. Cue identity survives surface switches and cross-Beat movement. SourceExcerpt identity, media identity, transcript snapshot, and source ranges survive narrative reattachment.
 
-Shared selection as `{ type, id }` is sufficient for the prototype. Selection survives compatible surface switches and clears when the selected canonical object is deleted.
+Shared selection as `{ type, id }` is sufficient for the prototype.
 
 **Assessment:** pass.
 
-### Workspace can remain small and separate
+## Workspace can remain small and separate
 
 The implemented Story Wall Workspace requires only:
 
 - Workspace / Board identity;
 - BoardItem identity;
-- canonical Scene or Beat reference, or an IdeaCard;
-- `x` / `y` position;
+- Scene/Beat canonical reference or IdeaCard;
+- x/y position;
 - parking state.
 
-Earlier speculative fields for size, color, rotation, labels, notes, and lanes/groups were removed because no implemented workflow required them.
+Speculative size/color/rotation/label/note/lane fields were removed because no implemented workflow required them.
 
-Paper / Radio Edit did not produce evidence for additional Workspace state.
+Paper / Radio Edit did not produce evidence for separate Workspace state.
 
-**Assessment:** keep the minimal schema. Do not expand it to solve the interaction problem.
+**Assessment:** pass. Keep Workspace small and contextual.
 
-### Authored and sourced material can share one model safely
+## Authored and sourced material can share one model safely
 
-Source-backed and authored material can be sequenced using existing Cues and ContentBlocks. SourceExcerpt evidence preserves media identity and source ranges when moved. Authored bridge material remains authored and independently editable.
+Source-backed and authored material can be sequenced using existing Cues/ContentBlocks. SourceExcerpt evidence preserves media identity/ranges when moved. Authored bridge material remains authored/editable.
 
-**Assessment:** pass. Do not introduce a paper-edit-specific canonical document merely to make the UI easier.
+**Assessment:** pass.
 
-### Structured views are viable projections/editors
+## Structured surfaces are valid views of the narrative system
 
-The four surfaces are technically useful representations of the same project state. Nothing in the human finding invalidates the need for:
+The four surfaces represent meaningfully different dimensions of the same story:
 
-- a structural Outline;
-- spatial Story Wall;
-- AV planning view;
-- source-evidence Paper/Radio view.
+- Outline exposes hierarchy/proportion;
+- Story Wall exposes spatial rhythm/alternatives;
+- AV Script exposes audiovisual realization/density;
+- Paper/Radio exposes evidence/voice/source pacing.
 
-What changed is their **role**. They should be used when that representation helps a creative decision, not because the user must manually perform every underlying operation through them.
+Nothing in the first human finding invalidates those representations.
 
-## What 0B failed
+The finding changes **when and why** the user should need them.
 
-### The user is managing the model
+# What 0B failed
 
-The current direct-manipulation UX exposes too much structural bookkeeping.
+## The user is managing the model too often
 
 A normal creative intention can require several steps:
 
@@ -111,28 +115,63 @@ choose a parent/target
    ↓
 perform the move/edit
    ↓
-repeat for supporting Cues/content
+repeat for supporting structure
 ```
 
-The Narrative IR can represent the result, but the user should not have to serialize the thought manually.
+The Narrative IR can represent the result, but the user should not have to serialize every thought manually.
 
-### Surface specialization becomes interaction fragmentation
+## Surface specialization can become interaction fragmentation
 
-Multiple familiar views are valuable, but making operations surface-specific can force users to switch representations for mechanical reasons rather than creative reasons.
+Multiple views are valuable, but if an operation is only available in one surface, the user may be forced to switch representation for mechanical reasons rather than creative reasons.
 
-That undermines the original goal of keeping the user in flow.
+That interrupts flow.
 
-### Explicit structural correctness is not the same as creative usability
+## Technical correctness is not creative usability
 
-The Story Wall spatial-vs-structural distinction is technically correct. The mixed Scene/direct-Beat hierarchy is technically representable. Cue identity is semantically useful. None of those facts prove that users should be required to interact with those distinctions routinely.
+The Story Wall spatial-vs-structural distinction is technically correct. The mixed Scene/direct-Beat hierarchy is representable. Cue identity is semantically useful.
 
-The key human-test lesson is broader:
+Those facts do not prove the user should be required to manage those distinctions routinely.
 
-> **Internal structure should be available for precision and inspection, but common creative work should not require operating it explicitly.**
+# Follow-up interpretation — Narrative Lenses
 
-## New product hypothesis
+The first 0B assessment draft risked overcorrecting by describing structured views primarily as “secondary precision tools.”
 
-The next direction is:
+The stronger interpretation is:
+
+> **Hide structural bookkeeping, not narrative structure.**
+
+The structured UI can expose patterns that are difficult to perceive in free-form prose/chat:
+
+- hierarchy;
+- progression;
+- runtime proportion;
+- spatial balance;
+- turning points;
+- source/evidence concentration;
+- audiovisual complexity;
+- missing realization;
+- alternatives.
+
+This can help the creator understand the story's **pulse** and modify it from another angle.
+
+The new product concept is a **Narrative Lens**: a structured representation of the same canonical project that deliberately emphasizes one of these dimensions.
+
+## Direct manipulation remains useful
+
+The 0B result does not say direct manipulation should disappear.
+
+Direct manipulation is valuable when the user deliberately chooses the lens because the representation itself is the creative tool.
+
+Examples:
+
+- rearranging cards while thinking spatially;
+- moving source excerpts while shaping a radio edit;
+- adjusting Visual/Audio moments while planning realization;
+- changing hierarchy while intentionally working in Outline.
+
+What failed is making those mechanics the compulsory route for ordinary intent such as “move this earlier” or “make this shorter.”
+
+# New product hypothesis
 
 ```text
 free-form writing / conversation / media
@@ -142,23 +181,25 @@ free-form writing / conversation / media
                  ↓
        typed operation batches
                  ↓
- Narrative IR / Workspace / production state
-                 ↓
- specialized views / Resolve handoff
+          Narrative IR
+        ↙    ↓     ↘
+      Narrative Lenses
+        ↖    ↓     ↗
+     direct lens editing
 ```
 
-The user expresses the desired creative outcome. Salai manages the structural mechanics.
+The agent handles routine structural mechanics.
 
-This is described in:
+The lenses make the canonical system visible and directly manipulable when that visibility helps.
 
-- [`agent-mediated-authoring.md`](agent-mediated-authoring.md) — Spike 0C implementation/UX contract;
-- [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) — proposed architectural direction.
+# Why the Narrative IR remains valuable
 
-## Why the Narrative IR remains valuable
+The UX failure does **not** imply Salai should abandon structured state and become a chat transcript or generic document editor.
 
-The 0B UX failure does **not** imply that Salai should abandon structured state and become a chat transcript or generic document editor.
+The IR is now more clearly both:
 
-The IR becomes more important as the target of normalization:
+- a machine-facing intermediate representation for agents, validation, source identity, persistence, and Resolve; and
+- a human-facing narrative system exposed through lenses.
 
 ```text
 messy human input
@@ -166,80 +207,86 @@ messy human input
 agent interpretation
        ↓
 Narrative IR
-       ↓
-validation / views / source identity / runtime / Resolve
+    ↙      ↘
+ lenses   downstream systems
 ```
 
-It gives the agent a constrained, serializable representation that another subsystem can consume reliably.
+# Decisions from 0B
 
-## Decisions from 0B
-
-### Keep
+## Keep
 
 - one canonical Narrative IR;
 - stable object identity;
 - authored/source distinction;
 - Workspace separation from narrative semantics;
-- the existing typed operation boundary;
-- structured surfaces as synchronized views/editors;
-- Resolve as the downstream NLE.
+- existing typed operation boundary;
+- structured surfaces over synchronized state;
+- direct manipulation when intentionally working through a structured representation;
+- Resolve as downstream NLE.
 
-### Change
+## Change
 
-- do not treat structured surfaces as the primary authoring flow;
-- do not require the user to explicitly create/manage every Beat/Cue relationship;
+- do not make structured surfaces mandatory/routine authoring stages;
+- do not require users to explicitly create/manage every Beat/Cue relationship;
 - do not require surface switching for ordinary creative commands;
-- make agent-mediated normalization the next primary interaction hypothesis;
-- make grouped undo/history a next-spike requirement because the agent may perform several operations for one user intention.
+- make agent-mediated normalization the low-friction authoring hypothesis;
+- formalize structured views as Narrative Lenses rather than merely “secondary editors”;
+- make agent ↔ lens continuity a 0C requirement;
+- make grouped revert/history a 0C requirement.
 
-### Defer
+## Defer
 
-The following 0B questions are no longer blockers for the next milestone:
+The following remain per-lens questions rather than global 0B blockers:
 
-- perfect user-facing `Cue` terminology;
+- final user-facing `Cue` terminology;
 - final mixed Scene/direct-Beat presentation;
 - final Story Wall spatial-vs-structural gesture design;
-- which structured view should be the default entry point.
+- which lenses remain first-class after validation;
+- which derived “narrative pulse” indicators are useful.
 
-They can be revisited after the agent-mediated flow shows when users actually need those views.
+# Browser automation decision
 
-## Browser automation decision
+Chromium/browser automation was removed from the active CI path in PR #20.
 
-PR #19 briefly introduced Vitest Browser Mode with Playwright/Chromium. PR #20 removed that infrastructure and replaced the important state/identity assertions with fast deterministic acceptance tests.
-
-Current CI intentionally runs:
+Current fast validation remains:
 
 ```text
 install
-→ typecheck
-→ unit + acceptance tests
-→ build
+  ↓
+typecheck
+  ↓
+unit / deterministic acceptance tests
+  ↓
+build
 ```
 
-No Chromium installation or browser test command is part of CI.
+Reintroduce browser automation only when a concrete regression class justifies it.
 
-This remains appropriate for the current discovery stage.
+# 0B outcome
 
-## 0B outcome
+Spike 0B is not a product UX pass, but it is a successful discovery spike because it retired major uncertainties:
 
-Spike 0B is **not a product UX pass**, but it is a successful product-discovery spike because it retired two major uncertainties:
+- synchronized Narrative IR/view architecture is viable;
+- direct structured manipulation is too interaction-heavy as the routine authoring path;
+- structured views are still promising as deliberate Narrative Lenses.
 
-- the shared Narrative IR/workspace architecture is viable;
-- direct structured manipulation is too interaction-heavy to be Salai's primary creative workflow.
+The correct response is not to keep polishing the old mandatory workflow until it passes, nor to hide the entire system behind chat.
 
-The correct response is not to continue polishing 0B until the old gate passes. The result should change the roadmap.
+# Next step
 
-## Next step
-
-Proceed to **Spike 0C — Agent-Mediated Authoring**.
+Proceed to **Spike 0C — Agent-Mediated Authoring + Narrative Lenses**.
 
 0C should test whether users can:
 
 - write naturally;
 - converse with Salai;
-- drop source/media context;
-- ask for creative outcomes rather than structural operations;
-- receive valid, grouped, reversible canonical changes;
-- open Outline/Story Wall/AV/Paper views only when those representations are useful.
+- provide source/media context;
+- ask for outcomes rather than structural operations;
+- receive valid grouped/reversible canonical changes;
+- deliberately enter Outline/Story Wall/AV/Paper views because those representations reveal something useful;
+- directly manipulate a chosen lens;
+- continue agent reasoning after lens edits without losing continuity.
 
-The success metric is interaction compression: user effort should scale with creative decisions, not with the number of domain operations required to implement them.
+The success target is:
+
+> **Routine interaction cost scales with creative decisions, while structural visibility increases creative understanding and control.**
