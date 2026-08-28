@@ -6,9 +6,9 @@ Its purpose is to keep **story intent, source material, production needs, real/g
 
 ## Product hypothesis
 
-> **Express intent naturally; Salai structures it for production.**
+> **Express intent naturally; Salai structures it for production. See and reshape that structure through narrative lenses.**
 
-The primary interaction direction is now:
+The primary interaction direction is:
 
 ```text
 write / talk / drop media
@@ -18,7 +18,9 @@ write / talk / drop media
           ↓
  structured canonical project
           ↓
- specialized views / Resolve
+     Narrative Lenses
+          ↓
+        Resolve
 ```
 
 A project may begin from a blank idea/script or from existing footage/interviews/selects. The user should be able to describe the story they want, provide material, and ask Salai to restructure or reason about it without explicitly creating and wiring every narrative object.
@@ -27,29 +29,42 @@ The underlying architectural principle remains:
 
 > **One Narrative IR, multiple synchronized creative views.**
 
-### Specialized views
+The key UX refinement is:
 
-- Outline
-- AV Script
-- Story Wall / Beat Board
-- Paper / Radio Edit
-- Coverage
-- later Frame Wall / Selects / previs-oriented surfaces
+> **Hide structural bookkeeping, not narrative structure.**
 
-These are no longer assumed to be mandatory authoring stages. They are tools for inspection, spatial thinking, precision editing, source verification, and production planning over the same canonical state.
+Salai should automate incidental mechanics such as object creation, parent references, IDs, and obvious relationship wiring. But structured views remain valuable when they help the creator understand or reshape the story.
+
+## Narrative Lenses
+
+Salai's structured surfaces are **Narrative Lenses**: different ways to perceive and manipulate the same canonical story.
+
+- **Outline** — hierarchy, progression, proportion.
+- **Story Wall / Beat Board** — spatial rhythm, balance, turning points, alternatives.
+- **AV Script** — audiovisual density and realization over time.
+- **Paper / Radio Edit** — evidence, voice, source pacing, authored-vs-sourced balance.
+- **Coverage** — gaps between narrative intent and available realization.
+- later **Frame Wall / Selects** — visual coverage and alternatives.
+
+They are not mandatory stages, but they are also not merely fallback or expert controls. A creator can deliberately enter one when that representation helps them understand the narrative system or work from a different angle.
+
+Direct manipulation remains first-class inside a lens when that is the creator's chosen way of thinking.
+
+See [`docs/narrative-lenses.md`](docs/narrative-lenses.md).
 
 DaVinci Resolve remains the media, frame-accurate editing, Fusion, color, Fairlight, and delivery environment.
 
-## What changed after Spike 0B
+## What Spike 0B taught us
 
 Spike 0B implemented Story Wall, Outline, AV Script, and Paper/Radio Edit over one `@salai/script-model` project and validated the semantic boundaries with deterministic tests.
 
-That experiment produced two conclusions:
+It produced three conclusions:
 
 - **the model/view architecture works:** stable identity, source evidence, Workspace separation, runtime, and cross-view changes remain coherent;
-- **the primary UX did not:** the first human test found that direct structured manipulation requires too much interaction to remain creatively useful.
+- **the routine direct-manipulation workflow does not:** ordinary creative changes require too much interaction and model management;
+- **the structured views remain creatively useful:** they can reveal hierarchy, rhythm, evidence, audiovisual complexity, gaps, and alternatives in ways free-form text/chat cannot.
 
-The current direction is therefore not “add more controls to the four surfaces.” It is to put an agent-mediated free-form layer above the proven canonical model.
+The current direction is therefore not “replace the views with chat.” It is to put a low-friction agent-mediated layer above the proven canonical model while retaining the views as first-class Narrative Lenses.
 
 See [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md).
 
@@ -83,30 +98,32 @@ Authoritative contract: [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md)
 
 **Closed / mixed result.**
 
-The shared React prototype proved multiple synchronized views can use the same Narrative IR, but direct manipulation failed the creative-friction test.
+The shared React prototype proved multiple synchronized views can use the same Narrative IR, but using direct structured manipulation as the default/routine path failed the creative-friction test.
 
 Historical contract: [`docs/authoring-ux-spec.md`](docs/authoring-ux-spec.md).
 
 Assessment: [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md).
 
-### Spike 0C — Agent-Mediated Authoring
+### Spike 0C — Agent-Mediated Authoring + Narrative Lenses
 
 **Current validation milestone.**
 
-0C tests a primary authoring surface combining:
+0C tests:
 
 - simple free-form working text;
 - project-aware chat/instructions;
 - attachment/media intake;
-- model/agent normalization into typed Narrative operations;
-- grouped change summaries and undo;
-- the existing structured views as synchronized inspection/precision tools.
+- model/agent normalization into typed Salai commands and canonical operations;
+- grouped change summaries and one-step revert;
+- existing structured views as synchronized Narrative Lenses;
+- direct lens edits feeding back into subsequent agent context;
+- whether the lenses reveal useful narrative information beyond free-form text/chat.
 
-The interaction target is simple:
+The interaction target is:
 
-> **User effort should scale with creative decisions, not with the number of internal operations required to represent them.**
+> **User effort should scale with creative decisions, while structural visibility should increase creative understanding.**
 
-See [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md) and [`docs/rfcs/0002-agent-mediated-authoring.md`](docs/rfcs/0002-agent-mediated-authoring.md).
+See [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md), [`docs/narrative-lenses.md`](docs/narrative-lenses.md), and [`docs/rfcs/0002-agent-mediated-authoring.md`](docs/rfcs/0002-agent-mediated-authoring.md).
 
 ## Architecture direction
 
@@ -116,9 +133,9 @@ Current broader direction:
 - React/TypeScript authoring UI;
 - a Salai-owned agent/normalization layer using structured tools/operation batches;
 - provider-agnostic model boundary rather than a model-owned project format;
-- grouped history/undo and graduated autonomy;
-- existing Story Wall/Outline/AV/Paper views as specialized surfaces;
-- Electron desktop shell after the primary authoring UX is validated;
+- grouped history/revert and graduated autonomy;
+- Narrative Lenses over the same canonical state;
+- Electron desktop shell after the primary interaction is validated;
 - local Python 3.11/3.12 + FastAPI service;
 - SQLite persistence after interaction/persistence requirements are validated;
 - CutMaster as the default Resolve automation boundary behind a Salai-owned adapter;
@@ -129,33 +146,29 @@ Current broader direction:
 
 An agent request should change canonical Salai state first; it should not become an opaque natural-language command stream directly into Resolve.
 
-See [`docs/architecture.md`](docs/architecture.md).
-
 ## Documentation
-
-Start with [`docs/README.md`](docs/README.md), which defines the canonical owner for each kind of information.
 
 Key documents:
 
 - [`docs/product-brief.md`](docs/product-brief.md) — concise product thesis and positioning;
 - [`docs/prd.md`](docs/prd.md) — product requirements and success criteria;
-- [`docs/glossary.md`](docs/glossary.md) — canonical product/domain terminology;
-- [`docs/research-notes.md`](docs/research-notes.md) — product-discovery evidence, including the 0B human finding;
-- [`docs/workflows.md`](docs/workflows.md) — primary agent-mediated workflow and specialized views;
+- [`docs/glossary.md`](docs/glossary.md) — canonical terminology;
+- [`docs/research-notes.md`](docs/research-notes.md) — product-discovery evidence;
+- [`docs/workflows.md`](docs/workflows.md) — primary workflow and Narrative Lens behavior;
+- [`docs/narrative-lenses.md`](docs/narrative-lenses.md) — Narrative Lens product/UX contract;
 - [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md) — authoritative Narrative IR TDD;
 - [`docs/spike-0a-assessment.md`](docs/spike-0a-assessment.md) — Spike 0A result;
 - [`docs/authoring-ux-spec.md`](docs/authoring-ux-spec.md) — historical 0B structured-authoring contract;
 - [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md) — 0B result and direction change;
-- [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md) — active 0C contract;
+- [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md) — active 0C interaction contract;
+- [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md) — active 0C tracker;
 - [`docs/mvp.md`](docs/mvp.md) — validation/implementation roadmap;
 - [`docs/backlog.md`](docs/backlog.md) — current work ordering;
-- [`docs/architecture.md`](docs/architecture.md) — System Architecture Document;
+- [`docs/architecture.md`](docs/architecture.md) — system architecture;
 - [`docs/rfcs/0001-one-narrative-ir-multiple-workflows.md`](docs/rfcs/0001-one-narrative-ir-multiple-workflows.md) — canonical IR / synchronized views proposal;
-- [`docs/rfcs/0002-agent-mediated-authoring.md`](docs/rfcs/0002-agent-mediated-authoring.md) — new primary interaction proposal;
+- [`docs/rfcs/0002-agent-mediated-authoring.md`](docs/rfcs/0002-agent-mediated-authoring.md) — agent + Narrative Lens proposal;
 - [`docs/adr/`](docs/adr/) — accepted architecture decisions.
 
 ## Contributing and license
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development/documentation conventions.
-
-Salai does not currently publish an open-source license. See [`LICENSE`](LICENSE) for the current status; third-party dependencies retain their own licenses.
+The project is still in discovery/spike-driven development. Documentation should be treated as part of the implementation contract and updated when evidence changes the product direction.
