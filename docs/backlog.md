@@ -11,23 +11,21 @@ This is the lightweight product backlog while Salai remains in discovery and spi
 
 # DONE — Spike 0A: Narrative IR
 
-Spike 0A implemented and validated the core Narrative IR in `packages/script-model/`.
+Validated:
 
-Completed evidence includes:
-
-- stable `Script / Section / Scene? / Beat / Cue / ContentBlock` identity;
-- authored `AuthoredSpeech` vs media-backed `SourceExcerpt` semantics;
-- mocked `ShotIntent` and `MediaSegment` references;
-- the authoritative structural operation API;
-- move/split/merge/delete relationship behavior;
-- transactional validation;
-- schema-versioned serialization round trip;
+- one semantic Script/Section/Scene?/Beat/Cue model;
+- stable identity;
+- authored vs source-backed content;
+- source/ShotIntent references;
+- structural operation vocabulary;
+- validation and relationship effects;
+- serialization/versioning;
 - runtime estimation;
-- three representative fixtures for product, interview/corporate, and footage-first documentary work.
+- product, interview/corporate, and footage-first fixtures.
 
 See [`spike-0a-assessment.md`](spike-0a-assessment.md).
 
-# DONE — Spike 0B: shared structured-view architecture
+# DONE — Spike 0B: synchronized structured-view architecture
 
 0B implemented Story Wall, Outline, AV Script, and Paper/Radio Edit over one canonical Narrative IR.
 
@@ -38,210 +36,309 @@ Validated:
 - Workspace position/parking separate from narrative semantics;
 - authored/source-backed content distinction;
 - runtime/structural edits through one operation boundary;
-- deterministic product/interview/documentary acceptance coverage.
+- deterministic fixture/acceptance coverage.
 
-Human UX result:
+Human UX finding:
 
-> **Direct structured authoring requires too much user interaction to be creatively useful as the primary workflow.**
+> **Using direct structured manipulation as the routine path requires too much user interaction to be creatively useful.**
 
-Therefore 0B is considered complete as a discovery spike but **not a product UX pass**. The structured surfaces remain useful specialized tools; they are not the next primary authoring direction.
+Follow-up product interpretation:
+
+> **The structured views are still useful when they expose the narrative system and let the creator understand or modify it from another angle.**
+
+Therefore 0B is complete as a discovery spike, but not a product UX pass.
+
+The structured surfaces are retained as **Narrative Lenses** rather than mandatory authoring stages.
 
 See [`spike-0b-assessment.md`](spike-0b-assessment.md).
 
-# NOW — Spike 0C: Agent-Mediated Authoring
+# NOW — Spike 0C: Agent-Mediated Authoring + Narrative Lenses
 
-Implementation/validation contract: [`agent-mediated-authoring.md`](agent-mediated-authoring.md).
+Contracts:
 
-Architectural proposal: [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md).
+- [`agent-mediated-authoring.md`](agent-mediated-authoring.md);
+- [`narrative-lenses.md`](narrative-lenses.md);
+- [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md);
+- [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md).
 
-## 0C.0 — Interaction shell
+0C must prove two things:
+
+1. **interaction compression** — routine creative tasks require materially less structural bookkeeping than 0B; and
+2. **structural insight** — Narrative Lenses remain useful, voluntary ways to perceive and manipulate the canonical story.
+
+## 0C.0 — Canonical/agent boundary
 
 User outcomes:
 
-- As a creator, I want one low-friction place to write and think before deciding structure.
+- As a creator, I want Salai to handle routine structural mechanics for me.
+- As a user, I want agent changes and direct lens edits to remain one coherent project.
+
+Engineering work:
+
+- keep `@salai/script-model` as canonical narrative state;
+- reuse the existing shared controller/dispatcher;
+- define a compact agent-facing project context DTO;
+- define typed Salai authoring commands;
+- keep ID allocation/reference resolution in Salai code;
+- compile commands into public `NarrativeOperation[]`;
+- validate complete batches before publishing;
+- add deterministic rejection/no-partial-state tests.
+
+## 0C.1 — Low-friction authoring surface
+
+User outcomes:
+
+- As a creator, I want one place to write and think before deciding structure.
 - As a creator, I want to ask Salai to change the story in ordinary language.
 - As a creator, I want to provide media/context without manually converting it into project objects first.
 
 Engineering work:
 
-- add a simple free-form working text area;
-- add project-aware conversational input;
-- add attachment/media-drop UI using fixture-backed or mocked metadata;
-- preserve existing structured views as secondary inspection tools.
+- simple free-form working text area;
+- project-aware conversational input;
+- explicit process/update action initially;
+- concise result/change summary;
+- attachment/media-drop UI using fixture-backed or mocked metadata;
+- clear entry points to Narrative Lenses without making them mandatory stages.
 
-## 0C.1 — Agent normalization boundary
+## 0C.2 — Agent normalization
 
 User outcomes:
 
-- As a user, I want Salai to infer routine structure instead of making me create/parent every Beat and Cue.
-- As a user, I want one creative request to be allowed to perform several internal operations.
-- As a user, I want the resulting project to remain deterministic and valid.
+- As a user, I want Salai to infer routine structure instead of making me create/parent every Beat/Cue.
+- As a user, I want one creative request to perform several internal operations safely.
 
 Engineering work:
 
-- build a small Salai-owned agent/model adapter;
-- pass current Narrative IR + working input + attachments as context;
-- expose constrained typed tools / structured output into `NarrativeOperation[]`;
-- validate before applying;
-- preserve current public script-model boundary;
-- do not adopt a general agent framework until real orchestration needs appear.
+- minimal Salai-owned agent/model adapter;
+- current project + working input + attachment context;
+- typed authoring commands;
+- canonical operation compilation/validation;
+- stable identity preservation;
+- strict SourceExcerpt semantics;
+- focused creative clarification path;
+- deterministic mocked-agent tests.
 
-## 0C.2 — Grouped changes and undo
+## 0C.3 — Grouped changes and revert
 
 User outcomes:
 
-- As a creator, I want one request to appear as one understandable change, even when Salai performs multiple internal operations.
-- As a creator, I want to undo an agent interpretation that I do not like.
+- As a creator, I want one request to appear as one understandable change.
+- As a creator, I want to revert an agent interpretation I do not like.
 
 Engineering work:
 
-- define one user-visible action/change batch;
-- collect the operations produced from one user instruction;
-- apply transactionally where possible;
-- summarize creative consequences;
-- implement last-batch undo/revert for the spike;
-- preserve stable identities when restructuring.
-
-## 0C.3 — Graduated autonomy
-
-User outcomes:
-
-- As a creator, I do not want approval dialogs for routine reversible changes I explicitly requested.
-- As a creator, I want Salai to ask when a real creative ambiguity matters.
-- As a user, I want explicit control before external or destructive actions.
-
-Validation work:
-
-- auto-apply clearly requested reversible in-project normalization as grouped undoable batches;
-- ask focused creative clarifications only when necessary;
-- define explicit-confirmation boundary for later Resolve/destructive/filesystem/publishing/generation effects;
-- never ask users to choose internal object/parent types when a creative-language clarification will do.
+- one user-visible action batch;
+- complete-batch validation before live publish;
+- concise creative-level summary;
+- pre-batch project/Workspace snapshot;
+- one-step revert;
+- failed batch leaves live state unchanged;
+- no event-sourcing/inverse-operation architecture yet.
 
 ## 0C.4 — Script-first flow
 
 User outcomes:
 
-- As a writer/videographer, I want a paragraph or rough notes turned into a usable story structure with one processing action.
+- As a writer/videographer, I want rough prose turned into useful structure in one processing action.
 - As a user, I want to say “make this 30 seconds” or “move the proof earlier” rather than manually editing several objects.
 
 Validation work:
 
 - paragraph → rough Beat/Cue structure;
-- messy notes → structure while leaving unresolved notes uncommitted;
+- unresolved notes remain uncommitted where appropriate;
 - natural-language reorder/rewrite/runtime changes;
-- Outline/AV Script inspect the result without export/import.
+- stable identity preservation;
+- deterministic script-first scenarios.
 
 ## 0C.5 — Footage-first / attachment flow
 
 User outcomes:
 
 - As a documentary editor, I want to drop interview/source material and describe the story I want.
-- As an editor, I want Salai to arrange source evidence without changing the recorded wording/ranges.
+- As an editor, I want Salai to arrange source evidence without changing recorded wording/ranges.
 - As a user, I want to ask what evidence or visual coverage is missing.
 
 Validation work:
 
 - attachment handles with mocked transcript/source ranges;
-- source-preserving normalization into SourceExcerpt-backed structure;
+- explicit attachment → canonical source identity resolution;
+- source-preserving normalization;
 - authored bridge material remains authored;
-- query missing/unsupported narrative moments;
-- inspect exact result in Paper/Radio/AV views.
+- source substitution instruction;
+- missing/unsupported moment query;
+- deterministic footage-first scenarios.
 
-## 0C.6 — Interaction-compression test
+## 0C.6 — Narrative Lenses
 
-Compare representative 0C tasks with the 0B baseline.
+User outcomes:
 
-Measure:
+- As a creator, I want structured views that help me see the narrative from different angles.
+- As a creator, I want direct manipulation when that representation is the way I want to think.
+- As a creator, I do not want incidental implementation mechanics mixed into those views.
+
+Required lenses for 0C:
+
+- **Outline** — hierarchy/proportion;
+- **Story Wall** — spatial rhythm/alternatives;
+- **AV Script** — audiovisual density/realization;
+- **Paper/Radio Edit** — evidence/voice/source pacing.
+
+Engineering/validation work:
+
+- agent changes reflected immediately in all relevant lenses;
+- direct lens edits stay on canonical/Workspace boundaries;
+- no lens-owned narrative copies;
+- preserve Projection vs Workspace ownership;
+- expose stable/domain structure only where it adds creative information;
+- optionally add one or two lightweight derived indicators to test narrative insight.
+
+Candidate derived indicators:
+
+- Cue density per Beat;
+- section runtime proportion;
+- source-speaker distribution;
+- unsupported/coverage count.
+
+Do not build a universal narrative score.
+
+## 0C.7 — Agent ↔ lens continuity
+
+User outcomes:
+
+- As a user, I want Salai to understand changes I make directly in a lens.
+- As a user, I want to ask questions from the perspective of the current lens.
+
+Validation work:
+
+- direct lens edit → next agent context;
+- active lens identity available to agent when useful;
+- lens-aware questions;
+- Workspace-only intent remains Workspace-only;
+- source evidence remains unchanged through agent/lens round trips.
+
+Examples:
+
+```text
+Story Wall: Why does the middle feel crowded?
+AV Script: Reduce the visual changes in this Beat.
+Paper Edit: Can this rely less on Maria?
+Outline: Which section is carrying too much weight?
+```
+
+## 0C.8 — Human interaction + structural-insight test
+
+### Interaction-compression metrics
 
 - explicit user actions/inputs;
 - clarifications;
-- moments where internal hierarchy interrupts creative thinking;
-- confidence/trust in agent changes;
-- usefulness of grouped summary + undo;
-- whether structured views are opened voluntarily because they help.
+- moments incidental hierarchy interrupts creative thought;
+- perceived flow;
+- trust in summary + revert.
+
+### Narrative-Lens metrics
+
+- which lens users open voluntarily;
+- what problem they are trying to understand;
+- whether the lens reveals something not obvious in prose/chat;
+- whether direct manipulation feels creatively meaningful;
+- whether exposed concepts justify cognitive cost;
+- whether agent + lens together are more useful than either alone.
+
+Required scenarios:
+
+- blank-page branded/product story;
+- messy draft + runtime target;
+- interview/source radio edit;
+- mixed story + attachments + coverage question;
+- revert agent interpretation;
+- overloaded middle → lens diagnosis;
+- source-voice imbalance → Paper/Radio diagnosis;
+- audiovisual overload → AV Script diagnosis;
+- direct lens edit → follow-up agent instruction.
 
 ### Spike 0C exit criterion
 
-Users can create and revise representative script-first and footage-first stories primarily through free-form text, conversation, and attachments with **materially less model-management interaction** than 0B, while canonical/source semantics remain correct and reversible.
+Users can create/revise representative stories with materially less incidental interaction than 0B **and** voluntarily use structured Narrative Lenses because those views reveal or manipulate something creatively useful.
 
 # NOT NOW — protect the 0C validation boundary
 
-Do not pull these into the active spike unless a minimal mock is strictly necessary to answer the agent-mediated interaction question:
+Do not pull these into the active spike unless a minimal mock is necessary to answer the interaction/lens question:
 
 - Electron packaging/runtime;
 - Python/FastAPI service;
 - SQLite/durable persistence;
-- Resolve/CutMaster execution;
-- OpenTimelineIO/OpenAssetIO integration;
+- real Resolve/CutMaster execution;
 - full real transcription/media analysis;
 - GenAI/ComfyUI execution;
 - vector database infrastructure;
 - collaborative rich-text editing;
-- a canonical rich-text document model;
+- canonical rich-text document model;
 - generic infinite-canvas/graph editor;
 - general multi-agent framework;
-- autonomous background agent infrastructure;
-- extensive Story Wall/Outline/AV/Paper polish that does not test the new primary workflow.
+- autonomous background-agent infrastructure;
+- universal AI narrative-quality/pulse score;
+- broad polish unrelated to the 0C hypothesis.
 
 # NEXT — local production application
 
 ## Epic: desktop runtime
 
-- As a videographer, I want Salai to open real local project folders and retain access across sessions.
+- As a creator, I want Salai to open real local project folders and retain access across sessions.
 - As a user, I want Salai to work with local/NAS media without uploading originals to a cloud service.
-- As a user, I want the agent authoring context to operate on local project/media state.
+- As a user, I want agent/lens context to operate on local project/media state.
 
 ## Epic: persistence
 
-- As a user, I want canonical project state stored locally and recoverable after restart/crash.
-- As a user, I want agent-applied changes/history recoverable enough to trust the application.
-- Persist a free-form WorkingDocument/session artifact only if 0C proves it is durable product state rather than transient authoring context.
-- Persist only Workspace semantics that remain useful after 0C.
+- Persist canonical project state and recover it after restart/crash.
+- Persist agent-applied changes/history enough to support trust/recovery.
+- Persist only Workspace semantics still justified after 0C.
+- Persist a WorkingDocument/session artifact only if 0C proves it is durable product state.
+- Rebuild Narrative Lenses from canonical/Workspace state rather than storing duplicate narratives.
 
-# NEXT — production graph and coverage
+# NEXT — production graph and Coverage lens
 
-- As a videographer, I want Beats/Cues linked to ShotIntents so I know what needs to be shot, found, or generated.
-- As a creator, I want to ask Salai conversationally what coverage is missing.
+- As a videographer, I want Beats/Cues linked to ShotIntents.
+- As a creator, I want to ask Salai what coverage is missing.
 - As a user, I want captured, stock, generated, storyboard, and previs realizations treated as alternatives for the same intent where appropriate.
-- As a user, I want a Coverage view available to verify the agent's reasoning.
+- As a user, I want Coverage as a first-class Narrative Lens for verifying the agent's reasoning.
 
 # NEXT — Resolve integration
 
 - As an editor, I want Salai to understand the current Resolve project/timeline context.
 - As an editor, I want a selected narrative/source structure materialized as a Resolve timeline.
-- As an editor, I want conversational requests to change canonical Salai state first, then materialize deliberately into Resolve.
-- Use the Salai Resolve adapter → CutMaster boundary by default; do not let agent chat bypass that boundary.
+- As an editor, I want conversational requests/direct lens edits to change canonical Salai state first, then materialize deliberately into Resolve.
+- Use the Salai Resolve adapter → CutMaster boundary by default.
 
 # LATER — reverse scripting with real media
 
-- As an editor, I want real transcripts and media analysis turned into MediaSegments automatically.
-- As an editor, I want to drop real media into the primary authoring flow and have Salai reason over it without losing source references.
-- Begin with Salai-owned Asset IDs and commodity local processing; external asset-management interoperability is not a prerequisite.
+- Real transcripts/media analysis → MediaSegments.
+- Drop real media into the primary authoring flow.
+- Preserve source references through agent/lens operations.
+- Add Frame Wall / Selects Narrative Lenses when real-media workflows justify them.
 
 # LATER — GenAI / previs
 
-- As a creator, I want a missing ShotIntent represented quickly as generated storyboard/previs.
-- As a creator, I want generated alternatives ingested and reviewed like normal production media.
-- As a creator, I want to ask for previs naturally from the same authoring flow rather than entering a separate generation product.
-- Preserve generation provenance and keep paid/expensive generation behind explicit user action.
+- Represent missing ShotIntents as generated storyboard/previs.
+- Request previs naturally from the same authoring flow.
+- Treat outputs as normal assets with provenance.
+- Expose generated alternatives through appropriate Narrative Lenses.
 
-# LATER — optional spatial/mixed-media workflows
-
-The old PureRef-like canvas idea is no longer the primary research direction.
+# LATER — optional spatial/mixed-media lenses
 
 Potential later work:
 
-- test whether text/images/video/reference/previs material benefits from an optional spatial Workspace;
-- allow agent-produced or user-arranged material to coexist visually;
-- avoid making node/link/canvas management a prerequisite for normal authoring;
-- add only when evidence shows spatial organization solves a problem better than the simple free-form surface plus specialized views.
+- text/images/video/reference/previs in an optional spatial Workspace;
+- agent-produced and user-arranged material coexisting visually;
+- no requirement for node/link/canvas management in normal authoring;
+- promote only if spatial organization solves a demonstrated problem better than current lenses.
 
-# LATER — review / alternatives / versioning
+# LATER — alternatives / versioning / review
 
-- As an editor, I want tried/rejected material preserved outside the active structure.
-- As an editor, I want alternative narrative versions without duplicating the project manually.
-- As a user, I want Salai to generate/compare alternatives as grouped changes or versions rather than destructive replacements.
-- As a reviewer, I want annotations tied to narrative/media identity rather than fragile timeline timecodes.
+- preserve tried/rejected material;
+- create/compare alternative narrative versions;
+- agent-generated alternatives as grouped changes or versions;
+- annotations tied to narrative/media identity rather than fragile timeline timecodes.
 
 # LATER — asset-management interoperability
 
@@ -250,8 +347,12 @@ Potential later work:
 
 # Backlog hygiene
 
-A backlog item belongs in **NOW** only if it directly contributes to the current 0C pass/fail question:
+A backlog item belongs in **NOW** only if it directly contributes to the current 0C pass/fail questions:
 
-> Can free-form text, conversation, and media be normalized into trusted canonical project changes with materially less creative friction than direct structured authoring?
+> Can free-form text, conversation, and media be normalized into trusted canonical changes with materially less routine interaction than 0B?
 
-If an item mainly adds infrastructure, polish, or another structured surface without answering that question, keep it out of NOW.
+and
+
+> Do structured Narrative Lenses reveal or manipulate the narrative system in ways that are creatively useful enough to justify their cognitive cost?
+
+If an item mainly adds infrastructure, generic polish, or another surface without answering either question, keep it out of NOW.
