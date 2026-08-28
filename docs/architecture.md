@@ -6,11 +6,11 @@ Living System Architecture Document (SAD).
 
 This document owns system-level boundaries, runtime topology, component responsibilities, persistence ownership, and staged infrastructure direction. It does **not** own Narrative IR field-level semantics or the operation vocabulary; those are authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md).
 
-Product terminology is centralized in [`glossary.md`](glossary.md). The active authoring interaction contract is [`agent-mediated-authoring.md`](agent-mediated-authoring.md). The completed 0B structured-authoring contract remains in [`authoring-ux-spec.md`](authoring-ux-spec.md) as historical evidence.
+Product terminology is centralized in [`glossary.md`](glossary.md). The active interaction contracts are [`agent-mediated-authoring.md`](agent-mediated-authoring.md) and [`narrative-lenses.md`](narrative-lenses.md). The completed 0B structured-authoring contract remains in [`authoring-ux-spec.md`](authoring-ux-spec.md) as historical evidence.
 
 ## Architectural thesis
 
-Salai owns the narrative and production context around a video while reusing mature infrastructure for interaction mechanics, model inference, editing automation, media processing, interchange, and generation.
+Salai owns the narrative and production context around a video while reusing mature infrastructure for model inference, interaction mechanics, editing automation, media processing, interchange, and generation.
 
 The current product-specific shape is:
 
@@ -20,53 +20,67 @@ text / conversation / media
           ↕
 Agent / Normalization layer
           ↕
-typed project operations
+typed Salai authoring commands
           ↕
-Narrative IR + production context
+canonical Narrative IR + production context
+          ↕
+Narrative Lenses
           ↕
 source evidence / ShotIntent / assets
           ↕
-specialized views / editorial materialization
+editorial materialization
           ↕
 DaVinci Resolve
 ```
 
-The user does not need to manipulate every level directly. The structure remains explicit internally so agents, views, validation, persistence, and Resolve integration can share one deterministic project model.
+The user does not need to manipulate every level directly.
+
+The architecture should support two complementary interaction modes:
+
+- **agent-mediated authoring** — reduces incidental structural work; and
+- **Narrative Lenses** — deliberately expose useful structure for perception and direct manipulation.
+
+Core UX/architecture rule:
+
+> **Hide structural bookkeeping, not narrative structure.**
 
 DaVinci Resolve remains the downstream NLE and finishing environment.
 
 ## Reuse principle
 
-Salai should aggressively reuse commodity infrastructure while retaining ownership of the semantics that distinguish the product.
+Salai should own product semantics and reuse commodity infrastructure for mechanics.
 
-Salai owns:
+### Salai owns
 
 - Narrative IR and stable narrative identity;
 - agent interpretation/normalization semantics;
-- typed operation/tool boundaries used by agents and human views;
+- Salai-owned authoring command schemas;
+- compilation from agent commands to public canonical operations;
+- canonical ID allocation/reference resolution;
+- Narrative Lens semantics and projection/workspace mapping;
+- Workspace semantics;
 - grouped change/history and graduated-autonomy rules;
-- Workspace semantics and projection mapping;
 - ShotIntent and narrative/media relationships;
 - source-evidence semantics;
 - alternatives/rejection/version behavior;
 - narrative-to-editorial materialization decisions;
-- generated/captured asset provenance within the production graph.
+- generated/captured asset provenance.
 
-Commodity infrastructure should provide mechanics such as:
+### Commodity infrastructure may provide
 
 - UI primitives, dragging, virtualization, tables, docking;
 - model inference / structured tool calling;
 - media probing/transcoding/thumbnail extraction;
 - waveform/media preview;
 - transcription/alignment/scene detection;
-- Resolve scripting automation;
-- timeline interchange;
+- editorial interchange;
+- Resolve automation plumbing;
 - local model execution;
 - generation execution.
 
-A third-party model or agent framework must not own Salai's canonical project semantics.
+A third-party model, editor framework, or agent framework must not own Salai's canonical project semantics.
 
-## High-level system shape
+# High-level system shape
 
 ```text
                                 SALAI
@@ -76,15 +90,17 @@ A third-party model or agent framework must not own Salai's canonical project se
                                │
                         Agent / Normalizer
                                │
-                   typed operation batches
+                    Salai authoring commands
+                               │
+                  typed operation batches
                                │
                          Narrative IR
                                │
           ┌────────────────────┼────────────────────┐
           │                    │                    │
-      Projections          Workspaces          Production Graph
-  Outline / AV Script      Story Wall        ShotIntent / Assets
-  Coverage / Teleprompt    future boards      MediaSegments / links
+   Narrative Lenses        Workspaces          Production Graph
+ Outline / AV / Paper      Story Wall         ShotIntent / Assets
+ Coverage / Teleprompt     future boards      MediaSegments / links
           │                    │                    │
           └────────────────────┼────────────────────┘
                                │
@@ -105,9 +121,9 @@ A third-party model or agent framework must not own Salai's canonical project se
                         DaVinci Resolve
 ```
 
-# Canonical layers
+# Canonical and interaction layers
 
-## 1. Interaction / agent-normalization layer
+## 1. Free-form interaction / agent-normalization layer
 
 Owns the mapping from low-structure user input into explicit project changes.
 
@@ -117,29 +133,30 @@ Inputs may include:
 - conversational instructions/questions;
 - attachments/media context;
 - current canonical project state;
+- active Narrative Lens identity/context where useful;
 - later Resolve/current-production context where appropriate.
 
-Outputs are constrained Salai changes:
+The model returns typed Salai authoring commands. Salai code then:
 
-```text
-NarrativeOperation[]
-Workspace operations when relevant
-future production-graph operations
-```
-
-The layer may reason probabilistically, but committed state changes are explicit and validated.
+1. resolves stable existing references;
+2. allocates IDs for newly created canonical objects;
+3. compiles commands into public Narrative/Workspace/production operations;
+4. validates the complete batch;
+5. publishes canonical state once on success.
 
 ### Not canonical state
 
 The following are not automatically canonical narrative truth:
 
-- model chain-of-thought/reasoning;
+- model private reasoning;
 - chat transcript;
-- arbitrary LLM output;
+- arbitrary model prose;
 - unprocessed working text;
-- transient attachment presentation state.
+- transient attachment presentation state;
+- agent command plans before validation;
+- lens presentation state unless explicitly owned by Workspace.
 
-A later persistence phase may introduce durable working-session/document artifacts if 0C demonstrates they are required, but they do not replace the Narrative IR.
+A later persistence phase may introduce durable working-session/document artifacts if 0C demonstrates they are required, but they do not replace Narrative IR.
 
 ### Agent runtime principle
 
@@ -151,23 +168,58 @@ Provider choice—hosted, local, OpenAI-compatible, Ollama, `llama.cpp`, etc.—
 
 Owns stable semantic narrative identity and authored/source-backed content.
 
-Core concepts:
+Conceptually:
 
 ```text
 Script
-Section
-Scene?
-Beat
-Cue
-ContentBlock
-Relationship stubs
+  Section
+    Scene?
+      Beat
+        Cue
+          ContentBlock
 ```
 
 The authoritative hierarchy, invariants, operation API, serialization contract, and fixtures live in [`narrative-ir-spec.md`](narrative-ir-spec.md).
 
-The new agent-mediated direction makes the IR function as an **intermediate representation** between messy creative input and deterministic product behavior.
+The agent-mediated direction makes the IR function as an **intermediate representation** between messy creative input and deterministic product behavior.
 
-## 3. Workspace layer
+It is also the structured system that Narrative Lenses make legible to humans.
+
+## 3. Narrative Lens layer
+
+A Narrative Lens is a creative representation over canonical project state.
+
+Examples:
+
+- Outline — hierarchy/proportion;
+- Story Wall — spatial rhythm/alternatives;
+- AV Script — audiovisual density/realization;
+- Paper/Radio Edit — evidence/voice/source pacing;
+- Coverage — intent/realization gaps;
+- later Frame Wall/Selects — visual alternatives and coverage.
+
+“Lens” describes **creative purpose**, not state ownership.
+
+A lens may use:
+
+- a Projection;
+- a Workspace;
+- derived indicators;
+- a combination of these.
+
+### Lens architecture rules
+
+1. A lens does not become a second canonical document.
+2. Agent changes appear automatically through canonical state.
+3. Direct lens edits route through the same canonical/Workspace boundaries.
+4. Lenses may expose canonical structure when it carries creative information.
+5. Lenses should hide incidental mechanics such as raw IDs, parent refs, or array indices.
+6. Active-lens identity/context may be supplied to the agent when it materially improves reasoning.
+7. Presentation-only state does not leak into Narrative IR semantics.
+
+See [`narrative-lenses.md`](narrative-lenses.md).
+
+## 4. Workspace layer
 
 Owns persistent human organization that should not pollute Narrative IR semantics.
 
@@ -180,87 +232,107 @@ BoardItem
 IdeaCard
 ```
 
-The current proven Story Wall metadata is intentionally small:
+Current proven Story Wall metadata is intentionally small:
 
 - canonical Beat/Scene reference or IdeaCard;
 - x/y position;
 - parking state.
 
-Workspace is optional. It should not become the primary place users must manage structure merely because a board can represent it.
+Workspace is optional. It should not become the routine mechanism for narrative changes merely because a spatial board can represent them.
 
 ### Ownership by phase
 
 - **Spike 0B:** minimum in-memory Story Wall semantics validated.
-- **Spike 0C:** reuse Workspace only where a specialized view benefits from it; do not expand it to solve free-form authoring.
-- **Phase 2:** persist only Workspace state still justified after agent-mediated workflow testing.
+- **Spike 0C:** reuse Workspace where a Narrative Lens genuinely needs persistent organization; do not expand it to solve free-form authoring.
+- **Phase 2:** persist only Workspace state still justified after 0C.
 
-## 4. Production graph
+## 5. Production graph
 
-Owns persistent relationships between narrative intent and actual production/editorial objects.
+Owns persistent relationships between narrative intent and production/editorial objects.
 
-Core concepts:
+Representative concepts:
 
 ```text
-Project
 ShotIntent
 Asset
 MediaSegment
-Relationship
 Annotation
 ResolveBinding
 ```
 
-Later domain concepts are introduced in the phase that needs them:
+Later concepts are introduced only in the phase that needs them:
 
 ```text
-alternative/versioned editorial plan     → later editorial phase
-GenerationJob / GenerationArtifact       → GenAI phase
-Deliverable                              → delivery/product phase
-WorkingDocument/session artifact         → only if 0C persistence evidence requires it
+alternative/versioned editorial plan  → later editorial phase
+GenerationJob / GenerationArtifact    → GenAI phase
+Deliverable                           → delivery/product phase
+WorkingDocument/session artifact      → only if 0C evidence requires it
 ```
 
-No graph database is required initially.
+Plain typed records and conventional persistence are sufficient initially. No graph database is required.
 
 # Narrative and production relationships
 
 Representative relationships:
 
 ```text
-Beat/Cue ↔ ShotIntent
-SourceExcerpt → MediaSegment
-Beat/Cue ↔ supporting MediaSegment
-ShotIntent ↔ Asset/MediaSegment realization
-MediaSegment ↔ Resolve object
+Beat / Cue ↔ ShotIntent
+Cue / ContentBlock ↔ MediaSegment / SourceExcerpt
+ShotIntent ↔ Asset realization
 Annotation ↔ narrative/media/editorial object
 GenerationJob ↔ ShotIntent
 ```
 
-Agent mediation may create or query these relationships, but it does not change their domain meaning.
+Agent mediation may create/query these relationships, but does not change their domain meaning.
 
 # Projection vs Workspace
 
-A **Projection** is deterministically derived from canonical state:
+A **Projection** is deterministically derived from canonical state.
 
-```text
-Outline
-AV Script
-Teleprompter
-Coverage
-```
+Examples:
 
-A **Workspace** stores human organizational decisions:
+- Outline;
+- AV Script;
+- Paper/Radio Edit;
+- Teleprompter;
+- Coverage.
 
-```text
-Story Wall
-later Frame Wall
-later Selects/alternative boards
-```
+A **Workspace** stores human organizational decisions.
 
-Paper/Radio may use projection/workspace behavior as required, but no independent canonical paper-edit document is justified yet.
+Examples:
 
-Structured surfaces are now treated as **specialized views/precision editors** rather than the default authoring entry point.
+- Story Wall;
+- later Frame Wall;
+- later Selects/alternative boards.
 
-See [`workflows.md`](workflows.md).
+A Narrative Lens can be either or both depending on its needs.
+
+No projection becomes canonical storage. Workspace metadata does not redefine Beat/Scene semantics.
+
+# Narrative pulse / derived analysis
+
+“Narrative pulse” is currently a product metaphor for patterns across canonical state, such as:
+
+- pacing;
+- density;
+- repetition;
+- voice/evidence distribution;
+- audiovisual complexity;
+- coverage completeness;
+- section balance.
+
+0C may add small derived indicators if they help test Narrative Lens value.
+
+Candidate examples:
+
+- Cue count per Beat;
+- section runtime proportion;
+- source-speaker distribution;
+- unsupported Beat count.
+
+These should be pure derived calculations where possible.
+
+Do not add a canonical `NarrativePulse` object, hidden AI quality score, or generalized analytics subsystem without evidence.
 
 # Authoring/UI architecture
 
@@ -268,73 +340,73 @@ See [`workflows.md`](workflows.md).
 
 Reuse the existing React/TypeScript/Vite prototype and canonical controller boundary.
 
-The minimum new shape is:
-
 ```text
 React + TypeScript + Vite
 │
 ├── Free-form working text
 ├── Conversation/instruction input
-├── Attachment/media-drop context
+├── Attachment/media context
 ├── AgentSession / model adapter
 │       ↓
-│   structured tool calls
+│   Salai authoring commands
 │       ↓
-├── grouped operation/history boundary
+├── compile + validate operation batch
+│       ↓
+├── grouped history/revert boundary
 │       ↓
 ├── existing SalaiController
 │       ↓
-└── @salai/script-model
-
-Existing specialized views
-├── Outline
-├── Story Wall
-├── AV Script
-└── Paper / Radio Edit
+├── @salai/script-model
+│       ↓
+└── Narrative Lenses
+    ├── Outline
+    ├── Story Wall
+    ├── AV Script
+    └── Paper / Radio Edit
 ```
 
-No new editor framework is required to validate the first version. Start with normal DOM text controls unless a real interaction need justifies more.
+No new editor framework is required to validate the first version. Start with normal DOM controls unless a real interaction need justifies more.
 
-## Intent normalization boundary
+## Intent boundary
 
-The 0B gesture boundary remains valid for direct view interactions, but the primary 0C boundary is higher-level:
+The primary boundary is:
 
 ```text
 user creative intent
         ↓
-agent interpretation
+agent interpretation or direct lens gesture
         ↓
-operation plan/batch
+Salai command / Workspace intent / Narrative operation
         ↓
 validation
         ↓
 canonical project state
 ```
 
-A single user request may legitimately produce many operations.
+A single user request may legitimately produce many canonical operations.
 
 Libraries/models must not mutate canonical state directly.
 
-## Grouped history / undo
+## Grouped history / revert
 
 Agent mediation makes history a near-term requirement.
 
-Minimum 0C model:
+Minimum 0C interaction type:
 
 ```text
-UserActionBatch
+AgentActionBatch
 - user intent/input reference
-- operations[]
-- before/after or inverse data sufficient for one-step revert
+- compiled operations[]
+- before project/Workspace snapshot
 - summary
 - status/error
 ```
 
-This is an interaction-layer concept for the spike, not yet a persisted domain object.
+One agent request normally corresponds to one user-visible history entry even when it performs several operations.
 
-One agent request should normally correspond to one user-visible history entry even if it performs several operations.
+0C does not require a unified event-sourced history for every direct lens edit.
 
-## Graduated autonomy boundary
+## Graduated autonomy
 
 ### Reversible local normalization
 
@@ -344,18 +416,11 @@ May apply as grouped/undoable changes when clearly requested.
 
 Ask a focused creative clarification when necessary.
 
-### Destructive or external effects
+### High-impact external effects
 
-Require explicit confirmation before later executing:
+Remain behind explicit user action in later phases.
 
-- irreversible deletion;
-- real Resolve mutations;
-- destructive filesystem operations;
-- publishing/export;
-- paid/expensive generation;
-- unrecoverable source-binding changes.
-
-This review policy belongs to Salai and should not be delegated to provider-specific agent behavior.
+The review policy belongs to Salai and should not be delegated to provider-specific agent behavior.
 
 ## Explicit 0C non-dependencies
 
@@ -367,50 +432,27 @@ Do not introduce without concrete evidence:
 - general multi-agent framework;
 - autonomous background-agent runtime;
 - vector database;
-- Electron/persistence infrastructure merely to validate the interaction;
+- Electron/persistence infrastructure merely to validate interaction;
 - full media-analysis stack.
 
-A future mixed-media canvas may become a Workspace after simpler free-form authoring is validated.
-
-## Later UI infrastructure
-
-Introduce only when required:
-
-```text
-Dockview        → multi-workspace/panel docking
-Vidstack        → local media preview
-wavesurfer.js   → waveform/radio-edit visualization
-Playwright      → packaged Electron end-to-end tests when justified
-```
-
-These provide mechanics; Salai remains responsible for narrative/source/workspace identity.
+A future mixed-media canvas may become one Narrative Lens/Workspace after simpler authoring/lens behavior is validated.
 
 # Runtime architecture
 
-After agent-mediated authoring is validated, Salai remains a local-first desktop application.
+After agent-mediated authoring + Narrative Lenses are validated, Salai remains a local-first desktop application.
 
 ```text
 ┌─────────────────────────────────────────────┐
-│                SALAI ELECTRON               │
-│                                             │
-│ Main process                                │
-│ - file/folder dialogs                       │
-│ - filesystem access/watching                │
-│ - process lifecycle                         │
-│ - OS integration                            │
-│                                             │
-│ Preload                                     │
-│ - narrow typed IPC                          │
+│ Electron                                    │
 │                                             │
 │ Renderer                                    │
 │ - React + TypeScript                        │
-│ - authoring / views                         │
+│ - authoring + Narrative Lenses              │
 └───────────────────┬─────────────────────────┘
                     │ localhost HTTP / WS
                     ▼
 ┌─────────────────────────────────────────────┐
-│              SALAI LOCAL SERVICE            │
-│                                             │
+│ Local service                               │
 │ Python 3.11 / 3.12 + FastAPI                │
 │ SQLite                                      │
 │ media/filesystem services                   │
@@ -418,14 +460,12 @@ After agent-mediated authoring is validated, Salai remains a local-first desktop
 │ CutMaster / Resolve adapter                 │
 │ OpenTimelineIO                              │
 │ optional OpenAssetIO integration            │
-│ ComfyUI / GenAI adapters                    │
-│ FFmpeg / ffprobe                            │
 └─────────────────────────────────────────────┘
 ```
 
 Electron remains the OS/runtime shell; the local service owns heavier media/integration concerns. Narrative IR remains independent from Electron/Python.
 
-For the packaged application, `electron-vite` and `electron-builder` remain the preferred direction unless evidence justifies alternatives. Python packaging remains a Phase 1 concern.
+For the packaged application, `electron-vite` and `electron-builder` remain the preferred direction unless evidence justifies alternatives. Python packaging remains a later implementation concern.
 
 # Infrastructure boundaries
 
@@ -434,35 +474,35 @@ For the packaged application, `electron-vite` and `electron-builder` remain the 
 Providers supply inference. Salai supplies:
 
 - project context shaping;
-- tools/operation schemas;
+- authoring tools/command schemas;
+- ID/reference resolution;
+- operation compilation;
 - validation;
 - change batching;
-- autonomy/confirmation policy;
-- history/undo semantics;
-- source/provenance rules.
+- autonomy policy;
+- history/revert semantics;
+- source/provenance rules;
+- Narrative Lens context semantics.
 
 A provider response is never canonical until it resolves through Salai validation/application logic.
-
-Initial implementation should prefer simple structured output/tool calling. Add a framework only when measured requirements justify it.
 
 ## DaVinci Resolve
 
 Resolve owns:
 
-- frame-accurate editing;
-- media playback/proxies/codecs;
-- Fusion;
+- frame-accurate media editing;
+- Fusion/VFX;
 - color;
 - Fairlight/audio post;
 - rendering/delivery.
 
-Salai owns the story/production context and the decision to materialize it.
+Salai owns story/production context and the decision to materialize it.
 
 The agent should not turn free-form conversation directly into arbitrary Resolve mutations.
 
 ## CutMaster
 
-CutMaster remains the **default Resolve automation boundary**. Salai decides *why* an editorial operation occurs; a Salai-owned Resolve adapter translates canonical materialization intent into CutMaster operations. Direct Resolve scripting is an exception for capabilities unavailable or unsuitable through CutMaster.
+CutMaster remains the default Resolve automation boundary. A Salai-owned Resolve adapter translates canonical materialization intent into CutMaster operations. Direct Resolve scripting is an exception for capabilities unavailable or unsuitable through CutMaster.
 
 Salai domain types must not depend on CutMaster types.
 
@@ -470,17 +510,17 @@ See [`adr/0004-cutmaster-default-resolve-boundary.md`](adr/0004-cutmaster-defaul
 
 ## OpenTimelineIO
 
-Use for editorial interchange/materialization where useful. It does not carry all Salai narrative/workspace/agent semantics and does not replace Narrative IR.
+Use for editorial interchange/materialization where useful. It does not carry all Salai narrative/workspace/agent/lens semantics and does not replace Narrative IR.
 
 ## OpenAssetIO
 
-OpenAssetIO is a conditional interoperability integration, not a prerequisite for stable local Asset identity.
+Conditional interoperability integration, not a prerequisite for stable local Asset identity.
 
-Early Salai projects may use Salai-owned stable IDs, paths/fingerprints, and metadata. Add OpenAssetIO when external asset resolution/publishing creates a concrete need.
+Add when external asset resolution/publishing creates a concrete need.
 
 ## ComfyUI / generation providers
 
-Treat generated outputs as normal production assets with provenance. The agent may formulate generation intent later, but generation execution remains an explicit production effect with appropriate confirmation/cost visibility.
+Treat generated outputs as normal production assets with provenance. The agent may formulate generation intent later, but generation execution remains a separate production effect.
 
 Keep ComfyUI at a process/API boundary rather than importing its UI/editor model.
 
@@ -488,21 +528,19 @@ Keep ComfyUI at a process/API boundary rather than importing its UI/editor model
 
 Use as commodity local media utilities for probing, frame/audio extraction, proxy/transcode work, and similar tasks.
 
-Use direct libraries such as PyAV only when subprocess boundaries are insufficient for a specific need.
-
-## Transcription and reverse-scripting infrastructure
+## Transcription and reverse scripting
 
 Real-media phases should reuse established components rather than implement speech recognition from scratch.
 
-Current candidates:
+Candidate infrastructure:
 
 ```text
-faster-whisper  → default local transcription candidate
+faster-whisper  → transcription
 WhisperX        → alignment/diarization when required
 PySceneDetect   → initial scene/shot segmentation candidate
 ```
 
-These produce evidence/metadata that Salai converts into its own `MediaSegment` / `SourceExcerpt` semantics and exposes to the agent.
+These produce evidence/metadata that Salai converts into its own MediaSegment/SourceExcerpt semantics and exposes through agents/lenses.
 
 0C may use mocked attachment metadata instead of pulling this stack forward.
 
@@ -512,28 +550,15 @@ Use SQLite capabilities before separate infrastructure:
 
 ```text
 SQLite relational data
-├── FTS5        transcript/text retrieval
+├── FTS5        text/transcript retrieval
 └── sqlite-vec  semantic retrieval if/when embeddings prove useful
 ```
 
 Do not introduce a standalone vector database until scale/measured requirements justify it.
 
-## Local model execution
-
-0C should remain provider-agnostic.
-
-Possible later local adapters include Ollama or an OpenAI-compatible `llama.cpp` server. Hosted providers can use the same tool/operation contract.
-
-Provider choice must not change:
-
-- canonical-state rules;
-- source/provenance semantics;
-- grouped-action history;
-- confirmation boundaries.
-
 # Persistence boundary
 
-Spike 0A validated versioned Narrative IR serialization. Spike 0B validated minimum Workspace semantics in memory. Spike 0C validates agent/session/history interaction semantics in memory.
+Spike 0A validated Narrative IR serialization. Spike 0B validated minimum Workspace semantics in memory. Spike 0C validates agent/session/history/lens interaction semantics in memory.
 
 Phase 2 introduces durable local persistence for:
 
@@ -544,7 +569,9 @@ Phase 2 introduces durable local persistence for:
 - agent action/history metadata required for recovery/audit;
 - a durable free-form WorkingDocument/session artifact only if 0C proves it necessary.
 
-SQLite remains the default direction. The schema should preserve domain versioning/stable IDs without making transient UI or provider state canonical.
+Narrative Lenses should derive from persisted canonical/Workspace state rather than requiring separate narrative copies.
+
+SQLite remains the default direction.
 
 # Technology baseline
 
@@ -552,12 +579,11 @@ SQLite remains the default direction. The schema should preserve domain versioni
 
 ```text
 TypeScript
-pnpm
 Vitest/unit tests
 packages/script-model/
 ```
 
-## Spike 0B — retained foundation
+## Spike 0B retained foundation
 
 ```text
 React
@@ -568,59 +594,32 @@ Vitest deterministic tests
 GitHub Pages prototype
 ```
 
-## Spike 0C — added validation layer
+## Spike 0C added layer
 
 ```text
 simple text/chat/attachment UI
 model provider adapter
-structured output / tool calling
+Salai authoring commands
 operation batching
-in-memory undo/history
-existing Narrative IR/controller/views
+in-memory revert/history
+existing Narrative IR/controller
+Narrative Lenses
 ```
 
 No general agent framework is assumed.
 
-## Broader application
-
-```text
-Desktop/UI
-- Electron
-- React
-- TypeScript
-- Vite
-- electron-vite
-- electron-builder
-
-Local service
-- Python 3.11 or 3.12
-- FastAPI
-- Pydantic
-- SQLite
-
-Infrastructure
-- model provider adapters
-- CutMaster as default Resolve boundary
-- OpenTimelineIO
-- OpenAssetIO when interoperability requires it
-- ComfyUI / generation providers
-- FFmpeg / ffprobe
-- faster-whisper / WhisperX when reverse scripting requires them
-- PySceneDetect when segmentation requires it
-- SQLite FTS5 / sqlite-vec when retrieval requires them
-```
-
-No Rust/Tauri, graph database, standalone vector database, generic infinite canvas, canonical rich-text document, or general multi-agent framework is currently justified for the active validation milestone.
-
 # Architecture questions for Spike 0C
 
-- What exact contract should the agent adapter expose above `NarrativeOperation[]`?
-- What constitutes one undoable action batch?
-- How should agent assumptions/uncertainty be represented without creating approval spam?
+- What exact contract should agent-facing Salai authoring commands expose?
+- What constitutes one reversible action batch?
+- How should uncertainty be represented without approval spam?
 - Does free-form working text need durable identity/state?
 - Which reversible changes may auto-apply?
 - What attachment metadata is sufficient before real media analysis?
-- Which structured surfaces remain important once they are no longer primary authoring paths?
+- Which Narrative Lenses remain first-class?
+- Which internal concepts are creatively meaningful enough to expose per lens?
+- How should active-lens context affect agent reasoning?
+- Which derived “narrative pulse” indicators help without becoming an opaque score?
 - Does messy agent-mediated input expose a real Narrative IR semantic gap?
 
-Narrative IR questions still belong in [`narrative-ir-spec.md`](narrative-ir-spec.md). The active 0C interaction questions belong in [`agent-mediated-authoring.md`](agent-mediated-authoring.md).
+Narrative IR questions belong in [`narrative-ir-spec.md`](narrative-ir-spec.md). Active 0C interaction/lens questions belong in [`agent-mediated-authoring.md`](agent-mediated-authoring.md) and [`narrative-lenses.md`](narrative-lenses.md).
