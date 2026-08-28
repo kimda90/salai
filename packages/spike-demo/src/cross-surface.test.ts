@@ -142,7 +142,7 @@ describe("Spike 0B cross-surface acceptance", () => {
 
   it("keeps runtime derivation consistent after a Cue duration edit", () => {
     const controller = new SalaiController("product");
-    const before = getDurationEstimate(controller.getSnapshot().project).totalMs;
+    const before = getDurationEstimate(controller.getSnapshot().project).scriptMs;
 
     expect(
       controller.dispatchNarrative({
@@ -152,7 +152,7 @@ describe("Spike 0B cross-surface acceptance", () => {
       }),
     ).toBe(true);
 
-    const after = getDurationEstimate(controller.getSnapshot().project).totalMs;
+    const after = getDurationEstimate(controller.getSnapshot().project).scriptMs;
     expect(after).toBe(before + 2_000);
     expectValid(controller);
   });
