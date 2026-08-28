@@ -46,7 +46,8 @@ Core rule:
 ### Grouped trust / recovery
 
 - One user intention may produce several canonical operations but should appear as one understandable action.
-- The last successful agent-applied action must be revertible during 0C.
+- The current agent action must be **immediately revertible** during 0C while no later canonical or Workspace edit has occurred.
+- Any subsequent direct or agent edit invalidates the older snapshot-based revert so rollback cannot erase later work.
 - Clarification should be reserved for material creative ambiguity, not ordinary domain bookkeeping.
 - External/destructive effects require a later explicit boundary and are not part of 0C execution.
 
@@ -118,7 +119,7 @@ Salai is not initially:
 - grouped multi-operation changes publish atomically at the controller boundary;
 - failed batches leave live state unchanged;
 - source identity/ranges survive;
-- one successful agent action can be understood and reverted.
+- one current agent action can be understood and immediately reverted without rolling back later edits.
 
 ### Structural insight
 
