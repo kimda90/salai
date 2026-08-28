@@ -19,6 +19,7 @@ Each kind of information has one authoritative home:
 | Spike 0B result / human creative-friction finding | [`spike-0b-assessment.md`](spike-0b-assessment.md) |
 | Historical 0B human-test procedure / outcome | [`spike-0b-human-test-plan.md`](spike-0b-human-test-plan.md) |
 | Active Spike 0C agent-mediated authoring contract | [`agent-mediated-authoring.md`](agent-mediated-authoring.md) |
+| Spike 0C task breakdown / completion status | [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md) |
 | System/runtime/persistence architecture | [`architecture.md`](architecture.md) |
 | Validation/implementation sequence | [`mvp.md`](mvp.md) |
 | Current work ordering | [`backlog.md`](backlog.md) |
@@ -55,6 +56,7 @@ In particular, the Narrative IR operation vocabulary must only be maintained in 
 | [`spike-0b-assessment.md`](spike-0b-assessment.md) | 0B model/view result and creative-friction finding | Closed assessment |
 | [`spike-0b-human-test-plan.md`](spike-0b-human-test-plan.md) | 0B human procedure and finding that superseded local UX questions | Closed/historical |
 | [`agent-mediated-authoring.md`](agent-mediated-authoring.md) | 0C free-form text/chat/media normalization and trust contract | Active validation contract |
+| [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md) | 0C executable tasks, gates, and implementation evidence | Active execution tracker |
 
 ## Architecture and engineering decisions
 
@@ -98,6 +100,8 @@ Current example:
 
 Implementation trackers break an accepted spike/phase contract into executable tasks and record completion evidence. A closed tracker's unchecked product gates can remain as evidence of why the direction changed; do not force a failed discovery spike to look like a pass.
 
+For the current milestone, `spike-0c-implementation-plan.md` is the canonical task tracker.
+
 ## RFCs
 
 Use an RFC for a major proposal whose consequences deserve discussion before commitment.
@@ -133,6 +137,7 @@ The structured 0B surfaces remain in the prototype as specialized inspection/pre
 Start with:
 
 - [`agent-mediated-authoring.md`](agent-mediated-authoring.md) — active implementation/UX contract;
+- [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md) — executable task tracker;
 - [`spike-0b-assessment.md`](spike-0b-assessment.md) — evidence that caused the direction change;
 - [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) — architectural proposal;
 - [`mvp.md`](mvp.md) and [`backlog.md`](backlog.md) — current execution order.
