@@ -80,7 +80,6 @@ Keep these out of 0C unless a minimal mock is necessary to answer its pass/fail 
 - generic infinite-canvas/graph editor;
 - general multi-agent framework;
 - autonomous background-agent infrastructure;
-- universal narrative-quality/pulse scoring;
 - broad polish unrelated to interaction compression or structural insight.
 
 # NEXT — local production application
