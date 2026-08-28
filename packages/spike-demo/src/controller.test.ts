@@ -65,6 +65,20 @@ describe("SalaiController", () => {
     expect(controller.getSnapshot().feedback.error).toMatch(/unknown Beat/);
   });
 
+  it("surfaces relationship effects from destructive domain operations", () => {
+    const controller = new SalaiController("product");
+
+    expect(controller.dispatchNarrative({ op: "deleteCue", cueId: "cue_demo_wide" })).toBe(true);
+
+    expect(controller.getSnapshot().feedback.relationshipEffects).toContainEqual(
+      expect.objectContaining({
+        relationshipId: "rel_demo_wide",
+        effect: "removed",
+      }),
+    );
+    expect(controller.getSnapshot().feedback.removedIds).toContain("rel_demo_wide");
+  });
+
   it("clears selection when the selected canonical object is deleted", () => {
     const controller = new SalaiController("product");
     const beatId = firstBeatId(controller);
