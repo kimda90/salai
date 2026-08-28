@@ -19,6 +19,8 @@ free-form text / conversation / media
                  ↓
           agent normalization
                  ↓
+     Salai-owned authoring commands
+                 ↓
  typed Narrative / Workspace / production operations
                  ↓
         canonical Salai project
@@ -26,7 +28,7 @@ free-form text / conversation / media
  structured views / Resolve materialization
 ```
 
-The agent is not a second source of truth. The chat transcript or working text is not the canonical project model.
+The agent is not a second source of truth. The chat transcript, working text, and agent command plan are not the canonical project model.
 
 ## Motivation
 
@@ -72,7 +74,7 @@ Salai can create value by converting that ambiguity into a structured, serializa
 
 ### 1. Add an agent-mediated interaction layer above canonical state
 
-The user-facing authoring layer accepts ordinary creative input. The agent can inspect current project state and produce explicit typed changes through Salai-owned operation boundaries.
+The user-facing authoring layer accepts ordinary creative input. The agent can inspect current project state and invoke a small set of Salai-owned authoring tools/commands.
 
 ```text
 User intent
@@ -81,7 +83,11 @@ AgentSession / AuthoringAgent
     ↓
 interpretation + planning
     ↓
-operation batch
+Salai authoring commands
+    ↓
+compile / allocate IDs / resolve references
+    ↓
+canonical operation batch
     ↓
 validation
     ↓
@@ -90,13 +96,30 @@ canonical state
 
 The agent may use an LLM, local model, hosted model, or future deterministic tools. Provider choice does not define project semantics.
 
+#### Agent command schemas are transient adapters
+
+The model should not be required to manufacture raw canonical IDs, calculate array indices, or construct internal `ParentRef` details when Salai can own that work deterministically.
+
+Agent-facing tools may therefore be slightly higher level than the public Narrative operation union. For example, a tool can express “create a Beat after this existing Beat” without requiring the model to invent the new Beat ID or derive the exact target index.
+
+The tool implementation then:
+
+1. resolves stable existing references;
+2. allocates new canonical IDs in Salai code;
+3. compiles the command into one or more public `NarrativeOperation`s;
+4. validates/applies the complete batch.
+
+These commands are **not another canonical story schema**. They are transient typed input to the existing canonical operation boundary.
+
+This separation keeps provider/model output ergonomic while keeping project identity and mutation semantics owned by Salai.
+
 ### 2. Keep Narrative IR canonical
 
 The existing Narrative IR remains the semantic source of truth for story structure, content identity, duration, source evidence, and downstream materialization.
 
 The agent must not mutate arbitrary UI documents and later attempt to synchronize them back into the IR.
 
-All committed semantic changes resolve to typed operations.
+All committed semantic changes resolve to public typed operations before they become canonical state.
 
 ### 3. Make the primary surface free-form and multimodal
 
@@ -131,6 +154,15 @@ one visible history/change batch
 ```
 
 The user can inspect or undo the batch without approving each low-level operation.
+
+For the 0C spike, the simplest correct implementation is preferred:
+
+- compile the full requested change before publishing it to live application state;
+- use the public batch operation path to validate/derive the resulting project;
+- publish once only if the complete batch succeeds;
+- retain the pre-batch in-memory project/Workspace snapshot for one-step revert.
+
+Do not synthesize general inverse operations or introduce event sourcing merely to validate one-step agent undo.
 
 ### 6. Use graduated autonomy
 
@@ -169,7 +201,7 @@ Agent mediation must not weaken the authored/source boundary.
 
 - recorded words remain SourceExcerpt evidence;
 - source ranges remain stable;
-- media attachments retain identity;
+- media attachments retain identity through explicit attachment/source handles;
 - generated media keeps provenance;
 - authored agent output remains authored content;
 - the agent cannot silently convert recorded evidence into fictional editable prose.
@@ -197,15 +229,17 @@ This makes the structured model more central while making it less visible to the
                          │
                   Agent/Normalizer
                          │
-              typed operation batches
+               Salai authoring tools
+                         │
+            typed canonical operations
                          │
                    Narrative IR
                          │
        ┌─────────────────┼──────────────────┐
        │                 │                  │
   Projections        Workspaces       Production Graph
-Outline / AV       Story Wall /       ShotIntent / media
-Coverage           Paper Edit         relationships
+Outline / AV /       Story Wall /      ShotIntent / media
+Paper / Coverage     future boards     relationships
        └─────────────────┼──────────────────┘
                          │
                 Resolve materialization
@@ -216,6 +250,8 @@ Coverage           Paper Edit         relationships
                          │
                   DaVinci Resolve
 ```
+
+Paper/Radio is shown under Projections here because 0B did not justify separate Paper-specific Workspace state. If later user organization around source material requires persistent layout/grouping, that can be added as Workspace state independently of the canonical Paper/Radio projection.
 
 ## Canonical-state boundary
 
@@ -231,11 +267,33 @@ For the first implementation:
 
 A later persistence design may add a durable working-document/session artifact if validated.
 
+### No bidirectional document synchronization in 0C
+
+0C should not attempt to keep the free-form working text as a lossless live textual projection of every canonical change. That would create the synchronization problem this architecture is designed to avoid.
+
+The working area is input/context. The canonical result should be visible through a concise natural-language change/result summary and the existing structured views. If human testing demonstrates that users require a durable editable text representation that stays synchronized with canonical state, that is evidence for a later explicit WorkingDocument/projection design rather than an implicit hidden contract.
+
 ## Agent runtime boundary
 
 This RFC does **not** propose adopting a general agent framework.
 
-Start with a small Salai-owned loop using structured output/tool calls into existing operation APIs. Add orchestration infrastructure only if real workflows require capabilities such as long-running planning, multiple specialist agents, resumable jobs, or tool coordination that cannot be expressed simply.
+Start with a small Salai-owned loop using structured output/tool calls into Salai authoring commands that compile into existing operation APIs. Add orchestration infrastructure only if real workflows require capabilities such as long-running planning, multiple specialist agents, resumable jobs, or tool coordination that cannot be expressed simply.
+
+The initial runtime should favor deterministic mechanics around the model call:
+
+```text
+build context
+   ↓
+model chooses typed Salai tools/commands
+   ↓
+Salai resolves references + allocates IDs
+   ↓
+compile canonical operations
+   ↓
+validate complete batch
+   ↓
+publish once + record batch
+```
 
 ## Media boundary
 
@@ -250,6 +308,8 @@ The first spike may use mocked or fixture-backed attachment metadata so it can v
 - missing-coverage reasoning.
 
 Real transcription, visual analysis, segmentation, and retrieval remain separate implementation risks.
+
+Attachment identity and canonical media identity should remain distinct concepts during the spike. An attachment is input-context identity; when it maps to an existing or newly created `MediaSegment`/Asset identity, Salai performs that resolution explicitly.
 
 ## Resolve boundary
 
@@ -353,7 +413,8 @@ The proposal favors user-directed, reversible automation rather than unattended 
 - users can mix prose, instructions, and media naturally;
 - structured views remain available when they genuinely help;
 - downstream systems receive normalized deterministic state instead of conversational prose;
-- source/provenance rules remain enforceable.
+- source/provenance rules remain enforceable;
+- Salai owns canonical ID allocation and reference resolution instead of delegating those mechanics to the model.
 
 ### Costs / risks
 
@@ -364,7 +425,8 @@ The proposal favors user-directed, reversible automation rather than unattended 
 - model latency may interrupt creative flow;
 - media intake may create pressure to implement analysis infrastructure too early;
 - excessive clarification or approval prompts could recreate the original friction;
-- insufficient review could make users feel the project changes unpredictably.
+- insufficient review could make users feel the project changes unpredictably;
+- agent-facing command schemas can grow into an accidental second domain API if they are not kept narrow and compiled immediately into canonical operations.
 
 ## Validation plan
 
@@ -397,6 +459,7 @@ See [`../agent-mediated-authoring.md`](../agent-mediated-authoring.md) for the d
 8. Which structured surfaces remain first-class after agent-mediated authoring is tested?
 9. How much latency is tolerable during creative writing/restructuring?
 10. Does the existing Narrative IR remain sufficient once the agent is allowed to normalize genuinely messy input rather than curated fixtures?
+11. Which agent-facing commands are truly needed, and which can remain direct wrappers around public Narrative operations?
 
 ## Decision / outcome
 
