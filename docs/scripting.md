@@ -8,9 +8,9 @@ Canonical terminology lives in [`glossary.md`](glossary.md). The authoritative S
 
 This document should not maintain a parallel API or schema definition.
 
-## Why scripting is the current product-risk focus
+## Why a structured scripting model still matters
 
-Resolve integration is important, but generic Resolve automation has a credible infrastructure path. The less understood question is what a "script" means across:
+Resolve integration is important, but generic Resolve automation has a credible infrastructure path. The more product-specific question is what a "script" means across:
 
 - short-form branded/product work;
 - interviews/documentary;
@@ -21,15 +21,29 @@ Resolve integration is important, but generic Resolve automation has a credible 
 
 Salai should not assume every production starts from a screenplay or that a script is merely formatted text.
 
-The working hypothesis is:
+The working hypothesis is now:
 
-> A Salai script is stable semantic production data that can be authored from a blank page or constructed from source material, then exposed through familiar creative workflows without losing identity.
+> A Salai script is stable semantic production data that can be **normalized from messy authored intent or source material**, then inspected through several views and consumed by downstream production/editorial systems without losing identity.
 
 ```text
-blank page → narrative → production
+free-form idea / prose / conversation
+                ↓
+         agent normalization
+                ↓
+        semantic narrative
+                ↓
+            production
 
-existing media → evidence/moments → narrative → production
+existing media / evidence
+                ↓
+         agent normalization
+                ↓
+        semantic narrative
+                ↓
+            production
 ```
+
+The important change after Spike 0B is that the user should not have to manually construct every level of this structure for ordinary creative work.
 
 ## Why Beat and Cue are separate
 
@@ -46,30 +60,42 @@ Cue 3  UI confirmation        SFX
 Cue 4  reaction               music rises
 ```
 
-The distinction under test is therefore:
+The distinction remains:
 
 - **Beat**: the narrative progression the audience should receive;
 - **Cue**: an audiovisual moment used to express part of that Beat.
 
 The terms themselves are defined in [`glossary.md`](glossary.md). Their precise implementation constraints are defined in [`narrative-ir-spec.md`](narrative-ir-spec.md).
 
-No lower semantic layer is currently justified. Spike 0A should only introduce one if a required fixture cannot be represented cleanly without it.
+No lower semantic layer is currently justified.
 
-## Script-first and footage-first must share one model
+### User-facing implication
+
+The distinction can remain important internally without requiring users to explicitly create every Cue.
+
+For example:
+
+```text
+"Show three quick installation moments under the same line of VO"
+```
+
+may be normalized by the agent into one Beat with several Cues.
+
+That is precisely why the structured model is useful: it can preserve semantic meaning and audiovisual timing without making the user perform the normalization manually.
+
+## Script-first and footage-first share one model
 
 ### Script-first
 
-A creator may begin with:
+A creator may begin with rough prose such as:
 
 ```text
-Hook
-Problem
-Demo
-Benefit
-CTA
+Open with the frustration of the old process.
+Then show installation in three fast moments.
+End on the time saved.
 ```
 
-and gradually add audiovisual intent, ShotIntents, real/generated media, and eventually an edit.
+Salai can normalize this into the same Beat/Cue structure previously authored manually through Outline/AV Script.
 
 ### Footage-first
 
@@ -82,18 +108,22 @@ screen recordings
 archive material
 ```
 
-and construct narrative structure from that evidence.
+plus a natural instruction such as:
 
-The critical distinction is between:
+```text
+Build a short story around the old process, what changed, and the result.
+```
+
+The critical distinction remains between:
 
 - **authored material**, whose words/content are intentionally editable; and
 - **sourced material**, whose meaning/timing comes from real recorded media.
 
-A recorded interview excerpt cannot behave like editable VO copy without breaking source truth.
+An agent must not turn a recorded interview excerpt into editable VO merely because it is easier to rewrite.
 
 ## Narrative intent is independent from realization
 
-A narrative need should not become equivalent to whichever clip currently happens to fill it.
+A narrative need should not become equivalent to whichever clip currently fills it.
 
 Conceptually:
 
@@ -111,24 +141,27 @@ possible realizations
 - storyboard
 ```
 
-This separation is what lets Salai ask useful production questions such as:
+This separation lets Salai answer questions such as:
 
 - what coverage is missing?
 - which footage supports this idea?
 - which alternatives exist?
 - could this missing moment be shot, found, generated, or represented as previs?
 
+The agent-mediated authoring direction makes these questions accessible conversationally without changing the underlying semantics.
+
 ## Stable identity matters more than formatted text
 
-Narrative objects may eventually be linked to source media, ShotIntents, annotations, generated alternatives, workspace cards, and Resolve objects.
+Narrative objects may eventually be linked to source media, ShotIntents, annotations, generated alternatives, workspace cards, agent history, and Resolve objects.
 
 Therefore:
 
-- rewriting text should not recreate the narrative object;
+- rewriting text should not recreate the narrative object unnecessarily;
 - reordering should not sever relationships;
 - split/merge/delete must report relationship consequences explicitly;
 - source-backed content must keep source identity;
-- rejected alternatives should remain recoverable rather than disappearing by default.
+- rejected alternatives should remain recoverable rather than disappearing by default;
+- agent normalization should preserve identity during restructuring whenever possible.
 
 Exact behavior belongs to [`narrative-ir-spec.md`](narrative-ir-spec.md).
 
@@ -136,40 +169,73 @@ Exact behavior belongs to [`narrative-ir-spec.md`](narrative-ir-spec.md).
 
 Professional video work frequently has a target duration before a timeline exists.
 
-The Narrative IR should therefore provide approximate structural timing from Cue-level information such as:
+The Narrative IR provides approximate structural timing from Cue-level information such as:
 
 - authored speech estimate;
 - actual source-excerpt duration;
 - explicit duration;
 - simple visual hold estimate.
 
-This is creative feedback, not frame-accurate editorial timing.
+This remains creative feedback, not frame-accurate editorial timing.
 
-## Familiar workflows are projections/workspaces over the model
+Agent-mediated authoring should make duration usable through natural requests:
 
-The user should not be forced into a Salai-specific scripting metaphor.
+```text
+"Get this under 45 seconds without losing the result quote."
+```
 
-The same project should support familiar surfaces such as:
+The agent can use the same canonical duration model while producing a grouped structural/copy revision.
+
+## Structured views are projections/workspaces over the model
+
+The same project supports surfaces such as:
 
 - Outline;
 - AV Script;
-- Story Wall / sticky-note cards;
-- Beat Board;
-- Paper Edit;
-- Radio Edit;
+- Story Wall;
+- Paper / Radio Edit;
 - Coverage;
 - later Frame Wall / Selects / previs-oriented views.
 
-See [`workflows.md`](workflows.md) for the Projection-vs-Workspace distinction and UX semantics.
+Spike 0B proved these views can share one model but found that direct manipulation is too interaction-heavy to be the primary creative workflow.
+
+Their new role is:
+
+- inspect canonical state;
+- resolve precision/ambiguity;
+- support spatial or audiovisual thinking;
+- verify agent normalization;
+- provide expert controls when explicit structure is genuinely useful.
+
+See [`workflows.md`](workflows.md).
+
+## Free-form working text is not the Script
+
+The new primary authoring direction includes a simple free-form working area, but this should not make an arbitrary text document canonical.
+
+Working text may contain:
+
+- prose;
+- questions;
+- production notes;
+- alternatives;
+- uncertainty;
+- pasted source context.
+
+The agent normalizes committed meaning into Narrative IR and may leave unresolved material unstructured.
+
+This protects the system from replacing one synchronization problem with another.
 
 ## Progressive creative validation
 
 A production idea is rarely validated once.
 
-A common loop is closer to:
+A common loop is:
 
 ```text
-read / imagine
+write / imagine
+      ↓
+normalize / inspect
       ↓
 shoot or generate
       ↓
@@ -182,47 +248,51 @@ edit until it feels right
 
 Salai should preserve intent and alternatives as work moves through these levels rather than treating an early script decision as permanently committed.
 
-Low-friction previs is therefore interesting because it can move visual feedback earlier without pretending the preview is the final media.
+Low-friction previs remains interesting because it can move visual feedback earlier without pretending the preview is the final media.
 
-See [`research-notes.md`](research-notes.md) for the underlying observations.
+See [`research-notes.md`](research-notes.md).
 
 # Validation sequence
 
 ## Spike 0A — Narrative IR
 
+**Complete / pass.**
+
 Question:
 
 > Can one stable semantic model represent script-first product work, sourced interview work, and footage-first documentary construction without workflow-specific schemas?
 
-Implementation is pure TypeScript in `packages/script-model/`.
+Result: yes for the implemented fixtures/operations.
 
-The complete implementation contract is [`narrative-ir-spec.md`](narrative-ir-spec.md). Do not copy its operation vocabulary into this document.
+## Spike 0B — Structured authoring UX
 
-## Spike 0B — Authoring UX
-
-Question:
-
-> Can humans manipulate the validated model naturally through familiar workflows?
-
-Initial surfaces:
-
-- Story Wall;
-- Outline;
-- AV Script;
-- Paper/Radio Edit.
-
-0B also defines the minimum in-memory Workspace/Board model required by those surfaces before durable persistence is added later.
-
-## Spike 0C — Assisted authoring
+**Closed / mixed result.**
 
 Question:
 
-> Can AI propose meaningful structural changes through the same validated operation semantics humans use?
+> Can humans manipulate the validated model naturally through familiar structured workflows?
 
-AI should propose reviewable operations/diffs rather than replace the entire narrative document.
+Result:
+
+- one model can back all four views;
+- direct manipulation requires too much interaction to be the primary creative workflow.
+
+See [`spike-0b-assessment.md`](spike-0b-assessment.md).
+
+## Spike 0C — Agent-Mediated Authoring
+
+**Current.**
+
+Question:
+
+> Can free-form text, conversation, and media be normalized into valid, grouped, reversible Narrative IR changes with materially less user interaction?
+
+The model/agent should use explicit typed operations internally while the user works at the level of creative intent.
+
+See [`agent-mediated-authoring.md`](agent-mediated-authoring.md).
 
 # Interchange and editor technology come later
 
-Fountain/FDX, Tiptap/ProseMirror/Lexical, Resolve integration, and real LLM calls do not determine the canonical Narrative IR.
+Fountain/FDX, rich-text frameworks, Resolve integration, real media analysis, and model-provider/runtime choices do not determine the canonical Narrative IR.
 
-They are adapters/interfaces evaluated after the semantic model has survived the required fixtures.
+They are adapters/interfaces evaluated after the semantic model and primary interaction have survived the required validation scenarios.
