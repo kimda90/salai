@@ -87,9 +87,11 @@ Assessment: [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md).
 
 - one script-first low-friction vertical slice;
 - one fixture-backed footage/source vertical slice;
-- grouped canonical application + one-step revert using the existing `applyOperations()` boundary;
+- grouped canonical application + immediate one-step revert using the existing `applyOperations()` boundary;
 - one agent-normalized project → existing lens → direct edit → follow-up agent round trip;
 - human evidence of materially lower routine interaction than 0B and useful voluntary structural insight.
+
+The snapshot-based revert is valid only until another canonical/Workspace edit occurs; 0C does not attempt a full mixed manual/agent undo history.
 
 A new Coverage Lens, production graph, real media analysis, desktop runtime, and Resolve execution are deferred.
 
