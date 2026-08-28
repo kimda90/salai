@@ -2,240 +2,159 @@
 
 ## Status
 
-Living product/UX concept introduced from the first Spike 0B human test and the subsequent agent-mediated authoring direction.
+Living canonical product/UX contract for Salai's structured creative views.
 
-This document defines the role of structured Salai surfaces after the 0B finding that direct model management creates too much creative friction.
+This document owns Narrative Lens definition, taxonomy, expose/hide rules, and direct-manipulation semantics. Other docs should link here rather than restating them.
 
 ## Core principle
 
 > **Hide structural bookkeeping, not narrative structure.**
 
-Salai should not require a filmmaker to manually serialize every creative intention into Sections, Scenes, Beats, Cues, parent references, source relationships, or low-level operations.
+Salai should not require a filmmaker to manually serialize every ordinary intention into Sections, Scenes, Beats, Cues, parent references, source relationships, or low-level operations.
 
-At the same time, those structures can carry real creative information. Seeing them can help a filmmaker understand the story from an angle that prose or conversation alone cannot reveal.
+At the same time, canonical structure can carry real creative information. A creator may deliberately want to see and manipulate it.
 
-The product should therefore distinguish between:
+The product therefore distinguishes:
 
-- **structural bookkeeping** — mechanics Salai should normally infer or automate; and
-- **structural perception** — information worth exposing because it helps the creator understand or shape the story.
+- **structural bookkeeping** — mechanics Salai should normally infer/automate; and
+- **structural perception** — structure worth exposing because it helps the creator understand or shape the story.
 
-## Narrative Lens
+## Definition
 
-A **Narrative Lens** is a structured representation of the same canonical Salai project that deliberately emphasizes one aspect of the narrative system.
+A **Narrative Lens** is a structured representation of the same canonical Salai project that deliberately emphasizes one creative aspect of the narrative system.
 
-A lens is not merely an advanced settings panel or fallback editor. It is a way to **see, feel, and modify the narrative from a particular creative angle**.
+A lens is not a second document, an expert settings screen, or a separate state model. It is a way to **see and modify the story from a particular creative angle**.
 
-Examples:
+A lens may be implemented as a Projection, a Workspace, or a combination:
 
-| Lens | What it reveals |
+- **Projection** describes deterministic state ownership;
+- **Workspace** describes persistent human organization outside canonical narrative semantics;
+- **Narrative Lens** describes creative purpose.
+
+## Lens taxonomy
+
+### Existing / validated surfaces
+
+| Lens | Primary creative perception |
 | --- | --- |
 | Outline | hierarchy, progression, proportion, structural weight |
 | Story Wall | spatial rhythm, balance, turning points, alternatives, clustering |
 | AV Script | audiovisual density, realization over time, visual/audio interplay |
 | Paper / Radio Edit | evidentiary spine, voice, source pacing, authored-vs-sourced balance |
-| Coverage | gaps between intent and available realization |
-| Runtime / pacing views | temporal pressure, density, narrative weight |
+
+### Later candidates
+
+| Lens | Primary creative perception |
+| --- | --- |
+| Coverage | gaps between intent and available realization; build after the production graph exists |
 | Frame Wall / Selects | visual coverage, contrast, repetition, usable alternatives |
+| Runtime / pacing view | temporal pressure and proportional weight if a dedicated view proves useful |
 
-The same canonical Beat may therefore be experienced differently through different lenses without creating multiple competing story documents.
-
-## Primary authoring vs narrative lenses
-
-Salai has two complementary interaction modes.
-
-### Low-friction authoring
-
-The user can:
-
-- write freely;
-- talk to the agent;
-- paste notes;
-- drop media;
-- describe a desired change.
-
-Salai interprets and normalizes that intent into canonical state.
-
-This mode minimizes structural bookkeeping.
-
-### Narrative lenses
-
-The user can deliberately open a lens when the representation itself helps them reason.
-
-For example:
-
-- open Story Wall because the middle feels crowded and spatial balance may reveal why;
-- open AV Script because a Beat feels narratively simple but audiovisually overloaded;
-- open Paper Edit because the story depends too heavily on one interview voice;
-- open Coverage because several Beats have intent but no credible realization;
-- open Outline because the hierarchy or proportion is itself the creative question.
-
-The user may then edit directly in that lens. Direct manipulation remains valuable when the structure being manipulated is itself the thing the creator is thinking about.
+Do not create a new lens only because a derived value can be displayed. A lens needs a demonstrated creative job.
 
 ## What a lens should expose
 
-A lens should expose internal structure when that structure has creative meaning.
+Expose canonical or Workspace structure when it contributes to a creative decision.
 
-Useful examples:
+Examples:
 
-- one Beat contains six Cues while another contains one;
-- a section carries half the total runtime;
-- three consecutive Beats depend on the same speaker;
-- a Beat has no visual realization;
-- the middle of a Story Wall is spatially dense;
-- several source-backed moments compete for the same narrative function;
-- a short narrative idea requires unexpectedly complex audiovisual coverage.
+- one Beat has substantially more audiovisual moments than neighboring Beats;
+- one section consumes disproportionate runtime;
+- several consecutive story moments depend on the same interview voice;
+- a Beat has no credible visual/source support;
+- the middle of a Story Wall is spatially crowded;
+- several source excerpts compete for the same narrative function;
+- a simple narrative idea requires unexpectedly complex realization.
 
-These are not implementation details merely because they derive from the Narrative IR. They can be part of the story's **pulse**.
+Stable identity and important relationships may be visible when they help the creator reason, but raw implementation identifiers usually do not.
 
 ## What a lens should hide
 
-A lens should not expose mechanics that add no useful creative information.
-
-Examples that should usually remain implicit:
+Normally keep these implicit:
 
 - generating canonical IDs;
-- choosing raw `ParentRef` values;
-- calculating array indices;
-- manually creating a Cue only because the data model needs one;
-- choosing a domain operation type for an obvious creative change;
-- wiring source relationships that can be inferred safely from context;
+- constructing raw `ParentRef` values;
+- calculating insertion indices;
+- choosing an operation type for an obvious creative change;
+- creating a Cue only because the schema requires one;
+- manually wiring source relationships that can be inferred safely;
 - switching views merely because an operation is unavailable elsewhere.
 
-The difference is not “simple UI vs advanced UI.” The difference is whether the exposed structure contributes to the creative decision.
+The distinction is not “simple vs advanced UI.” It is whether the exposed structure contributes to the creative question.
+
+## Direct manipulation
+
+Direct manipulation remains first-class when the user intentionally chooses the lens as the way they want to think.
+
+Examples:
+
+- drag cards while thinking spatially in Story Wall;
+- move sourced excerpts while shaping spoken rhythm in Paper/Radio;
+- adjust Visual/Audio realization while planning in AV Script;
+- restructure hierarchy while intentionally working in Outline.
+
+The 0B failure was not that these operations exist. It was making structured operation the compulsory route for ordinary creative intent.
 
 ## Agent relationship
 
-The agent and the lenses operate on the same canonical project.
+The agent and lenses operate on the same canonical project.
 
 ```text
-write / talk / drop media
+working input / instruction
           ↓
-     agent normalization
+     normalization
           ↓
     canonical project
       ↙    ↓    ↘
- Outline  AV   Story Wall ...
+      Narrative Lenses
       ↖    ↓    ↗
  direct lens edits
           ↓
     canonical project
 ```
 
-The agent should understand the current lens when useful.
+Requirements:
 
-Examples:
-
-- in Story Wall: “Why does the middle feel crowded?”
-- in AV Script: “Reduce the number of visual changes in this Beat.”
-- in Paper Edit: “Can we make this section less dependent on Maria?”
-- in Coverage: “Show only the gaps that would block a rough cut.”
-
-A lens can therefore become both a human perception surface and additional context for agent reasoning.
-
-## Lens edits
-
-Direct manipulation inside a lens remains a first-class capability.
-
-The rule is:
-
-> **Direct manipulation is justified when the user is intentionally manipulating what the lens represents.**
-
-Examples:
-
-- dragging cards while thinking spatially in Story Wall;
-- moving a sourced excerpt while shaping a radio edit;
-- editing Visual/Audio relationships while planning in AV Script;
-- restructuring hierarchy while intentionally working in Outline.
-
-The failure observed in 0B was not that these operations should never exist. It was treating them as the routine path for every ordinary creative intention.
+- agent changes appear in a lens automatically because the lens reads canonical state;
+- direct lens changes become visible to subsequent agent reasoning through the same state;
+- active lens identity may be sent as context when it materially helps interpretation;
+- arbitrary presentation state should not automatically become agent context;
+- Workspace-only changes remain Workspace-only.
 
 ## Narrative pulse
 
-“Narrative pulse” is currently a product metaphor rather than a separate domain object.
+“Narrative pulse” is a **discovery metaphor**, not a domain object or product score. It refers to patterns such as pacing, density, repetition, voice distribution, audiovisual complexity, coverage, and structural balance that may become easier to perceive through one or more lenses. Keep exploring the metaphor through human observation and simple derived information; do not create a canonical `Pulse` object or universal quality metric without evidence.
 
-It refers to the patterns that emerge when the canonical story is viewed through multiple dimensions, such as:
-
-- progression;
-- pacing;
-- density;
-- alternation;
-- repetition;
-- source/evidence distribution;
-- audiovisual complexity;
-- coverage completeness;
-- balance between sections or voices;
-- unresolved intent.
-
-Salai should explore ways to make these patterns legible through lenses and derived indicators without prematurely inventing a universal narrative score.
-
-Do not introduce a canonical `Pulse` object or opaque AI quality metric during Spike 0C without evidence.
+Discovery evidence for the metaphor belongs in [`research-notes.md`](research-notes.md).
 
 ## Design requirements
 
-A useful Narrative Lens should satisfy most of the following:
+A useful Narrative Lens should satisfy most of these:
 
-1. It reveals a property of the story that is difficult to perceive in ordinary prose/chat.
-2. It operates on the same canonical project rather than a duplicate document.
-3. It makes stable identity and important relationships legible where useful.
-4. It allows direct editing when that representation is the user's chosen way of thinking.
-5. It does not require low-level domain mechanics unrelated to the creative question.
-6. Agent changes appear in it automatically.
-7. Direct changes made in it become context for subsequent agent reasoning.
-8. Users can enter and leave it without export/import or conceptual state loss.
+1. reveal a story property difficult to perceive in ordinary prose/conversation;
+2. operate on the same canonical project rather than a duplicate document;
+3. expose stable identity/relationships only where useful;
+4. allow direct editing when the representation is intentionally chosen;
+5. avoid incidental domain mechanics unrelated to the creative question;
+6. reflect agent changes automatically;
+7. feed direct changes back into subsequent agent context through shared state;
+8. allow entry/exit without export/import or conceptual state loss.
 
-## 0C validation implications
+## 0C validation
 
-Spike 0C should not ask only whether users can stay in the free-form authoring surface.
+0C does not need to redesign every lens or create new ones.
 
-It should test both sides of the product hypothesis:
+It needs to prove:
 
-### Interaction compression
+- the four existing surfaces remain synchronized after agent-mediated changes;
+- at least one is opened voluntarily because it reveals something useful;
+- one direct edit in an existing lens feels creatively meaningful;
+- that edit is visible to a subsequent agent request through shared state.
 
-Can routine creative intent be expressed with materially less structural bookkeeping than 0B?
+Coverage reasoning may be mocked conversationally during 0C, but the actual Coverage Lens is deferred until the production graph exists.
 
-### Structural insight
+A successful 0C result is not “users never touch structured UI.”
 
-Do users voluntarily open structured lenses because they reveal something useful about the narrative system?
+It is:
 
-Human tests should record:
-
-- which lens the user chooses without prompting;
-- what problem they are trying to understand by opening it;
-- whether the lens reveals information they did not notice in free-form authoring;
-- whether direct manipulation feels creatively meaningful or merely mechanical;
-- whether the agent and lens complement each other;
-- whether any exposed internal concept is useful enough to justify its cognitive cost.
-
-A successful 0C result is not “users never touch the structured UI.”
-
-A stronger result is:
-
-> **Users can create with low friction, then deliberately move into structured lenses when they want to understand or reshape the narrative system from another angle.**
-
-## Product framing
-
-Salai should not become either extreme:
-
-### Not a model-management application
-
-The user should not have to manually maintain the Narrative IR to make ordinary creative changes.
-
-### Not a blind chat interface
-
-The narrative system should not disappear into an opaque agent conversation where the creator cannot inspect or directly shape structure.
-
-The intended product loop is:
-
-```text
-express intent
-     ↓
-Salai structures it
-     ↓
-see the structure through useful lenses
-     ↓
-reshape directly or conversationally
-     ↓
-continue toward media / Resolve
-```
-
-The agent reduces interaction cost. The lenses preserve legibility, agency, and alternate ways of thinking.
+> **Users can create with low friction, then deliberately enter structured lenses when they want to understand or reshape the narrative system from another angle.**

@@ -2,69 +2,60 @@
 
 Salai is an experimental local-first, narrative-aware production companion for DaVinci Resolve.
 
-Its purpose is to keep **story intent, source material, production needs, real/generated media, alternatives, and Resolve editorial context connected** throughout a project without making the filmmaker manually manage all of that structure.
+Its purpose is to keep **story intent, source material, production needs, real/generated media, alternatives, and Resolve editorial context connected** without making the filmmaker manually manage all of that structure.
 
 ## Product hypothesis
 
 > **Express intent naturally; Salai structures it for production. See and reshape that structure through narrative lenses.**
 
-The primary interaction direction is:
-
 ```text
-write / talk / drop media
-          ↓
-    Salai agent layer
- interpret + normalize
-          ↓
- structured canonical project
-          ↓
-     Narrative Lenses
-          ↓
-        Resolve
+write / instruct / provide media context
+                ↓
+        Salai normalization
+                ↓
+      canonical project state
+                ↓
+        Narrative Lenses
+                ↓
+             Resolve
 ```
 
-A project may begin from a blank idea/script or from existing footage/interviews/selects. The user should be able to describe the story they want, provide material, and ask Salai to restructure or reason about it without explicitly creating and wiring every narrative object.
-
-The underlying architectural principle remains:
+Underlying architecture:
 
 > **One Narrative IR, multiple synchronized creative views.**
 
-The key UX refinement is:
+Key UX refinement after Spike 0B:
 
 > **Hide structural bookkeeping, not narrative structure.**
 
-Salai should automate incidental mechanics such as object creation, parent references, IDs, and obvious relationship wiring. But structured views remain valuable when they help the creator understand or reshape the story.
+Salai should automate incidental mechanics such as IDs, parent references, operation selection, and obvious relationship wiring. Structured views remain first-class when they help the creator understand or reshape the story.
 
 ## Narrative Lenses
 
-Salai's structured surfaces are **Narrative Lenses**: different ways to perceive and manipulate the same canonical story.
+The four existing structured surfaces are Narrative Lenses over the same canonical project:
 
-- **Outline** — hierarchy, progression, proportion.
-- **Story Wall / Beat Board** — spatial rhythm, balance, turning points, alternatives.
-- **AV Script** — audiovisual density and realization over time.
-- **Paper / Radio Edit** — evidence, voice, source pacing, authored-vs-sourced balance.
-- **Coverage** — gaps between narrative intent and available realization.
-- later **Frame Wall / Selects** — visual coverage and alternatives.
+- Outline;
+- Story Wall / Beat Board;
+- AV Script;
+- Paper / Radio Edit.
 
-They are not mandatory stages, but they are also not merely fallback or expert controls. A creator can deliberately enter one when that representation helps them understand the narrative system or work from a different angle.
+A creator enters a lens deliberately when that representation is useful for thinking or direct manipulation; a lens is not a mandatory authoring stage or a separate project document.
 
-Direct manipulation remains first-class inside a lens when that is the creator's chosen way of thinking.
+Later lens candidates include Coverage and Frame Wall / Selects, after the corresponding production/media model exists and the workflow is validated.
 
 See [`docs/narrative-lenses.md`](docs/narrative-lenses.md).
 
-DaVinci Resolve remains the media, frame-accurate editing, Fusion, color, Fairlight, and delivery environment.
+DaVinci Resolve remains the frame-accurate editing, Fusion, color, Fairlight, and delivery environment.
 
 ## What Spike 0B taught us
 
-Spike 0B implemented Story Wall, Outline, AV Script, and Paper/Radio Edit over one `@salai/script-model` project and validated the semantic boundaries with deterministic tests.
-
-It produced three conclusions:
+0B implemented the four structured surfaces over one `@salai/script-model` project and produced three conclusions:
 
 - **the model/view architecture works:** stable identity, source evidence, Workspace separation, runtime, and cross-view changes remain coherent;
-- **the routine direct-manipulation workflow does not:** ordinary creative changes require too much interaction and model management;
-- **the structured views remain creatively useful:** they can reveal hierarchy, rhythm, evidence, audiovisual complexity, gaps, and alternatives in ways free-form text/chat cannot.
+- **routine direct structured authoring does not:** ordinary creative changes require too much interaction/model management;
+- **the structured views remain creatively useful:** they can reveal properties that prose/conversation alone may not make obvious.
 
-The current direction is therefore not “replace the views with chat.” It is to put a low-friction agent-mediated layer above the proven canonical model while retaining the views as first-class Narrative Lenses.
+The current direction is therefore agent-mediated routine authoring **plus** first-class Narrative Lenses, not “replace the views with chat.”
 
 See [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md).
 
@@ -74,31 +65,15 @@ See [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md).
 
 **Complete / pass.**
 
-The TypeScript package lives at:
-
-```text
-packages/script-model/
-```
-
-It includes:
-
-- stable `Script / Section / Scene? / Beat / Cue / ContentBlock` identity;
-- authored vs source-backed content;
-- mocked `MediaSegment` / `ShotIntent` references;
-- structural editing operations;
-- transactional validation and relationship effects;
-- split/merge/delete semantics;
-- serialization/versioning;
-- approximate runtime estimation;
-- product, interview/corporate, and footage-first documentary fixtures.
+`packages/script-model/` provides the canonical TypeScript model, typed operations, validation, serialization, runtime estimation, stable identity, source-backed semantics, and representative fixtures.
 
 Authoritative contract: [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md).
 
 ### Spike 0B — Structured Authoring UX
 
-**Closed / mixed result.**
+**Closed / mixed.**
 
-The shared React prototype proved multiple synchronized views can use the same Narrative IR, but using direct structured manipulation as the default/routine path failed the creative-friction test.
+The shared React prototype proved the synchronized-view architecture but failed the creative-friction test as a routine authoring path.
 
 Historical contract: [`docs/authoring-ux-spec.md`](docs/authoring-ux-spec.md).
 
@@ -108,76 +83,55 @@ Assessment: [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md).
 
 **Current validation milestone.**
 
-0C tests:
+0C is intentionally narrow. It must prove:
 
-- simple free-form working text;
-- project-aware chat/instructions;
-- attachment/media intake;
-- model/agent normalization into typed Salai commands and canonical operations;
-- grouped change summaries and one-step revert;
-- existing structured views as synchronized Narrative Lenses;
-- direct lens edits feeding back into subsequent agent context;
-- whether the lenses reveal useful narrative information beyond free-form text/chat.
+- one script-first low-friction vertical slice;
+- one fixture-backed footage/source vertical slice;
+- grouped canonical application + immediate one-step revert using the existing `applyOperations()` boundary;
+- one agent-normalized project → existing lens → direct edit → follow-up agent round trip;
+- human evidence of materially lower routine interaction than 0B and useful voluntary structural insight.
 
-The interaction target is:
+The snapshot-based revert is valid only until another canonical/Workspace edit occurs; 0C does not attempt a full mixed manual/agent undo history.
 
-> **User effort should scale with creative decisions, while structural visibility should increase creative understanding.**
+A new Coverage Lens, production graph, real media analysis, desktop runtime, and Resolve execution are deferred.
 
-See [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md), [`docs/narrative-lenses.md`](docs/narrative-lenses.md), and [`docs/rfcs/0002-agent-mediated-authoring.md`](docs/rfcs/0002-agent-mediated-authoring.md).
+See [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md), [`docs/narrative-lenses.md`](docs/narrative-lenses.md), and [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md).
 
 ## Architecture direction
 
-Current broader direction:
+Key accepted/proposed boundaries:
 
-- TypeScript Narrative IR as canonical semantic state;
-- React/TypeScript authoring UI;
-- a Salai-owned agent/normalization layer using structured tools/operation batches;
-- provider-agnostic model boundary rather than a model-owned project format;
-- grouped history/revert and graduated autonomy;
-- Narrative Lenses over the same canonical state;
-- Electron desktop shell after the primary interaction is validated;
-- local Python 3.11/3.12 + FastAPI service;
-- SQLite persistence after interaction/persistence requirements are validated;
-- CutMaster as the default Resolve automation boundary behind a Salai-owned adapter;
-- OpenTimelineIO at editorial interchange/materialization boundaries;
-- OpenAssetIO only when external asset-management interoperability is justified;
-- ComfyUI and other providers for generation;
-- FFmpeg/ffprobe and established local analysis tools for media utilities/reverse scripting.
+- TypeScript Narrative IR is canonical semantic state;
+- one canonical IR backs synchronized Projections/Workspaces/Lenses (ADR 0005);
+- the 0C agent path reuses public `NarrativeOperation[]` / `applyOperations()` before introducing any higher-level command adapter;
+- a higher-level agent command is added only when a concrete scenario proves Salai must resolve IDs/relative references itself;
+- hosted inference receives only task-relevant selected/derived context; raw production media remains local by default;
+- Electron/local-service/persistence arrive after the primary interaction is validated;
+- CutMaster remains the default Resolve automation boundary behind a Salai adapter;
+- OpenTimelineIO/OpenAssetIO/ComfyUI/media-analysis tools stay at integration boundaries rather than owning Salai semantics.
 
-An agent request should change canonical Salai state first; it should not become an opaque natural-language command stream directly into Resolve.
+An agent request changes canonical Salai state first; it does not become an opaque natural-language command stream directly into Resolve.
 
-See [`docs/architecture.md`](docs/architecture.md) for system-level ownership and [`docs/adr/0004-cutmaster-default-resolve-boundary.md`](docs/adr/0004-cutmaster-default-resolve-boundary.md) for the Resolve automation decision.
+See [`docs/architecture.md`](docs/architecture.md) and [`docs/adr/`](docs/adr/).
 
 ## Documentation
 
 Start with [`docs/README.md`](docs/README.md), which defines the canonical owner for each kind of information.
 
-Key documents:
+Most relevant current docs:
 
-- [`docs/product-brief.md`](docs/product-brief.md) — concise product thesis and positioning;
-- [`docs/prd.md`](docs/prd.md) — product requirements and success criteria;
-- [`docs/glossary.md`](docs/glossary.md) — canonical terminology;
-- [`docs/competitive-landscape.md`](docs/competitive-landscape.md) — adjacent products and positioning pressure tests;
-- [`docs/research-notes.md`](docs/research-notes.md) — product-discovery evidence;
-- [`docs/scripting.md`](docs/scripting.md) — conceptual scripting rationale;
-- [`docs/workflows.md`](docs/workflows.md) — primary workflow and Narrative Lens behavior;
-- [`docs/narrative-lenses.md`](docs/narrative-lenses.md) — Narrative Lens product/UX contract;
-- [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md) — authoritative Narrative IR TDD;
-- [`docs/spike-0a-assessment.md`](docs/spike-0a-assessment.md) — Spike 0A result;
-- [`docs/authoring-ux-spec.md`](docs/authoring-ux-spec.md) — historical 0B structured-authoring contract;
-- [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md) — 0B result and direction change;
+- [`docs/product-brief.md`](docs/product-brief.md) — product thesis/positioning;
+- [`docs/prd.md`](docs/prd.md) — product requirements/success criteria;
+- [`docs/research-notes.md`](docs/research-notes.md) — discovery evidence;
+- [`docs/narrative-lenses.md`](docs/narrative-lenses.md) — canonical Narrative Lens semantics;
 - [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md) — active 0C interaction contract;
-- [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md) — active 0C tracker;
-- [`docs/mvp.md`](docs/mvp.md) — validation/implementation roadmap;
-- [`docs/backlog.md`](docs/backlog.md) — current work ordering;
-- [`docs/architecture.md`](docs/architecture.md) — system architecture;
-- [`docs/rfcs/0001-one-narrative-ir-multiple-workflows.md`](docs/rfcs/0001-one-narrative-ir-multiple-workflows.md) — canonical IR / synchronized views proposal;
-- [`docs/rfcs/0002-agent-mediated-authoring.md`](docs/rfcs/0002-agent-mediated-authoring.md) — agent + Narrative Lens proposal;
-- [`docs/adr/`](docs/adr/) — accepted architecture decisions;
-- [`docs/service-levels.md`](docs/service-levels.md) — current reliability/SLA policy.
+- [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md) — only 0C task/status tracker;
+- [`docs/mvp.md`](docs/mvp.md) — validation sequence;
+- [`docs/backlog.md`](docs/backlog.md) — NOW/NEXT/LATER outcomes;
+- [`docs/architecture.md`](docs/architecture.md) — system architecture.
 
 ## Contributing and license
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development/documentation conventions.
 
-Salai does not currently publish an open-source license. See [`LICENSE`](LICENSE) for the current status; third-party dependencies retain their own licenses.
+Salai does not currently publish an open-source license. See [`LICENSE`](LICENSE) for current status; third-party dependencies retain their own licenses.
