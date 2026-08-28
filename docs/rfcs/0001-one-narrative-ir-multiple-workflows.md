@@ -2,11 +2,15 @@
 
 ## Status
 
-Proposed, with 0A/0B evidence supporting the canonical-model architecture and **rejecting the assumption that the structured workflows should be the primary authoring entry points**.
+Proposed, with 0A/0B evidence supporting the canonical-model architecture and rejecting the assumption that structured workflows should be the **mandatory/routine** authoring path.
 
-Spike 0A validated the Narrative IR. Spike 0B validated that Story Wall, Outline, AV Script, and Paper/Radio Edit can share that IR without duplicate story documents or workflow-specific semantic forks. The first 0B human test then found that direct manipulation of those structured surfaces requires too much interaction to be creatively useful as the default authoring model.
+Spike 0A validated the Narrative IR. Spike 0B validated that Story Wall, Outline, AV Script, and Paper/Radio Edit can share that IR without duplicate story documents or workflow-specific semantic forks.
 
-RFC 0002 now proposes an agent-mediated primary authoring layer above this architecture. See [`0002-agent-mediated-authoring.md`](0002-agent-mediated-authoring.md).
+The first 0B human test then found that using direct manipulation of those structured surfaces as the routine path requires too much interaction.
+
+Follow-up interpretation adds an important qualification: the structured surfaces remain valuable when the creator deliberately wants to see or manipulate the narrative system from another angle.
+
+RFC 0002 therefore proposes agent-mediated low-friction authoring **plus first-class Narrative Lenses** over this architecture. See [`0002-agent-mediated-authoring.md`](0002-agent-mediated-authoring.md).
 
 ## Summary
 
@@ -16,14 +20,17 @@ The working model separates:
 
 - **Narrative IR** — canonical semantic data;
 - **Projections** — deterministic views such as Outline and AV Script;
-- **Workspaces** — persistent human organization such as Story Wall and later spatial/source workspaces;
-- **agent-mediated authoring** — proposed primary interaction that normalizes free-form text, conversation, and media into the canonical state.
+- **Workspaces** — persistent human organization such as Story Wall;
+- **Narrative Lenses** — the creative role of structured views that emphasize different aspects of the narrative system;
+- **agent-mediated authoring** — the low-friction interaction that normalizes free-form text, conversation, and media into canonical state.
 
-The multiple structured surfaces remain valuable, but 0B evidence no longer supports making them mandatory or primary authoring stages.
+The key principle is:
+
+> **Hide structural bookkeeping, not narrative structure.**
 
 ## Motivation
 
-Editors and videographers use several established methods depending on the material and production stage:
+Editors and videographers use several established methods depending on material and production stage:
 
 - index cards / sticky-note scene walls;
 - outlines;
@@ -33,14 +40,17 @@ Editors and videographers use several established methods depending on the mater
 - shot/coverage planning;
 - selects/frame walls.
 
-Treating each workflow as an independent document recreates the core problem Salai is intended to solve: narrative intent and production material drifting apart.
+Treating each workflow as an independent document recreates the core problem Salai is intended to solve: narrative intent and production material drift apart.
 
 0B additionally showed that simply exposing several familiar structured workflows is not enough. A product can be familiar at the surface level while still forcing too much explicit structure management.
 
-The architecture therefore needs both:
+But the same structured representations can still be creatively useful because they reveal different aspects of the story.
 
-1. one canonical semantic project; and
-2. an interaction layer that can hide routine structural bookkeeping.
+The architecture therefore needs three things:
+
+1. one canonical semantic project;
+2. a low-friction interaction layer that hides routine structural bookkeeping; and
+3. synchronized structured views that remain available as deliberate Narrative Lenses.
 
 ## Proposal
 
@@ -61,24 +71,25 @@ A Beat represents the smallest intentional unit of narrative progression.
 
 A Cue represents an audiovisual/temporal moment used to express a Beat.
 
-These concepts remain canonical implementation/domain semantics even when the primary UX does not expose them directly.
+These concepts remain canonical implementation/domain semantics even when ordinary authoring does not expose them directly.
 
 ### Projections
 
-A projection contains no independent narrative truth.
+A Projection contains no independent narrative truth.
 
 Examples:
 
 - Outline;
 - AV Script;
+- Paper/Radio Edit;
 - Teleprompter;
 - Coverage.
 
-Editing a projection produces Narrative IR operations.
+Editing a Projection produces canonical Narrative IR operations.
 
 ### Workspaces
 
-A workspace stores human-authored organization that is meaningful but not inherent to a narrative object.
+A Workspace stores human-authored organization that is meaningful but not inherent to a narrative object.
 
 Validated 0B example:
 
@@ -92,28 +103,62 @@ Potential later examples:
 
 0B removed speculative Workspace metadata that was not actually needed.
 
-### Structured surfaces are specialized tools, not necessarily entry points
+### Narrative Lenses
 
-0B originally treated multiple familiar workflows as candidate primary authoring surfaces. Human testing showed that the user still had to execute too many model-management actions.
+A Narrative Lens is a structured representation of the same canonical project that emphasizes a particular creative dimension.
 
-The amended proposal is:
+Examples:
 
-- keep the views because their representations are useful;
-- do not require users to enter them for ordinary creative changes;
-- allow a higher-level agent-mediated surface to perform structural normalization;
-- open structured views for inspection, precision, comparison, or production-specific planning.
+- Outline → hierarchy/proportion;
+- Story Wall → spatial rhythm/alternatives;
+- AV Script → audiovisual density/realization;
+- Paper/Radio → evidence/voice/source pacing;
+- Coverage → gaps between intent and realization.
+
+A lens may be implemented as a Projection, Workspace, or combination. “Lens” describes creative purpose; Projection/Workspace describe state ownership.
+
+The structured views are therefore not merely fallback editors.
+
+They can make the narrative system legible when the creator intentionally wants to inspect or manipulate it.
+
+See [`../narrative-lenses.md`](../narrative-lenses.md).
+
+### Agent-mediated authoring
+
+The low-friction entry layer should let users express ordinary creative intent through:
+
+- free-form text;
+- conversation;
+- media/attachments.
+
+The agent performs routine normalization into the canonical model without making the user manually specify every object, parent, or relationship.
+
+### Direct manipulation remains valid
+
+The 0B failure does not mean direct structured editing should disappear.
+
+Direct manipulation remains useful when the creator intentionally chooses the lens because that representation is the creative tool.
+
+Examples:
+
+- moving cards while thinking spatially;
+- rearranging quotes while shaping a radio edit;
+- adjusting Visual/Audio moments while planning realization;
+- changing hierarchy while intentionally working structurally.
+
+The failure was making these mechanics compulsory for ordinary intent.
 
 ### Alternatives and rejected material
 
 The project model should make it easy to move uncertain/rejected material aside rather than destroy it.
 
-This remains important, but the user should not be forced into a Story Wall or a specific Workspace just to retain alternatives.
+This remains important, but the user should not be forced into one specific Workspace merely to retain alternatives.
 
 ### Source-backed narrative
 
 Footage-first workflows use `SourceExcerpt` objects tied to actual media ranges rather than flattening transcripts into freely editable prose.
 
-This remains a critical invariant for future agent-mediated media intake: an agent may arrange or select source evidence but must not rewrite the recording as authored copy.
+This remains a critical invariant for agent-mediated media intake and Paper/Radio lenses.
 
 ## Alternatives considered
 
@@ -127,10 +172,10 @@ Pros:
 Cons:
 
 - poor fit for source evidence, audiovisual planning, and spatial/media views;
-- creates synchronization pressure between document markup and semantic state;
+- synchronization pressure between document markup and semantic state;
 - risks making document structure the domain model.
 
-A simple free-form working document is now part of RFC 0002, but as **input/context**, not canonical story storage.
+A simple free-form working document is part of RFC 0002 as **input/context**, not canonical story storage.
 
 ### B. Separate documents for every workflow
 
@@ -146,7 +191,7 @@ Cons:
 
 0B strongly argues against this alternative.
 
-### C. Expose a generic node/graph canvas as the main UI
+### C. Generic node/graph canvas as main UI
 
 Pros:
 
@@ -158,7 +203,7 @@ Cons:
 - unfamiliar to many target users;
 - can make graph construction the creative task.
 
-The 0B human finding makes this even less attractive as the default authoring model.
+A future canvas may become one Narrative Lens/Workspace if evidence supports it, but not the canonical UX.
 
 ### D. Timeline-first model
 
@@ -180,34 +225,50 @@ Pros:
 
 - familiar representations;
 - deterministic interaction;
-- easy to map actions to typed operations.
+- easy operation mapping;
+- valuable structural visibility.
 
 Cons:
 
-- common creative intentions require too many explicit actions;
-- user must think about structure and parentage prematurely;
-- operation availability fragments across surfaces;
-- technically correct model manipulation interrupts creative flow.
+- ordinary creative intentions require too many explicit actions;
+- users must think about parentage/mechanics prematurely;
+- operation availability fragments across surfaces.
 
-**0B result:** not sufficient as the primary interaction model.
+**0B result:** insufficient as the sole/routine interaction model, but the surfaces remain valuable as Narrative Lenses.
+
+### F. Hide all structure behind chat
+
+Pros:
+
+- low command-entry friction.
+
+Cons:
+
+- narrative system becomes opaque;
+- creator loses useful alternative representations;
+- direct structural perception/manipulation weakens.
+
+**Current direction:** rejected as an extreme. Agent-mediated authoring and Narrative Lenses should coexist.
 
 ## Consequences
 
 ### Positive
 
 - one source of narrative truth remains viable;
-- script-first and footage-first work can share one project model;
-- story structure can remain stable while audiovisual realization changes;
-- structured views can remain synchronized;
+- script-first and footage-first work share one model;
+- story structure remains stable while audiovisual realization changes;
+- structured views stay synchronized;
 - source identity survives restructuring;
-- the IR can become a reliable normalization/serialization target for agents and downstream systems.
+- the IR becomes a reliable normalization/serialization target for agents and downstream systems;
+- Narrative Lenses make the same system human-legible from several creative angles.
 
 ### Costs / risks
 
-- projection/workspace synchronization rules still need to remain explicit;
+- Projection/Workspace synchronization rules must remain explicit;
 - one IR may eventually prove too restrictive for specialized workflows;
-- an agent-mediated layer introduces interpretation/trust/history concerns;
-- user-facing terminology can now be deferred until a specialized view actually needs it.
+- agent mediation introduces interpretation/trust/history concerns;
+- lens design can expose implementation detail rather than useful creative structure;
+- user-facing terminology remains a per-lens decision.
 
 ## Validation evidence
 
@@ -219,7 +280,7 @@ Validated the Narrative IR independently from UI using three fixtures:
 2. interview/corporate piece;
 3. footage-first mini-documentary.
 
-### Spike 0B — closed
+### Spike 0B — closed / mixed
 
 Validated:
 
@@ -231,27 +292,41 @@ Validated:
 
 Human result:
 
-> Direct structured authoring requires too much interaction to remain creatively useful as the primary workflow.
+> Using direct structured authoring as the routine path requires too much interaction.
+
+Follow-up interpretation:
+
+> The same structured views remain valuable as deliberate Narrative Lenses.
 
 See [`../spike-0b-assessment.md`](../spike-0b-assessment.md).
 
 ### Spike 0C — next
 
-Validate whether free-form writing, conversation, and media intake can be normalized by an agent into the same canonical state with materially less explicit interaction.
+Validate:
 
-See [`../agent-mediated-authoring.md`](../agent-mediated-authoring.md).
+- free-form writing/conversation/media → canonical state with materially less incidental interaction;
+- Narrative Lenses → useful structural insight/direct manipulation;
+- agent ↔ lens continuity over the same project.
+
+See [`../agent-mediated-authoring.md`](../agent-mediated-authoring.md) and [`../narrative-lenses.md`](../narrative-lenses.md).
 
 ## Open questions
 
-1. Does the Narrative IR remain sufficient when the input is genuinely messy and agent-interpreted rather than curated fixture data?
-2. Which structured surfaces remain first-class after agent-mediated authoring is tested?
-3. Does a durable free-form working-document/session artifact become necessary?
-4. How much reversible agent normalization can auto-apply before trust falls?
-5. Which terms, including `Cue`, should be visible only in specialized views?
-6. How should alternatives and uncertainty be represented when the user has not explicitly committed them to canonical structure?
+1. Does the Narrative IR remain sufficient for genuinely messy agent-interpreted input?
+2. Which Narrative Lenses remain first-class after 0C?
+3. Which internal concepts are useful enough to expose per lens?
+4. Does a durable free-form WorkingDocument/session artifact become necessary?
+5. How much reversible agent normalization can auto-apply before trust falls?
+6. How should agent reasoning incorporate active-lens context?
+7. How should alternatives/uncertainty be represented before canonical commitment?
+8. Is narrative pulse best exposed through several derived indicators rather than one score?
 
 ## Decision / outcome
 
 Pending Spike 0C.
 
-Current evidence strongly supports the **one canonical Narrative IR / multiple synchronized views** architecture. The interaction assumption that users should primarily author by directly manipulating those views is superseded by the new agent-mediated hypothesis and will be decided through RFC 0002.
+Current evidence strongly supports the **one canonical Narrative IR / multiple synchronized views** architecture.
+
+The superseded assumption is not “structured views are useful.” It is “structured views must be the routine path for ordinary authoring.”
+
+RFC 0002 tests the combined agent-mediated + Narrative Lens interaction model.
