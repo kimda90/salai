@@ -107,8 +107,11 @@ Minimum 0C behavior:
 - apply the request as one controller batch;
 - show a creative-level summary;
 - retain pre-action project/Workspace snapshots;
-- allow one-step revert of the last successful agent action;
+- allow **immediate one-step revert** while that agent action is still the most recent project/Workspace change;
+- invalidate that snapshot as soon as any later canonical or Workspace edit occurs;
 - publish no partial live state when the batch fails.
+
+This intentionally avoids a dangerous case where reverting an old agent snapshot would erase later direct lens edits. A long-lived mixed manual/agent undo history belongs to a later phase if evidence requires it.
 
 Do not introduce event sourcing or general inverse-operation synthesis for this spike.
 
@@ -211,7 +214,7 @@ Required:
 - only the minimal higher-level command adapters proved necessary by the implemented scenarios;
 - one script-first vertical slice;
 - one fixture-backed footage/source vertical slice;
-- grouped summary + one-step revert;
+- grouped summary + immediate one-step revert;
 - one agent ↔ existing-lens round trip;
 - human comparison with 0B.
 
