@@ -1,4 +1,7 @@
-import { createInterviewFixture, createProductVideoFixture } from "@salai/script-model";
+import {
+  applyOperations,
+  createProductVideoFixture,
+} from "@salai/script-model";
 import { describe, expect, it } from "vitest";
 import { formatDuration, getDurationEstimate, orderedBeatRefs } from "./model-utils";
 
@@ -11,16 +14,30 @@ describe("model utilities", () => {
   });
 
   it("preserves canonical beat order across direct and scene-contained beats", () => {
-    const project = createInterviewFixture();
-    const refs = orderedBeatRefs(project);
+    const project = createProductVideoFixture();
+    const sectionId = project.script.sectionIds[0]!;
+    const mixed = applyOperations(project, [
+      {
+        op: "createScene",
+        sectionId,
+        scene: { id: "scene_test", title: "Scene test", beatIds: [] },
+      },
+      {
+        op: "moveBeat",
+        beatId: "beat_problem",
+        toParent: { type: "scene", id: "scene_test" },
+        toIndex: 0,
+      },
+    ]).model;
 
-    expect(refs.length).toBe(Object.keys(project.beats).length);
+    const refs = orderedBeatRefs(mixed);
+    expect(refs.length).toBe(Object.keys(mixed.beats).length);
     expect(new Set(refs.map((ref) => ref.beatId)).size).toBe(refs.length);
-    for (const ref of refs) {
-      expect(project.beats[ref.beatId]).toBeDefined();
-      expect(project.sections[ref.sectionId]).toBeDefined();
-      if (ref.sceneId) expect(project.scenes[ref.sceneId]?.beatIds).toContain(ref.beatId);
-    }
+    expect(refs.find((ref) => ref.beatId === "beat_hook")?.sceneId).toBeUndefined();
+    expect(refs.find((ref) => ref.beatId === "beat_problem")).toMatchObject({
+      sectionId,
+      sceneId: "scene_test",
+    });
   });
 
   it("caches duration estimates for the same immutable project identity", () => {
