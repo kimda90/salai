@@ -4,15 +4,15 @@
 
 **Historical implementation contract. Spike 0B is closed.**
 
-The implementation validated the shared Narrative IR / Workspace / projection architecture, but the first human UX test found that direct manipulation of these structured surfaces requires too much interaction to be the primary creative workflow.
+This document records the structured-authoring experiment that 0B actually implemented and tested. It is not the current product-direction contract.
 
-This document is retained as the contract that 0B tested. Do not reinterpret it as the current product direction.
+Current interpretation of the result belongs in:
 
-Current next-step contract: [`agent-mediated-authoring.md`](agent-mediated-authoring.md).
+- [`spike-0b-assessment.md`](spike-0b-assessment.md);
+- [`agent-mediated-authoring.md`](agent-mediated-authoring.md);
+- [`narrative-lenses.md`](narrative-lenses.md).
 
-Assessment: [`spike-0b-assessment.md`](spike-0b-assessment.md).
-
-Product workflow behavior remains authoritative in [`workflows.md`](workflows.md); Narrative IR semantics and operation vocabulary remain authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md).
+Narrative IR semantics and operation vocabulary remain authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md).
 
 ## Validation question
 
@@ -54,7 +54,7 @@ Mocks were allowed only where they directly helped answer the 0B workflow questi
 
 The final retained implementation was intentionally smaller than the original candidate dependency list: React/TypeScript/Vite, Pragmatic Drag and Drop, Vitest, and the deployed GitHub Pages prototype. Storybook and Chromium/browser-test infrastructure were not retained.
 
-The semantic boundary remained:
+The semantic boundary was:
 
 > Libraries provide interaction/rendering mechanics. Salai decides what a gesture means and which domain operation, if any, it produces.
 
@@ -62,11 +62,11 @@ The semantic boundary remained:
 
 ## Canonical narrative state
 
-The existing `@salai/script-model` project is the only canonical narrative state.
+The existing `@salai/script-model` project was the only canonical narrative state.
 
-UI components must not create shadow copies of Sections, Scenes, Beats, Cues, ContentBlocks, SourceExcerpts, or relationships that can drift from the model.
+UI components did not create shadow copies of Sections, Scenes, Beats, Cues, ContentBlocks, SourceExcerpts, or relationships that could drift from the model.
 
-All semantic narrative edits must go through the public Narrative IR operation API.
+All semantic narrative edits went through the public Narrative IR operation API.
 
 ## Workspace state
 
@@ -95,11 +95,9 @@ IdeaCard
 - text
 ```
 
-The result remains useful for later spatial views, but Workspace state is no longer assumed to define the primary authoring flow.
-
 ## UI-local state
 
-Ephemeral state such as selection, hover, open menus, draft input, drag previews, and temporary filters remains component/application state and is not part of either Narrative IR or Workspace semantics.
+Ephemeral state such as selection, hover, open menus, draft input, drag previews, and temporary filters remained component/application state and was not part of either Narrative IR or Workspace semantics.
 
 # Interaction architecture tested in 0B
 
@@ -137,21 +135,21 @@ Promote IdeaCard to Beat
 → createBeat + replace/link BoardItem reference
 ```
 
-This boundary was technically successful. The human finding was that requiring users to choose and execute these mechanics repeatedly creates too much creative friction.
+This boundary was technically successful. The later human finding was that repeatedly choosing and executing these mechanics created too much creative friction for routine work.
 
 # Shared application behavior
 
 All four surfaces:
 
-- render from the same current Narrative IR instance;
-- identify canonical objects by stable ID;
-- dispatch semantic edits through one shared operation boundary;
-- surface operation errors rather than silently compensating with UI-only state;
-- distinguish authored content from source-backed content;
-- update when another surface changes the underlying model;
-- avoid export/import or duplicated per-surface documents.
+- rendered from the same current Narrative IR instance;
+- identified canonical objects by stable ID;
+- dispatched semantic edits through one shared operation boundary;
+- surfaced operation errors rather than silently compensating with UI-only state;
+- distinguished authored content from source-backed content;
+- updated when another surface changed the underlying model;
+- avoided export/import or duplicated per-surface documents.
 
-A thin application controller/store coordinates Narrative IR, Workspace state, selection, and operation dispatch without redefining domain semantics.
+A thin application controller/store coordinated Narrative IR, Workspace state, selection, and operation dispatch without redefining domain semantics.
 
 # Surface contracts tested
 
@@ -169,8 +167,6 @@ Implemented:
 - approximate runtime display;
 - shared selection/navigation.
 
-The structure works semantically. The new direction does not assume users should manage this hierarchy routinely.
-
 ## Story Wall
 
 Purpose: spatial story construction with recoverable alternatives.
@@ -184,7 +180,7 @@ Implemented:
 - IdeaCard promotion;
 - explicit structural narrative reorder separate from free x/y position.
 
-The Workspace-vs-Narrative boundary remains valid. Story Wall becomes an optional spatial/precision view under the new hypothesis.
+The experiment validated the Workspace-vs-Narrative ownership distinction.
 
 ## AV Script
 
@@ -199,8 +195,6 @@ Implemented:
 - approximate runtime feedback;
 - structural/edit operations through the Narrative IR.
 
-Cue remains useful as domain identity. Whether users need to see the term is deferred until agent-mediated authoring shows when explicit AV precision is required.
-
 ## Paper / Radio Edit
 
 Purpose: source-evidence-driven story construction.
@@ -212,8 +206,6 @@ Implemented:
 - ordering and attaching source-backed material to narrative structure;
 - audio-first sequencing;
 - a path to visual Cue information without a separate canonical document.
-
-The source semantics remain a strong foundation for future agent-mediated footage-first authoring.
 
 # Cross-surface result
 
@@ -255,18 +247,12 @@ It did pass the architectural parts:
 4. authored and sourced content can remain unambiguous semantically;
 5. no workflow-specific semantic workaround was required to compensate for a failure in the Narrative IR.
 
-The human test added the decisive failure:
+The human test added the decisive finding:
 
 > Common creative changes require too many explicit interactions and too much model management.
 
-## Superseded assumption
+## Historical closeout
 
-0B assumed that hiding database/graph concepts behind familiar structured workflows would be enough to make the product creatively natural.
+This document stops at the experiment and its observed result. It deliberately does **not** classify the current product role of Story Wall, Outline, AV Script, or Paper/Radio.
 
-The evidence suggests a stronger requirement:
-
-> **The user should not have to operate the structure at all for common creative intentions. Salai should infer and normalize it.**
-
-Story Wall, Outline, AV Script, and Paper/Radio remain valuable representations, but become secondary/specialized views under the 0C hypothesis.
-
-See [`agent-mediated-authoring.md`](agent-mediated-authoring.md).
+For the post-0B interpretation—agent-mediated routine authoring plus first-class Narrative Lenses—see [`spike-0b-assessment.md`](spike-0b-assessment.md), [`agent-mediated-authoring.md`](agent-mediated-authoring.md), and [`narrative-lenses.md`](narrative-lenses.md).
