@@ -4,6 +4,7 @@
   "scripts": {
     "build": "pnpm --recursive build",
     "test": "pnpm --recursive test",
+    "test:browser": "pnpm --filter @salai/spike-demo test:browser",
     "typecheck": "pnpm --recursive typecheck"
   },
   "devDependencies": {
