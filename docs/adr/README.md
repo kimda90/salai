@@ -43,5 +43,4 @@ Accepted | Superseded
 - [`0002-local-first-desktop-runtime.md`](0002-local-first-desktop-runtime.md) — Salai is local-first and uses an Electron/React desktop shell with a local Python service for the broader application.
 - [`0003-no-graph-database-initially.md`](0003-no-graph-database-initially.md) — use explicit domain types/relationships and ordinary local persistence before considering graph-database infrastructure.
 - [`0004-cutmaster-default-resolve-boundary.md`](0004-cutmaster-default-resolve-boundary.md) — use a Salai-owned adapter over CutMaster as the default Resolve automation boundary, with direct Resolve scripting only for unsupported/unsuitable capabilities.
-
-The proposed Narrative IR/workspace architecture is currently RFC 0001 and should not receive an accepted ADR until that RFC is accepted/validated.
+- [`0005-one-narrative-ir-multiple-views.md`](0005-one-narrative-ir-multiple-views.md) — keep one canonical Narrative IR; Projections/Workspaces/Lenses must not introduce shadow narrative truth.
