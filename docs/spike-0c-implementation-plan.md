@@ -74,20 +74,23 @@ Do not pull these into 0C unless a minimal mock is required to answer the intera
 
 - [ ] **0C.0.2 — Reuse the existing shared controller/dispatcher.**
   - Agent changes and direct structured-view changes enter the same canonical state.
+  - Add a batch-dispatch path rather than a second agent-owned store.
 
 - [ ] **0C.0.3 — Define an agent-facing project context DTO.**
   - Include only data the model needs to reason about the current task.
   - Do not expose UI implementation details as domain semantics.
-  - Keep stable IDs available to tool calls.
+  - Keep stable IDs for existing objects available when tools need to reference them.
 
-- [ ] **0C.0.4 — Define typed agent tool/output schemas around public operations.**
-  - Start with Narrative operations.
-  - Workspace operations only where the requested action genuinely concerns Workspace state.
-  - Do not create a generic mutation escape hatch.
+- [ ] **0C.0.4 — Define typed Salai agent commands that compile into public operations.**
+  - Agent-facing commands may be slightly higher-level than raw `NarrativeOperation` when that avoids requiring the model to manufacture IDs, indices, or `ParentRef` details.
+  - Salai code allocates new canonical IDs and resolves relative references/targets.
+  - Compile immediately into public `NarrativeOperation[]` before canonical application.
+  - Workspace commands only where the requested action genuinely concerns Workspace state.
+  - Do not create a generic mutation escape hatch or a second persistent domain API.
 
-- [ ] **0C.0.5 — Add deterministic tests that invalid agent-produced operations are rejected without project corruption.**
+- [ ] **0C.0.5 — Add deterministic tests that invalid agent commands/compiled operations are rejected without project corruption.**
 
-- [ ] **0C.0.GATE — Agent output cannot bypass canonical validation.**
+- [ ] **0C.0.GATE — Agent output cannot bypass canonical validation or canonical ID ownership.**
 
 ---
 
@@ -105,6 +108,7 @@ Do not pull these into 0C unless a minimal mock is required to answer the intera
 - [ ] **0C.1.3 — Add an explicit “process / update project” action.**
   - Start explicit rather than continuous to simplify trust/latency validation.
   - Continuous processing can be tested later if evidence supports it.
+  - Do not attempt bidirectional synchronization between working text and canonical state in 0C.
 
 ## Conversation
 
@@ -121,6 +125,7 @@ Do not pull these into 0C unless a minimal mock is required to answer the intera
 
 - [ ] **0C.1.7 — Show enough project/result context that users can see what changed without opening another surface.**
   - Avoid turning this into another structural form.
+  - A concise natural-language result/change summary is sufficient for the spike.
 
 - [ ] **0C.1.GATE — A creator can remain in one low-friction authoring surface for ordinary input and revision requests.**
 
@@ -135,14 +140,19 @@ Do not pull these into 0C unless a minimal mock is required to answer the intera
 
 - [ ] **0C.2.2 — Send current project + relevant working input to the model.**
 
-- [ ] **0C.2.3 — Let the model return structured tool calls / operation plans.**
+- [ ] **0C.2.3 — Let the model return structured Salai tool calls / an authoring command plan.**
+  - Do not require raw canonical create IDs or structural indices when the tool implementation can resolve them.
 
-- [ ] **0C.2.4 — Validate every operation before canonical application.**
+- [ ] **0C.2.4 — Compile commands to public operations and validate the complete canonical batch before publishing.**
+  - Prefer the existing public batch operation path rather than dispatching operations one-by-one into live state.
 
 - [ ] **0C.2.5 — Support multi-operation requests.**
   - One instruction may create/move/update several canonical objects.
+  - One user request remains one application/history batch.
 
-- [ ] **0C.2.6 — Preserve stable IDs where the requested change is restructuring rather than replacement.**
+- [ ] **0C.2.6 — Keep canonical ID allocation in Salai and preserve existing IDs during restructuring.**
+  - The model references existing stable IDs when necessary.
+  - Salai generates IDs for newly created canonical objects.
 
 - [ ] **0C.2.7 — Keep SourceExcerpt semantics immutable as source evidence.**
   - Agent cannot rewrite a recording into authored text.
@@ -152,7 +162,7 @@ Do not pull these into 0C unless a minimal mock is required to answer the intera
   - Do not ask for `ParentRef`, object type, IDs, etc.
 
 - [ ] **0C.2.9 — Add deterministic mocked-agent tests.**
-  - no network/provider dependency for core operation semantics tests.
+  - no network/provider dependency for core command compilation/operation semantics tests.
 
 - [ ] **0C.2.GATE — Natural-language input can produce valid canonical project changes without manual object-by-object authoring.**
 
@@ -168,25 +178,34 @@ Minimum information:
 AgentActionBatch
 - id
 - input/intent summary
-- operations
+- commands/tool calls (optional debug detail)
+- compiled operations
 - change summary
 - status/error
-- reversible state/inverse data
+- beforeProject
+- beforeWorkspace
 ```
 
-This is an interaction-layer prototype type, not yet a persisted domain object.
+This is an interaction-layer prototype type, not yet a persisted domain object. For 0C, storing the pre-batch immutable snapshots is deliberately simpler than designing inverse operations or event sourcing.
 
-- [ ] **0C.3.2 — Apply one agent request as one batch.**
+- [ ] **0C.3.2 — Apply one agent request as one atomic application batch.**
+  - Compile the complete operation list first.
+  - Compute/validate the complete result before publishing live state.
+  - Publish once on success.
 
 - [ ] **0C.3.3 — Show a concise creative-level change summary.**
   - Example: “Moved proof before demo, shortened VO, runtime 54s → 42s.”
   - Do not require users to inspect every operation.
 
 - [ ] **0C.3.4 — Implement one-step undo/revert of the last successful agent batch.**
+  - Restore the recorded pre-batch canonical project/Workspace snapshots for the spike.
+  - Do not introduce general inverse-operation synthesis yet.
 
 - [ ] **0C.3.5 — Ensure failed batches do not leave partially applied canonical state.**
 
 - [ ] **0C.3.6 — Preserve direct-view edits alongside agent history without creating a second model.**
+  - A direct edit changes the same current canonical state and therefore becomes part of context for the next agent request.
+  - 0C does not need a unified long-lived undo stack for every manual edit.
 
 - [ ] **0C.3.7 — Define the 0C graduated-autonomy rules in code/UI.**
   - reversible local batch → may apply;
@@ -247,6 +266,7 @@ Attachment
 ```
 
 - [ ] **0C.5.3 — Keep attachment UI identity distinct from canonical media/source identity.**
+  - Salai explicitly resolves an attachment to existing/new `MediaSegment`/Asset identity when canonical relationships are created.
 
 ## Source normalization
 
@@ -333,7 +353,7 @@ Record for each task:
 - [ ] **0C.GATE.1 — Free-form text can create/revise a representative story without manual structure management.**
 - [ ] **0C.GATE.2 — Conversation can request common multi-operation changes naturally.**
 - [ ] **0C.GATE.3 — Attachments can participate in source-first authoring without manual relationship wiring.**
-- [ ] **0C.GATE.4 — Agent output is constrained by canonical typed operations and validation.**
+- [ ] **0C.GATE.4 — Agent output is constrained by Salai-owned commands compiled into canonical typed operations and validation.**
 - [ ] **0C.GATE.5 — Source/provenance semantics survive agent actions.**
 - [ ] **0C.GATE.6 — One user request can be one understandable, undoable change batch.**
 - [ ] **0C.GATE.7 — Structured views remain synchronized as optional precision tools.**
