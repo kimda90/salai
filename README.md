@@ -146,14 +146,20 @@ Current broader direction:
 
 An agent request should change canonical Salai state first; it should not become an opaque natural-language command stream directly into Resolve.
 
+See [`docs/architecture.md`](docs/architecture.md) for system-level ownership and [`docs/adr/0004-cutmaster-default-resolve-boundary.md`](docs/adr/0004-cutmaster-default-resolve-boundary.md) for the Resolve automation decision.
+
 ## Documentation
+
+Start with [`docs/README.md`](docs/README.md), which defines the canonical owner for each kind of information.
 
 Key documents:
 
 - [`docs/product-brief.md`](docs/product-brief.md) — concise product thesis and positioning;
 - [`docs/prd.md`](docs/prd.md) — product requirements and success criteria;
 - [`docs/glossary.md`](docs/glossary.md) — canonical terminology;
+- [`docs/competitive-landscape.md`](docs/competitive-landscape.md) — adjacent products and positioning pressure tests;
 - [`docs/research-notes.md`](docs/research-notes.md) — product-discovery evidence;
+- [`docs/scripting.md`](docs/scripting.md) — conceptual scripting rationale;
 - [`docs/workflows.md`](docs/workflows.md) — primary workflow and Narrative Lens behavior;
 - [`docs/narrative-lenses.md`](docs/narrative-lenses.md) — Narrative Lens product/UX contract;
 - [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md) — authoritative Narrative IR TDD;
@@ -167,8 +173,11 @@ Key documents:
 - [`docs/architecture.md`](docs/architecture.md) — system architecture;
 - [`docs/rfcs/0001-one-narrative-ir-multiple-workflows.md`](docs/rfcs/0001-one-narrative-ir-multiple-workflows.md) — canonical IR / synchronized views proposal;
 - [`docs/rfcs/0002-agent-mediated-authoring.md`](docs/rfcs/0002-agent-mediated-authoring.md) — agent + Narrative Lens proposal;
-- [`docs/adr/`](docs/adr/) — accepted architecture decisions.
+- [`docs/adr/`](docs/adr/) — accepted architecture decisions;
+- [`docs/service-levels.md`](docs/service-levels.md) — current reliability/SLA policy.
 
 ## Contributing and license
 
-The project is still in discovery/spike-driven development. Documentation should be treated as part of the implementation contract and updated when evidence changes the product direction.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development/documentation conventions.
+
+Salai does not currently publish an open-source license. See [`LICENSE`](LICENSE) for the current status; third-party dependencies retain their own licenses.
