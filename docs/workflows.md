@@ -1,48 +1,68 @@
-# Salai Creative Workflows and Working Surfaces
+# Salai Creative Workflows and Narrative Lenses
 
 ## UX principle
 
-Salai should let creators express **creative intent** before asking them to express **project structure**.
+Salai should let creators express **creative intent** before requiring them to express **project structure**.
 
-The primary UX hypothesis is now:
+The primary interaction hypothesis is:
 
-> **Write, talk, or drop media. Salai normalizes that material into one structured project.**
+> **Write, talk, or drop media. Salai normalizes that material into one structured project. Then use narrative lenses to see and reshape that project from different creative angles.**
 
-The user should not routinely think in `Section`, `Beat`, `Cue`, `ParentRef`, relationship, or operation vocabulary. Those concepts remain available where they help precision, but common creative work should not require manually operating the data model.
+The deeper rule is:
 
-The architectural principle remains:
+> **Hide structural bookkeeping, not narrative structure.**
 
-> **One Narrative IR, multiple synchronized creative views.**
+Users should not routinely have to manage IDs, parent references, operation types, or object wiring. But they should be able to see structure when that structure helps them understand the story's hierarchy, rhythm, density, evidence, audiovisual realization, coverage, or alternatives.
 
-Story Wall, Outline, AV Script, Paper/Radio Edit, Coverage, and later media views are still useful. Their role changes from candidate primary authoring workflows to **specialized representations over agent-maintained canonical state**.
+See [`agent-mediated-authoring.md`](agent-mediated-authoring.md) for the active 0C interaction contract and [`narrative-lenses.md`](narrative-lenses.md) for the lens concept.
 
-## Why this changed
+# Why this changed after Spike 0B
 
-Spike 0B proved that the structured surfaces can share one project safely. It also produced a decisive human finding:
+Spike 0B proved that Story Wall, Outline, AV Script, and Paper/Radio Edit can all operate on one canonical Narrative IR.
 
-> **The direct structured workflow needs too much user interaction to be creatively useful.**
+The first human UX test then produced the key finding:
 
-The problem is not only click count. It is attention cost: the user must stop thinking about the story to decide which object, parent, surface, mode, or structural operation is required.
+> **The direct structured workflow needs too much user interaction to be creatively useful as the routine path for ordinary changes.**
 
-The next workflow should hide that bookkeeping behind an agent-mediated normalization layer.
+The problem was not that structured representations are useless. The problem was asking the user to operate them even when the structure itself was not the creative question.
 
-See [`spike-0b-assessment.md`](spike-0b-assessment.md) and [`agent-mediated-authoring.md`](agent-mediated-authoring.md).
+The revised hypothesis is therefore:
 
-# Primary workflow — free-form authoring with agent normalization
+- **agent-mediated authoring** handles routine normalization and bookkeeping;
+- **Narrative Lenses** expose the narrative system deliberately when the representation helps the creator think;
+- direct lens editing remains first-class when the user intentionally wants to manipulate that representation.
 
-The primary workflow combines three input modes over one shared project context.
+# Primary workflow
 
-## Free-form working text
+The default loop is:
 
-A simple writing area accepts incomplete and mixed-purpose prose:
+```text
+express intent
+write / talk / drop media
+        ↓
+Salai normalizes
+        ↓
+canonical project
+        ↓
+see through a useful lens
+        ↓
+reshape directly or conversationally
+        ↓
+continue toward production / Resolve
+```
+
+The user may skip the lens step when unnecessary or remain in a lens for extended work when that mode is creatively productive.
+
+# Free-form authoring
+
+## Working text
+
+A simple writing area accepts incomplete and mixed-purpose material:
 
 ```text
 Open with Maria describing the old manual process.
-
-Then show the installation. Three quick moments should be enough.
-
+Then show installation in three quick moments.
 I think we still need a close-up of the connector.
-
 End on Juan talking about the result.
 ```
 
@@ -74,7 +94,7 @@ What parts do not have visual coverage?
 Use the second interview quote instead.
 ```
 
-The conversation is an interaction channel, not a second project document.
+Conversation is an interaction/reasoning channel, not a second canonical project document.
 
 ## Media and attachment intake
 
@@ -88,18 +108,20 @@ The user can add relevant material without manually wiring it into the domain mo
 - references;
 - generated/previs material.
 
-For early validation, attachments can be fixture-backed or mocked. Later, transcription/media analysis provides richer evidence.
+For 0C, attachments can be fixture-backed or mocked. Later, transcription/media analysis provides richer evidence.
 
-## Agent normalization
+# Agent normalization
 
-The agent interprets the user's desired outcome and maps it into typed project changes:
+The agent interprets the user's desired outcome and maps it into typed Salai changes.
 
 ```text
 free-form input
       ↓
 interpretation
       ↓
-0..N Narrative / Workspace / production operations
+Salai authoring commands
+      ↓
+canonical operations
       ↓
 validation
       ↓
@@ -108,9 +130,7 @@ canonical project
 
 The user works at the level of intent; Salai performs routine object creation, parenting, ordering, and attachment.
 
-### Example
-
-User:
+Example:
 
 ```text
 Open on the manual-process quote, show three install moments,
@@ -119,101 +139,145 @@ then use the result quote. Keep it around 30 seconds.
 
 Salai may internally:
 
-- create or reuse several Beats;
-- create Cues for the audiovisual moments;
+- create/reuse several Beats;
+- create Cues for audiovisual moments;
 - attach SourceExcerpts;
 - infer visual descriptions;
 - reorder material;
 - update authored bridges;
 - compute runtime.
 
-That internal complexity should remain one understandable creative action to the user.
+That internal complexity should remain one understandable creative action.
 
-# Interaction and trust
+# Narrative Lenses
 
-## Common intentions should be compressed
+A **Narrative Lens** is a structured representation of the same canonical project that emphasizes a specific property of the narrative system.
 
-A common creative intention should usually require one short input or one direct gesture.
+A lens is not merely an advanced settings screen. It can be a different way to perceive the story and to modify it.
 
-The number of user actions should scale with the number of **creative decisions**, not with the number of domain operations required to represent those decisions.
+## Lens taxonomy
 
-## Do not replace interaction friction with approval friction
+| Lens | What it helps the creator perceive |
+| --- | --- |
+| Outline | hierarchy, progression, proportion, structural weight |
+| Story Wall | spatial rhythm, balance, turning points, alternatives, clustering |
+| AV Script | audiovisual density, realization over time, visual/audio interplay |
+| Paper / Radio Edit | evidentiary spine, voice, source pacing, authored-vs-sourced balance |
+| Coverage | gaps between intent and available realization |
+| Runtime / pacing indicators | temporal pressure, density, narrative weight |
+| later Frame Wall / Selects | visual coverage, contrast, repetition, usable alternatives |
 
-If every agent-produced operation requires separate confirmation, Salai recreates the same problem in a new form.
+## Lens rule
 
-One user request should produce one grouped action/history entry:
+> **Expose structure when the exposure contributes to the creative decision. Hide it when it is only bookkeeping.**
+
+Useful exposure:
+
+- one Beat contains many more Cues than its neighbors;
+- one section dominates runtime;
+- several consecutive Beats depend on one interview subject;
+- a Beat lacks credible visual support;
+- an area of the Story Wall is crowded;
+- a simple narrative idea requires complex audiovisual realization.
+
+Unhelpful exposure:
+
+- raw IDs;
+- `ParentRef` construction;
+- insertion-index calculation;
+- object-type selection for obvious commands;
+- mandatory Cue creation when Salai can infer it;
+- manual source wiring that is clear from context.
+
+# Direct manipulation inside lenses
+
+Direct manipulation remains a first-class Salai interaction.
+
+The criterion is intentionality:
+
+> **Direct manipulation is useful when the user is intentionally manipulating what the lens represents.**
+
+Examples:
+
+- rearrange cards while thinking spatially in Story Wall;
+- move interview excerpts while shaping spoken rhythm in Paper/Radio;
+- adjust Visual/Audio moments while planning audiovisual expression in AV Script;
+- change hierarchy while intentionally working structurally in Outline.
+
+The 0B finding means these interactions should not be the compulsory route for every ordinary creative change.
+
+# Agent + lens workflows
+
+The agent should understand the active lens when useful.
+
+Examples:
+
+### Story Wall
 
 ```text
-creative request
-     ↓
-operation batch
-     ↓
-summary + undo
+Why does the middle feel crowded?
+
+Show me an alternative where the proof arrives earlier.
 ```
 
-## Graduated autonomy
+### Outline
 
-### Reversible in-project changes
+```text
+Which section is carrying too much of the story?
 
-Clearly requested, reversible local normalization may apply as one batch:
+Flatten this part unless the Scene boundary is doing useful work.
+```
 
-- structure creation;
-- reordering;
-- attaching evidence;
-- authored-copy changes;
-- creation of supporting Cues.
+### AV Script
 
-### Meaningful ambiguity
+```text
+This Beat feels visually busy. Reduce the number of visual changes.
 
-Ask a focused question only when the creative meaning changes materially and a safe reversible assumption is not reasonable.
+Where am I repeating the same kind of shot?
+```
 
-Questions should use creative language, not domain vocabulary.
+### Paper / Radio Edit
 
-### External/destructive actions
+```text
+Can we make this less dependent on Maria?
 
-Require explicit confirmation for actions such as:
+Which source excerpt gives us the same idea more concisely?
+```
 
-- irreversible deletion;
-- changing a real Resolve timeline;
-- destructive filesystem/media operations;
-- publishing/export;
-- expensive generation;
-- replacing source identity when recovery is unclear.
+### Coverage
 
-# Working text vs canonical project state
+```text
+Show only what is missing enough to block a rough cut.
 
-The free-form working text and chat transcript are **input/context**, not automatically canonical narrative truth.
+Which Beat has intent but no usable realization?
+```
 
-For the current direction:
+A lens therefore becomes both:
 
-- raw input can remain messy;
-- Salai normalizes committed meaning into the Narrative IR;
-- unresolved notes can remain unstructured;
-- media remains attached by stable source handles;
-- no full second document model should be introduced just to make the free-form surface work.
-
-This prevents the product from replacing “four drifting documents” with “one drifting AI document plus the IR.”
+- a human perception/manipulation surface; and
+- structured context for agent reasoning.
 
 # Projection vs Workspace
 
-The distinction validated by 0B remains useful.
+The 0B distinction remains important.
 
 ## Projection
 
-A projection is deterministically derived from canonical state.
+A Projection is deterministically derived from canonical state.
 
 Examples:
 
 - Outline;
 - AV Script;
+- Paper / Radio Edit;
 - Teleprompter;
 - Coverage.
 
-A projection does not own independent narrative truth. Editing it changes the underlying canonical state.
+A projection does not own independent narrative truth. Editing it produces canonical operations.
 
 ## Workspace
 
-A Workspace preserves human organization that is not inherent to a narrative object.
+A Workspace preserves human organization that is not inherent to the narrative object.
 
 Validated example:
 
@@ -223,63 +287,59 @@ Potential later examples:
 
 - Frame Wall;
 - Selects board;
-- alternate/comparison spaces;
-- other spatial organizations justified by real workflow evidence.
+- alternative/comparison spaces;
+- other spatial organizations justified by workflow evidence.
 
-A Workspace is now explicitly **optional**. The product should not require persistent spatial organization to accomplish ordinary story changes.
+Workspace metadata must not silently redefine narrative semantics.
 
-# Specialized surface 1 — Outline
+A Narrative Lens may be implemented as a Projection, a Workspace, or a combination. “Lens” describes its creative role; Projection/Workspace describe state ownership.
 
-Outline is a projection for inspecting and precisely editing hierarchy.
+# Lens 1 — Outline
+
+Outline is a Narrative Lens for structural hierarchy.
 
 Primary structure:
 
 ```text
 Section
-  Scene? / Beat
+  Scene?
     Beat
+  Beat
 ```
 
 Useful for:
 
-- structural overview;
-- precise move/parent inspection;
-- sectioning;
-- runtime summaries;
-- resolving ambiguities the agent could not confidently infer.
+- seeing progression and hierarchy;
+- comparing structural weight;
+- identifying overly nested or flat areas;
+- precise parent/order edits;
+- resolving ambiguities the agent should not guess.
 
-### New role
+The user should not need Outline merely to add “the next idea.” They open it when hierarchy itself is useful to see or manipulate.
 
-A writer should not have to open Outline merely to add “the next idea” or move one story point before another. Those requests should normally be possible from the primary free-form flow.
+# Lens 2 — Story Wall
 
-Outline becomes valuable when explicit hierarchy itself is the thing the user wants to inspect or control.
-
-# Specialized surface 2 — Story Wall
-
-Story Wall is a spatial Workspace inspired by index-card and sticky-note workflows.
+Story Wall is a spatial Narrative Lens and Workspace inspired by index-card/sticky-note practice.
 
 Useful for:
 
-- seeing several story chunks simultaneously;
-- comparing alternatives;
-- keeping removed ideas nearby;
-- spatial/theme exploration;
-- precise manual arrangement when the user wants a wall metaphor.
+- seeing many chunks simultaneously;
+- spatial rhythm/balance;
+- turning points;
+- alternatives and parking;
+- thematic or sequence clustering;
+- deliberate manual arrangement.
 
 Validated semantic distinction:
 
 - free x/y placement is Workspace state;
 - canonical narrative order is Narrative IR state.
 
-### New role
+The user may directly manipulate either when intentionally working in the wall metaphor.
 
-Story Wall should not be the required solution to basic narrative reordering. A user can simply ask Salai to reorder the story.
+# Lens 3 — AV Script
 
-The wall is opened because spatial thinking helps, not because the user must manually perform the operation there.
-
-# Specialized surface 3 — AV Script
-
-AV Script is a projection over Beat/Cue structure.
+AV Script is a Narrative Lens over Beat/Cue audiovisual realization.
 
 Primary form:
 
@@ -292,23 +352,19 @@ Beat
 Useful for:
 
 - visual/audio planning;
-- branded/corporate work;
-- commercials;
-- YouTube/educational pieces;
+- audiovisual density;
+- multiple moments within one narrative idea;
 - shot/coverage planning;
-- precise audiovisual sequencing.
+- precise audiovisual sequencing;
+- seeing whether realization complexity matches narrative importance.
 
-### New role
+The agent may create Cues implicitly. The user opens AV Script when they want to inspect or reshape the audiovisual system explicitly.
 
-The agent may create Cues implicitly when a user's story requires several audiovisual moments.
+Whether the word `Cue` should be visible remains a per-lens UX decision.
 
-The user opens AV Script to inspect or refine the audiovisual realization, not because every audiovisual change requires manual Cue creation.
+# Lens 4 — Paper / Radio Edit
 
-Whether `Cue` should be visible remains a per-view UX question rather than a global product requirement.
-
-# Specialized surface 4 — Paper / Radio Edit
-
-Paper/Radio Edit is a source-evidence-oriented view for documentary and interview work.
+Paper/Radio Edit is a source-evidence Narrative Lens for documentary/interview work.
 
 Primary material:
 
@@ -322,8 +378,6 @@ Important invariant:
 
 > Recorded wording remains source evidence, not editable fiction.
 
-### New role
-
 A footage-first user should be able to drop source media and say:
 
 ```text
@@ -331,11 +385,9 @@ Build a short radio edit around the old process, what changed, and the result.
 Keep Maria's wording exactly as recorded.
 ```
 
-Salai should create/attach the required structure automatically.
+Salai normalizes the structure. Paper/Radio then lets the editor see and directly manipulate the evidentiary spine, voice distribution, exact source choices, and pacing.
 
-Paper/Radio Edit is then used to inspect source ranges, refine the exact order, compare alternatives, or solve difficult evidence choices.
-
-# Specialized surface 5 — Coverage
+# Lens 5 — Coverage
 
 Coverage connects narrative intent to production material.
 
@@ -351,58 +403,51 @@ MediaSegment / Asset realization
 
 It should answer:
 
-- What do we still need to shoot?
-- Which story moments lack visual support?
+- What still needs to be shot?
+- Which story moments lack visual/source support?
 - Which takes are usable?
 - What can cover this line?
 - Is there a generated/stock/previs alternative?
 
-### Agent relationship
+Coverage is both queryable conversationally and inspectable as a lens.
 
-Coverage should also be queryable conversationally:
+# Lens 6 — Frame Wall / Selects
 
-```text
-What am I missing visually?
+Later real-media Workspaces may expose representative frames, takes, and source moments spatially.
 
-Find source material that could support this Beat.
-
-Give me a shot list only for the missing coverage.
-```
-
-The Coverage view remains useful for verification and production planning.
-
-# Specialized surface 6 — Frame Wall / Selects
-
-Later real-media Workspaces may show representative frames, takes, and source moments spatially.
-
-Use them for:
+Potential uses:
 
 - visual comparison;
 - coverage inspection;
 - selects;
-- expressions/moments;
+- expression/moment comparison;
 - scene rhythm/options;
 - attaching real media to narrative/ShotIntent objects.
 
-These should be added after real-media integration demonstrates the need.
+Add only after real-media integration demonstrates the need.
+
+# Narrative pulse
+
+“Narrative pulse” is currently a product metaphor, not a canonical domain object.
+
+It refers to patterns made visible across lenses, including:
+
+- progression;
+- pacing;
+- density;
+- alternation;
+- repetition;
+- voice/evidence distribution;
+- audiovisual complexity;
+- coverage completeness;
+- structural balance;
+- unresolved intent.
+
+Salai should make these patterns legible through views and derived indicators before considering any universal score or `Pulse` domain concept.
 
 # Workflow paths
 
 Salai should not force a prescribed sequence.
-
-The default pattern is now:
-
-```text
-write / talk / drop media
-          ↓
-    agent normalization
-          ↓
-   canonical project
-      ↙   ↓   ↘
- optional specialized views
-          ↓
-  production / Resolve
-```
 
 ## Script-first / commercial
 
@@ -411,9 +456,9 @@ idea / rough prose
        ↓
 free-form authoring + agent
        ↓
-rough narrative
+canonical narrative
        ↓
-AV Script / Outline / Story Wall as useful
+Outline / Story Wall / AV Script as useful
        ↓
 Coverage / ShotIntents
        ↓
@@ -429,11 +474,11 @@ media / transcripts / notes
           ↓
 free-form authoring + agent
           ↓
-source-preserving narrative / radio edit
+source-preserving narrative / radio structure
           ↓
 Paper/Radio / Outline / AV as useful
           ↓
-missing coverage
+Coverage / missing visuals
           ↓
 Resolve
 ```
@@ -447,16 +492,18 @@ free-form authoring + agent
           ↓
 canonical narrative structure
           ↓
-Story Wall / Outline / screenplay-like views as useful
+Story Wall / Outline / later screenplay lens as useful
           ↓
 shot planning
           ↓
 Resolve
 ```
 
-# Relationship to Narrative IR
+Users may also start directly in a Narrative Lens if that is how they want to think.
 
-The workflow layer should not redefine canonical story semantics.
+The key distinction is that **starting in a lens is a creative choice, not a software requirement**.
+
+# Relationship to Narrative IR
 
 ```text
 Interaction layer
@@ -479,24 +526,22 @@ Production context
 - Asset
 - relationships
 
-Optional Workspace layer
-- Workspace
-- Board
-- BoardItem
-- IdeaCard
-- validated layout metadata
+Narrative Lenses
+- Projections
+- Workspaces
+- derived indicators
 ```
 
-The agent acts through the same operation boundaries used by structured views.
+The agent and direct lens interactions use the same canonical operation boundaries.
 
 Examples:
 
 ```text
 "Make this intro shorter"
-→ batch of typed narrative operations
+→ grouped narrative operations
 
 Drop interview clip beside rough story text
-→ attachment context → source-preserving relationship/structure operations
+→ attachment context → source-preserving operations
 
 Move Beat card freely on Story Wall
 → Workspace position only
@@ -509,57 +554,56 @@ Precisely move a Cue in AV Script
 
 The agent must not turn conversational requests directly into opaque Resolve commands.
 
-The intended path is:
-
 ```text
 creative intent
       ↓
-agent normalization
+agent normalization / lens edits
       ↓
 canonical Salai project
       ↓
-chosen materialization/edit action
+chosen materialization action
       ↓
 Salai Resolve adapter
       ↓
 CutMaster / DaVinci Resolve
 ```
 
-This preserves deterministic state and makes downstream edits reproducible.
+This preserves deterministic project state and makes downstream edits reproducible.
 
-# Current UX validation
+# 0C validation
 
-## Spike 0B result
+0C must validate two dimensions.
 
-0B showed that the four structured surfaces can manipulate one Narrative IR. Human testing showed that using those surfaces directly as the main authoring model creates too much interaction.
+## Interaction compression
 
-## Spike 0C question
+Can ordinary creative tasks be completed with materially less model-management interaction than 0B?
 
-Can the user remain in a free-form writing/conversation/media workflow while Salai performs the structural normalization?
+Measure:
 
-Minimum 0C interaction:
+- explicit user actions/inputs;
+- clarifications;
+- moments where incidental hierarchy interrupts creative thinking;
+- trust in grouped summary + undo.
 
-1. working text;
-2. project-aware chat/instructions;
-3. media/attachment drop;
-4. typed operation batches;
-5. grouped change summary + undo;
-6. existing structured views reflecting the result.
+## Structural insight
 
-See [`agent-mediated-authoring.md`](agent-mediated-authoring.md).
+Do Narrative Lenses add creative value beyond the free-form/chat interface?
 
-## 0C acceptance principle
+Measure:
 
-The new workflow succeeds when:
+- which lens users open voluntarily;
+- what they are trying to understand;
+- whether the lens reveals something not obvious in prose/chat;
+- whether direct manipulation feels creatively meaningful;
+- whether exposed domain concepts justify their cognitive cost;
+- whether agent + lens interaction is stronger than either alone.
 
-- users express common creative changes without model vocabulary;
-- one creative intention can produce several safe internal operations without several explicit UI steps;
-- source identity remains intact;
-- structured views remain synchronized;
-- changes are understandable and reversible;
-- users open specialized views because they help think, not because the system requires them;
-- interaction cost is materially lower than the 0B baseline.
+A successful 0C result is **not** “users never touch structured UI.”
+
+The stronger outcome is:
+
+> **Users create with low friction and deliberately enter structured lenses when they want to understand or reshape the narrative system from another angle.**
 
 # Product principle to preserve
 
-> **Salai should make structured production context disappear behind the creative act, while keeping that context explicit enough for agents, specialized views, and DaVinci Resolve to consume reliably.**
+> **Salai should make structural bookkeeping disappear behind the creative act while keeping the narrative system visible enough to inspect, understand, and directly shape when that visibility helps the creator.**
