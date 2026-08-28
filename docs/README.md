@@ -16,6 +16,8 @@ Each kind of information has one authoritative home:
 | Creative workflow behavior | [`workflows.md`](workflows.md) |
 | Spike 0B authoring/workspace implementation contract | [`authoring-ux-spec.md`](authoring-ux-spec.md) |
 | Spike 0B task breakdown / completion status / implementation evidence | [`spike-0b-implementation-plan.md`](spike-0b-implementation-plan.md) |
+| Spike 0B assessment / decisions / remaining pressure points | [`spike-0b-assessment.md`](spike-0b-assessment.md) |
+| Spike 0B human workflow validation procedure | [`spike-0b-human-test-plan.md`](spike-0b-human-test-plan.md) |
 | System/runtime/persistence architecture | [`architecture.md`](architecture.md) |
 | Validation/implementation sequence | [`mvp.md`](mvp.md) |
 | Current work ordering | [`backlog.md`](backlog.md) |
@@ -49,6 +51,8 @@ In particular, the Narrative IR operation vocabulary must only be maintained in 
 | [`spike-0a-assessment.md`](spike-0a-assessment.md) | Spike 0A result and resolutions of implementation questions | Completed assessment |
 | [`authoring-ux-spec.md`](authoring-ux-spec.md) | Spike 0B authoring/workspace technical design and validation contract | Active implementation contract |
 | [`spike-0b-implementation-plan.md`](spike-0b-implementation-plan.md) | Spike 0B executable task plan, checkboxes, gates, and completion evidence | Active execution tracker |
+| [`spike-0b-assessment.md`](spike-0b-assessment.md) | Spike 0B evidence, decisions, and unresolved human-validation questions | Partial assessment; human validation pending |
+| [`spike-0b-human-test-plan.md`](spike-0b-human-test-plan.md) | Structured editor/filmmaker workflow test procedure and decision rubric | Ready to run |
 
 ## Architecture and engineering decisions
 
@@ -85,7 +89,9 @@ An implementation tracker breaks an accepted spike/phase contract into executabl
 For Spike 0B:
 
 - `authoring-ux-spec.md` says **what must be proven and how the UX/domain boundary behaves**;
-- `spike-0b-implementation-plan.md` says **which implementation tasks remain and which have been verified**.
+- `spike-0b-implementation-plan.md` says **which implementation tasks remain and which have been verified**;
+- `spike-0b-assessment.md` records **what the implementation has taught us**;
+- `spike-0b-human-test-plan.md` defines **how to collect the remaining workflow evidence**.
 
 Implementation PRs should update the tracker in the same PR, checking only tasks that are fully merged and validated.
 
@@ -113,6 +119,6 @@ Accepted → Superseded
 
 See [`spike-0a-assessment.md`](spike-0a-assessment.md) for the evidence and resolved open questions.
 
-The current validation milestone is **Spike 0B — Familiar Authoring UX**, which tests Story Wall, Outline, AV Script, and Paper/Radio Edit over the same IR and defines the minimum in-memory Workspace/Board model before Phase 2 persistence.
+The current validation milestone is **Spike 0B — Familiar Authoring UX**. Automated semantic/state validation now passes for the shared Story Wall, Outline, AV Script, and Paper/Radio implementation. The remaining work is human workflow validation of recognizability, terminology, hierarchy comprehension, and spatial-vs-structural interaction expectations.
 
-See [`authoring-ux-spec.md`](authoring-ux-spec.md) for the active implementation contract and [`spike-0b-implementation-plan.md`](spike-0b-implementation-plan.md) for the executable task tracker.
+See [`spike-0b-assessment.md`](spike-0b-assessment.md) for the current partial assessment, [`spike-0b-human-test-plan.md`](spike-0b-human-test-plan.md) for the next validation step, and [`spike-0b-implementation-plan.md`](spike-0b-implementation-plan.md) for the canonical tracker.
