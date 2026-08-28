@@ -92,19 +92,16 @@ Do not pull these into 0B unless a minimal mock is strictly required to answer t
 
 # Dependency baseline
 
-Current intended UI infrastructure:
+Actual retained 0B UI/test infrastructure:
 
 ```text
 React + TypeScript + Vite
-├── shadcn/ui + Base UI        reusable UI primitives
-├── Pragmatic Drag and Drop    drag/reorder mechanics
-├── TanStack Table             AV Script/tabular mechanics where useful
-├── TanStack Virtual           only when list size requires it
-├── Storybook                  isolated workflow/fixture development
-└── Vitest Browser Mode        browser/component interaction tests
+├── Pragmatic Drag and Drop    Story Wall drag mechanics
+├── Vitest                     fast deterministic unit/acceptance tests
+└── GitHub Pages               deployed browser prototype
 ```
 
-Libraries provide mechanics. Salai owns the interpretation of those mechanics into Workspace changes or Narrative IR operations.
+shadcn/Base UI, TanStack Table, TanStack Virtual, Storybook, and browser-test infrastructure were evaluated but were not retained because the implemented 0B workflows did not justify them. Libraries provide mechanics; Salai owns the interpretation of those mechanics into Workspace changes or Narrative IR operations.
 
 # Execution order
 
@@ -170,10 +167,12 @@ Some tasks within adjacent sections may be developed together when that reduces 
   - Stories can load real Narrative IR fixtures.
   - Include common and edge states useful to 0B.
   - **Acceptance:** Storybook builds in CI or through an explicit package script.
+  - **CANCELLED:** the deployed fixture-driven app already supplies the isolated states needed for 0B, and no implementation/debugging need justified another harness.
 
 - [ ] **0B.0.6 — Configure Vitest Browser Mode for UI interactions.**
   - Keep existing pure model tests unchanged.
   - **Acceptance:** at least one browser-level smoke test runs in CI/local validation.
+  - **CANCELLED:** PR #20 explicitly removed Chromium/Playwright/browser-test execution. Fast deterministic acceptance tests cover state/identity boundaries; visual/interaction comprehension is assigned to human testing.
 
 ## Shared state and operation boundary
 
@@ -202,11 +201,12 @@ Some tasks within adjacent sections may be developed together when that reduces 
 
 ## Foundation tests
 
-- [ ] **0B.0.11 — Add controller/fixture smoke tests.**
+- [x] **0B.0.11 — Add controller/fixture smoke tests.**
   - fixture load/reset;
   - semantic operation dispatch;
   - warning/error propagation;
   - canonical state update visible to two test consumers.
+  - **Result:** PR #12 covers deterministic load/reset, operation dispatch, errors and two subscribers; PR #21 adds destructive-operation relationship consequences. The current domain implementation does not emit a non-empty `DomainWarning`, so there is no warning-producing operation to exercise yet.
 
 - [x] **0B.0.GATE — Shared foundation is ready for workflow surfaces.**
   - Application package builds/tests.
@@ -320,7 +320,8 @@ Purpose: compact hierarchical structural authoring and the first pressure test o
 - [x] **0B.2.9 — Implement reorder within a parent.**
 - [x] **0B.2.10 — Implement valid cross-parent Beat moves.**
 - [x] **0B.2.11 — Implement Scene/structural moves required by normal Outline use.**
-- [ ] **0B.2.12 — Reject invalid drop/move targets with understandable feedback.**
+- [x] **0B.2.12 — Reject invalid drop/move targets with understandable feedback.**
+  - **Evidence:** PR #21 verifies invalid structural targets are rejected without project mutation and produce domain feedback.
 
 ## Removal and runtime
 
@@ -336,12 +337,14 @@ Purpose: compact hierarchical structural authoring and the first pressure test o
 ## Tests
 
 - [ ] **0B.2.15 — Test mixed Scene/direct-Beat rendering.**
-- [ ] **0B.2.16 — Test inline edit dispatches domain operation.**
-- [ ] **0B.2.17 — Test valid and invalid structural moves.**
-- [ ] **0B.2.18 — Test stable identity survives moves.**
-- [ ] **0B.2.19 — Test runtime updates after edits.**
+  - **HUMAN VALIDATION:** PR #21 verifies the mixed hierarchy projection/model path. Visual distinguishability is intentionally left to the human test plan because browser automation is disabled.
+- [x] **0B.2.16 — Test inline edit dispatches domain operation.**
+- [x] **0B.2.17 — Test valid and invalid structural moves.**
+- [x] **0B.2.18 — Test stable identity survives moves.**
+- [x] **0B.2.19 — Test runtime updates after edits.**
 
-- [ ] **0B.2.GATE — Outline can author/restructure the canonical model without a UI-specific story representation.**
+- [x] **0B.2.GATE — Outline can author/restructure the canonical model without a UI-specific story representation.**
+  - **Result:** semantic/model gate passes; human hierarchy legibility remains in 0B final validation.
 
 ---
 
@@ -400,7 +403,8 @@ Purpose: spatial story construction and recoverable alternatives without conflat
 - [x] **0B.3.13 — Test free card movement leaves Narrative IR unchanged.**
 - [x] **0B.3.14 — Test structural wall movement changes narrative order correctly.**
 - [x] **0B.3.15 — Test parking vs delete distinction.**
-- [ ] **0B.3.16 — Test canonical text edit updates card while preserving layout.**
+- [x] **0B.3.16 — Test canonical text edit updates card while preserving layout.**
+  - **Evidence:** PR #20 updates canonical Beat text and verifies the existing BoardItem x/y layout survives unchanged.
 - [x] **0B.3.17 — Test IdeaCard promotion keeps one canonical identity and one appropriate BoardItem reference.**
 
 - [x] **0B.3.GATE — Story Wall provides useful spatial organization without making layout canonical narrative state.**
@@ -439,15 +443,19 @@ Purpose: production-oriented visual/audio authoring over Beat/Cue semantics.
 - [ ] **0B.4.11 — Test whether users need to see the term `Cue`.**
   - Keep implementation identity independent from the final displayed label.
   - Record evidence for 0B assessment.
+  - **HUMAN VALIDATION:** explicitly covered by `spike-0b-human-test-plan.md`.
 
 ## Tests
 
-- [ ] **0B.4.12 — Test multiple Cue rendering/identity.**
+- [x] **0B.4.12 — Test multiple Cue rendering/identity.**
+  - **Evidence:** PR #15 verifies canonical multi-Cue Beat projection; PR #21 verifies Cue identity across surface switches and cross-Beat moves.
 - [ ] **0B.4.13 — Test Visual/Audio editing dispatch.**
-- [ ] **0B.4.14 — Test authored/source-backed distinction.**
+  - **PARTIAL:** authored audio update dispatch is covered by PR #20 and content helper tests; visual editing remains an implementation path to observe in human validation rather than adding a browser runner.
+- [x] **0B.4.14 — Test authored/source-backed distinction.**
 - [x] **0B.4.15 — Test Cue reorder/move and identity stability.**
 - [x] **0B.4.16 — Test runtime feedback updates.**
 - [ ] **0B.4.17 — Test changes are reflected in Outline/Story Wall where relevant.**
+  - **PARTIAL:** PR #20 verifies shared canonical propagation and runtime derivation. Final visible cross-surface expectations are part of human validation.
 
 - [x] **0B.4.GATE — AV Script can author audiovisual realization without forcing additional narrative fragmentation.**
 
@@ -487,10 +495,12 @@ Purpose: footage-first/source-evidence-driven story construction while preservin
 
 ## Tests
 
-- [ ] **0B.5.12 — Test SourceExcerpt wording cannot accidentally become authored mutable content.**
+- [x] **0B.5.12 — Test SourceExcerpt wording cannot accidentally become authored mutable content.**
+  - **Evidence:** PR #19 content-unit coverage is retained after PR #20 and verifies display-text edits return the original SourceExcerpt unchanged.
 - [x] **0B.5.13 — Test source ranges survive narrative reorder.**
 - [x] **0B.5.14 — Test authored bridge remains authored after movement/editing.**
-- [ ] **0B.5.15 — Test Paper/Radio changes propagate to other surfaces.**
+- [x] **0B.5.15 — Test Paper/Radio changes propagate to other surfaces.**
+  - **Evidence:** PR #20 verifies source-backed movement and authored edits remain in the one shared canonical project through surface/controller changes.
 
 - [x] **0B.5.GATE — Footage-first authoring works over the same Narrative IR without losing evidence identity.**
 
@@ -502,7 +512,7 @@ This is the core Spike 0B proof. Individual surfaces are insufficient without th
 
 ## Continuous scenario
 
-- [ ] **0B.6.1 — Implement one continuous multi-surface validation flow.**
+- [x] **0B.6.1 — Implement one continuous multi-surface validation flow.**
 
 ```text
 Story Wall
@@ -517,39 +527,44 @@ Story Wall
 ```
 
 The same application session and canonical project must be used throughout.
+  - **Evidence:** PR #20 runs this exact sequence through one `SalaiController` and one project instance lineage.
 
 ## Identity and propagation
 
-- [ ] **0B.6.2 — Verify Beat identity survives all surface changes/edits.**
-- [ ] **0B.6.3 — Verify Cue identity survives all compatible surface changes/edits.**
-- [ ] **0B.6.4 — Verify SourceExcerpt/source identity survives all relevant surface changes/edits.**
-- [ ] **0B.6.5 — Verify semantic edits appear in every relevant surface without export/import.**
+- [x] **0B.6.2 — Verify Beat identity survives all surface changes/edits.**
+- [x] **0B.6.3 — Verify Cue identity survives all compatible surface changes/edits.**
+  - **Evidence:** PR #21 preserves Cue identity/selection through surface switches and cross-Beat movement.
+- [x] **0B.6.4 — Verify SourceExcerpt/source identity survives all relevant surface changes/edits.**
+- [x] **0B.6.5 — Verify semantic edits appear in every relevant surface without export/import.**
 
 ## State boundaries
 
-- [ ] **0B.6.6 — Verify Workspace positions/grouping persist in memory across surface switches.**
-- [ ] **0B.6.7 — Verify Workspace-only changes do not mutate Narrative IR.**
-- [ ] **0B.6.8 — Verify narrative restructuring does not destroy unrelated Workspace organization.**
+- [x] **0B.6.6 — Verify Workspace positions/grouping persist in memory across surface switches.**
+- [x] **0B.6.7 — Verify Workspace-only changes do not mutate Narrative IR.**
+- [x] **0B.6.8 — Verify narrative restructuring does not destroy unrelated Workspace organization.**
 
 ## Semantic distinctions
 
 - [ ] **0B.6.9 — Verify authored vs sourced content remains visually and semantically distinct.**
-- [ ] **0B.6.10 — Verify parking, removal from active structure, and deletion are not conflated.**
-- [ ] **0B.6.11 — Verify runtime feedback is consistent across relevant surfaces.**
+  - **HUMAN VALIDATION:** semantic identity/preservation passes in PR #20; visual unambiguity is explicitly assigned to human testing.
+- [x] **0B.6.10 — Verify parking, removal from active structure, and deletion are not conflated.**
+  - **Evidence:** PRs #14 and #20 verify parking is Workspace-only, structural movement is Narrative-owned, and canonical deletion removes the projected BoardItem.
+- [x] **0B.6.11 — Verify runtime feedback is consistent across relevant surfaces.**
 
 ## Fixture coverage
 
-- [ ] **0B.6.12 — Run the product/branded fixture through relevant surfaces.**
-- [ ] **0B.6.13 — Run the interview/corporate fixture through relevant surfaces.**
-- [ ] **0B.6.14 — Run the footage-first documentary fixture through relevant surfaces.**
+- [x] **0B.6.12 — Run the product/branded fixture through relevant surfaces.**
+- [x] **0B.6.13 — Run the interview/corporate fixture through relevant surfaces.**
+- [x] **0B.6.14 — Run the footage-first documentary fixture through relevant surfaces.**
 
 ## Automated boundary tests
 
-- [ ] **0B.6.15 — Add automated cross-surface state propagation test(s).**
-- [ ] **0B.6.16 — Add automated Workspace-vs-Narrative isolation test(s).**
-- [ ] **0B.6.17 — Add automated authored-vs-source evidence preservation test(s).**
+- [x] **0B.6.15 — Add automated cross-surface state propagation test(s).**
+- [x] **0B.6.16 — Add automated Workspace-vs-Narrative isolation test(s).**
+- [x] **0B.6.17 — Add automated authored-vs-source evidence preservation test(s).**
 
-- [ ] **0B.6.GATE — One canonical project works continuously across all four authoring paradigms.**
+- [x] **0B.6.GATE — One canonical project works continuously across all four authoring paradigms.**
+  - **Result:** automated semantic/state gate passes. Visual/workflow comprehension remains a human validation question.
 
 ---
 
@@ -559,15 +574,18 @@ Do not start 0C until this section records what 0B actually taught us.
 
 ## Workspace decisions
 
-- [ ] **0B.7.1 — Record the minimum Workspace schema actually required by the UI.**
+- [x] **0B.7.1 — Record the minimum Workspace schema actually required by the UI.**
   - Remove unused speculative fields.
   - Document newly justified fields.
+  - **Decision:** retain Board/BoardItem identity, Scene/Beat references or IdeaCard, x/y, and parking state only. See `spike-0b-assessment.md`.
 
 - [ ] **0B.7.2 — Decide Story Wall spatial-vs-structural interaction.**
   - Record which interaction users understand and which implementation becomes the baseline.
+  - **HUMAN VALIDATION:** technical baseline is free x/y → Workspace and explicit Story Order → Narrative; user comprehension must be observed.
 
-- [ ] **0B.7.3 — Decide whether Paper Edit needs domain state beyond Workspace references.**
+- [x] **0B.7.3 — Decide whether Paper Edit needs domain state beyond Workspace references.**
   - Prefer no new domain object without concrete evidence.
+  - **Decision:** no additional Paper Edit domain or Workspace state is justified by 0B implementation evidence.
 
 ## Narrative-model pressure-test decisions
 
@@ -575,25 +593,30 @@ Do not start 0C until this section records what 0B actually taught us.
   - keep;
   - constrain;
   - revise Narrative IR with evidence.
+  - **HUMAN VALIDATION:** implementation supports the mixed hierarchy; comprehension is the remaining decision criterion.
 
 - [ ] **0B.7.5 — Decide user-facing `Cue` terminology per surface.**
+  - **HUMAN VALIDATION:** explicitly covered by `spike-0b-human-test-plan.md`.
 
-- [ ] **0B.7.6 — Record any Narrative IR failures exposed by real authoring UX.**
+- [x] **0B.7.6 — Record any Narrative IR failures exposed by real authoring UX.**
   - Do not hide them with workflow-specific state.
   - If IR changes are required, update `narrative-ir-spec.md` and tests explicitly.
+  - **Result:** no semantic failure has been exposed by current fixtures/authoring implementation; human sessions remain the next pressure test.
 
 ## Interaction/system decisions
 
-- [ ] **0B.7.7 — Decide shared selection/navigation behavior.**
-- [ ] **0B.7.8 — Decide undo/history requirement for the next phase.**
+- [x] **0B.7.7 — Decide shared selection/navigation behavior.**
+  - **Decision:** canonical selection remains `{ type, id }`; preserve across compatible surface changes and clear when the selected canonical object is deleted.
+- [x] **0B.7.8 — Decide undo/history requirement for the next phase.**
   - domain undo;
   - Workspace undo;
   - coordinated command history;
   - or explicitly defer with evidence.
+  - **Decision:** defer until after human validation / the next phase. No command-history architecture is needed to answer 0B; revisit when assisted multi-operation changes create concrete undo semantics.
 
 ## Assessment documentation
 
-- [ ] **0B.7.9 — Create `spike-0b-assessment.md`.**
+- [x] **0B.7.9 — Create `spike-0b-assessment.md`.**
   - pass / partial / fail;
   - evidence;
   - workflow findings;
@@ -601,10 +624,12 @@ Do not start 0C until this section records what 0B actually taught us.
   - Narrative IR findings;
   - decisions;
   - remaining pressure points.
+  - **Result:** status is `PARTIAL — ready for human workflow validation`.
 
 - [ ] **0B.7.10 — Resolve RFC 0001 based on 0B evidence.**
   - accepted / rejected / superseded;
   - create an ADR only if an accepted architectural decision needs one.
+  - **BLOCKED ON HUMAN VALIDATION:** do not resolve the RFC before the remaining workflow/terminology evidence is collected.
 
 - [ ] **0B.7.11 — Update roadmap/current-focus docs.**
   - `README.md`;
@@ -612,8 +637,10 @@ Do not start 0C until this section records what 0B actually taught us.
   - `mvp.md`;
   - `backlog.md`;
   - other contracts only if evidence changed them.
+  - **BLOCKED ON HUMAN VALIDATION:** update the roadmap when 0B is pass/partial/fail final rather than at this checkpoint.
 
 - [ ] **0B.7.12 — Update this tracker to final 0B status/evidence.**
+  - **BLOCKED ON HUMAN VALIDATION.**
 
 ---
 
@@ -622,17 +649,24 @@ Do not start 0C until this section records what 0B actually taught us.
 Spike 0B is complete only when all required tasks above are either completed or explicitly cancelled/superseded with evidence, and the following conditions hold:
 
 - [ ] **0B.GATE.1 — Story Wall is recognizable and usable for structural/spatial validation.**
+  - **HUMAN VALIDATION.**
 - [ ] **0B.GATE.2 — Outline is recognizable and usable for hierarchical authoring.**
+  - **HUMAN VALIDATION.**
 - [ ] **0B.GATE.3 — AV Script is recognizable and usable for visual/audio authoring.**
+  - **HUMAN VALIDATION.**
 - [ ] **0B.GATE.4 — Paper/Radio Edit is recognizable and usable for source-backed authoring.**
-- [ ] **0B.GATE.5 — All four surfaces manipulate one canonical Narrative IR without duplicate story documents.**
-- [ ] **0B.GATE.6 — Workspace organization remains separate from Narrative IR semantics.**
-- [ ] **0B.GATE.7 — Stable canonical identity survives cross-surface editing.**
+  - **HUMAN VALIDATION.**
+- [x] **0B.GATE.5 — All four surfaces manipulate one canonical Narrative IR without duplicate story documents.**
+- [x] **0B.GATE.6 — Workspace organization remains separate from Narrative IR semantics.**
+- [x] **0B.GATE.7 — Stable canonical identity survives cross-surface editing.**
 - [ ] **0B.GATE.8 — Authored and source-backed content remain unambiguous.**
+  - **HUMAN VALIDATION:** semantic distinction passes; user-facing unambiguity still needs observation.
 - [ ] **0B.GATE.9 — Spatial/structural gestures map predictably to Workspace or Narrative operations.**
-- [ ] **0B.GATE.10 — No workflow-specific workaround hides a genuine Narrative IR semantic failure.**
-- [ ] **0B.GATE.11 — `spike-0b-assessment.md` records the result and decisions.**
-- [ ] **0B.GATE.12 — CI/typecheck/tests/build are green for the final 0B state.**
+  - **HUMAN VALIDATION:** technical mapping passes; user predictability still needs observation.
+- [x] **0B.GATE.10 — No workflow-specific workaround hides a genuine Narrative IR semantic failure.**
+- [x] **0B.GATE.11 — `spike-0b-assessment.md` records the result and decisions.**
+- [x] **0B.GATE.12 — CI/typecheck/tests/build are green for the final 0B state.**
+  - **Current CI:** install → typecheck → unit/acceptance tests → build. Chromium/browser automation is disabled.
 
 When these are satisfied, mark Spike 0B complete in `mvp.md`/`backlog.md`, update the current project focus, and move to the next validated milestone.
 
@@ -642,12 +676,12 @@ Add concise phase/subphase evidence here as work lands. Keep detailed implementa
 
 | Area | Evidence | Result |
 | --- | --- | --- |
-| 0B.0 Foundation | PR #12 — React/Vite app, public `@salai/script-model` integration, fixture controller, canonical operation dispatch, visible domain feedback. PRs #14–#16 proved one shared selection/controller across all four surfaces. PR #17 simplified and optimized the shared boundary; CI typecheck/tests/build green. | Partial — Storybook, browser smoke coverage, and the complete controller smoke-test criterion remain. |
-| 0B.1 Workspace | PR #12 — in-memory Workspace/Board/BoardItem/IdeaCard model and isolation tests. PR #14 — free spatial movement, parking, explicit structural order, IdeaCard promotion and continuity tests. PR #17 — removed speculative fields and the unused generic movement interpreter. | Semantic gate passed. |
-| 0B.2 Outline | PR #12 — mixed Section/Scene/Beat rendering, inline domain edits, create/move/delete actions, cross-parent movement, derived runtime. PR #17 — shared duration derivation and maintenance cleanup. | Partial — dedicated UI interaction tests remain. |
-| 0B.3 Story Wall | PR #14 — canonical Beat/Scene cards, Pragmatic DnD positioning, parking, IdeaCards, promotion, explicit structural order and boundary tests. PR #17 — reduced Workspace state and removed test-only abstractions. | Semantic gate passed; canonical-edit/layout interaction test remains. |
-| 0B.4 AV Script | PR #15 — Beat/Cue projection, Visual/Audio lanes, authored/source distinction, Cue/content authoring and runtime tests. PR #17 — shared projection/content helpers and cached derivation. | Implementation gate passed; terminology, browser interaction and cross-surface tests remain. |
-| 0B.5 Paper/Radio | PR #16 — source identity/ranges, authored bridges, audio-first sequence, block reorder/attachment and visual-intent path. PR #17 — removed unnecessary Paper-specific projection state and confirmed no extra Workspace state is currently needed. | Implementation gate passed; source-mutation and cross-surface tests remain. |
-| 0B.6 Cross-surface | — | Pending |
-| 0B.7 Assessment | — | Pending |
-| 0B.GATE | — | Pending |
+| 0B.0 Foundation | PR #12 — React/Vite app, public `@salai/script-model` integration, fixture controller, canonical operation dispatch, visible domain feedback. PRs #14–#16 — shared selection/controller across all four surfaces. PR #17 — simplified shared boundary. PR #21 — relationship consequence/controller acceptance. Storybook and Browser Mode explicitly cancelled for 0B. | Gate passed. |
+| 0B.1 Workspace | PR #12 — in-memory Workspace/Board/BoardItem/IdeaCard model and isolation tests. PR #14 — free spatial movement, parking, explicit structural order, IdeaCard promotion. PR #17 — removed speculative fields. PR #20 — cross-surface isolation/layout preservation. | Semantic gate passed. |
+| 0B.2 Outline | PR #12 — Section/Scene/Beat authoring and runtime. PR #21 — mixed hierarchy projection, valid/invalid moves, stable identity and runtime acceptance. | Semantic gate passed; visual hierarchy comprehension requires human validation. |
+| 0B.3 Story Wall | PR #14 — Beat/Scene cards, DnD positioning, parking, IdeaCards, promotion, structural order. PR #17 — reduced Workspace state. PR #20 — canonical edit preserves board layout and parking/delete boundaries. | Semantic gate passed; spatial-vs-structural comprehension requires human validation. |
+| 0B.4 AV Script | PR #15 — Beat/Cue projection, Visual/Audio lanes, authored/source distinction, Cue authoring/runtime. PR #21 — Cue identity across surfaces/moves. | Implementation gate passed; `Cue` terminology and visible cross-surface expectations require human validation. |
+| 0B.5 Paper/Radio | PR #16 — source identity/ranges, authored bridges, audio-first sequence, reorder/attachment and visual-intent path. PR #20 — source/authored preservation and cross-surface acceptance. | Semantic gate passed; workflow fit/source-vs-authored clarity requires human validation. |
+| 0B.6 Cross-surface | PR #20 — continuous surface flow, Workspace isolation/persistence, source preservation, runtime and all fixtures. PR #21 — Cue identity continuation. | Automated semantic/state gate passed; visual distinction remains human. |
+| 0B.7 Assessment | `spike-0b-assessment.md` + `spike-0b-human-test-plan.md` — automated findings recorded and human decision questions isolated. | Partial — human sessions pending. |
+| 0B.GATE | Automated semantic/state conditions pass; recognizability, terminology, hierarchy comprehension, and interaction predictability remain. | Pending human validation. |
