@@ -58,8 +58,7 @@ Keep these out of 0C unless the smallest mock is required for a validation scena
 - canonical rich-text document model;
 - generic infinite canvas / graph editor;
 - general multi-agent framework;
-- autonomous background-agent runtime;
-- universal narrative-quality or `NarrativePulse` score.
+- autonomous background-agent runtime.
 
 # Execution order
 
@@ -171,11 +170,11 @@ Build one complete path before generalizing the agent interface.
 
 ---
 
-# 0C.3 — Grouped change, trust, and revert
+# 0C.3 — Grouped change, trust, and immediate revert
 
 One creative request may contain several internal operations but should remain one understandable action.
 
-- [ ] **0C.3.1 — Represent the last successful agent action with the minimum in-memory metadata.**
+- [ ] **0C.3.1 — Represent the current revertible agent action with minimum in-memory metadata.**
 
 ```text
 AgentAction
@@ -191,8 +190,9 @@ AgentAction
   - reuse `applyOperations()`;
   - publish once on success.
 
-- [ ] **0C.3.3 — Implement one-step revert of the last successful agent action.**
-  - restore pre-action project/Workspace snapshots;
+- [ ] **0C.3.3 — Implement immediate one-step revert safely.**
+  - restore pre-action project/Workspace snapshots only while that agent action is still the most recent canonical/Workspace change;
+  - invalidate/clear the revert snapshot on any subsequent narrative or Workspace edit, including direct lens edits;
   - no general event sourcing;
   - no inverse-operation framework.
 
@@ -201,7 +201,7 @@ AgentAction
   - material ambiguity may ask one focused creative question;
   - external/destructive effects remain outside this spike.
 
-- [ ] **0C.3.GATE — Agent changes are understandable and recoverable without per-operation approval.**
+- [ ] **0C.3.GATE — Agent changes are understandable and immediately recoverable without risking later edits.**
 
 ---
 
@@ -249,7 +249,8 @@ Attachment
 
 - [ ] **0C.5.2 — Demonstrate one meaningful direct-lens edit after agent normalization.**
   - choose whichever existing lens best fits the test scenario;
-  - direct edit continues through the existing canonical/Workspace boundary.
+  - direct edit continues through the existing canonical/Workspace boundary;
+  - this edit invalidates any older snapshot-based agent revert.
 
 - [ ] **0C.5.3 — Include that direct edit in the next agent context.**
   - no synchronization/export step;
@@ -261,9 +262,10 @@ Attachment
 - [ ] **0C.5.5 — Add deterministic round-trip tests.**
   - agent batch → lens projection;
   - direct lens edit → next agent context;
-  - source evidence survives the round trip.
+  - source evidence survives the round trip;
+  - subsequent direct edit disables the older immediate agent revert.
 
-- [ ] **0C.5.GATE — Agent and direct lens work behave as two interaction modes over one project.**
+- [ ] **0C.5.GATE — Agent and direct lens work behave as two interaction modes over one project without unsafe snapshot rollback.**
 
 ---
 
@@ -276,7 +278,7 @@ Do not expand implementation before running the minimum flows with people.
 - [ ] **0C.6.1 — Blank-page or rough-paragraph script-first task.**
 - [ ] **0C.6.2 — Natural-language revision that would have required several 0B interactions.**
 - [ ] **0C.6.3 — Short source/interview task with fixture-backed attachments.**
-- [ ] **0C.6.4 — Revert an incorrect agent interpretation and try again.**
+- [ ] **0C.6.4 — Immediately revert an incorrect agent interpretation before making another edit.**
 - [ ] **0C.6.5 — Agent-normalized project → voluntary Narrative Lens use → direct edit → follow-up agent request.**
 
 ## Interaction-compression evidence
@@ -287,7 +289,7 @@ Record:
 - clarifications;
 - structural concepts the user had to reason about;
 - hesitation/flow;
-- whether grouped summary + revert were sufficient for trust.
+- whether grouped summary + immediate revert were sufficient for trust.
 
 ## Structural-insight evidence
 
@@ -312,7 +314,7 @@ Record:
 - [ ] **G3 — Agent changes use the existing canonical operation/batch boundary rather than a second domain model.**
 - [ ] **G4 — Failed batches cannot partially publish live project state.**
 - [ ] **G5 — Source evidence remains source evidence.**
-- [ ] **G6 — One grouped agent action can be understood and reverted.**
+- [ ] **G6 — One grouped agent action can be understood and immediately reverted without erasing later edits.**
 - [ ] **G7 — Existing Narrative Lenses remain synchronized; at least one provides useful voluntary structural insight.**
 - [ ] **G8 — One direct-lens edit is visible to the next agent request without export/import or state drift.**
 - [ ] **G9 — No unvalidated 0C infrastructure or new lens was required to make the demo work.**
