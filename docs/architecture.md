@@ -51,7 +51,7 @@ Core interaction rule:
 - canonical operation semantics;
 - agent interpretation/normalization policy;
 - any minimal agent-facing command adapters proven necessary by real scenarios;
-- grouped action/revert semantics;
+- grouped action/immediate-revert semantics;
 - Narrative Lens semantics and Projection/Workspace ownership;
 - ShotIntent and narrative/media relationships when the production graph is introduced;
 - source-evidence rules;
@@ -179,9 +179,11 @@ applyOperations()
 one controller publish
 ```
 
-Keep the pre-action project/Workspace snapshots and allow one-step revert of the last successful agent action.
+Keep the pre-action project/Workspace snapshots and allow immediate one-step revert **only while no later canonical or Workspace edit has occurred**. Any subsequent agent or direct-lens change clears/invalidates that snapshot.
 
-Do not introduce event sourcing, general inverse-operation generation, or a universal undo architecture until a later phase demonstrates the need.
+This deliberately avoids reverting an old snapshot over newer manual work. A unified long-lived undo/history model is deferred until evidence requires it.
+
+Do not introduce event sourcing or general inverse-operation generation for 0C.
 
 # Local-first and provider data egress
 
@@ -301,7 +303,7 @@ ComfyUI or hosted generation providers remain process/API boundaries. Generated 
 - simple text/instruction/attachment UI;
 - one mockable model-provider adapter;
 - controller batch dispatch using `applyOperations()`;
-- in-memory last-action revert;
+- in-memory immediate last-action revert;
 - existing Narrative Lenses.
 
 No general agent framework is assumed.
@@ -312,7 +314,7 @@ Only questions that can change the near-term architecture belong here:
 
 - Can public `NarrativeOperation[]` cover most agent revision scenarios directly?
 - Which concrete creation/reference cases, if any, justify a higher-level command adapter?
-- What constitutes one understandable reversible agent action?
+- What constitutes one understandable agent action beyond the immediate-revert spike boundary?
 - Does working text need durable identity after human testing?
 - What attachment-derived context is sufficient before real media analysis?
 - Does active-lens identity materially improve interpretation without dragging UI state into the agent contract?
