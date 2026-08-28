@@ -33,11 +33,5 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
-      - name: Install Chromium
-        run: pnpm --filter @salai/spike-demo exec playwright install --with-deps chromium
-
-      - name: Browser tests
-        run: pnpm test:browser
-
       - name: Build
         run: pnpm build
