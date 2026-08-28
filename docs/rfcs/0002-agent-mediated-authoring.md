@@ -68,7 +68,7 @@ Introduce a higher-level Salai authoring command only when a concrete implemente
 
 Such commands are transient adapters that compile immediately to public operations. They must not become a second persistent domain API.
 
-### Grouped action / revert
+### Grouped action / immediate revert
 
 One creative request may contain several internal operations but should appear as one understandable action.
 
@@ -77,9 +77,10 @@ For 0C:
 - publish only after the full operation batch succeeds;
 - retain pre-action project/Workspace snapshots;
 - show a concise creative-level summary;
-- support one-step revert of the last successful agent action.
+- support immediate one-step revert only while no later canonical/Workspace edit has occurred;
+- invalidate the snapshot on any later agent or direct-lens edit.
 
-Do not introduce event sourcing or a general inverse-operation architecture merely to validate this behavior.
+This avoids erasing newer manual work with an older snapshot. Do not introduce a general event-history or inverse-operation architecture merely to validate 0C.
 
 ### Source evidence
 
@@ -151,7 +152,8 @@ Risks:
 - free-form context vs canonical state can become conceptually unclear;
 - a higher-level command adapter can accidentally grow into a duplicate domain API;
 - active-lens context may add complexity without enough value;
-- hosted providers introduce an explicit data-egress boundary.
+- hosted providers introduce an explicit data-egress boundary;
+- the immediate snapshot revert is intentionally limited and does not solve general mixed manual/agent history.
 
 ## Spike 0C validation
 
@@ -159,7 +161,7 @@ Validate only the minimum proof:
 
 1. one script-first creation/revision flow;
 2. one fixture-backed footage/source flow;
-3. one grouped multi-operation change with summary + revert;
+3. one grouped multi-operation change with summary + immediate revert;
 4. source evidence preserved;
 5. one agent-normalized project → existing lens → direct edit → follow-up agent request;
 6. human evidence of materially lower routine interaction than 0B;
@@ -170,7 +172,7 @@ The executable tasks are canonical in [`../spike-0c-implementation-plan.md`](../
 ## Open questions
 
 1. Which concrete scenarios actually require higher-level agent commands rather than public `NarrativeOperation[]`?
-2. What is the smallest understandable grouped-action/revert boundary?
+2. What history/undo behavior is actually needed beyond 0C's immediate snapshot revert?
 3. Does working text need durable identity after human testing?
 4. How much active-lens context materially improves interpretation?
 5. Does messy agent-mediated input expose a real Narrative IR semantic gap?
