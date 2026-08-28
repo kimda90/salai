@@ -24,6 +24,7 @@ Each kind of information has one authoritative home:
 | System/runtime/persistence architecture | [`architecture.md`](architecture.md) |
 | Validation/implementation sequence | [`mvp.md`](mvp.md) |
 | Current work ordering | [`backlog.md`](backlog.md) |
+| Reliability / service-level policy | [`service-levels.md`](service-levels.md) |
 
 Other documents may summarize these concepts for context, but should **link to the canonical source rather than copy implementation lists, invariants, exact definitions, or task status**.
 
@@ -64,6 +65,7 @@ In particular, the Narrative IR operation vocabulary must only be maintained in 
 | [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) | Agent-mediated authoring + Narrative Lenses proposal | Proposed / active review |
 | [`rfcs/`](rfcs/) | RFC process and proposals | Proposed / accepted / rejected |
 | [`adr/`](adr/) | Append-only accepted architecture decisions | Append-only |
+| [`service-levels.md`](service-levels.md) | Current reliability/SLA expectations | Living |
 
 # Document lifecycle
 
