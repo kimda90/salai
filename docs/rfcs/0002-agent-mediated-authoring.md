@@ -1,465 +1,340 @@
-# RFC 0002 — Agent-Mediated Authoring as the Primary Workflow
+# RFC 0002 — Agent-Mediated Authoring and Narrative Lenses
 
 ## Status
 
 Proposed.
 
-Spike 0B produced strong evidence that the current Narrative IR and shared-view architecture are viable, but the first human UX test exposed a cross-cutting product failure: direct manipulation of structured authoring surfaces requires too much interaction to remain creatively useful.
+Spike 0B produced two important results:
 
-This RFC proposes changing the primary interaction model while retaining the canonical Narrative IR.
+1. one Narrative IR can support several synchronized structured views; and
+2. using those views as the routine path for ordinary creative changes creates too much interaction burden.
 
-## Summary
+A follow-up product insight clarifies that the structured UI is still valuable: it can expose the narrative system, reveal its rhythm and density, and let the creator modify the story from a different angle.
 
-Salai should make free-form writing, conversation, and media intake the primary authoring path. An agent layer should interpret and normalize that input into typed canonical project changes. Existing structured surfaces—Outline, Story Wall, AV Script, Paper/Radio Edit, Coverage, and later media views—remain available as specialized projections/workspaces and precision-editing tools.
+This RFC proposes a dual interaction model over one canonical project.
 
-The proposed shape is:
+## Decision proposal
+
+Salai should combine:
+
+- **agent-mediated free-form authoring** for low-friction intent expression and structural normalization; and
+- **Narrative Lenses** for intentional structural perception and direct manipulation.
+
+The core principle is:
+
+> **Hide structural bookkeeping, not narrative structure.**
+
+## System shape
 
 ```text
 free-form text / conversation / media
                  ↓
-          agent normalization
+          Agent / Normalizer
                  ↓
-     Salai-owned authoring commands
+       Salai authoring commands
                  ↓
- typed Narrative / Workspace / production operations
+       typed canonical operations
                  ↓
-        canonical Salai project
+          canonical project
+          ↙      ↓      ↘
+        Narrative Lenses
+          ↖      ↓      ↗
+       direct lens edits
                  ↓
- structured views / Resolve materialization
+       Resolve materialization
 ```
 
-The agent is not a second source of truth. The chat transcript, working text, and agent command plan are not the canonical project model.
+The agent, working text, chat history, and individual lenses are not separate sources of truth.
 
-## Motivation
+## Agent-mediated authoring
 
-### Evidence from Spike 0B
+The user should normally state the creative result they want rather than perform incidental model mechanics.
 
-0B validated several important architectural assumptions:
-
-- one Narrative IR can support multiple authoring views;
-- stable identity survives restructuring and view switching;
-- Workspace state can remain separate from narrative semantics;
-- source-backed material can retain source identity/ranges;
-- the existing operation boundary can coordinate changes across views.
-
-However, the human test found that a user must perform too many explicit actions to accomplish ordinary creative intentions. The current design asks the user to manage structure that Salai already understands well enough to infer.
-
-Examples of unnecessary user burden include:
-
-- explicitly creating and parenting Beats/Cues;
-- selecting the correct structural target before expressing the idea;
-- separating spatial and narrative operations through additional controls;
-- switching surfaces because a particular operation is exposed only there;
-- translating a creative request into several low-level edits.
-
-The semantic architecture is useful; the interaction model is too literal.
-
-### Product opportunity
-
-Creative input is naturally messy. A filmmaker may mix:
-
-- story prose;
-- incomplete ideas;
-- questions;
-- source clips;
-- interview excerpts;
-- production notes;
-- missing-coverage reminders;
-- references;
-- alternative directions.
-
-Salai can create value by converting that ambiguity into a structured, serializable project representation without forcing the user to normalize it manually.
-
-## Proposal
-
-### 1. Add an agent-mediated interaction layer above canonical state
-
-The user-facing authoring layer accepts ordinary creative input. The agent can inspect current project state and invoke a small set of Salai-owned authoring tools/commands.
+Examples:
 
 ```text
-User intent
-    ↓
-AgentSession / AuthoringAgent
-    ↓
-interpretation + planning
-    ↓
-Salai authoring commands
-    ↓
-compile / allocate IDs / resolve references
-    ↓
-canonical operation batch
-    ↓
-validation
-    ↓
-canonical state
+Move the result quote before the demo.
+
+Make this section shorter without losing Maria's quote.
+
+Build a rough radio edit from these interviews.
 ```
 
-The agent may use an LLM, local model, hosted model, or future deterministic tools. Provider choice does not define project semantics.
+A Salai-owned agent adapter interprets the request and invokes typed authoring commands.
 
-#### Agent command schemas are transient adapters
+The model should not be required to manufacture canonical IDs, calculate array indices, or construct low-level parent references when Salai can resolve those deterministically.
 
-The model should not be required to manufacture raw canonical IDs, calculate array indices, or construct internal `ParentRef` details when Salai can own that work deterministically.
-
-Agent-facing tools may therefore be slightly higher level than the public Narrative operation union. For example, a tool can express “create a Beat after this existing Beat” without requiring the model to invent the new Beat ID or derive the exact target index.
-
-The tool implementation then:
-
-1. resolves stable existing references;
-2. allocates new canonical IDs in Salai code;
-3. compiles the command into one or more public `NarrativeOperation`s;
-4. validates/applies the complete batch.
-
-These commands are **not another canonical story schema**. They are transient typed input to the existing canonical operation boundary.
-
-This separation keeps provider/model output ergonomic while keeping project identity and mutation semantics owned by Salai.
-
-### 2. Keep Narrative IR canonical
-
-The existing Narrative IR remains the semantic source of truth for story structure, content identity, duration, source evidence, and downstream materialization.
-
-The agent must not mutate arbitrary UI documents and later attempt to synchronize them back into the IR.
-
-All committed semantic changes resolve to public typed operations before they become canonical state.
-
-### 3. Make the primary surface free-form and multimodal
-
-The primary workflow should support:
-
-- a simple free-form working text area;
-- project-aware conversational instructions/questions;
-- media/attachment drop.
-
-It should be possible to use these together rather than selecting one exclusive mode.
-
-This is intentionally **not** a chat-only architecture. A linear transcript is poor long-lived creative state. The user needs a stable working area plus conversational reasoning.
-
-### 4. Reposition structured surfaces
-
-Outline, Story Wall, AV Script, Paper/Radio Edit, and future Coverage/Frame/Selects views become specialized tools over canonical state.
-
-They remain important because each representation helps with a different class of creative decision. They are no longer assumed to be mandatory authoring stages or the default entry point.
-
-### 5. Introduce grouped, reversible agent actions
-
-The current “propose every operation and require explicit approval” model would create confirmation friction comparable to the structured UI problem.
-
-Agent actions should instead be grouped around the user's creative intention.
+Agent-facing commands therefore compile immediately into public canonical operations:
 
 ```text
-one user request
-     ↓
-0..N typed operations
-     ↓
-one visible history/change batch
+model tool call
+    ↓
+Salai resolves existing references
+    ↓
+Salai allocates new IDs
+    ↓
+compile NarrativeOperation[]
+    ↓
+validate complete batch
+    ↓
+publish canonical state
 ```
 
-The user can inspect or undo the batch without approving each low-level operation.
+Agent command schemas are transient adapters, not another domain model.
 
-For the 0C spike, the simplest correct implementation is preferred:
+## Narrative Lenses
 
-- compile the full requested change before publishing it to live application state;
-- use the public batch operation path to validate/derive the resulting project;
-- publish once only if the complete batch succeeds;
-- retain the pre-batch in-memory project/Workspace snapshot for one-step revert.
+A **Narrative Lens** is a structured representation of the same canonical project that emphasizes one creative dimension.
 
-Do not synthesize general inverse operations or introduce event sourcing merely to validate one-step agent undo.
+Examples:
 
-### 6. Use graduated autonomy
+| Lens | What it reveals |
+| --- | --- |
+| Outline | hierarchy, progression, proportion |
+| Story Wall | spatial rhythm, balance, turning points, alternatives |
+| AV Script | audiovisual density and realization over time |
+| Paper / Radio Edit | evidence, voice, source pacing |
+| Coverage | gaps between intent and available realization |
+| later Frame Wall / Selects | visual coverage and alternatives |
 
-Not all agent actions need the same review boundary.
+A lens is not merely an expert-mode form. It can be a different way to perceive and shape the narrative.
 
-#### Reversible local changes
+Implementation may use a Projection, Workspace, or combination. “Lens” describes the creative role; Projection/Workspace describe state ownership.
 
-May auto-apply when clearly requested, provided they are grouped and undoable:
+See [`../narrative-lenses.md`](../narrative-lenses.md).
 
-- creating inferred narrative structure;
-- reordering Beats/Cues;
-- attaching provided evidence;
-- rewriting authored copy;
-- creating obvious supporting Cues.
+## Useful exposure vs bookkeeping
 
-#### Ambiguous creative choices
+The system should automate mechanics that add little creative value:
 
-Ask a focused clarification when ambiguity materially affects meaning and a reversible best-effort choice is not reasonable.
+- canonical ID allocation;
+- raw parent-reference construction;
+- insertion-index calculation;
+- routine object creation;
+- obvious relationship wiring;
+- operation-type selection.
 
-Clarifications should use creative language, not internal domain vocabulary.
+It should expose structure when that exposure helps the creator reason.
 
-#### External/destructive effects
+Examples:
 
-Require explicit confirmation:
+- one Beat has many more Cues than neighboring Beats;
+- one section consumes disproportionate runtime;
+- several consecutive Beats rely on the same source voice;
+- a Beat has no credible realization;
+- the middle of a Story Wall is visually crowded;
+- a simple narrative idea requires unexpectedly complex audiovisual coverage.
 
-- irreversible deletion;
-- real Resolve timeline modifications;
-- publishing/export;
-- destructive filesystem operations;
-- paid/expensive generation;
-- source-binding replacement when recovery is unclear.
+## Direct manipulation remains first-class
 
-### 7. Preserve source/provenance semantics
+The 0B finding does not imply that direct structured editing should disappear.
 
-Agent mediation must not weaken the authored/source boundary.
+Direct manipulation is valuable when the user intentionally chooses the representation because it matches the current creative problem.
 
-- recorded words remain SourceExcerpt evidence;
-- source ranges remain stable;
-- media attachments retain identity through explicit attachment/source handles;
-- generated media keeps provenance;
-- authored agent output remains authored content;
-- the agent cannot silently convert recorded evidence into fictional editable prose.
+Examples:
 
-### 8. Treat the Narrative IR as an intermediate representation
+- rearrange cards while thinking spatially;
+- move sourced excerpts while shaping spoken rhythm;
+- edit Visual/Audio moments while planning realization;
+- restructure hierarchy while intentionally working in Outline.
 
-The IR becomes the normalized contract between:
+The failure was making these interactions compulsory for routine creative intent.
 
-- human creative input;
-- agent reasoning;
-- specialized views;
-- media/source relationships;
-- production planning;
-- downstream Resolve materialization.
+## Agent + lens context
 
-This makes the structured model more central while making it less visible to the user.
+The agent should be able to reason with the active lens where useful.
 
-## Proposed architecture
+Examples:
 
 ```text
-                         SALAI
+Story Wall
+Why does the middle feel crowded?
 
-         Free-form Authoring / Agent Interaction
-           text · conversation · attachments
-                         │
-                  Agent/Normalizer
-                         │
-               Salai authoring tools
-                         │
-            typed canonical operations
-                         │
-                   Narrative IR
-                         │
-       ┌─────────────────┼──────────────────┐
-       │                 │                  │
-  Projections        Workspaces       Production Graph
-Outline / AV /       Story Wall /      ShotIntent / media
-Paper / Coverage     future boards     relationships
-       └─────────────────┼──────────────────┘
-                         │
-                Resolve materialization
-                         │
-                Salai Resolve adapter
-                         │
-                     CutMaster
-                         │
-                  DaVinci Resolve
+AV Script
+Reduce the number of visual changes in this Beat.
+
+Paper Edit
+Can we make this section less dependent on Maria?
+
+Coverage
+Show only the gaps that block a rough cut.
 ```
 
-Paper/Radio is shown under Projections here because 0B did not justify separate Paper-specific Workspace state. If later user organization around source material requires persistent layout/grouping, that can be added as Workspace state independently of the canonical Paper/Radio projection.
+The agent operates on canonical objects and validated Workspace semantics rather than depending on arbitrary presentation state.
 
 ## Canonical-state boundary
 
-The free-form working text and conversation are inputs/context, not automatically canonical story state.
+Narrative IR remains canonical for:
 
-For the first implementation:
+- narrative structure;
+- stable identity;
+- authored/source-backed content;
+- duration;
+- source evidence;
+- downstream materialization.
 
-- raw input may remain session/workspace context;
-- committed story meaning is normalized into Narrative IR;
-- unresolved notes may remain unresolved;
-- attachments retain temporary/stable handles;
-- no new full `Document` domain model is introduced unless the prototype demonstrates a need.
+Working text and conversation are input/context, not automatically canonical story storage.
 
-A later persistence design may add a durable working-document/session artifact if validated.
+0C should not attempt a lossless bidirectional synchronization between scratch text and canonical state. The canonical result can be understood through change summaries and Narrative Lenses.
 
-### No bidirectional document synchronization in 0C
+## Grouped changes and undo
 
-0C should not attempt to keep the free-form working text as a lossless live textual projection of every canonical change. That would create the synchronization problem this architecture is designed to avoid.
+One creative instruction may compile into several operations but should normally appear as one user-visible action batch.
 
-The working area is input/context. The canonical result should be visible through a concise natural-language change/result summary and the existing structured views. If human testing demonstrates that users require a durable editable text representation that stays synchronized with canonical state, that is evidence for a later explicit WorkingDocument/projection design rather than an implicit hidden contract.
+For 0C:
 
-## Agent runtime boundary
+- compile and validate the complete batch before publishing live state;
+- publish once on success;
+- retain the pre-batch in-memory project/Workspace snapshot;
+- allow one-step revert from that snapshot.
 
-This RFC does **not** propose adopting a general agent framework.
+Do not introduce a general event-history architecture merely to validate this behavior.
 
-Start with a small Salai-owned loop using structured output/tool calls into Salai authoring commands that compile into existing operation APIs. Add orchestration infrastructure only if real workflows require capabilities such as long-running planning, multiple specialist agents, resumable jobs, or tool coordination that cannot be expressed simply.
+## Trust boundary
 
-The initial runtime should favor deterministic mechanics around the model call:
+Use graduated autonomy.
 
-```text
-build context
-   ↓
-model chooses typed Salai tools/commands
-   ↓
-Salai resolves references + allocates IDs
-   ↓
-compile canonical operations
-   ↓
-validate complete batch
-   ↓
-publish once + record batch
-```
+- Clearly requested, reversible local normalization may apply as one grouped, undoable batch.
+- Material creative ambiguity should trigger a focused clarification in creative language.
+- High-impact external effects remain behind explicit user action.
 
-## Media boundary
+Source/provenance semantics remain strict: recorded wording stays source evidence, source ranges remain stable, and agent-created authored material stays authored.
 
-The interaction should allow media intake before full reverse-scripting infrastructure exists.
+## Narrative IR as both IR and visible system
 
-The first spike may use mocked or fixture-backed attachment metadata so it can validate:
+The Narrative IR has two complementary roles.
 
-- drag/drop interaction;
-- source identity preservation;
-- agent attachment/reasoning behavior;
-- source-vs-authored semantics;
-- missing-coverage reasoning.
+### Machine-facing
 
-Real transcription, visual analysis, segmentation, and retrieval remain separate implementation risks.
+It provides deterministic identity, validation, source semantics, projections, persistence, and downstream integrations.
 
-Attachment identity and canonical media identity should remain distinct concepts during the spike. An attachment is input-context identity; when it maps to an existing or newly created `MediaSegment`/Asset identity, Salai performs that resolution explicitly.
+### Human-facing through lenses
+
+It can reveal:
+
+- progression;
+- pacing;
+- density;
+- evidence distribution;
+- audiovisual complexity;
+- coverage gaps;
+- alternatives;
+- structural balance.
+
+The structure becomes more central while requiring less routine manual maintenance.
+
+## Narrative pulse
+
+“Narrative pulse” is currently a product metaphor for patterns such as pacing, density, repetition, voice distribution, audiovisual complexity, coverage completeness, and structural balance.
+
+0C should test whether several Narrative Lenses and derived indicators make these patterns useful.
+
+Do not introduce a canonical `NarrativePulse` object or universal score without evidence.
 
 ## Resolve boundary
 
-The agent should not translate conversation directly into arbitrary Resolve commands.
-
-Resolve remains downstream of canonical Salai state:
+Free-form requests and lens edits change canonical Salai state first.
 
 ```text
-intent
-  ↓
-agent normalization
-  ↓
-canonical state
-  ↓
-explicit materialization/edit action
-  ↓
-Resolve adapter
+creative intent
+      ↓
+agent normalization / lens edit
+      ↓
+canonical Salai project
+      ↓
+materialization decision
+      ↓
+Salai Resolve adapter
+      ↓
+DaVinci Resolve
 ```
 
-This preserves repeatability, reviewability, and project semantics.
+Resolve automation remains downstream from Salai semantics.
 
 ## Alternatives considered
 
-### A. Keep structured surfaces primary and add shortcuts
+### Structured surfaces for every task
 
-Pros:
+Rejected as the sole primary workflow. 0B showed excessive routine interaction burden.
 
-- minimal architectural change;
-- reuses existing UI directly.
+Retained as Narrative Lenses because their representations remain creatively useful.
 
-Cons:
+### Hide all structure behind chat
 
-- does not address the core finding that the user is managing the model;
-- shortcuts reduce clicks but still expose structural bookkeeping;
-- operation availability remains fragmented across surfaces.
+Rejected. It lowers command friction but makes the narrative system opaque and weakens direct creative manipulation.
 
-### B. Add a chat sidebar to the existing product
+### Chat sidebar beside the existing forms
 
-Pros:
+Insufficient. It treats the agent as an accessory while leaving model management as the default workflow.
 
-- easy incremental implementation;
-- agent can issue operations.
+### Canonical rich-text document
 
-Cons:
+Not proposed. Free-form text is input/context; Narrative IR remains canonical.
 
-- treats agent interaction as an accessory rather than the primary authoring layer;
-- creative state becomes split between structured UI and chat history;
-- does not solve free-form drafting/media intake coherently.
+### Generic canvas as the main UI
 
-### C. Make one rich-text document canonical
-
-Pros:
-
-- extremely familiar authoring metaphor;
-- direct writing experience.
-
-Cons:
-
-- risks recreating synchronization problems between document markup and Narrative IR;
-- source evidence, production intent, and multiple structured projections become annotations around a document;
-- document structure may begin defining product semantics.
-
-The proposal uses a simple free-form working document as input without making it the canonical domain model.
-
-### D. Generic multimodal canvas as the main UI
-
-Pros:
-
-- flexible media/text organization;
-- attractive for exploratory work.
-
-Cons:
-
-- can create another high-interaction manual organization layer;
-- risks becoming a node/canvas product rather than an intent-normalization product;
-- not required to test the agent-mediated hypothesis.
-
-A canvas may later become one Workspace if evidence supports it.
-
-### E. Fully autonomous agent
-
-Pros:
-
-- minimum direct interaction.
-
-Cons:
-
-- weak trust and predictability;
-- unsuitable for creative authorship;
-- dangerous once external effects/Resolve/generation are connected.
-
-The proposal favors user-directed, reversible automation rather than unattended autonomy.
+Not required for 0C. A canvas may later become one lens/Workspace if evidence supports it.
 
 ## Consequences
 
-### Positive
+### Benefits
 
-- interaction cost can scale with creative decisions rather than domain-object count;
-- the Narrative IR becomes hidden infrastructure instead of visible workload;
-- blank-page and footage-first work can share one entry surface;
-- users can mix prose, instructions, and media naturally;
-- structured views remain available when they genuinely help;
-- downstream systems receive normalized deterministic state instead of conversational prose;
-- source/provenance rules remain enforceable;
-- Salai owns canonical ID allocation and reference resolution instead of delegating those mechanics to the model.
+- routine interaction can scale with creative decisions rather than domain-operation count;
+- creators retain structured ways to inspect and manipulate the story;
+- blank-page and footage-first work share one entry surface;
+- the agent and lenses operate on the same deterministic state;
+- source identity and provenance remain enforceable;
+- downstream Resolve integration consumes normalized project state.
 
-### Costs / risks
+### Risks
 
-- agent interpretation can be wrong or overconfident;
-- undo/history becomes necessary earlier than planned;
-- user trust depends on understandable change summaries;
-- free-form working state vs canonical state must remain conceptually clear;
+- the agent can interpret intent incorrectly;
+- lens design can expose implementation detail rather than creative structure;
+- free-form context vs canonical state can become conceptually unclear;
+- active-lens context can overcomplicate the agent interface;
 - model latency may interrupt creative flow;
-- media intake may create pressure to implement analysis infrastructure too early;
-- excessive clarification or approval prompts could recreate the original friction;
-- insufficient review could make users feel the project changes unpredictably;
-- agent-facing command schemas can grow into an accidental second domain API if they are not kept narrow and compiled immediately into canonical operations.
+- agent-facing commands can become an accidental second domain API if allowed to grow unchecked.
 
 ## Validation plan
 
-Spike 0C should validate the interaction before broad application infrastructure.
+Spike 0C must validate two dimensions.
 
-Required scenarios:
+### Interaction compression
 
-1. blank-page paragraph → rough narrative structure;
-2. messy working draft → normalized structure without forcing every note into the IR;
-3. source/media attachments → source-preserving radio/paper-edit structure;
-4. natural-language revision → grouped multi-operation change;
-5. change inspection + one-step batch undo;
-6. inspect the same result in existing structured views.
+Can ordinary creative tasks be completed with materially less model-management interaction than 0B?
 
-Primary success criterion:
+### Structural insight
 
-> Users spend materially less effort operating Salai and more effort making creative decisions.
+Do users voluntarily open Narrative Lenses because those views reveal useful information or provide a useful way to manipulate the story?
 
-See [`../agent-mediated-authoring.md`](../agent-mediated-authoring.md) for the detailed implementation/UX contract.
+Required scenarios include:
+
+1. blank-page text to rough narrative;
+2. messy draft to grouped revision;
+3. source/media attachments to source-preserving structure;
+4. one-step batch revert;
+5. agent result inspected and modified in Narrative Lenses;
+6. direct lens edit reflected in the next agent request;
+7. a lens revealing a narrative pattern not obvious in prose/chat.
+
+The target outcome is:
+
+> **Users create with low friction, then deliberately move into structured lenses when they want to understand or reshape the narrative system from another angle.**
+
+See [`../agent-mediated-authoring.md`](../agent-mediated-authoring.md).
 
 ## Open questions
 
-1. Should free-form text or conversation be visually primary?
-2. Should normalization happen continuously, explicitly, or through both modes?
-3. How should assumptions/uncertainty be surfaced without approval spam?
-4. What is the right auto-apply boundary for reversible local changes?
-5. What exact information belongs in one undoable agent batch?
-6. Does the working document need durable identity/state, or can it remain session/workspace context initially?
-7. How should attachments be represented before real media analysis exists?
-8. Which structured surfaces remain first-class after agent-mediated authoring is tested?
-9. How much latency is tolerable during creative writing/restructuring?
-10. Does the existing Narrative IR remain sufficient once the agent is allowed to normalize genuinely messy input rather than curated fixtures?
-11. Which agent-facing commands are truly needed, and which can remain direct wrappers around public Narrative operations?
+1. Which Narrative Lenses remain first-class after 0C?
+2. Which internal concepts are useful enough to expose in each lens?
+3. How should active-lens context affect agent reasoning?
+4. Should users be able to ask questions specifically through a lens?
+5. Should normalization be explicit, continuous, or both?
+6. What is the right grouped-action/undo boundary?
+7. Does working text require durable identity later?
+8. Does messy agent-mediated input expose a Narrative IR semantic gap?
+9. Is narrative pulse best represented through multiple indicators rather than one score?
+10. Which agent-facing commands are truly needed rather than direct operation wrappers?
 
 ## Decision / outcome
 
