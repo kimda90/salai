@@ -188,3 +188,11 @@ Reconsider or supersede this ADR when one of these becomes true:
 - agent behavior requires richer interactive tools than structured final output can support.
 
 Until then, optimize implementation speed behind this boundary rather than generalizing it.
+
+## References
+
+Current Codex protocol facts used by this decision:
+
+- [`codex app-server` protocol/readme](https://github.com/openai/codex/blob/main/codex-rs/app-server/README.md) — app-server role, default stdio/JSONL transport, thread/turn model, and experimental WebSocket status;
+- [`TurnStartParams.outputSchema`](https://github.com/openai/codex/blob/main/codex-rs/app-server-protocol/schema/typescript/v2/TurnStartParams.ts) — JSON Schema constraint for final assistant output;
+- [`LoginAccountParams`](https://github.com/openai/codex/blob/main/codex-rs/app-server-protocol/schema/typescript/v2/LoginAccountParams.ts) and [`LoginAccountResponse`](https://github.com/openai/codex/blob/main/codex-rs/app-server-protocol/schema/typescript/v2/LoginAccountResponse.ts) — ChatGPT login request and browser authorization URL.
