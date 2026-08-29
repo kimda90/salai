@@ -10,6 +10,8 @@ The follow-up hypothesis is not “replace the views with chat.” Structured su
 
 Narrative Lens semantics are owned by [`narrative-lenses.md`](narrative-lenses.md). This document owns only the low-friction authoring/agent behavior and its boundary with canonical state.
 
+Spike 0C's accepted runtime/authentication implementation choice is recorded in [`adr/0006-codex-runtime-behind-salai-agent-seam.md`](adr/0006-codex-runtime-behind-salai-agent-seam.md). That decision must not change the product semantics defined here.
+
 ## Validation question
 
 Can a filmmaker construct and revise representative stories through free-form writing, natural-language instructions, and supplied media while Salai handles routine structural bookkeeping, without losing canonical validity, source provenance, recoverability, or continuity with direct lens editing?
@@ -27,7 +29,11 @@ Core rule:
 ```text
 working text / instruction / attachment handles
                     ↓
-             model/provider call
+          Salai agent context/policy
+                    ↓
+           commodity agent runtime
+                    ↓
+         typed Salai-owned result
                     ↓
         typed canonical changes
                     ↓
@@ -40,7 +46,7 @@ working text / instruction / attachment handles
           Narrative Lenses
 ```
 
-Working text, chat history, model prose, and lens presentation are not competing sources of narrative truth.
+Working text, chat history, runtime threads, model prose, and lens presentation are not competing sources of narrative truth.
 
 # Working surface
 
@@ -59,6 +65,24 @@ It should support:
 The user should not need to decide whether each sentence is a Section, Beat, Cue, ContentBlock, ShotIntent, or note before expressing it.
 
 Do not introduce a canonical rich-text document or attempt bidirectional lossless working-text ↔ Narrative IR synchronization in 0C.
+
+A polished chatbot transcript or token-by-token streaming UI is not required to test this product hypothesis. Runtime status plus a clear final result is enough unless human testing proves otherwise.
+
+# Agent runtime boundary
+
+Salai should reuse commodity authentication/model/session infrastructure without letting it become the product model.
+
+For 0C:
+
+- Salai owns a small runtime-neutral request/result boundary;
+- a deterministic/mock runtime serves CI and hosted demo mode;
+- Codex app-server serves the real local authenticated path;
+- Codex manages ChatGPT authentication, token lifecycle, threads/turns, and model transport;
+- Codex-specific types remain inside the runtime adapter;
+- a fresh runtime/thread must be able to continue from current Salai project context;
+- conversation/thread history is disposable context, not canonical project persistence.
+
+The implementation may use Codex's JSON-Schema-constrained final output before introducing richer tool interaction. Do not build a generic provider, MCP/tool, or chatbot framework unless a concrete validated scenario requires it.
 
 # Canonical operation boundary
 
@@ -85,7 +109,7 @@ Introduce a higher-level Salai authoring command only when a concrete implemente
 When such a command is needed:
 
 ```text
-model tool call
+structured agent result
       ↓
 small Salai command
       ↓
@@ -170,17 +194,21 @@ Narrative Lens definitions, taxonomy, expose/hide rules, and direct-manipulation
 
 The agent may receive the active lens identity when it materially helps interpret a question, but arbitrary UI state should not become agent context by default.
 
+Critically, the next request should receive current Salai state explicitly enough that a stale/empty runtime thread cannot hide direct-lens changes.
+
 # Hosted-provider / local-first boundary
 
-Salai is local-first. Supporting a hosted model provider does not imply that local production media or the whole project is uploaded.
+Salai is local-first. Supporting a hosted model/runtime does not imply that local production media or the whole project is uploaded.
 
-For 0C and later provider adapters:
+For 0C and later runtime/provider adapters:
 
 - raw camera/media originals remain local by default;
 - attachment handles are references, not permission to upload the underlying file;
 - hosted inference receives only the text/derived metadata/project subset explicitly required for the current request;
 - sending raw media or materially broader project context to a hosted provider requires an explicit product boundary and user choice;
-- provider choice must not change canonical operation/source semantics.
+- runtime/provider choice must not change canonical operation/source semantics.
+
+For Codex-backed 0C, Codex owns the ChatGPT authentication/token lifecycle. Salai should neither expose provider keys in the browser nor extract/reuse Codex-managed OAuth credentials.
 
 A local provider may receive broader local context because it does not create the same data-egress boundary, but task relevance should still constrain context size.
 
@@ -209,7 +237,10 @@ Resolve remains downstream of canonical Salai state.
 Required:
 
 - simple free-form/instruction surface;
-- deterministic mockable model/provider boundary;
+- a small Salai-owned agent-runtime seam;
+- deterministic/mock runtime for CI/hosted validation;
+- local Codex implementation with Codex-managed ChatGPT authentication;
+- structured final agent result before richer tool infrastructure;
 - existing canonical `NarrativeOperation[]` / `applyOperations()` reuse;
 - only the minimal higher-level command adapters proved necessary by the implemented scenarios;
 - one script-first vertical slice;
@@ -220,12 +251,14 @@ Required:
 
 Not required:
 
-- Electron or durable persistence;
+- production Electron shell or durable persistence;
 - production graph;
 - Coverage Lens;
 - real transcription/vision;
 - Resolve execution;
-- general agent framework;
+- general agent/provider/plugin framework;
+- Salai-owned API-key/OAuth-token infrastructure;
+- durable chat history or polished streaming chat UI;
 - autonomous/background agents;
 - canonical rich-text model;
 - generic canvas;
@@ -236,5 +269,7 @@ Not required:
 # Validation target
 
 0C passes only if users can complete representative routine tasks with materially less incidental interaction than 0B **and** at least one existing Narrative Lens remains useful enough that users voluntarily enter it for structural insight or direct manipulation.
+
+The runtime choice should help reach that test faster without becoming part of the product's canonical state model.
 
 The exact executable tasks and evidence live in [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md).
