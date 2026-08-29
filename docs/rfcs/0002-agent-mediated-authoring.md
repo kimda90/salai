@@ -6,6 +6,8 @@ Proposed. Validate through Spike 0C before acceptance.
 
 RFC 0001 / ADR 0005 already establish the accepted architectural baseline: one canonical Narrative IR with synchronized Projections/Workspaces. This RFC proposes a **primary interaction model** over that baseline.
 
+Spike 0C's concrete runtime/authentication implementation is separately accepted in [`../adr/0006-codex-runtime-behind-salai-agent-seam.md`](../adr/0006-codex-runtime-behind-salai-agent-seam.md). That implementation choice does not make Codex/thread state part of this proposed product model.
+
 ## Summary
 
 Salai should combine:
@@ -17,7 +19,7 @@ Core principle:
 
 > **Hide structural bookkeeping, not narrative structure.**
 
-The agent, working text, chat history, and lenses are not separate sources of truth.
+The agent, working text, chat/runtime history, and lenses are not separate sources of truth.
 
 ## Motivation
 
@@ -40,7 +42,17 @@ The creator may use:
 - natural-language project instructions/questions;
 - fixture-backed or later real media/source context.
 
-Working text and conversation are context, not canonical story storage.
+Working text and conversation/runtime threads are context, not canonical story storage.
+
+### Runtime boundary
+
+Salai should reuse commodity authentication/model/session infrastructure behind a small Salai-owned runtime seam.
+
+The runtime may own provider authentication, model transport, threads/turns, and low-level events. It must not own Narrative IR, Workspace, or lens semantics.
+
+Spike 0C uses Codex app-server behind this seam because it provides ChatGPT-managed authentication and agent runtime plumbing without requiring Salai to build API-key/OAuth/session infrastructure. A deterministic implementation of the same Salai boundary is used for CI/hosted validation.
+
+This is an implementation optimization, not a requirement that the accepted interaction model permanently depend on Codex.
 
 ### Canonical change boundary
 
@@ -53,7 +65,11 @@ For an agent request that resolves to several canonical changes:
 ```text
 user intent
     ↓
-model/provider
+Salai agent context
+    ↓
+commodity agent runtime
+    ↓
+typed Salai result
     ↓
 NarrativeOperation[]
     ↓
@@ -67,6 +83,8 @@ Start with public `NarrativeOperation[]` where stable existing IDs make that suf
 Introduce a higher-level Salai authoring command only when a concrete implemented scenario requires Salai-owned resolution, such as new-ID allocation, relative placement, or avoiding raw `ParentRef`/index manufacture by the model.
 
 Such commands are transient adapters that compile immediately to public operations. They must not become a second persistent domain API.
+
+For the first 0C slices, prefer a JSON-Schema-constrained final runtime result before introducing a generic tool/MCP protocol. Richer runtime tools should be justified by a concrete Salai scenario rather than adopted preemptively.
 
 ### Grouped action / immediate revert
 
@@ -99,17 +117,21 @@ This RFC requires only that:
 - one direct-lens edit can become context for a subsequent agent request without synchronization/export logic;
 - Workspace-only intent remains Workspace-only.
 
+The next agent request should receive current task-relevant Salai state rather than depending on opaque runtime memory to know about direct-lens edits.
+
 0C does not need a new Coverage Lens. It may test a simple missing/unsupported-material question using mocked relationships; the Coverage Lens belongs with the later production graph.
 
 ### Local-first / hosted-provider boundary
 
-Supporting hosted inference does not grant the provider implicit access to local production media.
+Supporting hosted inference does not grant the provider/runtime implicit access to local production media.
 
 - raw originals remain local by default;
 - attachment handles are references, not upload authorization;
 - hosted requests receive only task-relevant selected/derived context;
 - broader/raw-media egress requires an explicit product/user boundary;
-- provider choice must not change canonical Narrative/source/provenance semantics.
+- provider/runtime choice must not change canonical Narrative/source/provenance semantics.
+
+Authentication credentials are runtime infrastructure, not project state. For Codex-backed 0C, Codex owns ChatGPT OAuth/token lifecycle; Salai does not extract/reuse those tokens.
 
 ### Resolve boundary
 
@@ -133,9 +155,17 @@ Insufficient. It leaves model management as the default interaction and treats t
 
 Not proposed. Working text is input/context; Narrative IR remains canonical.
 
-### General agent framework
+### Build Salai-owned provider/auth/session infrastructure first
 
-Not justified for 0C. Start with one small Salai-owned provider/structured-output boundary.
+Rejected for 0C. It spends validation time on commodity API keys, OAuth/token lifecycle, session transport, and model execution rather than the Salai product hypothesis.
+
+### General agent or multi-provider framework
+
+Not justified for 0C. Use one small Salai-owned runtime seam with Codex as the concrete local implementation and a deterministic test implementation. Generalize only when another validated runtime/provider is actually required.
+
+### Runtime thread/history as project state
+
+Rejected. Runtime context is disposable; current canonical Salai state must be sufficient to start/freshen the runtime and continue.
 
 ## Consequences
 
@@ -144,7 +174,9 @@ Benefits:
 - routine interaction can scale with creative decisions rather than operation count;
 - creators retain direct structured ways to inspect/manipulate the story;
 - source/provenance rules remain enforceable;
-- downstream systems consume deterministic project state.
+- downstream systems consume deterministic project state;
+- 0C can reuse authentication/agent runtime infrastructure rather than building it;
+- isolating the runtime behind Salai-owned types limits vendor/runtime lock-in.
 
 Risks:
 
@@ -152,8 +184,10 @@ Risks:
 - free-form context vs canonical state can become conceptually unclear;
 - a higher-level command adapter can accidentally grow into a duplicate domain API;
 - active-lens context may add complexity without enough value;
-- hosted providers introduce an explicit data-egress boundary;
-- the immediate snapshot revert is intentionally limited and does not solve general mixed manual/agent history.
+- hosted runtimes introduce an explicit data-egress boundary;
+- the immediate snapshot revert is intentionally limited and does not solve general mixed manual/agent history;
+- the first Codex implementation may expose runtime assumptions that need to be pushed back behind the seam;
+- structured final output may prove insufficient for some workflows and require a later explicit tool boundary.
 
 ## Spike 0C validation
 
@@ -164,19 +198,23 @@ Validate only the minimum proof:
 3. one grouped multi-operation change with summary + immediate revert;
 4. source evidence preserved;
 5. one agent-normalized project → existing lens → direct edit → follow-up agent request;
-6. human evidence of materially lower routine interaction than 0B;
-7. human evidence that at least one existing lens provides useful structural insight.
+6. real local execution through Codex without Salai-owned provider credential plumbing;
+7. restart/fresh-thread continuity from Salai canonical context;
+8. human evidence of materially lower routine interaction than 0B;
+9. human evidence that at least one existing lens provides useful structural insight.
 
 The executable tasks are canonical in [`../spike-0c-implementation-plan.md`](../spike-0c-implementation-plan.md).
 
 ## Open questions
 
 1. Which concrete scenarios actually require higher-level agent commands rather than public `NarrativeOperation[]`?
-2. What history/undo behavior is actually needed beyond 0C's immediate snapshot revert?
-3. Does working text need durable identity after human testing?
-4. How much active-lens context materially improves interpretation?
-5. Does messy agent-mediated input expose a real Narrative IR semantic gap?
-6. Which existing lenses remain useful enough to justify continued investment after 0C?
+2. Is JSON-Schema-constrained final output sufficient for both 0C vertical slices, or does a concrete scenario require richer tool interaction?
+3. What history/undo behavior is actually needed beyond 0C's immediate snapshot revert?
+4. Does working text need durable identity after human testing?
+5. How much active-lens context materially improves interpretation?
+6. Does messy agent-mediated input expose a real Narrative IR semantic gap?
+7. Which existing lenses remain useful enough to justify continued investment after 0C?
+8. After 0C, do cost/quality/provider-choice requirements justify another runtime implementation behind the Salai seam?
 
 ## Decision / outcome
 
