@@ -10,7 +10,8 @@ Contracts:
 
 - [`agent-mediated-authoring.md`](agent-mediated-authoring.md) — low-friction authoring/agent contract;
 - [`narrative-lenses.md`](narrative-lenses.md) — structured-lens creative contract;
-- [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) — architecture proposal.
+- [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) — interaction architecture proposal;
+- [`adr/0006-codex-runtime-behind-salai-agent-seam.md`](adr/0006-codex-runtime-behind-salai-agent-seam.md) — accepted Spike 0C runtime/authentication boundary.
 
 ## Spike goal
 
@@ -21,6 +22,25 @@ Validate the smallest dual interaction model that can answer two questions:
 
 The spike is **not** a feature-complete agent architecture or media application.
 
+## Implementation strategy
+
+Optimize for **time to demo behind stable Salai boundaries**.
+
+For 0C:
+
+- Codex app-server provides the real local agent runtime;
+- Codex manages ChatGPT authentication/session/model plumbing;
+- Salai owns one small `AgentRuntime` seam so Codex protocol types do not spread through the application;
+- deterministic/mock runtime behavior remains available for CI and GitHub Pages;
+- Codex final output is constrained with `turn/start.outputSchema` before adding a custom tool protocol;
+- canonical changes still pass through `NarrativeOperation[]` / `applyOperations()`;
+- Codex thread/history state is disposable runtime context, not canonical Salai project state;
+- direct browser-to-Codex WebSockets are not the baseline; the real path uses a small local host and Codex's supported stdio/JSONL transport.
+
+Principle:
+
+> **Long-term domain boundary, short-term infrastructure.**
+
 ## Reuse baseline
 
 0C starts from capabilities that already exist:
@@ -30,9 +50,34 @@ The spike is **not** a feature-complete agent architecture or media application.
 - `applyOperations()` already applies a `NarrativeOperation[]` against immutable input and returns one final `OperationResult`;
 - the existing `SalaiController` publishes canonical project/Workspace state;
 - Story Wall, Outline, AV Script, and Paper/Radio already read/write the same project;
-- deterministic fixtures cover script-first, interview/corporate, and footage-first material.
+- deterministic fixtures cover script-first, interview/corporate, and footage-first material;
+- the React/Vite prototype and GitHub Pages build already provide the validation surface.
 
-**Do not rebuild these behind a second agent-specific state or operation system.**
+External commodity runtime reused for 0C:
+
+- `codex app-server` for ChatGPT-authenticated model execution, threads/turns, and structured final output.
+
+**Do not rebuild existing Salai model/controller behavior behind a second agent-specific state or operation system. Do not rebuild Codex authentication/session plumbing inside Salai.**
+
+## State ownership
+
+Keep three layers explicit:
+
+```text
+Codex runtime state
+thread / turn / auth / model context
+        ↓ disposable
+
+Salai agent state
+current request / selected context / proposed result
+        ↓ transient
+
+Salai project state
+Narrative IR / Workspace / source relationships
+        ↓ canonical
+```
+
+A fresh Codex process/thread must be able to continue from current Salai state.
 
 ## Tracker rules
 
@@ -46,18 +91,24 @@ The spike is **not** a feature-complete agent architecture or media application.
 
 Keep these out of 0C unless the smallest mock is required for a validation scenario:
 
-- Electron / FastAPI / SQLite;
+- production Electron shell or durable desktop packaging;
 - durable persistence;
 - real Resolve/CutMaster execution;
 - production graph implementation;
 - a new Coverage Lens;
 - full transcription/media analysis;
 - OpenTimelineIO/OpenAssetIO integration;
-- GenAI execution;
+- GenAI media execution;
 - vector database;
 - canonical rich-text document model;
 - generic infinite canvas / graph editor;
 - general multi-agent framework;
+- general multi-provider/model-router framework;
+- Salai-owned OAuth/token refresh or API-key vault;
+- extracting/reusing Codex ChatGPT OAuth tokens in Salai;
+- direct browser dependency on Codex's experimental WebSocket transport;
+- durable chat/session history;
+- polished token-by-token chatbot streaming;
 - autonomous background-agent runtime.
 
 # Execution order
@@ -65,11 +116,11 @@ Keep these out of 0C unless the smallest mock is required for a validation scena
 ```text
 0C.0 Reuse canonical batch boundary
    ↓
-0C.1 Low-friction authoring shell
+0C.1 Codex runtime seam + low-friction shell
    ↓
 0C.2 Script-first vertical slice
    ↓
-0C.3 Grouped change + revert
+0C.3 Grouped change + immediate revert
    ↓
 0C.4 Footage/source vertical slice
    ↓
@@ -83,6 +134,8 @@ Keep these out of 0C unless the smallest mock is required for a validation scena
 ---
 
 # 0C.0 — Reuse the canonical batch boundary
+
+Do this before wiring a real model so the agent has exactly one safe application path.
 
 - [ ] **0C.0.1 — Keep `@salai/script-model` as the only canonical narrative model.**
   - no AI-owned project schema;
@@ -121,27 +174,59 @@ Keep these out of 0C unless the smallest mock is required for a validation scena
 
 ---
 
-# 0C.1 — Low-friction authoring shell
+# 0C.1 — Codex runtime seam + low-friction authoring shell
 
-- [ ] **0C.1.1 — Add one simple free-form working area.**
+Bootstrap only enough runtime/UI infrastructure to exercise the real product hypothesis.
+
+- [ ] **0C.1.1 — Define a minimum Salai-owned `AgentRuntime` contract.**
+  - use Salai-owned request/result/status types;
+  - keep Codex JSON-RPC, thread, turn, auth, and model types inside the Codex adapter;
+  - support only capabilities required by the first two vertical slices;
+  - do not introduce a provider registry/plugin framework.
+
+- [ ] **0C.1.2 — Add a deterministic/mock runtime behind the same contract.**
+  - deterministic fixtures drive CI;
+  - GitHub Pages continues to use mock behavior;
+  - tests must not require ChatGPT login/network/model availability.
+
+- [ ] **0C.1.3 — Add a local `CodexRuntime` adapter using `codex app-server` over stdio/JSONL.**
+  - local host owns Codex process lifecycle;
+  - initialize the app-server protocol explicitly;
+  - start an ephemeral/fresh thread for the minimum scenario unless persistence proves necessary;
+  - translate only needed runtime events/results;
+  - no dependency on experimental browser WebSocket transport.
+
+- [ ] **0C.1.4 — Delegate ChatGPT authentication to Codex.**
+  - use Codex's ChatGPT login flow;
+  - surface/open the returned authorization URL when login is required;
+  - Salai does not persist or refresh ChatGPT OAuth tokens;
+  - no Salai API-key management UI in 0C.
+
+- [ ] **0C.1.5 — Use structured final output as the first agent/result boundary.**
+  - pass a Salai-owned JSON Schema through Codex `turn/start.outputSchema`;
+  - parse/validate the final result before canonical application;
+  - start with `NarrativeOperation[]` or minimum scenario-specific Salai commands;
+  - do not add MCP/tool-registry infrastructure unless an implemented scenario proves final structured output insufficient.
+
+- [ ] **0C.1.6 — Add the smallest browser ↔ local-host request boundary.**
+  - submit one project-aware request;
+  - expose coarse idle/running/auth-required/error/success state;
+  - return the final structured result;
+  - token-by-token chat streaming and durable conversation history are optional and should not block the demo.
+
+- [ ] **0C.1.7 — Add one simple free-form working area + explicit Process/Apply action.**
   - plain textarea/minimal editor is enough;
   - mixed prose, notes, questions, alternatives, and uncertainty are allowed;
-  - no rich-text framework.
+  - no rich-text framework;
+  - show one concise result/change summary;
+  - keep existing Narrative Lenses one action away.
 
-- [ ] **0C.1.2 — Add one project-aware instruction/question input.**
-  - may share the working area or sit beside it;
-  - chat transcript is not canonical state.
+- [ ] **0C.1.8 — Prove runtime disposability.**
+  - stop/restart the mock/runtime boundary or start a fresh thread;
+  - reconstruct task context from current Salai project state;
+  - no canonical narrative state is lost or recovered from chat history.
 
-- [ ] **0C.1.3 — Add an explicit Process/Apply action.**
-  - no continuous autonomous normalization in this spike.
-
-- [ ] **0C.1.4 — Show one concise result/change summary.**
-  - enough orientation that the user is not forced into a lens after every request.
-
-- [ ] **0C.1.5 — Keep existing Narrative Lenses one action away.**
-  - no new lens required.
-
-- [ ] **0C.1.GATE — A user can express an ordinary intention without first choosing Beat/Cue/parent/operation mechanics.**
+- [ ] **0C.1.GATE — A local user can authenticate through Codex and submit an ordinary request through Salai without Salai owning provider credentials, while hosted/CI mode remains deterministic.**
 
 ---
 
@@ -149,24 +234,25 @@ Keep these out of 0C unless the smallest mock is required for a validation scena
 
 Build one complete path before generalizing the agent interface.
 
-- [ ] **0C.2.1 — Add a minimal model/provider adapter with deterministic mock support.**
-  - one Salai-owned call/structured-output loop;
-  - no agent framework.
-
-- [ ] **0C.2.2 — Process a rough paragraph into a usable canonical story in one user action.**
+- [ ] **0C.2.1 — Process a rough paragraph through `AgentRuntime` into a usable canonical story in one user action.**
   - create/reuse only the structure required by the example;
   - unresolved notes may remain uncommitted;
-  - the user does not manually create Beats/Cues.
+  - the user does not manually create Beats/Cues;
+  - structured model output still passes through canonical validation.
 
-- [ ] **0C.2.3 — Support one natural-language revision over existing stable IDs.**
+- [ ] **0C.2.2 — Support one natural-language revision over existing stable IDs.**
   - representative example: move proof earlier, tighten one Beat, or target a shorter runtime;
   - preserve existing identity where possible.
 
-- [ ] **0C.2.4 — Add deterministic mocked-agent tests for the script-first scenario.**
-  - model/provider availability is not required for CI;
-  - resulting operations/project validate through `@salai/script-model`.
+- [ ] **0C.2.3 — Keep real Codex and deterministic runtime behavior behind the same Salai contract.**
+  - product/domain code must not branch on Codex-specific thread/turn types;
+  - CI assertions use deterministic results, not live model text.
 
-- [ ] **0C.2.GATE — One representative script-first story can be created and revised without routine structured-UI management.**
+- [ ] **0C.2.4 — Add deterministic agent tests for the script-first scenario.**
+  - resulting operations/project validate through `@salai/script-model`;
+  - malformed/invalid structured results fail before partial canonical publish.
+
+- [ ] **0C.2.GATE — One representative script-first story can be created and revised without routine structured-UI management or provider credential plumbing.**
 
 ---
 
@@ -254,7 +340,8 @@ Attachment
 
 - [ ] **0C.5.3 — Include that direct edit in the next agent context.**
   - no synchronization/export step;
-  - use canonical state as the source of truth.
+  - use canonical state as the source of truth;
+  - do not depend on a Codex thread remembering the edit unless Salai explicitly supplies current project context.
 
 - [ ] **0C.5.4 — Keep Workspace-only intent Workspace-only.**
   - Story Wall x/y/parking must not silently change narrative semantics.
@@ -265,7 +352,7 @@ Attachment
   - source evidence survives the round trip;
   - subsequent direct edit disables the older immediate agent revert.
 
-- [ ] **0C.5.GATE — Agent and direct lens work behave as two interaction modes over one project without unsafe snapshot rollback.**
+- [ ] **0C.5.GATE — Agent and direct lens work behave as two interaction modes over one project without unsafe snapshot rollback or chat-state dependence.**
 
 ---
 
@@ -289,7 +376,8 @@ Record:
 - clarifications;
 - structural concepts the user had to reason about;
 - hesitation/flow;
-- whether grouped summary + immediate revert were sufficient for trust.
+- whether grouped summary + immediate revert were sufficient for trust;
+- whether auth/runtime plumbing intruded on the creative task.
 
 ## Structural-insight evidence
 
@@ -316,8 +404,11 @@ Record:
 - [ ] **G5 — Source evidence remains source evidence.**
 - [ ] **G6 — One grouped agent action can be understood and immediately reverted without erasing later edits.**
 - [ ] **G7 — Existing Narrative Lenses remain synchronized; at least one provides useful voluntary structural insight.**
-- [ ] **G8 — One direct-lens edit is visible to the next agent request without export/import or state drift.**
-- [ ] **G9 — No unvalidated 0C infrastructure or new lens was required to make the demo work.**
-- [ ] **G10 — CI/typecheck/tests/build are green.**
+- [ ] **G8 — One direct-lens edit is visible to the next agent request without export/import, state drift, or dependence on hidden chat memory.**
+- [ ] **G9 — The real local path uses Codex behind a Salai-owned runtime seam; Salai does not own ChatGPT OAuth/API-key lifecycle.**
+- [ ] **G10 — Restarting/freshening the agent runtime does not lose canonical Salai project state.**
+- [ ] **G11 — Hosted/CI mode remains deterministic without live model credentials.**
+- [ ] **G12 — No unvalidated general provider/agent/chat infrastructure or new lens was required to make the demo work.**
+- [ ] **G13 — CI/typecheck/tests/build are green.**
 
-If 0C passes, record an assessment and decide whether RFC 0002 should be accepted, revised, or rejected before moving to the local production application.
+If 0C passes, record an assessment and decide whether RFC 0002 should be accepted, revised, or rejected before moving to the local production application. At that point, separately evaluate whether Codex remains the right runtime or should be superseded by another implementation behind the same Salai seam.
