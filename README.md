@@ -91,11 +91,19 @@ Assessment: [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md).
 - one agent-normalized project → existing lens → direct edit → follow-up agent round trip;
 - human evidence of materially lower routine interaction than 0B and useful voluntary structural insight.
 
+The runtime strategy is **long-term domain boundary, short-term infrastructure**:
+
+- a small Salai-owned `AgentRuntime` seam keeps runtime/provider concepts out of Narrative IR, controller, and lens code;
+- the real local 0C path uses `codex app-server` for ChatGPT authentication and agent/session/model plumbing;
+- the first agent result is JSON-Schema constrained before introducing custom tool infrastructure;
+- Codex runtime/thread state is disposable context, not canonical Salai project state;
+- deterministic/mock runtime behavior remains available for CI and GitHub Pages.
+
 The snapshot-based revert is valid only until another canonical/Workspace edit occurs; 0C does not attempt a full mixed manual/agent undo history.
 
-A new Coverage Lens, production graph, real media analysis, desktop runtime, and Resolve execution are deferred.
+A new Coverage Lens, production graph, real media analysis, production desktop runtime, and Resolve execution are deferred.
 
-See [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md), [`docs/narrative-lenses.md`](docs/narrative-lenses.md), and [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md).
+See [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md), [`docs/narrative-lenses.md`](docs/narrative-lenses.md), [`docs/adr/0006-codex-runtime-behind-salai-agent-seam.md`](docs/adr/0006-codex-runtime-behind-salai-agent-seam.md), and [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md).
 
 ## Architecture direction
 
@@ -105,8 +113,10 @@ Key accepted/proposed boundaries:
 - one canonical IR backs synchronized Projections/Workspaces/Lenses (ADR 0005);
 - the 0C agent path reuses public `NarrativeOperation[]` / `applyOperations()` before introducing any higher-level command adapter;
 - a higher-level agent command is added only when a concrete scenario proves Salai must resolve IDs/relative references itself;
+- Codex is the current 0C runtime behind a small Salai-owned anti-corruption seam (ADR 0006), not a permanent canonical dependency;
+- Salai does not own ChatGPT OAuth/API-key lifecycle for the Codex-backed path;
 - hosted inference receives only task-relevant selected/derived context; raw production media remains local by default;
-- Electron/local-service/persistence arrive after the primary interaction is validated;
+- production Electron/local-service/persistence arrive after the primary interaction is validated;
 - CutMaster remains the default Resolve automation boundary behind a Salai adapter;
 - OpenTimelineIO/OpenAssetIO/ComfyUI/media-analysis tools stay at integration boundaries rather than owning Salai semantics.
 

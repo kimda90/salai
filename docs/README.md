@@ -30,7 +30,8 @@ In particular:
 - 0C task numbering/status lives only in `spike-0c-implementation-plan.md`;
 - Narrative Lens taxonomy/expose-hide rules live only in `narrative-lenses.md`;
 - `mvp.md` owns sequence, not subphase implementation details;
-- `backlog.md` owns NOW/NEXT/LATER outcomes, not duplicate engineering checklists.
+- `backlog.md` owns NOW/NEXT/LATER outcomes, not duplicate engineering checklists;
+- accepted runtime/provider implementation choices belong in ADRs, while `architecture.md` owns their current system-level consequences.
 
 # Living product / workflow docs
 
@@ -61,6 +62,7 @@ Historical contracts should record what the experiment actually tested. Put late
 - [`rfcs/0001-one-narrative-ir-multiple-workflows.md`](rfcs/0001-one-narrative-ir-multiple-workflows.md) — **Accepted** canonical-model proposal; final decision recorded in ADR 0005.
 - [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) — **Proposed** agent-mediated authoring + Narrative Lenses interaction model; validate through 0C.
 - [`adr/0005-one-narrative-ir-multiple-views.md`](adr/0005-one-narrative-ir-multiple-views.md) — accepted one-IR/multiple-views decision.
+- [`adr/0006-codex-runtime-behind-salai-agent-seam.md`](adr/0006-codex-runtime-behind-salai-agent-seam.md) — accepted Spike 0C decision to use Codex app-server behind a small Salai runtime seam while keeping project state independent of Codex.
 - [`adr/`](adr/) — append-only accepted decisions.
 - [`service-levels.md`](service-levels.md) — reliability expectations.
 
@@ -80,9 +82,19 @@ The minimum current proof is:
 - one agent ↔ existing-lens round trip;
 - human evidence of lower routine interaction and useful voluntary structural insight.
 
+Implementation strategy for the real local path:
+
+- `CodexRuntime` behind a small Salai-owned `AgentRuntime` seam;
+- Codex-managed ChatGPT authentication and agent/session plumbing;
+- JSON-Schema-constrained final result before custom tool infrastructure;
+- supported stdio/JSONL between the local Salai host and Codex;
+- deterministic/mock runtime for CI and GitHub Pages;
+- Codex thread/history remains disposable context; Narrative IR/Workspace remain canonical.
+
 Start with:
 
 - [`agent-mediated-authoring.md`](agent-mediated-authoring.md);
 - [`narrative-lenses.md`](narrative-lenses.md);
+- [`adr/0006-codex-runtime-behind-salai-agent-seam.md`](adr/0006-codex-runtime-behind-salai-agent-seam.md);
 - [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md);
 - [`mvp.md`](mvp.md).
