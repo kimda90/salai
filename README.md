@@ -55,7 +55,7 @@ DaVinci Resolve remains the frame-accurate editing, Fusion, color, Fairlight, an
 - **routine direct structured authoring does not:** ordinary creative changes require too much interaction/model management;
 - **the structured views remain creatively useful:** they can reveal properties that prose/conversation alone may not make obvious.
 
-The current direction is therefore agent-mediated routine authoring **plus** first-class Narrative Lenses, not “replace the views with chat.”
+The current direction is agent/model-mediated routine authoring **plus** first-class Narrative Lenses, not “replace the views with chat.”
 
 See [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md).
 
@@ -88,22 +88,24 @@ Assessment: [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md).
 - one script-first low-friction vertical slice;
 - one fixture-backed footage/source vertical slice;
 - grouped canonical application + immediate one-step revert using the existing `applyOperations()` boundary;
-- one agent-normalized project → existing lens → direct edit → follow-up agent round trip;
+- one model-normalized project → existing lens → direct edit → follow-up model round trip;
 - human evidence of materially lower routine interaction than 0B and useful voluntary structural insight.
 
-The runtime strategy is **long-term domain boundary, short-term infrastructure**:
+The implementation strategy is:
 
-- a small Salai-owned `AgentRuntime` seam keeps runtime/provider concepts out of Narrative IR, controller, and lens code;
-- the real local 0C path uses `codex app-server` for ChatGPT authentication and agent/session/model plumbing;
-- the first agent result is JSON-Schema constrained before introducing custom tool infrastructure;
-- Codex runtime/thread state is disposable context, not canonical Salai project state;
-- deterministic/mock runtime behavior remains available for CI and GitHub Pages.
+- a Salai-owned `SalaiProjectService` is the stable boundary over Narrative IR/Workspace state;
+- Narrative Lenses and model integrations use that same application boundary;
+- the public 0C demo stays in the existing GitHub Pages browser application with no Salai-operated backend;
+- one browser-safe, user-scoped hosted-model adapter provides the live model path without embedding a developer secret;
+- deterministic structured model-result fixtures/mocks drive CI;
+- provider/model/session/authentication state is not canonical Salai project state;
+- external CLI/MCP/Skill integration is optional later work, not part of the 0C gate.
 
-The snapshot-based revert is valid only until another canonical/Workspace edit occurs; 0C does not attempt a full mixed manual/agent undo history.
+The snapshot-based revert is valid only until another canonical/Workspace edit occurs; 0C does not attempt a full mixed manual/model undo history.
 
-A new Coverage Lens, production graph, real media analysis, production desktop runtime, and Resolve execution are deferred.
+A new Coverage Lens, production graph, real media analysis, production desktop runtime, external-agent bridge, and Resolve execution are deferred.
 
-See [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md), [`docs/narrative-lenses.md`](docs/narrative-lenses.md), [`docs/adr/0006-codex-runtime-behind-salai-agent-seam.md`](docs/adr/0006-codex-runtime-behind-salai-agent-seam.md), and [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md).
+See [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md), [`docs/narrative-lenses.md`](docs/narrative-lenses.md), [`docs/adr/0007-project-service-is-the-human-machine-boundary.md`](docs/adr/0007-project-service-is-the-human-machine-boundary.md), and [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md).
 
 ## Architecture direction
 
@@ -111,16 +113,16 @@ Key accepted/proposed boundaries:
 
 - TypeScript Narrative IR is canonical semantic state;
 - one canonical IR backs synchronized Projections/Workspaces/Lenses (ADR 0005);
-- the 0C agent path reuses public `NarrativeOperation[]` / `applyOperations()` before introducing any higher-level command adapter;
-- a higher-level agent command is added only when a concrete scenario proves Salai must resolve IDs/relative references itself;
-- Codex is the current 0C runtime behind a small Salai-owned anti-corruption seam (ADR 0006), not a permanent canonical dependency;
-- Salai does not own ChatGPT OAuth/API-key lifecycle for the Codex-backed path;
+- `SalaiProjectService` is the human/machine application boundary (ADR 0007);
+- the 0C model path reuses public `NarrativeOperation[]` / `applyOperations()` before introducing any higher-level command adapter;
+- a higher-level authoring command is added only when a concrete scenario proves Salai must resolve IDs/relative references itself;
+- model/provider/session/authentication choices remain replaceable adapters and cannot own project semantics;
 - hosted inference receives only task-relevant selected/derived context; raw production media remains local by default;
-- production Electron/local-service/persistence arrive after the primary interaction is validated;
+- the 0C hosted demo remains backendless; production Electron/local-service/persistence arrive only when later validated work requires them;
 - CutMaster remains the default Resolve automation boundary behind a Salai adapter;
-- OpenTimelineIO/OpenAssetIO/ComfyUI/media-analysis tools stay at integration boundaries rather than owning Salai semantics.
+- OpenTimelineIO/OpenAssetIO/generation/media-analysis tools stay at integration boundaries rather than owning Salai semantics.
 
-An agent request changes canonical Salai state first; it does not become an opaque natural-language command stream directly into Resolve.
+A model-mediated request changes canonical Salai state first; it does not become an opaque natural-language command stream directly into Resolve.
 
 See [`docs/architecture.md`](docs/architecture.md) and [`docs/adr/`](docs/adr/).
 
