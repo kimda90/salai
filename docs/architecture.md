@@ -4,15 +4,15 @@
 
 Living System Architecture Document (SAD).
 
-This document owns system-level boundaries, runtime topology, component responsibilities, persistence ownership, and integration direction. It does **not** own Narrative IR field semantics or the canonical operation vocabulary; those are authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md).
+This document owns current system-level boundaries, runtime topology, component responsibilities, persistence ownership, and integration direction. It does **not** own Narrative IR field semantics or the canonical operation vocabulary; those are authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md).
 
 Current interaction contracts are [`agent-mediated-authoring.md`](agent-mediated-authoring.md) and [`narrative-lenses.md`](narrative-lenses.md).
 
-Accepted Spike 0C runtime choice: [`adr/0006-codex-runtime-behind-salai-agent-seam.md`](adr/0006-codex-runtime-behind-salai-agent-seam.md).
+Current human/machine application boundary: [`adr/0007-project-service-is-the-human-machine-boundary.md`](adr/0007-project-service-is-the-human-machine-boundary.md).
 
 ## Architectural thesis
 
-Salai owns narrative and production context around a video while reusing mature infrastructure for model inference/agent execution, authentication, UI mechanics, media processing, generation, interchange, and Resolve automation.
+Salai owns narrative and production context around a video while reusing mature infrastructure for model inference, UI mechanics, media processing, generation, interchange, and Resolve automation.
 
 The product/domain shape is:
 
@@ -20,7 +20,9 @@ The product/domain shape is:
 creative input
 text / instructions / attachment handles
           ↓
-Salai agent / normalization policy
+Salai interpretation / normalization
+          ↓
+SalaiProjectService
           ↓
 NarrativeOperation[]
 (or the minimum scenario-specific command adapter)
@@ -38,9 +40,7 @@ editorial materialization
 DaVinci Resolve
 ```
 
-The runtime used to obtain agent/model output is a replaceable implementation detail behind a Salai-owned boundary.
-
-The user should not need to manipulate every layer directly.
+Human UI and machine integrations are clients of the same Salai-owned application boundary. Model/provider/runtime choices are replaceable adapters, not product state.
 
 Core interaction rule:
 
@@ -53,9 +53,9 @@ Core interaction rule:
 - Narrative IR and stable narrative identity;
 - authored vs source-backed semantics;
 - canonical operation semantics;
-- agent interpretation/normalization policy;
-- the small runtime anti-corruption seam consumed by Salai agent logic;
-- any minimal agent-facing command adapters proven necessary by real scenarios;
+- the application/project service that mediates project reads and writes;
+- interpretation/normalization policy;
+- any minimal authoring commands proven necessary by real scenarios;
 - grouped action/immediate-revert semantics;
 - Narrative Lens semantics and Projection/Workspace ownership;
 - ShotIntent and narrative/media relationships when the production graph is introduced;
@@ -67,9 +67,9 @@ Core interaction rule:
 
 ## Commodity infrastructure may provide
 
-- model inference and agent execution;
-- provider/account authentication and token refresh;
-- agent thread/turn transport and runtime events;
+- model inference;
+- provider/account authentication;
+- generic agent harness/session behavior;
 - UI primitives, dragging, tables, docking, virtualization;
 - media probing/transcoding/thumbnail/waveform extraction;
 - transcription/alignment/scene detection;
@@ -78,7 +78,7 @@ Core interaction rule:
 - local model execution;
 - generation execution.
 
-A model provider, agent runtime/framework, editor framework, or Resolve automation library must not own Salai's canonical project semantics.
+A model provider, agent harness, UI framework, or Resolve automation library must not own Salai's canonical project semantics.
 
 # Canonical state layers
 
@@ -105,7 +105,7 @@ A Projection is deterministically derived from canonical state and owns no indep
 
 Existing examples include Outline, AV Script, and Paper/Radio Edit.
 
-Editing a Projection produces canonical operations.
+Editing a Projection produces canonical operations through the application boundary.
 
 ## 3. Workspace
 
@@ -136,69 +136,37 @@ The future production graph owns objects/relationships such as:
 
 Do not pull the full production graph into Spike 0C merely to answer mocked missing-coverage questions.
 
-# Agent / normalization boundary
+# SalaiProjectService boundary
 
-The agent maps low-structure user input into explicit Salai-owned changes.
+The stable application boundary is a Salai-owned project service over the current Narrative IR and Workspace state.
 
-Inputs may include:
+Its minimum responsibilities are:
 
-- working text;
-- project-aware instructions/questions;
-- task-relevant canonical state;
-- attachment handles/derived metadata;
-- active Narrative Lens identity when materially useful.
+- provide task-relevant project context to a client;
+- apply validated canonical changes;
+- publish project/Workspace changes to interested local clients.
 
-## Runtime anti-corruption seam
+Conceptually:
 
-Salai should not expose provider/runtime-specific protocol types to the product/domain layers.
-
-For Spike 0C the conceptual boundary is:
-
-```text
-Salai UI / controller context
-          ↓
-      SalaiAgent
-          ↓
-     AgentRuntime
-          ↓
-     CodexRuntime
-          ↓
-   codex app-server
+```ts
+interface SalaiProjectService {
+  getContext(request: ContextRequest): ProjectContext;
+  applyOperations(
+    operations: NarrativeOperation[],
+    options?: { expectedRevision?: number; origin?: "agent" | "lens" | "system" },
+  ): OperationResult;
+  subscribe(listener: (change: ProjectChange) => void): () => void;
+}
 ```
 
-`AgentRuntime` is deliberately small. It exists to isolate commodity runtime churn, not to create a general provider framework.
+The exact TypeScript API may evolve during implementation. The ownership rules do not:
 
-Rules:
-
-- runtime request/result/status types exposed to Salai are Salai-owned;
-- Codex JSON-RPC, auth, thread, turn, model, and event types stay inside `CodexRuntime`;
-- the Narrative IR/controller/lenses never branch on Codex-specific concepts;
-- a later runtime may replace `CodexRuntime` without changing canonical semantics;
-- do not add provider registries, plugin systems, or generalized model routing until a validated requirement exists.
-
-ADR 0006 records the accepted 0C implementation choice.
-
-## Structured result before tool infrastructure
-
-Codex `turn/start` supports an `outputSchema` for constraining the final assistant result.
-
-0C should use that as the first model/result boundary:
-
-```text
-Salai context + user intent
-          ↓
-AgentRuntime turn
-          ↓
-JSON-Schema-constrained Salai result
-          ↓
-validate / resolve Salai-owned command shape
-          ↓
-NarrativeOperation[]
-          ↓
-applyOperations()
-```
-
-Do not introduce a custom MCP server, generic tool registry, or second mutation language merely because Codex can support richer agent workflows. Add richer tools only when an implemented Salai scenario proves structured final output insufficient.
+- the service is a facade over existing model/controller behavior, not another domain model;
+- Narrative IR/Workspace remain authoritative;
+- lenses and machine clients use the same mutation path;
+- clients do not write persistence directly;
+- clients do not maintain shadow narrative truth;
+- provider/runtime-specific types stay outside the domain/application layer.
 
 ## Reuse the existing operation API
 
@@ -207,11 +175,11 @@ Do not introduce a custom MCP server, generic tool registry, or second mutation 
 - `applyOperation()`;
 - `applyOperations()`.
 
-`applyOperations()` is the default model-level primitive for one agent request that resolves to several canonical operations. The application controller should publish only after that full call succeeds.
+`applyOperations()` remains the model-level primitive for one request that resolves to several canonical operations. The project service/controller publishes only after the full call succeeds.
 
-Do **not** add a second persistent batch engine or agent-specific domain model.
+Do **not** add a second persistent batch engine or agent-specific project model.
 
-## Higher-level agent commands are conditional
+## Higher-level authoring commands are conditional
 
 Start with public `NarrativeOperation[]` where existing stable IDs make that practical.
 
@@ -220,22 +188,39 @@ Introduce a higher-level Salai command only for a concrete scenario that require
 - new-ID allocation;
 - relative placement;
 - user-facing reference resolution;
-- avoiding raw `ParentRef` or array-index manufacture by the model.
+- avoiding raw `ParentRef` or array-index manufacture by a model/client.
 
 Any such command compiles immediately to public canonical operations and remains a transient adapter.
 
-# Agent/runtime state boundary
+# Human and machine clients
 
-Codex conversation/session state is not Salai project state.
-
-Keep three layers explicit:
+Narrative Lenses, embedded model integrations, and future machine interfaces are all clients of `SalaiProjectService`.
 
 ```text
-Codex runtime state
-thread / turn / auth / model context
-        ↓ disposable
+                 SalaiProjectService
+                ↗        ↑         ↖
+               /         |          \
+      Narrative Lenses  embedded AI  machine adapter
+             ↑                           ↑
+           human                    external harness
+```
 
-Salai agent state
+A Skill, if provided later, teaches a generic agent how to use the machine interface. It is instructions, not capability/state implementation.
+
+An external machine interface may later be CLI, MCP, or another narrow protocol. It must reuse the same project service rather than creating a separate project API or storage path.
+
+# Agent/model state boundary
+
+Model/provider state is not Salai project state.
+
+Keep these layers explicit:
+
+```text
+model / harness state
+session / auth / history / plan / tool trace
+        ↓ disposable context
+
+Salai interaction state
 current request / selected context / proposed result
         ↓ transient
 
@@ -244,9 +229,25 @@ Narrative IR / Workspace / source relationships
         ↓ canonical
 ```
 
-A runtime restart or fresh Codex thread must not lose/redefine the project. The next request should be constructible from current task-relevant Salai state.
+A new model session or different machine client must be able to continue from current task-relevant Salai state. Conversation history may help interaction continuity but cannot be required to reconstruct the project.
 
-This prevents chat history from becoming an accidental shadow project database and keeps later runtime replacement feasible.
+# Change propagation and concurrency
+
+0C is a local single-user validation spike. It does not require CRDTs, event sourcing, distributed locks, or a replicated state framework.
+
+Use one serialized mutation boundary. Local clients subscribe to project changes and read the current canonical state/projections.
+
+A monotonically increasing project revision may be added when needed:
+
+```text
+client reads revision 41
+human edit publishes revision 42
+client submits expectedRevision: 41
+→ stale revision failure
+→ refetch current context
+```
+
+Do not build revision conflict machinery beyond the first concrete need.
 
 # Grouped action / history boundary
 
@@ -257,12 +258,12 @@ one user request
       ↓
 NarrativeOperation[]
       ↓
-applyOperations()
+SalaiProjectService / applyOperations()
       ↓
-one controller publish
+one canonical publish
 ```
 
-Keep the pre-action project/Workspace snapshots and allow immediate one-step revert **only while no later canonical or Workspace edit has occurred**. Any subsequent agent or direct-lens change clears/invalidates that snapshot.
+Keep the pre-action project/Workspace snapshots and allow immediate one-step revert **only while no later canonical or Workspace edit has occurred**. Any subsequent machine or direct-lens change clears/invalidates that snapshot.
 
 This deliberately avoids reverting an old snapshot over newer manual work. A unified long-lived undo/history model is deferred until evidence requires it.
 
@@ -270,7 +271,7 @@ Do not introduce event sourcing or general inverse-operation generation for 0C.
 
 # Local-first and provider data egress
 
-Salai is local-first. A hosted model/runtime does not receive implicit access to local production media or the entire project.
+Salai is local-first. A hosted model/provider does not receive implicit access to local production media or the entire project.
 
 Rules:
 
@@ -279,39 +280,35 @@ Rules:
 - hosted inference receives only the text, derived metadata, thumbnails/transcript excerpts, or project subset explicitly required for the current request;
 - sending raw media or materially broader project context to a hosted provider requires an explicit product/user boundary;
 - local providers may process local files without cloud egress, but context should still be task-relevant rather than indiscriminate;
-- runtime/provider choice must not change Narrative IR, source, operation, or provenance semantics.
+- provider choice must not change Narrative IR, source, operation, or provenance semantics.
 
-For Codex-backed 0C specifically:
-
-- Codex owns ChatGPT OAuth/token lifecycle;
-- Salai does not extract/store reusable ChatGPT OAuth tokens;
-- authentication state remains runtime infrastructure, not project state.
+Credentials/authentication are adapter infrastructure, not project state.
 
 This is an architecture boundary, not a requirement to build a full privacy subsystem in 0C.
 
 # Runtime topology
 
-## Spike 0C local validation topology
+## Spike 0C hosted validation topology
 
-The fastest real authenticated demo uses a small local host rather than pulling the full desktop runtime forward:
+The primary 0C demo remains the existing static React/Vite application published with GitHub Pages.
 
 ```text
-React / Vite validation UI
-          ↓
-small localhost request boundary
-          ↓
-local Salai agent host
-          ↓ stdio / JSONL
-    codex app-server
-          ↓
-ChatGPT-authenticated Codex service
+GitHub Pages
+     ↓
+React / Vite Salai UI
+     ↓
+SalaiProjectService
+     ↙             ↘
+Narrative Lenses   browser model adapter
+                       ↓
+                hosted inference
 ```
 
-The browser-facing boundary only needs to submit a request, surface coarse runtime/auth/error status, and receive the final structured result. Polished token streaming and durable chat history are not required for 0C.
+The browser model integration must be safe for a public static client. Do not embed a reusable developer API secret in the bundle. Model/provider selection is an adapter decision and does not affect canonical project semantics.
 
-Codex app-server's WebSocket transport is currently experimental/unsupported, so direct browser-to-Codex WebSockets are not an architectural baseline.
+CI uses deterministic model-result fixtures/mocks and must not depend on network/model availability.
 
-The GitHub Pages build cannot spawn the local runtime. It remains useful as a deterministic/mock validation/demo build.
+No Salai-operated backend, local agent host, durable chat service, or desktop shell is required for 0C.
 
 ## Broader application direction
 
@@ -327,7 +324,7 @@ filesystem · media tools · model runtimes · Resolve
 
 See [`adr/0002-local-first-desktop-runtime.md`](adr/0002-local-first-desktop-runtime.md).
 
-The 0C local host is intentionally replaceable by the later desktop main-process/IPC boundary. Do not require production Electron/FastAPI/persistence merely to validate 0C.
+A later desktop process can expose `SalaiProjectService` to local machine clients when that workflow is validated. Do not pull that bridge into 0C merely to support an external agent proof.
 
 # Persistence boundary
 
@@ -335,8 +332,8 @@ Validated state today:
 
 - Narrative IR serialization exists;
 - minimum Story Wall Workspace semantics are validated in memory;
-- 0C agent/grouped-action behavior is intentionally in-memory;
-- Codex threads/history are runtime context rather than required Salai persistence.
+- 0C grouped-action behavior is intentionally in-memory;
+- model/harness history is not required Salai persistence.
 
 Durable persistence comes after 0C and should include only state whose product role is validated:
 
@@ -367,17 +364,19 @@ CutMaster by default
 DaVinci Resolve
 ```
 
-The agent must not turn conversation directly into arbitrary Resolve mutations.
+Free-form/model interaction must not turn directly into arbitrary Resolve mutations.
 
 See [`adr/0001-resolve-remains-the-nle.md`](adr/0001-resolve-remains-the-nle.md) and [`adr/0004-cutmaster-default-resolve-boundary.md`](adr/0004-cutmaster-default-resolve-boundary.md).
 
 # Integration direction
 
-## Codex app-server
+## Browser model adapter
 
-Spike 0C runtime/authentication implementation behind the Salai `AgentRuntime` seam. Use supported stdio/JSONL locally; use structured final output first; keep Codex protocol/state non-canonical.
+Spike 0C needs one minimal browser-safe hosted-model adapter for the public demo. It receives task-relevant context and returns a Salai-owned structured result. It is not a canonical service and may be replaced without changing project/lens code.
 
-This is an accepted spike implementation choice, not a permanent requirement that future Salai releases use Codex.
+## External machine interfaces
+
+CLI/MCP/Skill integration is a later or optional proof over `SalaiProjectService`. Do not build both CLI and MCP in 0C. Do not make external-agent support part of the 0C gate unless product validation explicitly changes.
 
 ## OpenTimelineIO
 
@@ -393,13 +392,13 @@ Commodity local media utilities for probing, extraction, proxy/transcode work, a
 
 ## Transcription / reverse scripting
 
-Prefer established components such as faster-whisper, WhisperX when alignment/diarization is required, and PySceneDetect for initial segmentation experiments. Convert their output into Salai-owned MediaSegment/SourceExcerpt semantics.
+Prefer established components when real analysis is introduced. Convert their output into Salai-owned MediaSegment/SourceExcerpt semantics.
 
-0C uses fixture/mock metadata instead of this real-media stack.
+0C uses fixture/mock metadata instead of a real-media analysis stack.
 
 ## Generation
 
-ComfyUI or hosted generation providers remain process/API boundaries. Generated output becomes an ordinary production asset with provenance rather than creating a parallel GenAI workflow model.
+Generation providers remain process/API boundaries. Generated output becomes an ordinary production asset with provenance rather than creating a parallel GenAI workflow model.
 
 # Technology baseline
 
@@ -420,31 +419,29 @@ ComfyUI or hosted generation providers remain process/API boundaries. Generated 
 
 ## Spike 0C minimum addition
 
+- `SalaiProjectService` facade over current controller/model behavior;
 - controller batch dispatch using `applyOperations()`;
-- a small Salai-owned `AgentRuntime` seam;
-- deterministic/mock runtime for CI/Pages;
-- local Codex adapter over `codex app-server` stdio/JSONL;
-- Codex-managed ChatGPT login;
-- JSON-Schema-constrained final agent result;
-- small local browser/request bridge;
+- deterministic model-result fixtures/mocks for CI;
+- one browser-safe hosted-model adapter for the public demo;
 - simple text/instruction/attachment UI;
 - in-memory immediate last-action revert;
+- project change subscription/re-render through existing application state;
 - existing Narrative Lenses.
 
-No general provider framework, custom OAuth/key subsystem, durable chat infrastructure, or general agent framework is required.
+No Salai backend, general provider framework, custom OAuth/key vault, durable chat infrastructure, external-agent bridge, or general agent framework is required.
 
 # Architecture questions for Spike 0C
 
-Only questions that can change the near-term architecture belong here:
+Only questions that can change near-term architecture belong here:
 
-- Can public `NarrativeOperation[]` cover most agent revision scenarios directly?
+- Can public `NarrativeOperation[]` cover most revision scenarios directly?
 - Which concrete creation/reference cases, if any, justify a higher-level command adapter?
-- Is Codex `outputSchema` sufficient for the two 0C vertical slices, or does a concrete scenario justify richer tool interaction?
-- Can a fresh agent thread continue correctly using only current task-relevant Salai state?
-- What constitutes one understandable agent action beyond the immediate-revert spike boundary?
+- What is the minimum `SalaiProjectService` API required by both lenses and the embedded model flow?
+- Is a project revision needed during 0C, or is serialized local mutation enough?
+- What constitutes one understandable agent/model action beyond the immediate-revert spike boundary?
 - Does working text need durable identity after human testing?
 - What attachment-derived context is sufficient before real media analysis?
-- Does active-lens identity materially improve interpretation without dragging UI state into the agent contract?
+- Does active-lens identity materially improve interpretation without dragging UI state into the model contract?
 - Does messy agent-mediated input expose a real Narrative IR semantic gap?
 
-Narrative IR questions belong in [`narrative-ir-spec.md`](narrative-ir-spec.md). Interaction behavior belongs in [`agent-mediated-authoring.md`](agent-mediated-authoring.md) and [`narrative-lenses.md`](narrative-lenses.md). Runtime implementation choice/revisit triggers are recorded in ADR 0006.
+Narrative IR questions belong in [`narrative-ir-spec.md`](narrative-ir-spec.md). Interaction behavior belongs in [`agent-mediated-authoring.md`](agent-mediated-authoring.md) and [`narrative-lenses.md`](narrative-lenses.md). The current human/machine boundary decision is ADR 0007.
