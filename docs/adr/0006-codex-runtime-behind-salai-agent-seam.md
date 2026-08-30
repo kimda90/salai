@@ -2,9 +2,9 @@
 
 ## Status
 
-Accepted for Spike 0C.
+Superseded by ADR 0007.
 
-This is an implementation/runtime decision for the current validation milestone, not a permanent commitment that Salai must always use Codex or OpenAI models.
+This was an implementation/runtime decision for Spike 0C, not a permanent commitment that Salai must always use Codex or OpenAI models.
 
 ## Context
 
