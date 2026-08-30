@@ -18,7 +18,7 @@ This directory separates product requirements, discovery evidence, workflow cont
 | Validation/implementation sequence | [`mvp.md`](mvp.md) |
 | Current priority / user outcomes | [`backlog.md`](backlog.md) |
 | System/runtime/persistence architecture | [`architecture.md`](architecture.md) |
-| Accepted architecture decisions | [`adr/`](adr/) |
+| Accepted architecture decisions and superseded history | [`adr/`](adr/) |
 | Proposed cross-cutting changes | [`rfcs/`](rfcs/) |
 | Reliability / service-level policy | [`service-levels.md`](service-levels.md) |
 
@@ -31,7 +31,8 @@ In particular:
 - Narrative Lens taxonomy/expose-hide rules live only in `narrative-lenses.md`;
 - `mvp.md` owns sequence, not subphase implementation details;
 - `backlog.md` owns NOW/NEXT/LATER outcomes, not duplicate engineering checklists;
-- accepted runtime/provider implementation choices belong in ADRs, while `architecture.md` owns their current system-level consequences.
+- current architecture belongs in `architecture.md`;
+- superseded implementation decisions remain only in ADR history and should not be repeated as current behavior elsewhere.
 
 # Living product / workflow docs
 
@@ -40,9 +41,9 @@ In particular:
 - [`research-notes.md`](research-notes.md) — discovery evidence; observations are not automatically requirements.
 - [`glossary.md`](glossary.md) — canonical terminology.
 - [`scripting.md`](scripting.md) — conceptual scripting rationale/research.
-- [`workflows.md`](workflows.md) — how users move between free-form, agent, lenses, and downstream production.
+- [`workflows.md`](workflows.md) — how users move between free-form, agent/model, lenses, and downstream production.
 - [`narrative-lenses.md`](narrative-lenses.md) — canonical role/requirements of structured Narrative Lenses.
-- [`agent-mediated-authoring.md`](agent-mediated-authoring.md) — active low-friction authoring/agent contract.
+- [`agent-mediated-authoring.md`](agent-mediated-authoring.md) — active low-friction authoring/model contract.
 
 # Validation contracts and assessments
 
@@ -58,12 +59,12 @@ Historical contracts should record what the experiment actually tested. Put late
 
 # Architecture and engineering decisions
 
-- [`architecture.md`](architecture.md) — living system boundaries/topology.
+- [`architecture.md`](architecture.md) — living current system boundaries/topology.
 - [`rfcs/0001-one-narrative-ir-multiple-workflows.md`](rfcs/0001-one-narrative-ir-multiple-workflows.md) — **Accepted** canonical-model proposal; final decision recorded in ADR 0005.
 - [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) — **Proposed** agent-mediated authoring + Narrative Lenses interaction model; validate through 0C.
 - [`adr/0005-one-narrative-ir-multiple-views.md`](adr/0005-one-narrative-ir-multiple-views.md) — accepted one-IR/multiple-views decision.
-- [`adr/0006-codex-runtime-behind-salai-agent-seam.md`](adr/0006-codex-runtime-behind-salai-agent-seam.md) — accepted Spike 0C decision to use Codex app-server behind a small Salai runtime seam while keeping project state independent of Codex.
-- [`adr/`](adr/) — append-only accepted decisions.
+- [`adr/0007-project-service-is-the-human-machine-boundary.md`](adr/0007-project-service-is-the-human-machine-boundary.md) — accepted application boundary: humans and machine/model integrations use the same Salai-owned project service; adapter/runtime state is non-canonical.
+- [`adr/`](adr/) — append-only decision history, including superseded decisions.
 - [`service-levels.md`](service-levels.md) — reliability expectations.
 
 # Current development focus
@@ -79,22 +80,23 @@ The minimum current proof is:
 - one script-first low-friction vertical slice;
 - one footage/source-backed vertical slice;
 - grouped apply + one-step revert using the existing canonical operation boundary;
-- one agent ↔ existing-lens round trip;
+- one model-mediated ↔ existing-lens round trip;
 - human evidence of lower routine interaction and useful voluntary structural insight.
 
-Implementation strategy for the real local path:
+Current implementation strategy:
 
-- `CodexRuntime` behind a small Salai-owned `AgentRuntime` seam;
-- Codex-managed ChatGPT authentication and agent/session plumbing;
-- JSON-Schema-constrained final result before custom tool infrastructure;
-- supported stdio/JSONL between the local Salai host and Codex;
-- deterministic/mock runtime for CI and GitHub Pages;
-- Codex thread/history remains disposable context; Narrative IR/Workspace remain canonical.
+- `SalaiProjectService` is the stable application boundary over Narrative IR/Workspace state;
+- Narrative Lenses and the embedded model flow are clients of that same service;
+- the real 0C demo remains the static GitHub Pages application with no Salai-operated backend;
+- use one browser-safe, user-scoped hosted-model adapter with no reusable developer secret in the bundle;
+- deterministic structured model-result fixtures/mocks drive CI;
+- model/provider/session/authentication state remains disposable and non-canonical;
+- external CLI/MCP/Skill integration is optional later work and does not block 0C.
 
 Start with:
 
 - [`agent-mediated-authoring.md`](agent-mediated-authoring.md);
 - [`narrative-lenses.md`](narrative-lenses.md);
-- [`adr/0006-codex-runtime-behind-salai-agent-seam.md`](adr/0006-codex-runtime-behind-salai-agent-seam.md);
+- [`adr/0007-project-service-is-the-human-machine-boundary.md`](adr/0007-project-service-is-the-human-machine-boundary.md);
 - [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md);
 - [`mvp.md`](mvp.md).
