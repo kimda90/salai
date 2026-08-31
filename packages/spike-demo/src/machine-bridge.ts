@@ -16,11 +16,24 @@ async function postResult(
   });
 }
 
+function isLoopbackBridgeUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return (
+      url.protocol === "http:" &&
+      (url.hostname === "127.0.0.1" || url.hostname === "localhost")
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function bridgeUrlFromLocation(location: Location): string | null {
   const params = new URLSearchParams(location.search);
   if (!params.has("bridge")) return null;
   const value = params.get("bridge");
-  return value && value !== "1" ? value : DEFAULT_BRIDGE_URL;
+  const bridgeUrl = value && value !== "1" ? value : DEFAULT_BRIDGE_URL;
+  return isLoopbackBridgeUrl(bridgeUrl) ? bridgeUrl : null;
 }
 
 export function startMachineBridge(
