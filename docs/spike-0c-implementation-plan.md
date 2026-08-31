@@ -47,7 +47,7 @@ Principle:
   ↓
 0C.3  Grouped action + immediate revert               [implemented]
   ↓
-0C.4  Source-backed vertical slice
+0C.4  Source-backed vertical slice                    [implemented]
   ↓
 0C.5  Harness ↔ Narrative Lens round trip
   ↓
@@ -137,8 +137,8 @@ Prove one rough-text → story → revision flow through the external harness in
   - does not become a second persistent mutation model.
 - [x] **0C.2.4 — Support one ordinary-language revision through the harness while preserving stable IDs where meaning is unchanged.**
 - [x] **0C.2.5 — Add deterministic creation/revision tests, including malformed/invalid atomic failure.**
-- [x] **0C.2.6 — Run one real external-harness smoke test against the local CLI.**
-- [x] **0C.2.GATE — The representative story can be created and revised with materially less structural bookkeeping than 0B.**
+- [x] **0C.2.6 — Run one real CLI-process smoke test against the local bridge.**
+- [x] **0C.2.GATE — The representative story can be created and revised through the external-harness interface with materially less structural bookkeeping than 0B.**
 
 ---
 
@@ -154,13 +154,13 @@ Prove one rough-text → story → revision flow through the external harness in
 
 # 0C.4 — Source-backed vertical slice
 
-- [ ] **0C.4.1 — Add one deterministic interview/source fixture exposed through task-relevant machine context.**
-- [ ] **0C.4.2 — Keep transient input/reference identity separate from canonical MediaSegment/SourceExcerpt identity.**
-- [ ] **0C.4.3 — Build one short source-backed sequence through the harness interface.**
-- [ ] **0C.4.4 — Preserve SourceExcerpt wording, source ranges, media identity, and authored/source-backed distinction.**
-- [ ] **0C.4.5 — Answer one missing/unsupported-material question from mocked relationships without building a Coverage Lens.**
-- [ ] **0C.4.6 — Add deterministic source-preservation tests and one real harness smoke test.**
-- [ ] **0C.4.GATE — Source-backed material can be arranged through the harness without manual wiring or provenance loss.**
+- [x] **0C.4.1 — Add one deterministic interview/source fixture exposed through task-relevant machine context.**
+- [x] **0C.4.2 — Do not add a second transient source identity model; use canonical MediaSegment/SourceExcerpt identity from machine context.**
+- [x] **0C.4.3 — Build one short source-backed sequence through the harness interface.**
+- [x] **0C.4.4 — Preserve SourceExcerpt wording, source ranges, media identity, and authored/source-backed distinction.**
+- [x] **0C.4.5 — Answer one missing/unsupported-material question from mocked relationships without building a Coverage Lens.**
+- [x] **0C.4.6 — Add deterministic source-preservation tests and one real CLI-process smoke test.**
+- [x] **0C.4.GATE — Source-backed material can be arranged through the external-harness interface without manual wiring or provenance loss.**
 
 ---
 

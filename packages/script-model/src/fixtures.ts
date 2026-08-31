@@ -81,7 +81,7 @@ export function createInterviewFixture(): NarrativeProject {
     assetId: "asset_maria",
     sourceInMs: 0,
     sourceOutMs: 180_000,
-    transcript: "We were spending almost two days doing this manually. We knew it could not scale.",
+    transcript: "We were spending almost two days doing this manually. We knew it could not scale. Now a job that used to occupy us for days is visible immediately.",
   };
   project.mediaSegments.interview_juan = {
     id: "interview_juan",
