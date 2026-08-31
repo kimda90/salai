@@ -3,6 +3,7 @@ import { promisify } from "node:util";
 import { afterEach, describe, expect, it } from "vitest";
 import { SalaiController } from "../src/controller.tsx";
 import { handleMachineCommand } from "../src/machine-interface.ts";
+import { SCRIPT_FIRST_SCENARIO } from "../src/script-first-scenario.ts";
 import { createBridgeServer } from "./bridge.mjs";
 
 const execFileAsync = promisify(execFile);
@@ -64,7 +65,7 @@ async function runCli(controller, baseUrl, args) {
   const cli = execFileAsync(process.execPath, [new URL("./salai.mjs", import.meta.url).pathname, ...args], {
     env: { ...process.env, SALAI_BRIDGE_URL: baseUrl },
   });
-  const [{ stdout }, _] = await Promise.all([cli, browser]);
+  const [{ stdout }] = await Promise.all([cli, browser]);
   return JSON.parse(stdout);
 }
 
@@ -98,5 +99,46 @@ describe("external harness machine flow", () => {
       title: "Changed through CLI",
       summary: "Changed directly after the CLI process exited",
     });
+  });
+
+  it("creates and revises the fixed script-first scenario through real CLI processes", async () => {
+    const controller = new SalaiController("scratch");
+    const baseUrl = await startServer();
+
+    await runCli(controller, baseUrl, [
+      "create-story",
+      JSON.stringify(SCRIPT_FIRST_SCENARIO.createStory),
+    ]);
+
+    const created = await runCli(controller, baseUrl, ["context"]);
+    const sectionId = created.project.script.sectionIds[0];
+    const [frictionId, workflowId, payoffId] = created.project.sections[sectionId].childIds;
+    expect(created.project.sections[sectionId].childIds).toHaveLength(3);
+
+    await runCli(controller, baseUrl, [
+      "apply",
+      JSON.stringify([
+        {
+          op: "updateBeat",
+          beatId: payoffId,
+          title: SCRIPT_FIRST_SCENARIO.revisedPayoff.title,
+          summary: SCRIPT_FIRST_SCENARIO.revisedPayoff.summary,
+        },
+        {
+          op: "moveBeat",
+          beatId: payoffId,
+          toParent: { type: "section", id: sectionId },
+          toIndex: 1,
+        },
+      ]),
+    ]);
+
+    const revised = await runCli(controller, baseUrl, ["context"]);
+    expect(revised.project.sections[sectionId].childIds).toEqual([
+      frictionId,
+      payoffId,
+      workflowId,
+    ]);
+    expect(revised.project.beats[payoffId]).toMatchObject(SCRIPT_FIRST_SCENARIO.revisedPayoff);
   });
 });
