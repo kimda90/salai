@@ -68,7 +68,11 @@ export function createBridgeServer({ requestTimeoutMs = 15_000 } = {}) {
 
       if (request.method === "POST" && url.pathname === "/invoke") {
         const body = await readJson(request);
-        if (body.command !== "context" && body.command !== "apply") {
+        if (
+          body.command !== "context" &&
+          body.command !== "apply" &&
+          body.command !== "createStory"
+        ) {
           sendJson(response, 400, { ok: false, error: "Unknown Salai machine command" });
           return;
         }
@@ -77,7 +81,7 @@ export function createBridgeServer({ requestTimeoutMs = 15_000 } = {}) {
         const machineRequest = {
           id,
           command: body.command,
-          ...(body.command === "apply" ? { payload: body.payload } : {}),
+          ...(body.command === "context" ? {} : { payload: body.payload }),
         };
         const timer = setTimeout(() => {
           pending.delete(id);
