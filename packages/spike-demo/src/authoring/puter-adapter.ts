@@ -4,7 +4,7 @@ import type { AuthoringAdapter, AuthoringRequest } from "./contract";
 const MODEL = "gpt-5.6-luna";
 const TOOL_NAME = "propose_salai_change";
 
-type PuterClient = {
+export type PuterClient = {
   auth: {
     isSignedIn(): boolean;
     signIn(): Promise<unknown>;
