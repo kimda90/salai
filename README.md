@@ -8,54 +8,32 @@ Its purpose is to keep **story intent, source material, production needs, real/g
 
 > **Express intent naturally; Salai structures it for production. See and reshape that structure through narrative lenses.**
 
-```text
-write / instruct / provide media context
-                ↓
-        Salai normalization
-                ↓
-      canonical project state
-                ↓
-        Narrative Lenses
-                ↓
-             Resolve
-```
-
 Underlying architecture:
 
-> **One Narrative IR, multiple synchronized creative views.**
+> **One Narrative IR, multiple human and machine interfaces.**
 
 Key UX refinement after Spike 0B:
 
 > **Hide structural bookkeeping, not narrative structure.**
 
-Salai should automate incidental mechanics such as IDs, parent references, operation selection, and obvious relationship wiring. Structured views remain first-class when they help the creator understand or reshape the story.
+Salai automates incidental mechanics such as IDs, parent references, operation selection, and obvious relationship wiring. Structured views remain first-class when they help the creator understand or reshape the story.
 
 ## Narrative Lenses
 
-The four existing structured surfaces are Narrative Lenses over the same canonical project:
+The existing structured surfaces are Narrative Lenses over the same canonical project:
 
 - Outline;
 - Story Wall / Beat Board;
 - AV Script;
 - Paper / Radio Edit.
 
-A creator enters a lens deliberately when that representation is useful for thinking or direct manipulation; a lens is not a mandatory authoring stage or a separate project document.
-
-Later lens candidates include Coverage and Frame Wall / Selects, after the corresponding production/media model exists and the workflow is validated.
+A creator enters a lens when that representation is useful for thinking or direct manipulation; a lens is not a separate project document. DaVinci Resolve remains the frame-accurate editing, Fusion, color, Fairlight, and delivery environment.
 
 See [`docs/narrative-lenses.md`](docs/narrative-lenses.md).
 
-DaVinci Resolve remains the frame-accurate editing, Fusion, color, Fairlight, and delivery environment.
-
 ## What Spike 0B taught us
 
-0B implemented the four structured surfaces over one `@salai/script-model` project and produced three conclusions:
-
-- **the model/view architecture works:** stable identity, source evidence, Workspace separation, runtime, and cross-view changes remain coherent;
-- **routine direct structured authoring does not:** ordinary creative changes require too much interaction/model management;
-- **the structured views remain creatively useful:** they can reveal properties that prose/conversation alone may not make obvious.
-
-The current direction is agent/model-mediated routine authoring **plus** first-class Narrative Lenses, not “replace the views with chat.”
+0B established that one Narrative IR can support synchronized creative views, while routine direct structured authoring requires too much interaction to be the default creative path. The views remain useful when deliberately entered as Narrative Lenses.
 
 See [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md).
 
@@ -73,56 +51,56 @@ Authoritative contract: [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md)
 
 **Closed / mixed.**
 
-The shared React prototype proved the synchronized-view architecture but failed the creative-friction test as a routine authoring path.
+The React prototype proved synchronized views over one canonical project but failed the creative-friction test as the routine authoring path.
 
 Historical contract: [`docs/authoring-ux-spec.md`](docs/authoring-ux-spec.md).
 
-Assessment: [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md).
-
-### Spike 0C — Agent-Mediated Authoring + Narrative Lenses
+### Spike 0C — External-Agent Authoring + Narrative Lenses
 
 **Current validation milestone.**
 
-0C is intentionally narrow. It must prove:
+0C validates a deliberately small architecture:
 
+```text
+external agent harness
+        ↓
+Salai machine interface / CLI
+        ↓
+SalaiProjectService
+        ↓
+NarrativeOperation[] / applyOperations()
+        ↓
+Narrative IR + Workspace
+        ↓
+Narrative Lenses
+```
+
+The external harness owns model access, authentication, sessions, history, planning, and its tool loop. Salai owns the narrative/project semantics and exposes one narrow machine interface to the same live project service used by the UI.
+
+0C must prove:
+
+- an external harness can inspect and mutate the same live Salai project as the Narrative Lenses;
 - one script-first low-friction vertical slice;
-- one fixture-backed footage/source vertical slice;
-- grouped canonical application + immediate one-step revert using the existing `applyOperations()` boundary;
-- one model-normalized project → existing lens → direct edit → follow-up model round trip;
+- one fixture-backed source vertical slice;
+- grouped canonical application + immediate one-step revert;
+- one harness-normalized project → lens → direct edit → follow-up harness round trip;
 - human evidence of materially lower routine interaction than 0B and useful voluntary structural insight.
 
-The implementation strategy is:
+Salai does **not** embed a model/provider SDK, provider authentication, chat runtime, model router, or agent session in 0C. The current browser prototype may use a minimal local request/response bridge solely so an external CLI can reach its live `SalaiProjectService`.
 
-- a Salai-owned `SalaiProjectService` is the stable boundary over Narrative IR/Workspace state;
-- Narrative Lenses and model integrations use that same application boundary;
-- the public 0C demo stays in the existing GitHub Pages browser application with no Salai-operated backend;
-- one browser-safe, user-scoped hosted-model adapter provides the live model path without embedding a developer secret;
-- deterministic structured model-result fixtures/mocks drive CI;
-- provider/model/session/authentication state is not canonical Salai project state;
-- external CLI/MCP/Skill integration is optional later work, not part of the 0C gate.
-
-The snapshot-based revert is valid only until another canonical/Workspace edit occurs; 0C does not attempt a full mixed manual/model undo history.
-
-A new Coverage Lens, production graph, real media analysis, production desktop runtime, external-agent bridge, and Resolve execution are deferred.
-
-See [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md), [`docs/narrative-lenses.md`](docs/narrative-lenses.md), [`docs/adr/0007-project-service-is-the-human-machine-boundary.md`](docs/adr/0007-project-service-is-the-human-machine-boundary.md), and [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md).
+See [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md), [`docs/adr/0008-external-harness-owns-agent-runtime.md`](docs/adr/0008-external-harness-owns-agent-runtime.md), and [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md).
 
 ## Architecture direction
 
-Key accepted/proposed boundaries:
-
-- TypeScript Narrative IR is canonical semantic state;
-- one canonical IR backs synchronized Projections/Workspaces/Lenses (ADR 0005);
-- `SalaiProjectService` is the human/machine application boundary (ADR 0007);
-- the 0C model path reuses public `NarrativeOperation[]` / `applyOperations()` before introducing any higher-level command adapter;
-- a higher-level authoring command is added only when a concrete scenario proves Salai must resolve IDs/relative references itself;
-- model/provider/session/authentication choices remain replaceable adapters and cannot own project semantics;
-- hosted inference receives only task-relevant selected/derived context; raw production media remains local by default;
-- the 0C hosted demo remains backendless; production Electron/local-service/persistence arrive only when later validated work requires them;
-- CutMaster remains the default Resolve automation boundary behind a Salai adapter;
-- OpenTimelineIO/OpenAssetIO/generation/media-analysis tools stay at integration boundaries rather than owning Salai semantics.
-
-A model-mediated request changes canonical Salai state first; it does not become an opaque natural-language command stream directly into Resolve.
+- TypeScript Narrative IR is canonical semantic state.
+- One canonical IR backs synchronized Projections/Workspaces/Lenses (ADR 0005).
+- `SalaiProjectService` is the shared human/machine application boundary.
+- External harnesses own model/runtime/auth/session behavior (ADR 0008).
+- The first machine interface is CLI-oriented; MCP is added only if later evidence requires it.
+- Machine changes reuse public `NarrativeOperation[]` / `applyOperations()` before any scenario-specific higher-level command is introduced.
+- Higher-level commands are allowed only when Salai must resolve IDs/references/placement itself and compile immediately to canonical operations.
+- Harness/model history is not Salai project persistence.
+- Resolve remains downstream behind an explicit Salai adapter/materialization boundary.
 
 See [`docs/architecture.md`](docs/architecture.md) and [`docs/adr/`](docs/adr/).
 
@@ -135,12 +113,12 @@ Most relevant current docs:
 - [`docs/product-brief.md`](docs/product-brief.md) — product thesis/positioning;
 - [`docs/prd.md`](docs/prd.md) — product requirements/success criteria;
 - [`docs/research-notes.md`](docs/research-notes.md) — discovery evidence;
-- [`docs/narrative-lenses.md`](docs/narrative-lenses.md) — canonical Narrative Lens semantics;
+- [`docs/narrative-lenses.md`](docs/narrative-lenses.md) — Narrative Lens semantics;
 - [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md) — active 0C interaction contract;
 - [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md) — only 0C task/status tracker;
 - [`docs/mvp.md`](docs/mvp.md) — validation sequence;
 - [`docs/backlog.md`](docs/backlog.md) — NOW/NEXT/LATER outcomes;
-- [`docs/architecture.md`](docs/architecture.md) — system architecture.
+- [`docs/architecture.md`](docs/architecture.md) — current system architecture.
 
 ## Contributing and license
 
