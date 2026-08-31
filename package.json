@@ -11,7 +11,7 @@
     "salai": "node packages/spike-demo/tools/salai.mjs"
   },
   "devDependencies": {
-    "turbo": "2.10.12",
+    "turbo": "2.10.11",
     "typescript": "^5.9.0",
     "vitest": "^3.2.0"
   }
