@@ -45,6 +45,7 @@ export type SalaiAppState = {
   selection: CanonicalSelection | null;
   activeSurface: "outline" | "story-wall" | "av-script" | "paper-edit";
   feedback: OperationFeedback;
+  canRevertMachineAction: boolean;
 };
 
 export type ProjectContextOptions = {
@@ -58,12 +59,24 @@ export type SalaiProjectContext = {
   activeSurface?: SalaiAppState["activeSurface"];
 };
 
+export type NarrativeBatchOptions = {
+  revertible?: boolean;
+};
+
 export interface SalaiProjectService {
   getSnapshot: () => SalaiAppState;
   getProjectContext: (options?: ProjectContextOptions) => SalaiProjectContext;
   subscribe: (listener: () => void) => () => void;
-  dispatchNarrativeBatch: (operations: readonly NarrativeOperation[]) => boolean;
+  dispatchNarrativeBatch: (
+    operations: readonly NarrativeOperation[],
+    options?: NarrativeBatchOptions,
+  ) => boolean;
 }
+
+type RevertSnapshot = {
+  project: NarrativeProject;
+  workspace: Workspace;
+};
 
 const EMPTY_FEEDBACK: OperationFeedback = {
   error: null,
@@ -83,6 +96,7 @@ function initialState(fixtureKey: FixtureKey): SalaiAppState {
     selection: null,
     activeSurface: "outline",
     feedback: EMPTY_FEEDBACK,
+    canRevertMachineAction: false,
   };
 }
 
@@ -113,6 +127,7 @@ function changesStoryWallMembership(
 export class SalaiController implements SalaiProjectService {
   private state: SalaiAppState;
   private listeners = new Set<() => void>();
+  private revertSnapshot: RevertSnapshot | null = null;
 
   constructor(fixtureKey: FixtureKey = "product") {
     this.state = initialState(fixtureKey);
@@ -149,6 +164,7 @@ export class SalaiController implements SalaiProjectService {
   private publishNarrativeResult(
     previousProject: NarrativeProject,
     result: OperationResult,
+    revertible: boolean,
   ): void {
     const selection = this.state.selection;
     const selectionRemoved =
@@ -157,20 +173,27 @@ export class SalaiController implements SalaiProjectService {
       ? syncWorkspaceWithProject(this.state.workspace, result.model)
       : this.state.workspace;
 
+    this.revertSnapshot = revertible
+      ? { project: previousProject, workspace: this.state.workspace }
+      : null;
+
     this.publish({
       ...this.state,
       project: result.model,
       workspace,
       selection: selectionRemoved ? null : selection,
       feedback: feedbackFromResult(result),
+      canRevertMachineAction: revertible,
     });
   }
 
   setFixture(fixtureKey: FixtureKey): void {
+    this.revertSnapshot = null;
     this.publish(initialState(fixtureKey));
   }
 
   resetFixture(): void {
+    this.revertSnapshot = null;
     this.publish(initialState(this.state.fixtureKey));
   }
 
@@ -184,21 +207,27 @@ export class SalaiController implements SalaiProjectService {
 
   updateWorkspace(update: (workspace: Workspace) => Workspace): void {
     try {
+      const workspace = update(this.state.workspace);
+      this.revertSnapshot = null;
       this.publish({
         ...this.state,
-        workspace: update(this.state.workspace),
+        workspace,
         feedback: { ...EMPTY_FEEDBACK },
+        canRevertMachineAction: false,
       });
     } catch (error) {
       this.publishError(error);
     }
   }
 
-  dispatchNarrativeBatch(operations: readonly NarrativeOperation[]): boolean {
+  dispatchNarrativeBatch(
+    operations: readonly NarrativeOperation[],
+    options: NarrativeBatchOptions = {},
+  ): boolean {
     try {
       const previousProject = this.state.project;
       const result = applyOperations(previousProject, operations);
-      this.publishNarrativeResult(previousProject, result);
+      this.publishNarrativeResult(previousProject, result, options.revertible === true);
       return true;
     } catch (error) {
       this.publishError(error);
@@ -208,6 +237,22 @@ export class SalaiController implements SalaiProjectService {
 
   dispatchNarrative(operation: NarrativeOperation): boolean {
     return this.dispatchNarrativeBatch([operation]);
+  }
+
+  revertMachineAction(): boolean {
+    const snapshot = this.revertSnapshot;
+    if (!snapshot) return false;
+
+    this.revertSnapshot = null;
+    this.publish({
+      ...this.state,
+      project: snapshot.project,
+      workspace: snapshot.workspace,
+      selection: null,
+      feedback: { ...EMPTY_FEEDBACK },
+      canRevertMachineAction: false,
+    });
+    return true;
   }
 
   promoteIdeaCardToBeat(itemId: string, parent: ParentRef): string | null {
@@ -233,12 +278,14 @@ export class SalaiController implements SalaiProjectService {
         id: beatId,
       });
 
+      this.revertSnapshot = null;
       this.publish({
         ...this.state,
         project: result.model,
         workspace,
         selection: { type: "beat", id: beatId },
         feedback: feedbackFromResult(result),
+        canRevertMachineAction: false,
       });
       return beatId;
     } catch (error) {
