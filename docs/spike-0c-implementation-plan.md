@@ -45,7 +45,7 @@ Principle:
   ↓
 0C.2  Script-first creation + revision                [implemented]
   ↓
-0C.3  Grouped action + immediate revert
+0C.3  Grouped action + immediate revert               [implemented]
   ↓
 0C.4  Source-backed vertical slice
   ↓
@@ -144,11 +144,11 @@ Prove one rough-text → story → revision flow through the external harness in
 
 # 0C.3 — Grouped action + immediate revert
 
-- [ ] **0C.3.1 — Record one successful machine batch as the current revertible action with pre-action project/Workspace snapshots.**
-- [ ] **0C.3.2 — Expose immediate Revert in Salai.**
-- [ ] **0C.3.3 — Invalidate the revert snapshot after any later canonical or Workspace edit, whether machine- or lens-originated.**
-- [ ] **0C.3.4 — Test exact revert, later-lens invalidation, Workspace-only invalidation, and failed-batch behavior.**
-- [ ] **0C.3.GATE — One harness request behaves as one understandable, immediately revertible creative action without risking later edits.**
+- [x] **0C.3.1 — Record one successful machine batch as the current revertible action with pre-action project/Workspace snapshots.**
+- [x] **0C.3.2 — Expose immediate Revert in Salai.**
+- [x] **0C.3.3 — Invalidate the revert snapshot after any later canonical or Workspace edit, whether machine- or lens-originated.**
+- [x] **0C.3.4 — Test exact revert, later-lens invalidation, Workspace-only invalidation, and failed-batch behavior.**
+- [x] **0C.3.GATE — One harness request behaves as one understandable, immediately revertible creative action without risking later edits.**
 
 ---
 
