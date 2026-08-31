@@ -1,8 +1,10 @@
 import {
   applyOperation,
+  applyOperations,
   type DomainWarning,
   type NarrativeOperation,
   type NarrativeProject,
+  type OperationResult,
   type ParentRef,
   type RelationshipEffect,
 } from "@salai/script-model";
@@ -45,6 +47,24 @@ export type SalaiAppState = {
   feedback: OperationFeedback;
 };
 
+export type ProjectContextOptions = {
+  includeWorkspace?: boolean;
+  includeActiveSurface?: boolean;
+};
+
+export type SalaiProjectContext = {
+  project: NarrativeProject;
+  workspace?: Workspace;
+  activeSurface?: SalaiAppState["activeSurface"];
+};
+
+export interface SalaiProjectService {
+  getSnapshot: () => SalaiAppState;
+  getProjectContext: (options?: ProjectContextOptions) => SalaiProjectContext;
+  subscribe: (listener: () => void) => () => void;
+  dispatchNarrativeBatch: (operations: readonly NarrativeOperation[]) => boolean;
+}
+
 const EMPTY_FEEDBACK: OperationFeedback = {
   error: null,
   warnings: [],
@@ -66,7 +86,7 @@ function initialState(fixtureKey: FixtureKey): SalaiAppState {
   };
 }
 
-function feedbackFromResult(result: ReturnType<typeof applyOperation>): OperationFeedback {
+function feedbackFromResult(result: OperationResult): OperationFeedback {
   return {
     error: null,
     warnings: result.warnings,
@@ -79,7 +99,7 @@ function feedbackFromResult(result: ReturnType<typeof applyOperation>): Operatio
 
 function changesStoryWallMembership(
   previous: NarrativeProject,
-  result: ReturnType<typeof applyOperation>,
+  result: OperationResult,
 ): boolean {
   const createsStoryCard = result.createdIds.some(
     (id) => result.model.beats[id] !== undefined || result.model.scenes[id] !== undefined,
@@ -90,7 +110,7 @@ function changesStoryWallMembership(
   return createsStoryCard || removesStoryCard;
 }
 
-export class SalaiController {
+export class SalaiController implements SalaiProjectService {
   private state: SalaiAppState;
   private listeners = new Set<() => void>();
 
@@ -99,6 +119,14 @@ export class SalaiController {
   }
 
   getSnapshot = (): SalaiAppState => this.state;
+
+  getProjectContext = (
+    options: ProjectContextOptions = {},
+  ): SalaiProjectContext => ({
+    project: this.state.project,
+    ...(options.includeWorkspace ? { workspace: this.state.workspace } : {}),
+    ...(options.includeActiveSurface ? { activeSurface: this.state.activeSurface } : {}),
+  });
 
   subscribe = (listener: () => void): (() => void) => {
     this.listeners.add(listener);
@@ -115,6 +143,26 @@ export class SalaiController {
     this.publish({
       ...this.state,
       feedback: { ...EMPTY_FEEDBACK, error: message },
+    });
+  }
+
+  private publishNarrativeResult(
+    previousProject: NarrativeProject,
+    result: OperationResult,
+  ): void {
+    const selection = this.state.selection;
+    const selectionRemoved =
+      selection !== null && result.removedIds.includes(selection.id);
+    const workspace = changesStoryWallMembership(previousProject, result)
+      ? syncWorkspaceWithProject(this.state.workspace, result.model)
+      : this.state.workspace;
+
+    this.publish({
+      ...this.state,
+      project: result.model,
+      workspace,
+      selection: selectionRemoved ? null : selection,
+      feedback: feedbackFromResult(result),
     });
   }
 
@@ -146,29 +194,20 @@ export class SalaiController {
     }
   }
 
-  dispatchNarrative(operation: NarrativeOperation): boolean {
+  dispatchNarrativeBatch(operations: readonly NarrativeOperation[]): boolean {
     try {
       const previousProject = this.state.project;
-      const result = applyOperation(previousProject, operation);
-      const selection = this.state.selection;
-      const selectionRemoved =
-        selection !== null && result.removedIds.includes(selection.id);
-      const workspace = changesStoryWallMembership(previousProject, result)
-        ? syncWorkspaceWithProject(this.state.workspace, result.model)
-        : this.state.workspace;
-
-      this.publish({
-        ...this.state,
-        project: result.model,
-        workspace,
-        selection: selectionRemoved ? null : selection,
-        feedback: feedbackFromResult(result),
-      });
+      const result = applyOperations(previousProject, operations);
+      this.publishNarrativeResult(previousProject, result);
       return true;
     } catch (error) {
       this.publishError(error);
       return false;
     }
+  }
+
+  dispatchNarrative(operation: NarrativeOperation): boolean {
+    return this.dispatchNarrativeBatch([operation]);
   }
 
   promoteIdeaCardToBeat(itemId: string, parent: ParentRef): string | null {

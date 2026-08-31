@@ -129,24 +129,24 @@ Create one application boundary that both the existing lenses and later model in
 
 ### Tasks
 
-- [ ] **0C.0.1 — Define the minimum `SalaiProjectService` contract over existing state.**
+- [x] **0C.0.1 — Define the minimum `SalaiProjectService` contract over existing state.**
   - current snapshot/context read;
   - canonical batch mutation;
   - project/Workspace subscription;
   - no persistence, network, provider, or agent concepts.
 
-- [ ] **0C.0.2 — Add `dispatchNarrativeBatch(operations)` using existing `applyOperations()`.**
+- [x] **0C.0.2 — Add `dispatchNarrativeBatch(operations)` using existing `applyOperations()`.**
   - evaluate the full batch against the current immutable project;
   - publish once only after the full batch succeeds;
   - publish no intermediate canonical state;
   - preserve existing selection-clearing rules when selected IDs are removed;
   - synchronize Story Wall Workspace membership once from the final result.
 
-- [ ] **0C.0.3 — Preserve the existing single-operation path.**
+- [x] **0C.0.3 — Preserve the existing single-operation path.**
   - `dispatchNarrative()` may delegate to the batch path with one operation if this reduces duplication;
   - direct lens behavior must remain unchanged.
 
-- [ ] **0C.0.4 — Add deterministic atomicity tests.**
+- [x] **0C.0.4 — Add deterministic atomicity tests.**
   - valid multi-operation batch produces one final project;
   - subscriber observes one successful publish for the batch;
   - an invalid later operation leaves the live project/Workspace unchanged;
@@ -154,19 +154,19 @@ Create one application boundary that both the existing lenses and later model in
   - removed selection is cleared correctly;
   - Story Wall membership is synchronized for batched create/remove operations.
 
-- [ ] **0C.0.5 — Define a task-relevant context read for model-mediated work.**
+- [x] **0C.0.5 — Define a task-relevant context read for model-mediated work.**
   - include the canonical project or smallest task-relevant projection needed by the first scenario;
   - include Workspace/source data only when the request needs it;
   - exclude arbitrary presentation state and provider/session state;
   - active lens identity may be supplied only when it materially helps interpret the request.
 
-- [ ] **0C.0.6 — Do not add project revisions yet.**
+- [x] **0C.0.6 — Do not add project revisions yet.**
   - browser-local serialized mutation is sufficient until a stale-write case is demonstrated;
   - if that case appears later, add `expectedRevision` as a small extension rather than introducing CRDT/event-sourcing infrastructure.
 
 ### Gate
 
-- [ ] **0C.0.GATE — Existing lenses and a machine-produced batch can use the same Salai-owned state/mutation boundary, with atomic application and no second project model.**
+- [x] **0C.0.GATE — Existing lenses and a machine-produced batch can use the same Salai-owned state/mutation boundary, with atomic application and no second project model.**
 
 ---
 
