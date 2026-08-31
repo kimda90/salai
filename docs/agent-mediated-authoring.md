@@ -4,6 +4,8 @@
 
 Active product/UX contract for Spike 0C. Current runtime decision: [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md).
 
+The required external-agent operating procedure is defined separately in [`agent-usage.md`](agent-usage.md).
+
 ## Validation question
 
 Can a filmmaker construct and revise representative stories through ordinary-language interaction with an existing agent harness while Salai handles structural bookkeeping, preserves canonical validity/source provenance, and remains coherent with direct Narrative Lens editing?
@@ -53,16 +55,27 @@ A fresh harness session must be able to continue from current Salai state by usi
 
 ## Machine interface
 
-0C starts with one CLI-oriented interface, not CLI + MCP.
+0C uses one CLI-oriented external interface, not CLI + MCP or multiple parallel protocols.
 
-Minimum operations:
+The CLI provides a local, self-describing discovery command:
+
+```text
+salai tools
+```
+
+`tools` returns machine-readable metadata for the implemented CLI capabilities. It does not require the live bridge and is not a fourth project/domain command.
+
+Current live-project commands are:
 
 ```text
 salai context
+salai create-story <{sectionTitle?, beats:[...]}>
 salai apply <NarrativeOperation[]>
 ```
 
-`context` returns only the current task-relevant project data needed to reason about the story. `apply` delegates to `SalaiProjectService` and the existing atomic operation path.
+`context` returns only the current task-relevant project data needed to reason about the story. `create-story` is the narrow script-first helper introduced because Salai must allocate canonical IDs/placement for initial creation. `apply` delegates to `SalaiProjectService` and the existing atomic operation path.
+
+Agents must discover the implemented tool set rather than assume commands from prompt memory. The detailed required usage cycle—discover, read context, mutate atomically, inspect feedback, and re-read context—is defined in [`agent-usage.md`](agent-usage.md).
 
 The machine interface:
 
@@ -70,9 +83,10 @@ The machine interface:
 - does not edit persistence directly;
 - does not maintain a second story/session model;
 - returns machine-readable results/errors;
-- contains no model/provider-specific concepts.
+- contains no model/provider-specific concepts;
+- keeps discovery metadata aligned with implemented CLI commands.
 
-A Skill may later teach a harness the workflow and Salai semantics. It is instructions only; it does not implement capability or state.
+A Skill or repository agent instruction may teach a harness the workflow and Salai semantics. It is instructions only; it does not implement capability or state.
 
 ## Canonical operation boundary
 
@@ -104,6 +118,8 @@ One harness request may produce several operations but should behave as one unde
 - publish no partial state on failure.
 
 Do not build a general history/event-sourcing system for 0C.
+
+The current immediate Revert is a Salai UI capability; agents must not assume a CLI `revert` command unless `salai tools` reports one.
 
 ## Script-first behavior
 
@@ -141,7 +157,7 @@ The bridge must not:
 - become a generic backend;
 - introduce distributed-state infrastructure.
 
-One local browser client and serialized requests are sufficient for 0C.
+One local browser client and serialized requests are sufficient for 0C. The current browser client opts into the bridge with the `?bridge=1` URL parameter.
 
 ## Resolve boundary
 
@@ -150,7 +166,7 @@ Harness instructions change canonical Salai state first. Resolve remains downstr
 ## Required 0C scope
 
 - existing `SalaiProjectService` + atomic batch boundary;
-- one CLI-oriented machine interface;
+- one CLI-oriented machine interface with local self-description;
 - smallest local bridge needed for the current browser prototype;
 - one script-first vertical slice;
 - one fixture-backed source vertical slice;

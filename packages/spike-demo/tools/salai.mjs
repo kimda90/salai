@@ -1,5 +1,45 @@
 const BRIDGE_URL = process.env.SALAI_BRIDGE_URL ?? "http://127.0.0.1:4317";
 
+const TOOL_MANIFEST = {
+  version: 1,
+  interface: "salai-cli",
+  tools: [
+    {
+      name: "context",
+      command: "pnpm salai context",
+      description: "Read current canonical Salai project, Workspace context, and active Narrative Lens.",
+      mutatesProject: false,
+      requiresLiveProject: true,
+      input: { kind: "none" },
+    },
+    {
+      name: "create-story",
+      command: "pnpm salai create-story <json-or-stdin>",
+      description: "Create the initial story on an empty project using Salai-owned ID and placement resolution.",
+      mutatesProject: true,
+      requiresLiveProject: true,
+      input: {
+        kind: "json",
+        shape: "{ sectionTitle?: string, beats: Array<{ title?: string, summary?: string }> }",
+        constraints: ["beats must be non-empty", "current story must be empty"],
+      },
+    },
+    {
+      name: "apply",
+      command: "pnpm salai apply <json-or-stdin>",
+      description: "Apply one non-empty atomic NarrativeOperation[] batch to the current project.",
+      mutatesProject: true,
+      requiresLiveProject: true,
+      input: {
+        kind: "json",
+        shape: "NarrativeOperation[]",
+        schemaRef: "docs/narrative-ir-spec.md",
+        constraints: ["batch must be non-empty", "operations use the public Narrative IR vocabulary"],
+      },
+    },
+  ],
+};
+
 async function invoke(command, payload) {
   const response = await fetch(`${BRIDGE_URL}/invoke`, {
     method: "POST",
@@ -25,6 +65,11 @@ async function readJsonArgument(usage) {
 
 async function main() {
   const command = process.argv[2];
+  if (command === "tools") {
+    console.log(JSON.stringify(TOOL_MANIFEST, null, 2));
+    return;
+  }
+
   if (command === "context") {
     console.log(JSON.stringify(await invoke("context"), null, 2));
     return;
@@ -46,7 +91,7 @@ async function main() {
     return;
   }
 
-  throw new Error("Usage: salai context | salai apply <json> | salai create-story <json>");
+  throw new Error("Usage: salai tools | salai context | salai apply <json> | salai create-story <json>");
 }
 
 main().catch((error) => {
