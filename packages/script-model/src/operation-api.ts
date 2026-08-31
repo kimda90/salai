@@ -60,14 +60,8 @@ const NARRATIVE_OPERATION_NAME_FLAGS = {
   trimSourceExcerpt: true,
 } as const satisfies Record<NarrativeOperation["op"], true>;
 
-export const NARRATIVE_OPERATION_NAMES = Object.freeze(
-  Object.keys(NARRATIVE_OPERATION_NAME_FLAGS) as NarrativeOperation["op"][],
-);
-
-const NARRATIVE_OPERATION_NAME_SET = new Set<string>(NARRATIVE_OPERATION_NAMES);
-
 export function isNarrativeOperationName(value: string): value is NarrativeOperation["op"] {
-  return NARRATIVE_OPERATION_NAME_SET.has(value);
+  return Object.hasOwn(NARRATIVE_OPERATION_NAME_FLAGS, value);
 }
 
 export {
