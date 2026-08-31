@@ -71,7 +71,7 @@ async function runCli(controller, baseUrl, args) {
 }
 
 describe("external harness machine flow", () => {
-  it("keeps CLI and direct project-service edits on one live project", async () => {
+  it("round-trips a CLI normalization through a direct Narrative Lens edit", async () => {
     const controller = new SalaiController("product");
     const baseUrl = await startServer();
 
@@ -87,6 +87,7 @@ describe("external harness machine flow", () => {
     ]);
     expect(controller.getSnapshot().project.beats[beatId]?.title).toBe("Changed through CLI");
 
+    // Same controller operation path used by editable Narrative Lens fields.
     expect(
       controller.dispatchNarrative({
         op: "updateBeat",
