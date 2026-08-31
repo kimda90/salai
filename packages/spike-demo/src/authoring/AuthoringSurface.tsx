@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSalaiController } from "../controller";
 import type { AuthoringAdapter } from "./contract";
-import { deterministicAuthoringAdapter } from "./deterministic-adapter";
+import { puterAuthoringAdapter } from "./puter-adapter";
 import { runAuthoringTurn } from "./result";
 
 type AuthoringStatus =
@@ -11,7 +11,7 @@ type AuthoringStatus =
   | { kind: "error"; message: string };
 
 export function AuthoringSurface({
-  adapter = deterministicAuthoringAdapter,
+  adapter = puterAuthoringAdapter,
 }: {
   adapter?: AuthoringAdapter;
 }) {
@@ -44,8 +44,8 @@ export function AuthoringSurface({
         <span className="eyebrow">Free-form authoring</span>
         <h2>Express the change in ordinary language</h2>
         <p>
-          0C currently uses a deterministic adapter. The same structured result boundary will
-          be used by the live browser model adapter.
+          The live model runs through user-scoped browser access. Salai sends only narrative
+          context and applies returned changes through the canonical project service.
         </p>
       </div>
       <div className="authoring-input-area">
