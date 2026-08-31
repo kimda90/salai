@@ -15,6 +15,7 @@ This directory separates current product/workflow/architecture contracts from hi
 | Narrative IR types/invariants/operations | [`narrative-ir-spec.md`](narrative-ir-spec.md) |
 | Active agent-mediated interaction contract | [`agent-mediated-authoring.md`](agent-mediated-authoring.md) |
 | Active 0C tasks/status/evidence | [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md) |
+| Active 0C human validation procedure | [`spike-0c-human-validation.md`](spike-0c-human-validation.md) |
 | Validation sequence | [`mvp.md`](mvp.md) |
 | Current priorities | [`backlog.md`](backlog.md) |
 | Current system architecture | [`architecture.md`](architecture.md) |
@@ -32,6 +33,7 @@ Do not duplicate exact operation vocabularies, task status, or superseded runtim
 - [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) — proposed interaction model under 0C validation.
 - [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md) — current human/machine runtime decision.
 - [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md) — only current 0C execution tracker.
+- [`spike-0c-human-validation.md`](spike-0c-human-validation.md) — human validation procedure and evidence fields.
 
 ## Historical validation records
 
@@ -63,4 +65,4 @@ Narrative Lenses
 
 The external harness owns model/provider/auth/session/tool-loop behavior. Salai owns project semantics, canonical mutation, source provenance, grouped-action/revert behavior, and the machine interface to the same live project used by the UI.
 
-Start with [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md) and [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md).
+Start with [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md), [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md), and [`spike-0c-human-validation.md`](spike-0c-human-validation.md).
