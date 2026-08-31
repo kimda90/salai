@@ -2,81 +2,74 @@
 
 ## Status
 
-Living product requirements and success criteria.
-
-This document owns **what the product must accomplish**, not detailed implementation tasks. Current execution is tracked in [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md).
+Living product requirements and success criteria. Current execution is tracked only in [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md).
 
 ## Product goal
 
-Salai should let filmmakers express story/production intent with low interaction overhead while maintaining a durable, typed connection among narrative structure, source evidence, production needs, media, alternatives, and downstream Resolve materialization.
-
-Current interaction hypothesis:
+Salai lets filmmakers express story/production intent with low interaction overhead while maintaining a durable typed connection among narrative structure, source evidence, production needs, media, alternatives, and downstream Resolve materialization.
 
 > **Express intent naturally; Salai structures it for production. See and reshape that structure through narrative lenses.**
 
-Core rule:
-
 > **Hide structural bookkeeping, not narrative structure.**
 
-## P0 requirements — current validation milestone
+## P0 — Spike 0C requirements
 
 ### Canonical project
 
-- One Narrative IR remains the canonical semantic narrative state.
-- Structured surfaces must not keep independent narrative copies.
+- One Narrative IR is canonical semantic narrative state.
+- Structured surfaces keep no independent narrative copies.
 - Workspace-only organization remains separate from canonical narrative meaning.
 - Stable identity survives ordinary edits/restructuring.
 - Authored and source-backed material remain distinct.
 
-### Low-friction authoring
+### External-agent authoring
 
-- A creator can enter rough prose/notes without classifying every line as Section/Scene/Beat/Cue.
-- A creator can express an ordinary story revision in natural language rather than manually performing several structural UI actions.
-- A creator can provide mocked/fixture-backed media/source context without manually wiring every canonical relationship first.
-- Conversation/working text are context and interaction surfaces, not canonical story storage.
+- A creator can express rough prose and ordinary revisions in an existing agent harness without manually managing every Section/Scene/Beat/Cue operation.
+- The harness can inspect task-relevant current Salai state through one machine interface.
+- Harness-requested mutations go through `SalaiProjectService`, `NarrativeOperation[]`, and `applyOperations()` before project state changes.
+- Salai does not require harness conversation/session history to reconstruct the project.
+- Salai does not embed model/provider authentication, model routing, chat runtime, or a provider SDK for 0C.
+- A higher-level Salai command may exist only for a concrete case where Salai must resolve IDs/references/placement the harness should not manufacture.
+- Failed grouped changes do not partially publish live state.
 
-### Agent normalization
+### Shared live state
 
-- Agent output must resolve to the public canonical operation boundary before project state changes.
-- Existing `NarrativeOperation[]` / `applyOperations()` should be reused wherever sufficient.
-- Higher-level Salai agent commands may exist only for concrete cases where Salai must resolve IDs, relative placement, or similar mechanics the model should not manufacture.
-- Failed grouped changes must not partially publish live state.
-- SourceExcerpt semantics must remain strict through agent-mediated changes.
+- The external harness and Narrative Lenses operate on the same live Salai project.
+- A machine change appears in existing lenses through canonical state, not per-lens synchronization.
+- A direct lens edit is visible to the next machine context read.
+- The local bridge needed by the current browser prototype must not own another project model or persistence path.
 
 ### Grouped trust / recovery
 
-- One user intention may produce several canonical operations but should appear as one understandable action.
-- The current agent action must be **immediately revertible** during 0C while no later canonical or Workspace edit has occurred.
-- Any subsequent direct or agent edit invalidates the older snapshot-based revert so rollback cannot erase later work.
-- Clarification should be reserved for material creative ambiguity, not ordinary domain bookkeeping.
-- External/destructive effects require a later explicit boundary and are not part of 0C execution.
+- One user intention may produce several canonical operations but appears as one understandable action.
+- The current machine-applied action is immediately revertible while no later canonical or Workspace edit has occurred.
+- Any later machine or direct edit invalidates that snapshot-based revert.
+- External/destructive effects are outside 0C.
+
+### Source evidence
+
+- SourceExcerpt wording/ranges remain source evidence through machine-mediated changes.
+- Raw camera/media originals remain local by default.
+- The machine interface returns task-relevant project/source context rather than implicitly exposing arbitrary local files.
+- Attachment/reference identity does not imply file-upload permission.
 
 ### Narrative Lenses
 
-- Existing structured surfaces remain available as synchronized Narrative Lenses.
+- Existing structured surfaces remain synchronized Narrative Lenses.
 - Direct editing remains first-class when the creator deliberately chooses that representation.
 - Lenses expose useful structure without requiring incidental low-level mechanics.
-- Direct lens edits and agent changes must share one canonical state.
-- A direct lens edit must be visible to subsequent agent reasoning through current canonical/Workspace state.
 
-Detailed lens semantics are canonical in [`narrative-lenses.md`](narrative-lenses.md).
+Detailed lens semantics: [`narrative-lenses.md`](narrative-lenses.md).
 
-### Local-first / provider boundary
-
-- Raw camera/media originals remain local by default.
-- Attachment handles do not imply permission to upload underlying files.
-- Hosted inference receives only task-relevant selected/derived project context unless broader egress is explicitly chosen.
-- Provider choice must not change canonical Narrative IR/source/provenance semantics.
-
-### Resolve boundary
+### Resolve
 
 - Resolve remains the downstream NLE/finishing environment.
-- Natural-language instructions and lens edits change canonical Salai state first.
-- Resolve materialization happens through an explicit Salai adapter boundary rather than direct chat-to-Resolve mutation.
+- Harness instructions and lens edits change canonical Salai state first.
+- Resolve materialization uses an explicit Salai adapter boundary rather than direct conversation-to-Resolve mutation.
 
-## P1 requirements — after 0C passes
+## P1 — after 0C passes
 
-- local desktop runtime and persistent local project access;
+- local desktop runtime and persistent project access;
 - durable Narrative IR/Workspace/action persistence;
 - production graph with ShotIntent, Asset, MediaSegment, realization/provenance relationships;
 - Coverage Lens over real production data if validated;
@@ -96,49 +89,35 @@ Salai is not initially:
 - an unattended autonomous editing agent;
 - a standalone GenAI video generator;
 - a full VFX/color/audio/delivery environment;
-- a graph database exposed to users;
-- a generic node/canvas editor;
-- a rich-text document used as the canonical project database;
+- a graph database or generic node/canvas editor;
+- a rich-text document used as canonical project storage;
 - a system that hides all narrative structure behind opaque AI output.
 
 ## Spike 0C success criteria
 
-0C should demonstrate all of the following:
-
 ### Interaction compression
 
-- one rough script-first story can be created without manual Beat/Cue construction;
-- one ordinary revision can be expressed as one natural instruction;
-- one source-backed task can be completed without manual relationship wiring;
-- representative routine tasks require materially fewer explicit user actions than 0B;
-- user attention tracks creative decisions more than software mechanics.
+- one rough script-first story is created without manual Beat/Cue construction;
+- one ordinary revision is expressed as one natural instruction in the harness;
+- one source-backed task is completed without manual relationship wiring;
+- routine tasks require materially fewer explicit user actions than 0B.
 
 ### Canonical safety / trust
 
-- agent output resolves through typed canonical operations;
-- grouped multi-operation changes publish atomically at the controller boundary;
+- machine mutations resolve through typed canonical operations;
+- grouped changes publish atomically;
 - failed batches leave live state unchanged;
 - source identity/ranges survive;
-- one current agent action can be understood and immediately reverted without rolling back later edits.
+- one current machine action can be immediately reverted without rolling back later edits.
 
 ### Structural insight
 
-- existing Narrative Lenses reflect agent changes automatically;
-- at least one lens is opened voluntarily because it reveals or manipulates something useful about the story;
-- direct manipulation in that lens remains creatively meaningful rather than administrative;
-- a subsequent agent request sees the result of that direct edit through shared state.
-
-The combined agent + lens workflow should preserve user agency better than either a form-heavy UI or blind chat alone.
+- existing lenses reflect machine changes automatically;
+- at least one lens is opened voluntarily because it exposes/manipulates useful story structure;
+- a subsequent harness request sees the direct lens edit through current Salai state.
 
 ## Current milestone
 
-**Spike 0C — Agent-Mediated Authoring + Narrative Lenses.**
+**Spike 0C — External-Agent Authoring + Narrative Lenses.**
 
-0A validated Narrative IR. 0B validated synchronized-view architecture and exposed routine interaction friction. 0C now tests the smallest agent-mediated vertical slices plus continuity with the existing lenses.
-
-See:
-
-- [`agent-mediated-authoring.md`](agent-mediated-authoring.md);
-- [`narrative-lenses.md`](narrative-lenses.md);
-- [`mvp.md`](mvp.md);
-- [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md).
+See [`agent-mediated-authoring.md`](agent-mediated-authoring.md), [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md), and [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md).
