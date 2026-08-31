@@ -17,6 +17,12 @@ async function readStdin() {
   return text;
 }
 
+async function readJsonArgument(usage) {
+  const text = process.argv[3] ?? (process.stdin.isTTY ? "" : await readStdin());
+  if (!text.trim()) throw new Error(usage);
+  return JSON.parse(text);
+}
+
 async function main() {
   const command = process.argv[2];
   if (command === "context") {
@@ -25,13 +31,22 @@ async function main() {
   }
 
   if (command === "apply") {
-    const text = process.argv[3] ?? (process.stdin.isTTY ? "" : await readStdin());
-    if (!text.trim()) throw new Error("Usage: salai apply '<NarrativeOperation[] JSON>' or pipe JSON on stdin");
-    console.log(JSON.stringify(await invoke("apply", JSON.parse(text)), null, 2));
+    const payload = await readJsonArgument(
+      "Usage: salai apply '<NarrativeOperation[] JSON>' or pipe JSON on stdin",
+    );
+    console.log(JSON.stringify(await invoke("apply", payload), null, 2));
     return;
   }
 
-  throw new Error("Usage: salai context | salai apply '<NarrativeOperation[] JSON>'");
+  if (command === "create-story") {
+    const payload = await readJsonArgument(
+      "Usage: salai create-story '<{sectionTitle?, beats:[...]}> JSON' or pipe JSON on stdin",
+    );
+    console.log(JSON.stringify(await invoke("createStory", payload), null, 2));
+    return;
+  }
+
+  throw new Error("Usage: salai context | salai apply <json> | salai create-story <json>");
 }
 
 main().catch((error) => {
