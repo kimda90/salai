@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "bridge": "node tools/bridge.mjs",
     "build": "vite build",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
