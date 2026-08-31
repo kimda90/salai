@@ -1,35 +1,9 @@
-import type { NarrativeOperation, NarrativeProject } from "@salai/script-model";
+import {
+  isNarrativeOperationName,
+  type NarrativeOperation,
+  type NarrativeProject,
+} from "@salai/script-model";
 import type { SalaiProjectService } from "./controller";
-
-const OPERATION_NAMES = new Set<NarrativeOperation["op"]>([
-  "createSection",
-  "createScene",
-  "createBeat",
-  "createCue",
-  "createBlock",
-  "updateSection",
-  "updateScene",
-  "updateBeat",
-  "updateCue",
-  "updateBlock",
-  "moveSection",
-  "moveScene",
-  "moveBeat",
-  "moveCue",
-  "moveBlock",
-  "splitBeat",
-  "mergeBeats",
-  "deleteSection",
-  "deleteScene",
-  "deleteBeat",
-  "deleteCue",
-  "deleteBlock",
-  "linkShotIntent",
-  "unlinkShotIntent",
-  "linkMediaSegment",
-  "unlinkMediaSegment",
-  "trimSourceExcerpt",
-]);
 
 type CreateStoryBeat = {
   title?: string;
@@ -147,7 +121,7 @@ export function parseNarrativeOperationBatch(value: unknown): NarrativeOperation
     if (
       !isRecord(operation) ||
       typeof operation.op !== "string" ||
-      !OPERATION_NAMES.has(operation.op as NarrativeOperation["op"])
+      !isNarrativeOperationName(operation.op)
     ) {
       throw new Error("apply payload contains an unknown narrative operation");
     }
