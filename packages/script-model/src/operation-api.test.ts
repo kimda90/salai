@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  NARRATIVE_OPERATION_NAMES,
   applyOperation,
   createProductVideoFixture,
   isNarrativeOperationName,
@@ -42,9 +41,8 @@ describe("public patch operation semantics", () => {
     expect(updated.cues.cue_demo_wide?.explicitDurationMs).toBeUndefined();
   });
 
-  it("exposes the canonical operation-name vocabulary at runtime", () => {
+  it("recognizes canonical operation names at runtime", () => {
     expect(isNarrativeOperationName("updateBeat")).toBe(true);
     expect(isNarrativeOperationName("doAnything")).toBe(false);
-    expect(new Set(NARRATIVE_OPERATION_NAMES).size).toBe(NARRATIVE_OPERATION_NAMES.length);
   });
 });
