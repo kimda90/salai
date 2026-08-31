@@ -4,11 +4,29 @@ import { pathToFileURL } from "node:url";
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 4317;
 
+function allowedOrigin(origin) {
+  if (!origin) return null;
+  try {
+    const url = new URL(origin);
+    return url.protocol === "http:" && (url.hostname === "127.0.0.1" || url.hostname === "localhost")
+      ? origin
+      : false;
+  } catch {
+    return false;
+  }
+}
+
+function setCors(request, response) {
+  const origin = allowedOrigin(request.headers.origin);
+  if (origin === false) return false;
+  if (origin) response.setHeader("access-control-allow-origin", origin);
+  response.setHeader("access-control-allow-headers", "content-type");
+  response.setHeader("vary", "origin");
+  return true;
+}
+
 function sendJson(response, status, value) {
-  response.writeHead(status, {
-    "access-control-allow-origin": "*",
-    "content-type": "application/json; charset=utf-8",
-  });
+  response.writeHead(status, { "content-type": "application/json; charset=utf-8" });
   response.end(JSON.stringify(value));
 }
 
@@ -24,8 +42,10 @@ export function createBridgeServer({ requestTimeoutMs = 15_000 } = {}) {
   const pending = new Map();
 
   return createServer(async (request, response) => {
-    response.setHeader("access-control-allow-origin", "*");
-    response.setHeader("access-control-allow-headers", "content-type");
+    if (!setCors(request, response)) {
+      sendJson(response, 403, { ok: false, error: "Bridge accepts browser requests from loopback origins only" });
+      return;
+    }
     if (request.method === "OPTIONS") {
       response.writeHead(204);
       response.end();
