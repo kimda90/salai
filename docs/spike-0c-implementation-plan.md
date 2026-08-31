@@ -24,7 +24,7 @@ The spike is not a feature-complete agent architecture, provider platform, or me
 
 ## Hard implementation boundaries
 
-0C optimizes for **time to a public demo behind one stable Salai domain boundary**.
+0C optimizes for **time to a browser demo behind one stable Salai domain boundary**.
 
 The implementation must preserve these rules:
 
@@ -32,7 +32,7 @@ The implementation must preserve these rules:
 - `SalaiProjectService` is the application boundary used by human UI and machine/model integrations;
 - `applyOperations()` remains the canonical multi-operation mutation primitive;
 - Narrative Lenses and model-mediated authoring operate on the same project/Workspace state;
-- the public demo remains the existing static GitHub Pages application with no Salai-operated backend;
+- the demo remains a static browser application with no Salai-operated backend; deployment is separate from CI;
 - the live model path uses one browser-safe, user-scoped adapter and embeds no reusable developer secret;
 - provider authentication, model sessions, chat history, intermediate reasoning, and tool traces are non-canonical;
 - CI uses deterministic model results and never depends on model/provider availability;
@@ -49,15 +49,15 @@ Reuse the code that already exists rather than creating a parallel application s
 Current relevant code:
 
 - `packages/script-model/` — canonical Narrative IR, operations, validation, fixtures, `applyOperation()`, and `applyOperations()`;
-- `packages/spike-demo/src/controller.tsx` — current application state, publish/subscribe boundary, single-operation dispatch, selection and Workspace synchronization;
+- `packages/spike-demo/src/controller.tsx` — current application state, publish/subscribe boundary, atomic batch dispatch, selection and Workspace synchronization;
 - `packages/spike-demo/src/controller.test.ts` — controller-level deterministic tests;
 - `packages/spike-demo/src/cross-surface.test.ts` — cross-lens propagation tests;
 - `packages/spike-demo/src/App.tsx` — current validation shell and lens navigation;
 - `Outline.tsx`, `StoryWall.tsx`, `AVScript.tsx`, `PaperEdit.tsx` — existing Narrative Lenses;
 - `fixtures.ts` and current model fixtures — deterministic validation material;
-- GitHub Pages workflow — existing hosted validation surface.
+- the React/Vite production build — static browser validation surface; Pages deployment is not part of CI.
 
-`SalaiController` already has `getSnapshot()` and `subscribe()`. Prefer evolving it to satisfy the project-service contract rather than introducing another stateful wrapper unless implementation evidence requires one.
+`SalaiController` implements the current `SalaiProjectService` contract directly. Do not add another stateful wrapper unless implementation evidence requires one.
 
 ## State ownership
 
@@ -121,48 +121,14 @@ The PR boundaries are intentional. In particular, provider integration must not 
 
 Create one application boundary that both the existing lenses and later model integration can use, without introducing new project state.
 
-### Expected code touchpoints
-
-- `packages/spike-demo/src/controller.tsx`;
-- `packages/spike-demo/src/controller.test.ts`;
-- optionally a small `project-service.ts` containing types/helpers only if keeping the contract in `controller.tsx` becomes unclear.
-
 ### Tasks
 
 - [x] **0C.0.1 — Define the minimum `SalaiProjectService` contract over existing state.**
-  - current snapshot/context read;
-  - canonical batch mutation;
-  - project/Workspace subscription;
-  - no persistence, network, provider, or agent concepts.
-
 - [x] **0C.0.2 — Add `dispatchNarrativeBatch(operations)` using existing `applyOperations()`.**
-  - evaluate the full batch against the current immutable project;
-  - publish once only after the full batch succeeds;
-  - publish no intermediate canonical state;
-  - preserve existing selection-clearing rules when selected IDs are removed;
-  - synchronize Story Wall Workspace membership once from the final result.
-
 - [x] **0C.0.3 — Preserve the existing single-operation path.**
-  - `dispatchNarrative()` may delegate to the batch path with one operation if this reduces duplication;
-  - direct lens behavior must remain unchanged.
-
 - [x] **0C.0.4 — Add deterministic atomicity tests.**
-  - valid multi-operation batch produces one final project;
-  - subscriber observes one successful publish for the batch;
-  - an invalid later operation leaves the live project/Workspace unchanged;
-  - warnings, relationship effects, changed IDs, created IDs, and removed IDs reach feedback;
-  - removed selection is cleared correctly;
-  - Story Wall membership is synchronized for batched create/remove operations.
-
 - [x] **0C.0.5 — Define a task-relevant context read for model-mediated work.**
-  - include the canonical project or smallest task-relevant projection needed by the first scenario;
-  - include Workspace/source data only when the request needs it;
-  - exclude arbitrary presentation state and provider/session state;
-  - active lens identity may be supplied only when it materially helps interpret the request.
-
 - [x] **0C.0.6 — Do not add project revisions yet.**
-  - browser-local serialized mutation is sufficient until a stale-write case is demonstrated;
-  - if that case appears later, add `expectedRevision` as a small extension rather than introducing CRDT/event-sourcing infrastructure.
 
 ### Gate
 
@@ -180,84 +146,52 @@ Create one application boundary that both the existing lenses and later model in
 
 Define the smallest Salai-owned request/result contract and make the end-to-end UI work with deterministic results.
 
-### Expected code touchpoints
-
-Create small focused modules under `packages/spike-demo/src/`, for example:
-
-```text
-authoring/
-  contract.ts
-  context.ts
-  deterministic-adapter.ts
-  result.ts
-  AuthoringSurface.tsx
-  authoring.test.ts
-```
-
-Names may change; keep the module count proportional to actual code.
-
 ### Tasks
 
-- [ ] **0C.1.1 — Define one Salai-owned model turn contract.**
+- [x] **0C.1.1 — Define one Salai-owned model turn contract.**
+  - `AuthoringRequest` carries instruction + current Salai project context;
+  - `AuthoringResult` carries summary, optional canonical operations, and optional answer;
+  - `AuthoringAdapter` is the replaceable provider-facing seam.
 
-Conceptually:
-
-```ts
-type AuthoringRequest = {
-  instruction: string;
-  context: AuthoringProjectContext;
-  attachments?: Attachment[];
-};
-
-type AuthoringResult = {
-  summary: string;
-  operations?: NarrativeOperation[];
-  commands?: AuthoringCommand[];
-  answer?: string;
-};
-```
-
-The exact fields should be smaller if the first scenario needs less.
-
-- [ ] **0C.1.2 — Add deterministic adapter/results for CI.**
+- [x] **0C.1.2 — Add deterministic adapter/results for CI.**
   - deterministic inputs produce deterministic structured results;
   - no network/login/model call in unit tests;
-  - the mock uses the same Salai-owned result shape as the live adapter.
+  - the deterministic adapter uses the same Salai-owned result shape as a future live adapter.
 
-- [ ] **0C.1.3 — Add result validation before canonical mutation.**
-  - reject malformed result shapes;
-  - resolve any scenario-specific commands before mutation;
+- [x] **0C.1.3 — Add result validation before canonical mutation.**
+  - malformed envelopes and unknown operation vocabulary are rejected;
+  - structural/domain validation remains owned by `@salai/script-model`;
   - final canonical mutations go through `SalaiProjectService`;
-  - invalid results/batches never partially publish state.
+  - invalid results/batches never partially publish canonical state.
 
-- [ ] **0C.1.4 — Add one low-friction authoring surface.**
-  - plain textarea/minimal editor;
-  - explicit Process/Apply action;
+- [x] **0C.1.4 — Add one low-friction authoring surface.**
+  - plain textarea;
+  - explicit Process & Apply action;
   - idle/running/error/success state;
   - concise result/change summary;
-  - immediate access to the existing Narrative Lenses;
-  - update the old 0B-facing shell copy to 0C language.
+  - existing Narrative Lenses remain directly available;
+  - shell copy identifies Spike 0C rather than 0B.
 
-- [ ] **0C.1.5 — Keep working text non-canonical.**
-  - resetting/changing the working text does not mutate Narrative IR;
+- [x] **0C.1.5 — Keep working text non-canonical.**
+  - textarea state stays local to the authoring surface;
   - no rich-text document model;
   - no durable chat transcript.
 
 ### Gate
 
-- [ ] **0C.1A.GATE — The complete authoring interaction works deterministically in-browser: input → structured result → validation → project-service batch → synchronized lenses.**
+- [x] **0C.1A.GATE — The complete authoring interaction works deterministically in-browser: input → structured result → validation → project-service batch → synchronized lenses.**
 
 ## PR 3 — Live backendless browser adapter
 
 ### Goal
 
-Replace the deterministic adapter at runtime with one real hosted-model path while keeping the static deployment architecture.
+Replace the deterministic adapter at runtime with one real hosted-model path while keeping the static browser architecture.
 
 ### Provider feasibility gate
 
 Before integrating a provider, verify all of the following with the smallest standalone call:
 
-- it runs from the deployed GitHub Pages origin;
+- it runs from a normal browser origin using the built static application;
 - user authentication/usage is browser-safe and user-scoped;
 - no reusable Salai developer secret is shipped in JavaScript;
 - the model can return reliably parseable structured data or tool/function arguments sufficient for the Salai result contract;
@@ -283,16 +217,17 @@ If a candidate fails any of these, switch adapter/provider rather than changing 
   - current project remains untouched;
   - deterministic adapter remains usable for CI/dev tests.
 
-- [ ] **0C.1.9 — Smoke-test the deployed Pages build.**
+- [ ] **0C.1.9 — Smoke-test the production static build manually.**
   - authenticate as an ordinary user;
   - submit one real instruction;
   - receive a structured result;
   - apply one valid canonical change;
-  - reload/fresh interaction can continue from current in-memory project state during the same app session without relying on chat history.
+  - a fresh interaction in the same app session continues from current Salai state without relying on chat history;
+  - do not add Pages deployment back into CI for this test.
 
 ### Gate
 
-- [ ] **0C.1.GATE — The public static prototype can execute one real model-mediated canonical change with no Salai backend and no embedded developer secret.**
+- [ ] **0C.1.GATE — The static browser prototype can execute one real model-mediated canonical change with no Salai backend and no embedded developer secret.**
 
 ---
 
@@ -548,7 +483,7 @@ Do not add an agent harness, model authentication, provider runtime, or separate
 Spike 0C passes only when all of these are true:
 
 - [ ] script-first authoring is materially lower-friction than routine 0B direct structure management;
-- [ ] the public GitHub Pages prototype can use a real hosted model without a Salai-operated backend or embedded developer secret;
+- [ ] the static browser prototype can use a real hosted model without a Salai-operated backend or embedded developer secret;
 - [ ] all model-mediated canonical changes pass through `SalaiProjectService` and `applyOperations()`;
 - [ ] invalid model results/batches publish no partial canonical state;
 - [ ] source evidence remains source evidence;
