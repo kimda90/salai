@@ -1,6 +1,7 @@
 # Node / pnpm
 node_modules/
 .pnpm-store/
+.turbo/
 
 # Build / test
 packages/*/dist/
