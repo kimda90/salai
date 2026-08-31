@@ -4,7 +4,9 @@
   "scripts": {
     "build": "pnpm --recursive build",
     "test": "pnpm --recursive test",
-    "typecheck": "pnpm --recursive typecheck"
+    "typecheck": "pnpm --recursive typecheck",
+    "salai:bridge": "node packages/spike-demo/tools/bridge.mjs",
+    "salai": "node packages/spike-demo/tools/salai.mjs"
   },
   "devDependencies": {
     "typescript": "^5.9.0",
