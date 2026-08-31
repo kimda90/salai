@@ -41,7 +41,7 @@ Principle:
 ```text
 0C.0  Project service + atomic batch boundary          [implemented]
   ↓
-0C.1  External-harness machine interface
+0C.1  External-harness machine interface              [implemented]
   ↓
 0C.2  Script-first creation + revision
   ↓
@@ -81,17 +81,17 @@ Let a generic local harness inspect and mutate the **live Salai project** withou
 
 ### 0C.1A — Machine command surface
 
-- [ ] **0C.1.1 — Define the smallest machine command vocabulary.**
+- [x] **0C.1.1 — Define the smallest machine command vocabulary.**
   - `context`: return task-relevant current project state as JSON;
   - `apply`: accept a canonical `NarrativeOperation[]` batch and return the canonical operation result/feedback;
   - no provider/session/model concepts.
 
-- [ ] **0C.1.2 — Route machine mutations through `SalaiProjectService`.**
+- [x] **0C.1.2 — Route machine mutations through `SalaiProjectService`.**
   - same `dispatchNarrativeBatch()` used by the UI/controller;
   - no direct file/storage mutation;
   - no shadow project.
 
-- [ ] **0C.1.3 — Add deterministic command tests.**
+- [x] **0C.1.3 — Add deterministic command tests.**
   - current context reflects current canonical state;
   - valid batch publishes once;
   - invalid batch leaves live state unchanged;
@@ -101,25 +101,25 @@ Let a generic local harness inspect and mutate the **live Salai project** withou
 
 The current React prototype owns its project in the browser, so an external process needs a small local transport to reach that same live service. The transport is glue only; it must not become another state owner.
 
-- [ ] **0C.1.4 — Add the smallest local request/response bridge between the browser project service and a local CLI.**
+- [x] **0C.1.4 — Add the smallest local request/response bridge between the browser project service and a local CLI.**
   - prefer Node/browser built-ins before adding a transport dependency;
   - bridge stores no narrative project;
   - one active local browser client is sufficient for 0C;
   - local-only binding by default.
 
-- [ ] **0C.1.5 — Add one CLI entry point for a harness.**
+- [x] **0C.1.5 — Add one CLI entry point for a harness.**
   - `salai context`;
   - `salai apply <json-or-stdin>`;
   - stable JSON stdout for success;
   - non-zero exit + concise stderr for failure.
 
-- [ ] **0C.1.6 — Prove live shared state.**
+- [x] **0C.1.6 — Prove live shared state.**
   - CLI reads the same project shown by a Narrative Lens;
   - CLI mutation immediately updates the open UI through existing project state;
   - direct lens mutation is visible to the next CLI `context` call;
   - restarting the harness/CLI loses no Salai project state.
 
-- [ ] **0C.1.GATE — An external local harness can inspect and mutate the same live Salai project as the UI without Salai owning model/runtime infrastructure.**
+- [x] **0C.1.GATE — An external local harness can inspect and mutate the same live Salai project as the UI without Salai owning model/runtime infrastructure.**
 
 ---
 
