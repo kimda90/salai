@@ -19,6 +19,17 @@ async function startServer() {
   return `http://127.0.0.1:${address.port}`;
 }
 
+async function nextQueuedRequest(baseUrl) {
+  const deadline = Date.now() + 500;
+  while (Date.now() < deadline) {
+    const response = await fetch(`${baseUrl}/request`);
+    if (response.status === 200) return response;
+    expect(response.status).toBe(204);
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+  throw new Error("Bridge request was not queued in time");
+}
+
 describe("local machine bridge", () => {
   it("relays a CLI-style invocation to the browser client and returns its result", async () => {
     const baseUrl = await startServer();
@@ -28,8 +39,7 @@ describe("local machine bridge", () => {
       body: JSON.stringify({ command: "context" }),
     });
 
-    const request = await fetch(`${baseUrl}/request`);
-    expect(request.status).toBe(200);
+    const request = await nextQueuedRequest(baseUrl);
     const body = await request.json();
     expect(body).toMatchObject({ id: "1", command: "context" });
 
