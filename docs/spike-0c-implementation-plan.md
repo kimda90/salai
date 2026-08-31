@@ -43,7 +43,7 @@ Principle:
   ↓
 0C.1  External-harness machine interface              [implemented]
   ↓
-0C.2  Script-first creation + revision
+0C.2  Script-first creation + revision                [implemented]
   ↓
 0C.3  Grouped action + immediate revert
   ↓
@@ -129,16 +129,16 @@ The current React prototype owns its project in the browser, so an external proc
 
 Prove one rough-text → story → revision flow through the external harness interface.
 
-- [ ] **0C.2.1 — Add one fixed rough-paragraph scenario and minimum acceptable canonical result.**
-- [ ] **0C.2.2 — Create the story in one machine action without manual Beat/Cue/parent bookkeeping.**
-- [ ] **0C.2.3 — Add one narrow Salai creation command only if creation requires Salai-owned ID/reference resolution.**
+- [x] **0C.2.1 — Add one fixed rough-paragraph scenario and minimum acceptable canonical result.**
+- [x] **0C.2.2 — Create the story in one machine action without manual Beat/Cue/parent bookkeeping.**
+- [x] **0C.2.3 — Add one narrow Salai creation command only if creation requires Salai-owned ID/reference resolution.**
   - command resolves IDs/placement inside Salai;
   - compiles immediately to `NarrativeOperation[]`;
   - does not become a second persistent mutation model.
-- [ ] **0C.2.4 — Support one ordinary-language revision through the harness while preserving stable IDs where meaning is unchanged.**
-- [ ] **0C.2.5 — Add deterministic creation/revision tests, including malformed/invalid atomic failure.**
-- [ ] **0C.2.6 — Run one real external-harness smoke test against the local CLI.**
-- [ ] **0C.2.GATE — The representative story can be created and revised with materially less structural bookkeeping than 0B.**
+- [x] **0C.2.4 — Support one ordinary-language revision through the harness while preserving stable IDs where meaning is unchanged.**
+- [x] **0C.2.5 — Add deterministic creation/revision tests, including malformed/invalid atomic failure.**
+- [x] **0C.2.6 — Run one real external-harness smoke test against the local CLI.**
+- [x] **0C.2.GATE — The representative story can be created and revised with materially less structural bookkeeping than 0B.**
 
 ---
 
