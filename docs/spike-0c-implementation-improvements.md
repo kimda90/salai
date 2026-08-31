@@ -2,9 +2,9 @@
 
 ## Status
 
-Current engineering cleanup plan after the comprehensive Ponytail-equivalent review of implemented 0C.0–0C.5.
+**Implemented.** The comprehensive Ponytail-equivalent review of implemented 0C.0–0C.5 produced one concrete engineering cleanup, and that cleanup is complete.
 
-Human validation remains open. This plan contains only implementation changes justified by the retained code; it does not infer product changes from unrun human tests.
+Human validation remains open. No additional engineering work is justified until that run produces new evidence.
 
 ## Review method
 
@@ -36,30 +36,31 @@ The review found no evidence to replace or generalize these 0C choices before hu
 - no MCP server, event bus, CRDT, persistence layer, agent runtime, provider SDK, or generic command framework should be added;
 - no Skill/help/schema layer should be added until the human run shows the external harness actually needs one.
 
-## Improvement 1 — Remove duplicated operation-name vocabulary
+## Improvement 1 — Remove duplicated operation-name vocabulary — implemented
 
 ### Finding
 
-`packages/spike-demo/src/machine-interface.ts` currently declares its own runtime set of every `NarrativeOperation["op"]` value.
+`packages/spike-demo/src/machine-interface.ts` declared its own runtime set of every `NarrativeOperation["op"]` value.
 
-The canonical operation union already belongs to `@salai/script-model`. A future operation added there could be valid in Salai but rejected by the external-harness boundary until a second list is manually updated.
+The canonical operation union already belongs to `@salai/script-model`. A future operation added there could have become valid in Salai while remaining rejected by the external-harness boundary until a second list was manually updated.
 
-This is a concrete maintenance/drift risk and violates the reuse-first rule.
+This was a concrete maintenance/drift risk and violated the reuse-first rule.
 
-### Change
+### Implemented change
 
-- expose one runtime operation-name predicate/list from `@salai/script-model` next to the public `NarrativeOperation` API;
-- make the exported list type-checked for exhaustive coverage of `NarrativeOperation["op"]`;
-- make the machine interface import and reuse that predicate instead of maintaining another list;
-- retain the current machine payload behavior: non-empty array, known operation name, then canonical validation/mutation through `applyOperations()`.
+- `@salai/script-model` now owns the runtime operation-name predicate next to the public `NarrativeOperation` API;
+- a private `Record<NarrativeOperation["op"], true>` makes TypeScript enforce exhaustive coverage of the canonical operation union;
+- the predicate uses native `Object.hasOwn()` rather than introducing another runtime collection or dependency;
+- the machine interface imports and reuses that predicate instead of maintaining another operation-name list;
+- machine payload behavior remains unchanged: non-empty array, known operation name, then canonical validation/mutation through `applyOperations()`.
 
-### Acceptance
+### Verified acceptance
 
-- one runtime operation-name vocabulary exists in Salai code;
-- adding/removing a canonical operation cannot leave the runtime name list silently incomplete;
-- unknown machine operations are still rejected before mutation;
-- existing canonical operation behavior is unchanged;
-- typecheck, tests, and build are green.
+- [x] one runtime operation-name vocabulary exists in Salai code;
+- [x] adding/removing a canonical operation cannot leave the runtime name vocabulary silently incomplete at typecheck time;
+- [x] unknown machine operations are still rejected before mutation;
+- [x] existing canonical operation behavior is unchanged;
+- [x] typecheck, tests, and build are green.
 
 ## Explicitly deferred review observations
 
@@ -71,16 +72,16 @@ These are not implementation tasks yet:
 - polling interval, request timeout, body-size limits, multi-client behavior, and richer local transport are prototype concerns until the human run exposes an actual problem;
 - a harness Skill or discoverable command schema may reduce setup friction, but that is part of the human validation question rather than a pre-validation assumption.
 
-## Execution order
+## Execution result
 
 ```text
-I1  Centralize runtime NarrativeOperation names
+I1  Centralize runtime NarrativeOperation names        [implemented]
  ↓
-Ponytail-equivalent review
+Ponytail-equivalent review                             [complete]
  ↓
-CI + merge
+CI                                                     [green]
  ↓
 return to 0C.6 human validation
 ```
 
-No further engineering work should be pulled forward unless I1 or the human validation produces concrete evidence for it.
+No further engineering work should be pulled forward unless the human validation produces concrete evidence for it.

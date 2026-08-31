@@ -30,6 +30,40 @@ export type NarrativeOperation =
     }
   | { op: "updateCue"; cueId: Id; explicitDurationMs?: number | null };
 
+const NARRATIVE_OPERATION_NAME_FLAGS = {
+  createSection: true,
+  createScene: true,
+  createBeat: true,
+  createCue: true,
+  createBlock: true,
+  updateSection: true,
+  updateScene: true,
+  updateBeat: true,
+  updateCue: true,
+  updateBlock: true,
+  moveSection: true,
+  moveScene: true,
+  moveBeat: true,
+  moveCue: true,
+  moveBlock: true,
+  splitBeat: true,
+  mergeBeats: true,
+  deleteSection: true,
+  deleteScene: true,
+  deleteBeat: true,
+  deleteCue: true,
+  deleteBlock: true,
+  linkShotIntent: true,
+  unlinkShotIntent: true,
+  linkMediaSegment: true,
+  unlinkMediaSegment: true,
+  trimSourceExcerpt: true,
+} as const satisfies Record<NarrativeOperation["op"], true>;
+
+export function isNarrativeOperationName(value: string): value is NarrativeOperation["op"] {
+  return Object.hasOwn(NARRATIVE_OPERATION_NAME_FLAGS, value);
+}
+
 export {
   DomainOperationError,
   type DomainWarning,
