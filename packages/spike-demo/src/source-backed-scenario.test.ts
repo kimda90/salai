@@ -12,35 +12,27 @@ function sourceExcerpt(project: ReturnType<SalaiController["getSnapshot"]>["proj
 }
 
 describe("0C.4 source-backed scenario", () => {
-  it("exposes deterministic source material without persisting transient reference identity", () => {
+  it("exposes deterministic canonical source material through machine context", () => {
     const controller = new SalaiController(SOURCE_BACKED_SCENARIO.fixture);
     const context = handleMachineCommand(controller, { command: "context" }) as ReturnType<
       SalaiController["getProjectContext"]
     >;
 
-    expect(context.project.mediaSegments.interview_maria).toMatchObject({
-      id: "interview_maria",
-      assetId: "asset_maria",
-    });
-    expect(context.project.mediaSegments.interview_juan).toMatchObject({
-      id: "interview_juan",
-      assetId: "asset_juan",
-    });
+    const mariaSegment = context.project.mediaSegments.interview_maria;
+    const juanSegment = context.project.mediaSegments.interview_juan;
+    expect(mariaSegment).toMatchObject({ id: "interview_maria", assetId: "asset_maria" });
+    expect(juanSegment).toMatchObject({ id: "interview_juan", assetId: "asset_juan" });
 
-    expect(sourceExcerpt(context.project, SOURCE_BACKED_SCENARIO.transientReferences.manualProof.blockId))
-      .toMatchObject({
-        mediaSegmentId: SOURCE_BACKED_SCENARIO.transientReferences.manualProof.mediaSegmentId,
-        sourceInMs: 10_000,
-        sourceOutMs: 37_000,
-        transcriptSnapshot: "We were spending almost two days doing this manually.",
-      });
-
-    expect(JSON.stringify(context.project)).not.toContain(
-      SOURCE_BACKED_SCENARIO.transientReferences.manualProof.referenceId,
-    );
-    expect(JSON.stringify(context.project)).not.toContain(
-      SOURCE_BACKED_SCENARIO.transientReferences.turningProof.referenceId,
-    );
+    const manualProof = sourceExcerpt(context.project, SOURCE_BACKED_SCENARIO.manualProofBlockId);
+    const resultProof = sourceExcerpt(context.project, "quote_result");
+    expect(manualProof).toMatchObject({
+      mediaSegmentId: SOURCE_BACKED_SCENARIO.manualProofMediaSegmentId,
+      sourceInMs: 10_000,
+      sourceOutMs: 37_000,
+      transcriptSnapshot: "We were spending almost two days doing this manually.",
+    });
+    expect(mariaSegment?.transcript).toContain(manualProof.transcriptSnapshot);
+    expect(mariaSegment?.transcript).toContain(resultProof.transcriptSnapshot);
   });
 
   it("arranges the source-backed sequence while preserving source evidence", () => {
@@ -50,7 +42,6 @@ describe("0C.4 source-backed scenario", () => {
     const beforeJuan = sourceExcerpt(before, "quote_juan");
     const beforeResult = sourceExcerpt(before, "quote_result");
 
-    expect(SOURCE_BACKED_SCENARIO.arrangementInstruction.length).toBeGreaterThan(0);
     handleMachineCommand(controller, {
       command: "apply",
       payload: SOURCE_BACKED_SCENARIO.arrangementOperations,
@@ -77,7 +68,6 @@ describe("0C.4 source-backed scenario", () => {
         .map((relationship) => relationship.sourceId),
     );
 
-    expect(SOURCE_BACKED_SCENARIO.unsupportedMaterialQuestion.length).toBeGreaterThan(0);
     expect(supportedByMedia.has("cue_maria")).toBe(true);
     expect(supportedByMedia.has(SOURCE_BACKED_SCENARIO.unsupportedCueId)).toBe(false);
   });
