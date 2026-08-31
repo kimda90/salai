@@ -1,4 +1,5 @@
 import {
+  createEmptyNarrativeProject,
   createFootageFirstFixture,
   createInterviewFixture,
   createProductVideoFixture,
@@ -6,7 +7,7 @@ import {
   type NarrativeProject,
 } from "@salai/script-model";
 
-export type FixtureKey = "product" | "interview" | "documentary";
+export type FixtureKey = "scratch" | "product" | "interview" | "documentary";
 
 export type FixtureDefinition = {
   key: FixtureKey;
@@ -16,6 +17,12 @@ export type FixtureDefinition = {
 };
 
 export const FIXTURES: readonly FixtureDefinition[] = [
+  {
+    key: "scratch",
+    label: "Blank story",
+    description: "Empty canonical story used for the script-first external-harness scenario.",
+    create: () => createEmptyNarrativeProject({ scriptId: "script-scratch", title: "Untitled story" }),
+  },
   {
     key: "product",
     label: "30s product video",
