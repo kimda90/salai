@@ -18,13 +18,17 @@ function structuredResponse(argumentsValue: unknown) {
   };
 }
 
+function mockChat(result: unknown) {
+  return vi.fn(async (..._args: Parameters<PuterClient["ai"]["chat"]>) => result);
+}
+
 describe("Puter authoring adapter", () => {
   it("signs in on demand and returns structured tool arguments", async () => {
     let signedIn = false;
     const signIn = vi.fn(async () => {
       signedIn = true;
     });
-    const chat = vi.fn(async () =>
+    const chat = mockChat(
       structuredResponse({ summary: "No change needed", answer: "Looks good." }),
     );
     const client: PuterClient = {
@@ -49,7 +53,7 @@ describe("Puter authoring adapter", () => {
   });
 
   it("sends a compact narrative context rather than provider/session or source state", async () => {
-    const chat = vi.fn(async () => structuredResponse({ summary: "No change" }));
+    const chat = mockChat(structuredResponse({ summary: "No change" }));
     const client: PuterClient = {
       auth: { isSignedIn: () => true, signIn: vi.fn(async () => undefined) },
       ai: { chat },
@@ -86,7 +90,7 @@ describe("Puter authoring adapter", () => {
           throw new Error("Sign in cancelled");
         }),
       },
-      ai: { chat: vi.fn() },
+      ai: { chat: mockChat(undefined) },
     };
     const controller = new SalaiController("product");
     const beforeProject = controller.getSnapshot().project;
@@ -104,9 +108,7 @@ describe("Puter authoring adapter", () => {
   it("rejects unstructured model replies without mutating canonical state", async () => {
     const client: PuterClient = {
       auth: { isSignedIn: () => true, signIn: vi.fn(async () => undefined) },
-      ai: {
-        chat: vi.fn(async () => ({ message: { content: "I would change the opening." } })),
-      },
+      ai: { chat: mockChat({ message: { content: "I would change the opening." } }) },
     };
     const controller = new SalaiController("product");
     const beforeProject = controller.getSnapshot().project;
