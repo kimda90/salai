@@ -14,6 +14,8 @@ This directory separates current product/workflow/architecture contracts from hi
 | Narrative Lens semantics | [`narrative-lenses.md`](narrative-lenses.md) |
 | Narrative IR types/invariants/operations | [`narrative-ir-spec.md`](narrative-ir-spec.md) |
 | Active agent-mediated interaction contract | [`agent-mediated-authoring.md`](agent-mediated-authoring.md) |
+| External-agent operating procedure | [`agent-usage.md`](agent-usage.md) |
+| Coding-agent development procedure | [`agent-development.md`](agent-development.md) |
 | Active 0C tasks/status/evidence | [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md) |
 | Active 0C human validation procedure | [`spike-0c-human-validation.md`](spike-0c-human-validation.md) |
 | Validation sequence | [`mvp.md`](mvp.md) |
@@ -22,13 +24,17 @@ This directory separates current product/workflow/architecture contracts from hi
 | Accepted/superseded decisions | [`adr/`](adr/) |
 | Proposed cross-cutting changes | [`rfcs/`](rfcs/) |
 
+Root-level [`../AGENTS.md`](../AGENTS.md) is the concise repository entrypoint for coding agents and delegates detailed operating/development behavior to the two canonical agent standards above.
+
 Do not duplicate exact operation vocabularies, task status, or superseded runtime behavior across living docs. ADRs retain decision history.
 
 ## Current contracts
 
 - [`narrative-ir-spec.md`](narrative-ir-spec.md) — implemented canonical model contract.
 - [`narrative-lenses.md`](narrative-lenses.md) — structured creative views over one project.
-- [`agent-mediated-authoring.md`](agent-mediated-authoring.md) — external-harness authoring behavior.
+- [`agent-mediated-authoring.md`](agent-mediated-authoring.md) — external-harness product behavior.
+- [`agent-usage.md`](agent-usage.md) — required workflow for agents operating a live Salai project.
+- [`agent-development.md`](agent-development.md) — required workflow for coding agents changing Salai.
 - [`architecture.md`](architecture.md) — current runtime/application boundaries.
 - [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) — proposed interaction model under 0C validation.
 - [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md) — current human/machine runtime decision.
