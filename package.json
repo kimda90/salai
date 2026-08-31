@@ -1,14 +1,17 @@
 {
   "name": "salai",
   "private": true,
+  "packageManager": "pnpm@10.34.5",
   "scripts": {
-    "build": "pnpm --recursive build",
-    "test": "pnpm --recursive test",
-    "typecheck": "pnpm --recursive typecheck",
+    "dev": "turbo run dev --filter=@salai/spike-demo",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
     "salai:bridge": "node packages/spike-demo/tools/bridge.mjs",
     "salai": "node packages/spike-demo/tools/salai.mjs"
   },
   "devDependencies": {
+    "turbo": "2.10.12",
     "typescript": "^5.9.0",
     "vitest": "^3.2.0"
   }
