@@ -69,4 +69,14 @@ describe("local machine bridge", () => {
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toMatchObject({ ok: false });
   });
+
+  it("rejects browser requests from non-loopback origins", async () => {
+    const baseUrl = await startServer();
+    const response = await fetch(`${baseUrl}/request`, {
+      headers: { origin: "https://example.com" },
+    });
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toMatchObject({ ok: false });
+  });
 });
