@@ -2,173 +2,101 @@
 
 ## Status
 
-Living workflow behavior.
-
-This document describes **how creators move through Salai**. It does not redefine Narrative Lens semantics; those are canonical in [`narrative-lenses.md`](narrative-lenses.md). The active low-friction authoring contract is [`agent-mediated-authoring.md`](agent-mediated-authoring.md).
+Living workflow behavior. Narrative Lens semantics live in [`narrative-lenses.md`](narrative-lenses.md); external-agent authoring behavior lives in [`agent-mediated-authoring.md`](agent-mediated-authoring.md).
 
 ## Core interaction rule
 
 > **Hide structural bookkeeping, not narrative structure.**
 
-Creators should be able to express ordinary intent without first managing IDs, parent references, operation types, or object wiring. They should also be able to enter a structured Narrative Lens when that representation is itself useful for thinking.
+Creators express ordinary intent through their agent harness without manually managing IDs, parent references, operation types, or object wiring. They enter a Narrative Lens when that representation helps them think or manipulate the story directly.
 
-# Default creative loop
+## Default loop
 
 ```text
-express intent
-write / instruct / provide media
+creator expresses intent in external harness
         ↓
-Salai normalizes
+harness inspects Salai through machine interface
+        ↓
+harness requests validated Salai changes
         ↓
 canonical project
         ↓
-continue directly
-   or open a useful lens
+continue in harness or open a Narrative Lens
         ↓
-reshape directly or conversationally
+direct lens edit if useful
         ↓
-continue toward production / Resolve
+next harness request reads current Salai state
 ```
 
-A lens is optional for any individual change. It is not “advanced mode”; it is another creative representation the user may choose deliberately.
+No export/import or chat-history synchronization is required between harness and lens work.
 
-# Script-first workflow
-
-Typical path:
+## Script-first
 
 ```text
-rough idea / prose
+rough idea / prose in harness
       ↓
-process with Salai
+Salai machine interface
       ↓
-usable narrative structure
+usable canonical structure
       ↓
-revise conversationally
+ordinary-language revision in harness
       ↓
-open a lens when structure/realization is worth inspecting
+optional Narrative Lens
 ```
 
-Expected behavior:
+The creator should not manually create/parent every Beat/Cue for the representative 0C scenario. Existing IDs remain stable when meaning is unchanged.
 
-- the user may write incomplete prose and notes before deciding structure;
-- one request may create/reorder/update several canonical objects;
-- unresolved material may remain outside canonical structure until needed;
-- common revisions should not require manual Beat/Cue/parent management;
-- direct structured editing remains available when the creator wants to work that way.
-
-# Footage-first workflow
-
-Typical path:
+## Footage/source-first
 
 ```text
-interview / source handles
-         +
-story intention
+source fixture/context + story intention
       ↓
-Salai arranges source evidence
+external harness
       ↓
-canonical narrative + source links
+Salai machine interface
       ↓
-inspect/refine conversationally or through an existing lens
+canonical narrative + source evidence
+      ↓
+optional lens/direct edit
 ```
 
-Expected behavior:
+Recorded wording/ranges remain source evidence; authored bridges remain authored. Mocked source metadata is sufficient for 0C.
 
-- attachment presentation is distinct from canonical MediaSegment/SourceExcerpt identity;
-- recorded wording/ranges remain source evidence;
-- authored bridges remain authored;
-- moving/selecting source material must not silently rewrite it;
-- mocked source metadata is sufficient for 0C; real analysis comes later.
+## Harness → lens
 
-# Agent → lens workflow
+Machine changes are visible in every lens because both use the same project service/canonical state.
 
-A creator may normalize material first, then open a lens because another representation exposes a useful property of the story.
+## Lens → harness
 
-```text
-natural-language change
-        ↓
-canonical state
-        ↓
-open existing Narrative Lens
-        ↓
-inspect / direct edit
-```
+A direct lens edit changes current Narrative IR or justified Workspace state. The next machine `context` call returns that current state; the harness does not need a separate synchronization record.
 
-The lens reads the same canonical state; there is no export/import or synchronization step.
+Examples:
 
-# Lens → agent workflow
+- move sourced material in Paper/Radio, then ask the harness to tighten authored material around it;
+- adjust audiovisual realization, then ask for a simpler surrounding Beat;
+- restructure hierarchy in Outline, then continue the story through the harness.
 
-A creator may make a direct edit because the lens is the right way to think, then continue conversationally.
+## Workspace vs narrative change
 
-```text
-direct lens edit
-        ↓
-canonical / Workspace state
-        ↓
-next agent request reads current state
-```
+Story Wall x/y position and parking are Workspace semantics, not canonical narrative order. Spatial movement must not silently reorder the story. Explicit narrative reorder remains a canonical operation.
 
-Examples of legitimate transitions:
+## Narrative Lenses
 
-- rearrange cards spatially, then ask Salai whether the new structure leaves an unsupported Beat;
-- move a sourced excerpt in Paper/Radio, then ask Salai to tighten the authored bridge around it;
-- adjust AV realization directly, then ask for a simpler version of the surrounding Beat;
-- restructure hierarchy in Outline, then continue writing in the low-friction surface.
-
-The agent does not need a separate synchronization record of the edit; canonical state is already the shared context.
-
-# Workspace vs narrative change
-
-The 0B ownership distinction remains important.
-
-A Workspace stores meaningful human organization that is not inherent to canonical narrative semantics.
-
-Validated example:
-
-- Story Wall x/y position and parking state.
-
-A request such as “move this card aside” may therefore be Workspace-only when spatial organization is clearly the intent. It must not silently reorder the narrative.
-
-Conversely, “put this Beat before the proof” is a narrative structural request even if it originates while Story Wall is open.
-
-# Narrative Lens selection
-
-The product should not force the user into a lens merely because an operation is implemented there.
-
-The creator enters a lens because its representation helps answer the current creative question.
-
-The canonical lens roles and expose/hide rules are defined in [`narrative-lenses.md`](narrative-lenses.md).
-
-0C reuses the four existing lenses:
+0C reuses:
 
 - Outline;
 - Story Wall;
 - AV Script;
 - Paper / Radio Edit.
 
-A new Coverage Lens is deferred until the production graph exists. 0C may still answer simple missing/unsupported-material questions using mocked relationships.
+A new Coverage Lens is deferred until the production graph exists. 0C may answer a simple missing/unsupported-material question from mocked relationships.
 
-# Alternatives and parking
-
-Creators often keep rejected or uncertain material nearby rather than deleting it.
-
-Salai should preserve the distinction between:
-
-- move/reorder in active narrative;
-- park/move aside in Workspace organization;
-- remove from active structure where a future model supports that explicitly;
-- permanently delete.
-
-0C does not need a new alternatives/versioning model to preserve the existing Story Wall behavior.
-
-# Resolve workflow
-
-Resolve remains downstream.
+## Resolve
 
 ```text
 creative work in Salai
         ↓
-canonical narrative / source / production state
+canonical state
         ↓
 explicit materialization decision
         ↓
@@ -177,15 +105,11 @@ Resolve adapter
 DaVinci Resolve
 ```
 
-Neither conversation nor a Narrative Lens should bypass canonical Salai state and mutate Resolve directly.
+Neither harness instructions nor a Narrative Lens bypass canonical Salai state to mutate Resolve directly.
 
-# 0C workflow proof
+## 0C workflow proof
 
-The active spike needs only these representative loops:
-
-1. rough prose → canonical story → natural-language revision;
-2. fixture-backed source handles → source-preserving structure;
-3. one grouped agent change → summary → revert;
-4. agent-normalized project → existing lens → direct edit → follow-up agent instruction.
-
-If those loops reduce interaction burden while preserving useful structural perception, later phases can broaden lenses, media intelligence, persistence, production graph, and Resolve integration.
+1. rough prose → canonical story → harness-driven revision;
+2. fixture-backed source context → source-preserving structure;
+3. one grouped harness change → summary → immediate revert;
+4. harness-normalized project → existing lens → direct edit → follow-up harness request.
