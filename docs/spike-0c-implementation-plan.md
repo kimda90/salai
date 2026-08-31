@@ -4,7 +4,7 @@
 
 Canonical execution tracker for **Spike 0C — Agent-Mediated Authoring + Narrative Lenses**.
 
-This file is the only source for 0C task numbering and completion status.
+This file is the only source for 0C task numbering, implementation order, completion status, and exit evidence.
 
 Contracts:
 
@@ -15,49 +15,51 @@ Contracts:
 
 ## Spike goal
 
-Validate the smallest dual interaction model that can answer two questions:
+Validate the smallest interaction model that can answer two questions:
 
 1. can ordinary script-first and footage-first intentions be expressed with materially less structural bookkeeping than 0B; and
-2. does at least one existing Narrative Lens provide useful structural insight/direct manipulation after model-mediated normalization?
+2. does at least one existing Narrative Lens provide useful structural insight or direct manipulation after model-mediated normalization?
 
-The spike is **not** a feature-complete agent architecture or media application.
+The spike is not a feature-complete agent architecture, provider platform, or media application.
 
-## Implementation strategy
+## Hard implementation boundaries
 
-Optimize for **time to a public demo behind a stable Salai domain boundary**.
+0C optimizes for **time to a public demo behind one stable Salai domain boundary**.
 
-For 0C:
+The implementation must preserve these rules:
 
-- `SalaiProjectService` is the stable application boundary over current Narrative IR/Workspace state;
-- the existing `applyOperations()` API remains the canonical batch mutation primitive;
-- Narrative Lenses and the embedded model flow are clients of the same project service;
-- the real demo stays in the browser/GitHub Pages application with no Salai-operated backend;
-- use one browser-safe, user-scoped hosted-model adapter and no developer secret in the static bundle;
-- deterministic structured model-result fixtures/mocks drive CI;
-- provider/model/session/authentication state is disposable adapter state, not Salai project state;
-- external-agent CLI/MCP/Skill integration is optional follow-up work and does not block the 0C gate.
+- `@salai/script-model` remains the only canonical narrative model;
+- `SalaiProjectService` is the application boundary used by human UI and machine/model integrations;
+- `applyOperations()` remains the canonical multi-operation mutation primitive;
+- Narrative Lenses and model-mediated authoring operate on the same project/Workspace state;
+- the public demo remains the existing static GitHub Pages application with no Salai-operated backend;
+- the live model path uses one browser-safe, user-scoped adapter and embeds no reusable developer secret;
+- provider authentication, model sessions, chat history, intermediate reasoning, and tool traces are non-canonical;
+- CI uses deterministic model results and never depends on model/provider availability;
+- external CLI/MCP/Skill integration is not part of the 0C gate.
 
 Principle:
 
 > **Invest in the project boundary; keep model/runtime infrastructure replaceable.**
 
-## Reuse baseline
+## Existing implementation baseline
 
-0C starts from capabilities that already exist:
+Reuse the code that already exists rather than creating a parallel application stack.
 
-- `@salai/script-model` is canonical narrative state;
-- `applyOperation()` handles one typed canonical operation;
-- `applyOperations()` applies a `NarrativeOperation[]` against immutable input and returns one final `OperationResult`;
-- the existing `SalaiController` publishes canonical project/Workspace state;
-- Story Wall, Outline, AV Script, and Paper/Radio already read/write the same project;
-- deterministic fixtures cover script-first, interview/corporate, and footage-first material;
-- the React/Vite prototype and GitHub Pages build already provide the validation surface.
+Current relevant code:
 
-**Do not rebuild model/controller behavior behind a second agent-specific state or operation system.**
+- `packages/script-model/` — canonical Narrative IR, operations, validation, fixtures, `applyOperation()`, and `applyOperations()`;
+- `packages/spike-demo/src/controller.tsx` — current application state, publish/subscribe boundary, single-operation dispatch, selection and Workspace synchronization;
+- `packages/spike-demo/src/controller.test.ts` — controller-level deterministic tests;
+- `packages/spike-demo/src/cross-surface.test.ts` — cross-lens propagation tests;
+- `packages/spike-demo/src/App.tsx` — current validation shell and lens navigation;
+- `Outline.tsx`, `StoryWall.tsx`, `AVScript.tsx`, `PaperEdit.tsx` — existing Narrative Lenses;
+- `fixtures.ts` and current model fixtures — deterministic validation material;
+- GitHub Pages workflow — existing hosted validation surface.
+
+`SalaiController` already has `getSnapshot()` and `subscribe()`. Prefer evolving it to satisfy the project-service contract rather than introducing another stateful wrapper unless implementation evidence requires one.
 
 ## State ownership
-
-Keep these layers explicit:
 
 ```text
 model/provider state
@@ -73,187 +75,285 @@ Narrative IR / Workspace / source relationships
         ↓ canonical
 ```
 
-A fresh model session must be able to continue from current Salai state.
+A fresh model interaction must be able to continue from current Salai state without reconstructing work from chat history.
 
-## Tracker rules
+## Delivery rules
 
-- `[ ]` — not complete.
-- `[x]` — implemented, merged, and verified.
-- Human criteria stay unchecked until human evidence exists.
-- Each implementation PR updates this tracker only for evidence it actually produces.
+- Each implementation PR should leave `main` releasable and CI green.
+- Finish and merge one delivery slice before beginning the next.
+- Do not add abstractions needed only by a hypothetical later provider or external-agent client.
+- Do not add a project revision counter unless a real stale-write case appears.
+- Do not add a higher-level authoring command until an implemented scenario demonstrates why public `NarrativeOperation[]` is insufficient.
+- Update checkboxes only for behavior actually merged and verified.
+- Human-validation checkboxes remain open until the human test is run.
 
-## Non-goals
-
-Keep these out of 0C unless the smallest mock is required for a validation scenario:
-
-- Salai-operated backend;
-- local agent host/process manager;
-- external CLI/MCP/Skill integration;
-- production Electron shell or durable desktop packaging;
-- durable persistence;
-- real Resolve/CutMaster execution;
-- production graph implementation;
-- a new Coverage Lens;
-- full transcription/media analysis;
-- OpenTimelineIO/OpenAssetIO integration;
-- GenAI media execution;
-- vector database;
-- canonical rich-text document model;
-- generic infinite canvas / graph editor;
-- general multi-agent framework;
-- general multi-provider/model-router framework;
-- Salai-owned OAuth/token refresh or API-key vault;
-- durable chat/session history;
-- polished token-by-token chatbot streaming;
-- autonomous background-agent runtime;
-- CRDT/event-sourcing infrastructure.
-
-# Execution order
+## Merge sequence
 
 ```text
-0C.0 Project service + canonical batch boundary
-   ↓
-0C.1 Backendless low-friction authoring shell
-   ↓
-0C.2 Script-first vertical slice
-   ↓
-0C.3 Grouped change + immediate revert
-   ↓
-0C.4 Footage/source vertical slice
-   ↓
-0C.5 Model ↔ existing-lens round trip
-   ↓
-0C.6 Human validation
-   ↓
+PR 1  0C.0 Project service + atomic batch boundary
+  ↓
+PR 2  0C.1 Deterministic model contract + authoring shell
+  ↓
+PR 3  0C.1 Live backendless browser adapter
+  ↓
+PR 4  0C.2 Script-first creation + revision
+  ↓
+PR 5  0C.3 Grouped action + immediate revert
+  ↓
+PR 6  0C.4 Source-backed vertical slice
+  ↓
+PR 7  0C.5 Model ↔ Narrative Lens round trip
+  ↓
+PR 8  0C.6 Human validation + assessment
+  ↓
 0C.GATE
 ```
+
+The PR boundaries are intentional. In particular, provider integration must not block the canonical project-service work, and source/media work must not begin before the script-first interaction is usable.
 
 ---
 
 # 0C.0 — Project service + canonical batch boundary
 
-Establish one application boundary before wiring a real model.
+## PR 1 — Project service and atomic batches
 
-- [ ] **0C.0.1 — Keep `@salai/script-model` as the only canonical narrative model.**
-  - no AI-owned project schema;
-  - no canonical chat transcript;
-  - no lens-owned narrative copies.
+### Goal
 
-- [ ] **0C.0.2 — Introduce the minimum `SalaiProjectService` facade.**
-  - expose task-relevant context reads;
-  - expose canonical batch mutation;
-  - expose a local project/Workspace change subscription or equivalent notification;
-  - implement it over existing controller/model state rather than duplicating state.
+Create one application boundary that both the existing lenses and later model integration can use, without introducing new project state.
 
-- [ ] **0C.0.3 — Add controller/project-service batch dispatch using existing `applyOperations()`.**
-  - call `applyOperations(currentProject, operations)`;
-  - publish project/Workspace once after the full call succeeds;
-  - on error, publish no partial canonical state;
-  - preserve selection/Workspace synchronization using the same rules as single-operation dispatch.
+### Expected code touchpoints
 
-- [ ] **0C.0.4 — Add deterministic batch-boundary tests.**
-  - valid multi-operation batch publishes one final state;
-  - invalid later operation leaves live project state unchanged;
-  - relationship effects/warnings/created/removed IDs reach the application boundary.
+- `packages/spike-demo/src/controller.tsx`;
+- `packages/spike-demo/src/controller.test.ts`;
+- optionally a small `project-service.ts` containing types/helpers only if keeping the contract in `controller.tsx` becomes unclear.
 
-- [ ] **0C.0.5 — Define the smallest model-facing project context needed by the first scenario.**
-  - current canonical project or task-relevant projection;
-  - working input;
-  - optional attachment handles;
-  - active lens identity only when relevant;
-  - no arbitrary UI state or provider session state.
+### Tasks
 
-- [ ] **0C.0.6 — Start with public `NarrativeOperation[]` where sufficient.**
-  - revisions that can reference existing stable IDs use the public operation vocabulary directly;
-  - no parallel persistent authoring API merely because a model is involved.
+- [ ] **0C.0.1 — Define the minimum `SalaiProjectService` contract over existing state.**
+  - current snapshot/context read;
+  - canonical batch mutation;
+  - project/Workspace subscription;
+  - no persistence, network, provider, or agent concepts.
 
-- [ ] **0C.0.7 — Introduce higher-level Salai authoring commands only when a concrete scenario requires them.**
-  - valid reasons include Salai-owned new-ID allocation, relative placement, or avoiding raw `ParentRef`/index manufacture by the model;
-  - add only command variants required by implemented scenarios;
-  - compile immediately to public `NarrativeOperation[]`;
-  - no generic mutation escape hatch.
+- [ ] **0C.0.2 — Add `dispatchNarrativeBatch(operations)` using existing `applyOperations()`.**
+  - evaluate the full batch against the current immutable project;
+  - publish once only after the full batch succeeds;
+  - publish no intermediate canonical state;
+  - preserve existing selection-clearing rules when selected IDs are removed;
+  - synchronize Story Wall Workspace membership once from the final result.
 
-- [ ] **0C.0.8 — Add project revision only if the implementation produces a real stale-write case.**
-  - serialized local mutation is the default;
-  - if added, a client may submit `expectedRevision` and receive a stale-revision failure;
-  - no CRDT/distributed-state framework.
+- [ ] **0C.0.3 — Preserve the existing single-operation path.**
+  - `dispatchNarrative()` may delegate to the batch path with one operation if this reduces duplication;
+  - direct lens behavior must remain unchanged.
 
-- [ ] **0C.0.GATE — Human UI and machine-produced changes can use one Salai-owned application boundary without bypassing canonical validation or adding a second state system.**
+- [ ] **0C.0.4 — Add deterministic atomicity tests.**
+  - valid multi-operation batch produces one final project;
+  - subscriber observes one successful publish for the batch;
+  - an invalid later operation leaves the live project/Workspace unchanged;
+  - warnings, relationship effects, changed IDs, created IDs, and removed IDs reach feedback;
+  - removed selection is cleared correctly;
+  - Story Wall membership is synchronized for batched create/remove operations.
+
+- [ ] **0C.0.5 — Define a task-relevant context read for model-mediated work.**
+  - include the canonical project or smallest task-relevant projection needed by the first scenario;
+  - include Workspace/source data only when the request needs it;
+  - exclude arbitrary presentation state and provider/session state;
+  - active lens identity may be supplied only when it materially helps interpret the request.
+
+- [ ] **0C.0.6 — Do not add project revisions yet.**
+  - browser-local serialized mutation is sufficient until a stale-write case is demonstrated;
+  - if that case appears later, add `expectedRevision` as a small extension rather than introducing CRDT/event-sourcing infrastructure.
+
+### Gate
+
+- [ ] **0C.0.GATE — Existing lenses and a machine-produced batch can use the same Salai-owned state/mutation boundary, with atomic application and no second project model.**
 
 ---
 
-# 0C.1 — Backendless low-friction authoring shell
+# 0C.1 — Backendless authoring shell
 
-Bootstrap only enough browser/model/UI infrastructure to exercise the product hypothesis publicly.
+0C.1 is split into two PRs so the product interaction and deterministic contract can be tested before any live provider dependency is introduced.
 
-- [ ] **0C.1.1 — Add a deterministic model-result adapter for tests/CI.**
-  - deterministic fixtures produce the same Salai-owned structured result shape as the live adapter;
-  - CI does not require network, login, or model availability.
+## PR 2 — Deterministic model contract + low-friction shell
 
-- [ ] **0C.1.2 — Add one browser-safe hosted-model adapter.**
-  - runs from the static GitHub Pages application;
-  - uses user-scoped authentication/usage suitable for a public browser client;
-  - embeds no reusable developer API secret;
-  - accepts only task-relevant context;
-  - returns a Salai-owned structured result;
-  - provider-specific types stay inside the adapter.
+### Goal
 
-- [ ] **0C.1.3 — Validate model output before project mutation.**
-  - parse/validate the structured result;
-  - normalize any scenario-specific Salai commands;
-  - resolve to `NarrativeOperation[]`;
-  - submit through `SalaiProjectService`;
-  - malformed/invalid results do not partially mutate the project.
+Define the smallest Salai-owned request/result contract and make the end-to-end UI work with deterministic results.
 
-- [ ] **0C.1.4 — Add one simple free-form working area + explicit Process/Apply action.**
-  - plain textarea/minimal editor is enough;
-  - mixed prose, notes, questions, alternatives, and uncertainty are allowed;
-  - no rich-text framework;
-  - show one concise running/error/result state and change summary;
-  - keep existing Narrative Lenses one action away.
+### Expected code touchpoints
 
-- [ ] **0C.1.5 — Prove provider/session disposability.**
-  - start a fresh model interaction using current Salai context;
-  - no canonical narrative state is lost or reconstructed from conversation history.
+Create small focused modules under `packages/spike-demo/src/`, for example:
 
-- [ ] **0C.1.GATE — A user can open the hosted prototype, use a real model without Salai backend/secret infrastructure, and apply a validated structured change through the project service.**
+```text
+authoring/
+  contract.ts
+  context.ts
+  deterministic-adapter.ts
+  result.ts
+  AuthoringSurface.tsx
+  authoring.test.ts
+```
+
+Names may change; keep the module count proportional to actual code.
+
+### Tasks
+
+- [ ] **0C.1.1 — Define one Salai-owned model turn contract.**
+
+Conceptually:
+
+```ts
+type AuthoringRequest = {
+  instruction: string;
+  context: AuthoringProjectContext;
+  attachments?: Attachment[];
+};
+
+type AuthoringResult = {
+  summary: string;
+  operations?: NarrativeOperation[];
+  commands?: AuthoringCommand[];
+  answer?: string;
+};
+```
+
+The exact fields should be smaller if the first scenario needs less.
+
+- [ ] **0C.1.2 — Add deterministic adapter/results for CI.**
+  - deterministic inputs produce deterministic structured results;
+  - no network/login/model call in unit tests;
+  - the mock uses the same Salai-owned result shape as the live adapter.
+
+- [ ] **0C.1.3 — Add result validation before canonical mutation.**
+  - reject malformed result shapes;
+  - resolve any scenario-specific commands before mutation;
+  - final canonical mutations go through `SalaiProjectService`;
+  - invalid results/batches never partially publish state.
+
+- [ ] **0C.1.4 — Add one low-friction authoring surface.**
+  - plain textarea/minimal editor;
+  - explicit Process/Apply action;
+  - idle/running/error/success state;
+  - concise result/change summary;
+  - immediate access to the existing Narrative Lenses;
+  - update the old 0B-facing shell copy to 0C language.
+
+- [ ] **0C.1.5 — Keep working text non-canonical.**
+  - resetting/changing the working text does not mutate Narrative IR;
+  - no rich-text document model;
+  - no durable chat transcript.
+
+### Gate
+
+- [ ] **0C.1A.GATE — The complete authoring interaction works deterministically in-browser: input → structured result → validation → project-service batch → synchronized lenses.**
+
+## PR 3 — Live backendless browser adapter
+
+### Goal
+
+Replace the deterministic adapter at runtime with one real hosted-model path while keeping the static deployment architecture.
+
+### Provider feasibility gate
+
+Before integrating a provider, verify all of the following with the smallest standalone call:
+
+- it runs from the deployed GitHub Pages origin;
+- user authentication/usage is browser-safe and user-scoped;
+- no reusable Salai developer secret is shipped in JavaScript;
+- the model can return reliably parseable structured data or tool/function arguments sufficient for the Salai result contract;
+- CORS/browser restrictions do not require a Salai proxy/backend.
+
+If a candidate fails any of these, switch adapter/provider rather than changing Salai's project architecture.
+
+### Tasks
+
+- [ ] **0C.1.6 — Implement exactly one live browser model adapter.**
+  - provider-specific SDK/types stay in this adapter;
+  - convert Salai request → provider request;
+  - convert provider result → Salai `AuthoringResult`;
+  - do not expose provider objects to controller/lens code.
+
+- [ ] **0C.1.7 — Send only task-relevant project context.**
+  - no automatic raw-media upload;
+  - no whole-project dump if the task can be answered from a smaller projection;
+  - attachment handles do not imply permission to upload underlying media.
+
+- [ ] **0C.1.8 — Handle auth/provider failure as interaction state, not project state.**
+  - clear retryable error;
+  - current project remains untouched;
+  - deterministic adapter remains usable for CI/dev tests.
+
+- [ ] **0C.1.9 — Smoke-test the deployed Pages build.**
+  - authenticate as an ordinary user;
+  - submit one real instruction;
+  - receive a structured result;
+  - apply one valid canonical change;
+  - reload/fresh interaction can continue from current in-memory project state during the same app session without relying on chat history.
+
+### Gate
+
+- [ ] **0C.1.GATE — The public static prototype can execute one real model-mediated canonical change with no Salai backend and no embedded developer secret.**
 
 ---
 
 # 0C.2 — Script-first vertical slice
 
-Build one complete path before generalizing model interaction.
+## PR 4 — Rough paragraph → story → natural-language revision
 
-- [ ] **0C.2.1 — Process a rough paragraph into a usable canonical story in one user action.**
-  - create/reuse only structure required by the example;
-  - unresolved notes may remain uncommitted;
-  - user does not manually create Beats/Cues;
-  - model output still passes through canonical validation.
+### Goal
 
-- [ ] **0C.2.2 — Support one natural-language revision over existing stable IDs.**
-  - representative example: move proof earlier, tighten one Beat, or target a shorter runtime;
-  - preserve existing identity where possible.
+Prove the main low-friction hypothesis with one complete script-first workflow before generalizing model capabilities.
 
-- [ ] **0C.2.3 — Keep live and deterministic model adapters behind the same Salai result contract.**
-  - project/domain code does not branch on provider/session types;
-  - CI assertions use deterministic results, not live model prose.
+### Tasks
 
-- [ ] **0C.2.4 — Add deterministic script-first tests.**
-  - resulting operations/project validate through `@salai/script-model`;
-  - malformed/invalid structured results fail before partial canonical publish.
+- [ ] **0C.2.1 — Choose one fixed representative rough-paragraph scenario.**
+  - keep it in a deterministic fixture/test input;
+  - define the minimum acceptable resulting structure before implementation.
 
-- [ ] **0C.2.GATE — One representative script-first story can be created and revised without routine structured-UI management or backend/provider credential plumbing owned by Salai.**
+- [ ] **0C.2.2 — Create a usable canonical story from the paragraph in one action.**
+  - creator does not manually create/parent Beats or Cues;
+  - create only structure required to express the scenario;
+  - unresolved notes may remain outside canonical state.
+
+- [ ] **0C.2.3 — Introduce the smallest creation command/resolver only if raw operations force the model to manufacture Salai-owned IDs or brittle indices.**
+  - prefer public operations where existing stable IDs are already available;
+  - if creation needs Salai-owned IDs, allow placeholders/relative references or a tiny scenario-specific command;
+  - allocate real IDs and resolve placement inside Salai;
+  - compile immediately to `NarrativeOperation[]`;
+  - do not create a generic second mutation language.
+
+- [ ] **0C.2.4 — Support one natural-language revision over the created story.**
+  - representative revision: move proof earlier, tighten one Beat, or target a shorter runtime;
+  - preserve existing IDs where the narrative object remains conceptually the same.
+
+- [ ] **0C.2.5 — Add deterministic script-first tests.**
+  - creation result validates;
+  - revision uses current canonical context;
+  - identity is preserved where expected;
+  - malformed creation/revision results do not partially publish.
+
+- [ ] **0C.2.6 — Manually smoke-test the same scenario with the live adapter.**
+  - assess whether output is usable without manual structural repair;
+  - record model-output failures as evidence, not as reasons to generalize infrastructure prematurely.
+
+### Gate
+
+- [ ] **0C.2.GATE — A representative story can be created and revised from ordinary language with substantially less structural bookkeeping than 0B.**
 
 ---
 
-# 0C.3 — Grouped change, trust, and immediate revert
+# 0C.3 — Grouped action, trust, and immediate revert
 
-One creative request may contain several internal operations but should remain one understandable action.
+## PR 5 — One creative action + safe one-step revert
 
-- [ ] **0C.3.1 — Represent the current revertible model action with minimum in-memory metadata.**
+### Goal
+
+Make model-mediated changes understandable and recoverable without building a general history system.
+
+### Minimum action state
 
 ```text
-AgentAction
+ModelAction
 - id
 - input/intent
 - changeSummary
@@ -262,30 +362,53 @@ AgentAction
 - beforeWorkspace
 ```
 
-- [ ] **0C.3.2 — Apply one request as one project-service batch.**
-  - reuse `applyOperations()`;
-  - publish once on success.
+Keep this in memory.
 
-- [ ] **0C.3.3 — Implement immediate one-step revert safely.**
-  - restore pre-action project/Workspace snapshots only while that action is still the most recent canonical/Workspace change;
-  - invalidate/clear the revert snapshot on any subsequent narrative or Workspace edit, including direct lens edits;
-  - no general event sourcing;
-  - no inverse-operation framework.
+### Tasks
 
-- [ ] **0C.3.4 — Keep clarification proportional to creative ambiguity.**
-  - reversible, clearly requested local change may apply;
-  - material ambiguity may ask one focused creative question;
-  - external/destructive effects remain outside this spike.
+- [ ] **0C.3.1 — Record one successful model-mediated batch as the current revertible action.**
+  - capture project/Workspace snapshots immediately before application;
+  - store the user-facing summary and applied operations.
 
-- [ ] **0C.3.GATE — Model-mediated changes are understandable and immediately recoverable without risking later edits.**
+- [ ] **0C.3.2 — Expose immediate Revert in the authoring surface.**
+  - restore the stored project/Workspace snapshots;
+  - clear the current action after revert;
+  - keep selection in a valid state.
+
+- [ ] **0C.3.3 — Invalidate revert on every subsequent canonical or Workspace edit.**
+  - another model action;
+  - direct Outline/AV/Paper narrative edit;
+  - Story Wall Workspace move/parking edit;
+  - fixture reset/change.
+
+- [ ] **0C.3.4 — Add deterministic trust/revert tests.**
+  - successful multi-operation action reverts exactly;
+  - later direct lens edit disables old revert;
+  - later Workspace-only edit disables old revert;
+  - failed model batch creates no revert action.
+
+- [ ] **0C.3.5 — Keep clarification outside the mutation mechanism.**
+  - a result that asks a focused creative question applies no operations;
+  - clearly requested reversible local changes may apply as one batch;
+  - no per-operation approval UI.
+
+### Gate
+
+- [ ] **0C.3.GATE — One model request behaves as one understandable, immediately revertible creative action without risking later human edits.**
 
 ---
 
 # 0C.4 — Footage/source-backed vertical slice
 
-Use fixture-backed or mocked source metadata. Do not pull real media intelligence into the spike.
+## PR 6 — Fixture-backed source material
 
-- [ ] **0C.4.1 — Add minimal attachment handles for the scenario.**
+### Goal
+
+Validate source semantics without pulling transcription, vision, upload, or production-graph infrastructure into 0C.
+
+### Attachment shape
+
+Use only fields required by the scenario:
 
 ```text
 Attachment
@@ -297,104 +420,126 @@ Attachment
 - optional fixture MediaSegment/source-range reference
 ```
 
-- [ ] **0C.4.2 — Keep attachment identity distinct from canonical source identity.**
-  - resolve explicitly to an existing/new MediaSegment only when canonical relationships are created.
+### Tasks
 
-- [ ] **0C.4.3 — Build one short source-backed sequence from attachments + natural-language intent.**
+- [ ] **0C.4.1 — Add one deterministic source/interview fixture presented as attachments.**
 
-- [ ] **0C.4.4 — Preserve SourceExcerpt wording/ranges/media identity.**
-  - source material never becomes freely rewritten authored copy;
-  - authored bridge material remains authored.
+- [ ] **0C.4.2 — Keep attachment identity separate from canonical source identity.**
+  - attachment is input/context;
+  - create/link canonical MediaSegment/SourceExcerpt identity explicitly when applying the result.
+
+- [ ] **0C.4.3 — Build one short source-backed sequence from natural-language intent + attachment context.**
+  - creator does not manually wire each source object to Beats/Cues.
+
+- [ ] **0C.4.4 — Preserve source evidence invariants.**
+  - `SourceExcerpt` wording is not silently rewritten;
+  - source ranges/media identity remain attached;
+  - authored bridge material remains authored;
+  - trimming/selecting source material uses existing canonical semantics.
 
 - [ ] **0C.4.5 — Answer one missing/unsupported-material question from mocked relationships.**
-  - response may be conversational or a simple result list;
-  - **do not build Coverage Lens in 0C.**
+  - simple answer/result list is sufficient;
+  - do not build Coverage Lens or production graph.
 
-- [ ] **0C.4.6 — Add deterministic source-preservation tests.**
+- [ ] **0C.4.6 — Add deterministic source-preservation tests and one live smoke test.**
 
-- [ ] **0C.4.GATE — Source material can enter the story without manual source/Beat/Cue wiring and without losing provenance.**
+### Gate
+
+- [ ] **0C.4.GATE — Source-backed material can enter and be rearranged in the story without manual wiring and without losing provenance.**
 
 ---
 
 # 0C.5 — Model ↔ existing Narrative Lens round trip
 
-0C does not redesign or expand all lenses. It proves continuity with the already-implemented ones.
+## PR 7 — Shared-state round trip
 
-- [ ] **0C.5.1 — Model-mediated changes appear in all existing lenses through current canonical state.**
-  - regression check, not new per-lens architecture.
+### Goal
 
-- [ ] **0C.5.2 — Demonstrate one meaningful direct-lens edit after model normalization.**
-  - choose whichever existing lens best fits the test scenario;
-  - direct edit continues through the same project/Workspace boundary;
-  - this edit invalidates any older snapshot-based model-action revert.
+Prove that model-mediated authoring and direct structured work are genuinely two interaction modes over one project.
 
-- [ ] **0C.5.3 — Include that direct edit in the next model context.**
-  - no synchronization/export step;
-  - read current project state through `SalaiProjectService`;
-  - do not depend on conversation history remembering the edit.
+### Tasks
 
-- [ ] **0C.5.4 — Keep Workspace-only intent Workspace-only.**
-  - Story Wall x/y/parking must not silently change narrative semantics.
+- [ ] **0C.5.1 — Regression-test that model-mediated changes appear in every existing lens through canonical state.**
+  - no per-lens synchronization code.
+
+- [ ] **0C.5.2 — Choose one meaningful direct-lens edit after model normalization.**
+  - use the lens best suited to the scenario;
+  - edit must continue through the same project/Workspace boundary.
+
+- [ ] **0C.5.3 — Build the next model context from current project state after that direct edit.**
+  - no export/import;
+  - no conversation-memory dependency;
+  - old model-action revert is already invalidated by the direct edit.
+
+- [ ] **0C.5.4 — Preserve Workspace-only semantics.**
+  - spatial Story Wall movement/parking remains Workspace-only;
+  - semantic reorder remains a Narrative IR operation.
 
 - [ ] **0C.5.5 — Add deterministic round-trip tests.**
-  - model batch → lens projection;
-  - direct lens edit → next model context;
-  - source evidence survives the round trip;
-  - subsequent direct edit disables the older immediate revert.
+  - model batch → Outline/Story Wall/AV/Paper projections;
+  - direct lens edit → next authoring context;
+  - source evidence survives the loop;
+  - direct edit invalidates previous model revert.
 
-- [ ] **0C.5.GATE — Model-mediated and direct-lens work behave as two interaction modes over one project without unsafe snapshot rollback or conversation-state dependence.**
+### Gate
+
+- [ ] **0C.5.GATE — Direct lens work and model-mediated work remain coherent with no shadow state, synchronization document, or chat-memory requirement.**
 
 ---
 
 # 0C.6 — Human validation
 
-Do not expand implementation before running the minimum flows with people.
+## PR 8 — Validation evidence and assessment
 
-## Required scenarios
+Do not broaden implementation before running these scenarios.
 
-- [ ] **0C.6.1 — Blank-page or rough-paragraph script-first task.**
+### Required scenarios
+
+- [ ] **0C.6.1 — Blank-page/rough-paragraph script-first creation.**
 - [ ] **0C.6.2 — Natural-language revision that would have required several 0B interactions.**
-- [ ] **0C.6.3 — Short source/interview task with fixture-backed attachments.**
-- [ ] **0C.6.4 — Immediately revert an incorrect model interpretation before making another edit.**
-- [ ] **0C.6.5 — Model-normalized project → voluntary Narrative Lens use → direct edit → follow-up model request.**
+- [ ] **0C.6.3 — Short fixture-backed source/interview task.**
+- [ ] **0C.6.4 — Incorrect model interpretation → immediate revert.**
+- [ ] **0C.6.5 — Model-normalized project → voluntary Narrative Lens → direct edit → follow-up model request.**
 
-## Interaction-compression evidence
-
-Record:
+### Record interaction-compression evidence
 
 - explicit user actions/inputs;
 - clarifications;
-- structural concepts the user had to reason about;
+- structural concepts the user had to manage explicitly;
 - hesitation/flow;
-- whether grouped summary + immediate revert were sufficient for trust;
-- whether provider/login interaction materially interrupted the creative task.
+- whether summary + immediate revert were sufficient for trust;
+- whether authentication/provider interaction materially interrupted creative work.
 
-## Structural-insight evidence
+### Record structural-insight evidence
 
-Record:
-
-- which lens, if any, the user entered voluntarily;
-- what property they noticed there that was less obvious in free-form interaction;
-- whether they made a direct edit there;
+- which lens, if any, was entered voluntarily;
+- what property became easier to perceive there;
+- whether the creator changed anything directly in the lens;
 - whether the next model request correctly reflected that edit.
 
-- [ ] **0C.6.GATE — Evidence shows materially lower routine interaction than 0B and at least one existing lens remains voluntarily useful.**
+### Deliverable
+
+- [ ] **0C.6.6 — Write the Spike 0C assessment with pass/fail evidence and only evidence-backed next-step recommendations.**
+
+### Gate
+
+- [ ] **0C.6.GATE — Human evidence shows materially lower routine interaction than 0B and at least one existing lens remains voluntarily useful.**
 
 ---
 
 # Optional external-agent proof — non-gating
 
-Do this only if it is useful after the core hosted flow works.
+Do this only after the core hosted flow works and only if it answers a concrete next-step question.
 
-A smallest proof may expose `SalaiProjectService` through **one** machine interface:
+The smallest acceptable proof exposes `SalaiProjectService` through **one** machine interface:
 
-- CLI **or** MCP;
-- optional Skill/instructions for a generic agent;
+- CLI **or** MCP, not both;
 - one context/read operation;
 - one validated canonical mutation;
+- optional Skill/instructions for a generic agent;
 - same project state as the UI/lenses.
 
-Do not build both CLI and MCP. Do not add an agent harness, provider auth, or project storage to this adapter. This proof is not part of `0C.GATE`.
+Do not add an agent harness, model authentication, provider runtime, or separate project storage to this adapter. This proof is not part of `0C.GATE`.
 
 ---
 
@@ -403,16 +548,16 @@ Do not build both CLI and MCP. Do not add an agent harness, provider auth, or pr
 Spike 0C passes only when all of these are true:
 
 - [ ] script-first authoring is materially lower-friction than routine 0B direct structure management;
-- [ ] the public prototype can use a real hosted model without a Salai-operated backend or embedded developer secret;
-- [ ] all model-mediated canonical changes pass through `SalaiProjectService` and the existing `applyOperations()` boundary;
-- [ ] invalid batches publish no partial state;
+- [ ] the public GitHub Pages prototype can use a real hosted model without a Salai-operated backend or embedded developer secret;
+- [ ] all model-mediated canonical changes pass through `SalaiProjectService` and `applyOperations()`;
+- [ ] invalid model results/batches publish no partial canonical state;
 - [ ] source evidence remains source evidence;
 - [ ] one grouped model action is immediately revertible without erasing later edits;
 - [ ] existing Narrative Lenses remain synchronized through canonical state;
 - [ ] at least one lens is voluntarily useful for structural insight or direct manipulation;
-- [ ] a direct lens edit is visible to the next model request from current project context;
-- [ ] provider/model/session state is not required to reconstruct the project;
-- [ ] no unvalidated backend, external-agent bridge, new lens, production graph, or distributed-state infrastructure was added;
+- [ ] a direct lens edit is visible to the next model request from current Salai project context;
+- [ ] provider/model/session history is not required to reconstruct the project;
+- [ ] no unvalidated backend, external-agent bridge, new lens, production graph, distributed-state system, or general provider framework was added;
 - [ ] CI is green.
 
-If the gate passes, use the evidence to decide the next smallest production step. Do not infer that external-agent integration, desktop packaging, persistence, production graph, or Resolve automation should all start automatically.
+If the gate passes, choose the next production step from the evidence. Do not assume that external-agent integration, desktop packaging, durable persistence, production graph, or Resolve automation must all begin together.
