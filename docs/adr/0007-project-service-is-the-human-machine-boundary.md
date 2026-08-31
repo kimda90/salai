@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted.
+Superseded by ADR 0008.
 
 Supersedes: ADR 0006.
 
