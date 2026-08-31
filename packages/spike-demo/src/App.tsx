@@ -113,6 +113,15 @@ export function App() {
             <small>Cues</small>
             <strong>{Object.keys(state.project.cues).length}</strong>
           </div>
+          {state.canRevertMachineAction ? (
+            <button
+              className="ghost-button"
+              type="button"
+              onClick={() => controller.revertMachineAction()}
+            >
+              Revert last machine action
+            </button>
+          ) : null}
           <button
             className="ghost-button"
             type="button"
