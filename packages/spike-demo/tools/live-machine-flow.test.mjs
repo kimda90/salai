@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { SalaiController } from "../src/controller.tsx";
 import { handleMachineCommand } from "../src/machine-interface.ts";
 import { SCRIPT_FIRST_SCENARIO } from "../src/script-first-scenario.ts";
+import { SOURCE_BACKED_SCENARIO } from "../src/source-backed-scenario.ts";
 import { createBridgeServer } from "./bridge.mjs";
 
 const execFileAsync = promisify(execFile);
@@ -140,5 +141,29 @@ describe("external harness machine flow", () => {
       workflowId,
     ]);
     expect(revised.project.beats[payoffId]).toMatchObject(SCRIPT_FIRST_SCENARIO.revisedPayoff);
+  });
+
+  it("arranges the fixed source-backed scenario through real CLI processes", async () => {
+    const controller = new SalaiController(SOURCE_BACKED_SCENARIO.fixture);
+    const baseUrl = await startServer();
+
+    const before = await runCli(controller, baseUrl, ["context"]);
+    const beforeMaria = before.project.blocks.quote_maria;
+    const beforeJuan = before.project.blocks.quote_juan;
+    const beforeResult = before.project.blocks.quote_result;
+
+    await runCli(controller, baseUrl, [
+      "apply",
+      JSON.stringify(SOURCE_BACKED_SCENARIO.arrangementOperations),
+    ]);
+
+    const after = await runCli(controller, baseUrl, ["context"]);
+    expect(after.project.beats.beat_turn.cueIds).toEqual(["cue_juan", "cue_bridge"]);
+    expect(after.project.blocks.quote_maria).toEqual(beforeMaria);
+    expect(after.project.blocks.quote_juan).toEqual(beforeJuan);
+    expect(after.project.blocks.quote_result).toEqual(beforeResult);
+    expect(JSON.stringify(after.project)).not.toContain(
+      SOURCE_BACKED_SCENARIO.transientReferences.manualProof.referenceId,
+    );
   });
 });
