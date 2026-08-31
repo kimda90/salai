@@ -6,9 +6,21 @@ export type AuthoringRequest = {
   context: SalaiProjectContext;
 };
 
+export type CreateStoryCommand = {
+  command: "createStory";
+  sectionTitle: string;
+  beats: Array<{
+    title: string;
+    summary?: string;
+  }>;
+};
+
+export type AuthoringCommand = CreateStoryCommand;
+
 export type AuthoringResult = {
   summary: string;
   operations?: NarrativeOperation[];
+  commands?: AuthoringCommand[];
   answer?: string;
 };
 
