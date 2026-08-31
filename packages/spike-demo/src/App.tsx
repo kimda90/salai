@@ -1,7 +1,6 @@
 import { validateNarrativeProject } from "@salai/script-model";
 import { useMemo } from "react";
 import { AVScript } from "./AVScript";
-import { AuthoringSurface } from "./authoring/AuthoringSurface";
 import { useSalaiController, useSalaiState } from "./controller";
 import { FIXTURES, getFixtureDefinition } from "./fixtures";
 import { formatDuration, getDurationEstimate } from "./model-utils";
@@ -72,7 +71,7 @@ export function App() {
           <span className="brand-mark">S</span>
           <div>
             <div className="brand-name">SALAI</div>
-            <div className="brand-subtitle">Spike 0C · Model-mediated authoring + Narrative Lenses</div>
+            <div className="brand-subtitle">Spike 0C · External-agent authoring + Narrative Lenses</div>
           </div>
         </div>
         <div className="topbar-status">
@@ -123,8 +122,6 @@ export function App() {
           </button>
         </div>
       </section>
-
-      <AuthoringSurface />
 
       <nav className="surface-tabs" aria-label="Narrative Lenses">
         {SURFACES.map((surface) => (
