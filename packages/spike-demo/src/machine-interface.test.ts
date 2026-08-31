@@ -59,10 +59,25 @@ describe("machine command surface", () => {
     expect(controller.getSnapshot().project).toBe(before);
   });
 
-  it("rejects malformed machine payloads before canonical mutation", () => {
-    expect(() => parseNarrativeOperationBatch({})).toThrow(/operation array/);
+  it("rejects malformed or empty machine payloads before canonical mutation", () => {
+    expect(() => parseNarrativeOperationBatch({})).toThrow(/non-empty operation array/);
+    expect(() => parseNarrativeOperationBatch([])).toThrow(/non-empty operation array/);
     expect(() => parseNarrativeOperationBatch([{ op: "doAnything" }])).toThrow(
       /unknown narrative operation/,
     );
+  });
+
+  it("keeps createStory limited to an empty story", () => {
+    const controller = new SalaiController("product");
+    const before = controller.getSnapshot().project;
+
+    expect(() =>
+      handleMachineCommand(controller, {
+        command: "createStory",
+        payload: { beats: [{ title: "Another story" }] },
+      }),
+    ).toThrow(/requires an empty story/);
+
+    expect(controller.getSnapshot().project).toBe(before);
   });
 });
