@@ -31,7 +31,8 @@ Principle:
 
 - Read this plan before each slice.
 - Finish one slice, run CI, then mark only verified tasks implemented.
-- Merge one slice before beginning the next.
+- Review the finished slice with the Ponytail-equivalent method before moving to the next slice.
+- Merge one reviewed slice before beginning the next.
 - Reuse existing model/controller behavior before adding abstractions.
 - Add a higher-level command only when a concrete scenario proves raw public operations are too brittle.
 - Human-validation tasks remain open until a human actually runs them.
@@ -49,7 +50,7 @@ Principle:
   ↓
 0C.4  Source-backed vertical slice                    [implemented]
   ↓
-0C.5  Harness ↔ Narrative Lens round trip
+0C.5  Harness ↔ Narrative Lens round trip             [implemented]
   ↓
 0C.6  Human validation + assessment
   ↓
@@ -166,12 +167,12 @@ Prove one rough-text → story → revision flow through the external harness in
 
 # 0C.5 — Harness ↔ Narrative Lens round trip
 
-- [ ] **0C.5.1 — Prove machine changes appear in all existing lenses through canonical state only.**
-- [ ] **0C.5.2 — Make one meaningful direct lens edit after harness normalization.**
-- [ ] **0C.5.3 — Prove the next harness `context` sees that direct edit with no export/import or conversation-memory dependency.**
-- [ ] **0C.5.4 — Preserve Workspace-only Story Wall semantics.**
-- [ ] **0C.5.5 — Add deterministic round-trip tests.**
-- [ ] **0C.5.GATE — Harness and direct-lens work remain coherent over one live project with no shadow synchronization state.**
+- [x] **0C.5.1 — Prove machine changes appear in all existing lenses through canonical state only.**
+- [x] **0C.5.2 — Make one meaningful direct lens edit after harness normalization.**
+- [x] **0C.5.3 — Prove the next harness `context` sees that direct edit with no export/import or conversation-memory dependency.**
+- [x] **0C.5.4 — Preserve Workspace-only Story Wall semantics.**
+- [x] **0C.5.5 — Add deterministic round-trip tests.**
+- [x] **0C.5.GATE — Harness and direct-lens work remain coherent over one live project with no shadow synchronization state.**
 
 ---
 
