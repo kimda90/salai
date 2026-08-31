@@ -62,10 +62,9 @@ function parseCreateStoryPayload(value: unknown): CreateStoryPayload {
     throw new Error("createStory payload must contain at least one Beat");
   }
 
+  const sectionTitle = optionalString(value, "sectionTitle");
   return {
-    ...(optionalString(value, "sectionTitle") === undefined
-      ? {}
-      : { sectionTitle: optionalString(value, "sectionTitle") }),
+    ...(sectionTitle === undefined ? {} : { sectionTitle }),
     beats: value.beats.map((beat, index) => {
       if (!isRecord(beat)) throw new Error(`createStory Beat ${index + 1} must be an object`);
       const title = optionalString(beat, "title");
@@ -154,7 +153,7 @@ function applyMachineBatch(
   service: SalaiProjectService,
   operations: readonly NarrativeOperation[],
 ): unknown {
-  if (!service.dispatchNarrativeBatch(operations)) {
+  if (!service.dispatchNarrativeBatch(operations, { revertible: true })) {
     throw new Error(service.getSnapshot().feedback.error ?? "Narrative changes were rejected");
   }
   return { feedback: service.getSnapshot().feedback };
