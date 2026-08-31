@@ -103,6 +103,10 @@ export function compileCreateStoryOperations(
   project: NarrativeProject,
   payload: unknown,
 ): NarrativeOperation[] {
+  if (project.script.sectionIds.length > 0) {
+    throw new Error("createStory requires an empty story");
+  }
+
   const input = parseCreateStoryPayload(payload);
   const usedIds = projectIds(project);
   const sectionId = allocateId("section-agent", usedIds);
@@ -135,7 +139,9 @@ export function compileCreateStoryOperations(
 }
 
 export function parseNarrativeOperationBatch(value: unknown): NarrativeOperation[] {
-  if (!Array.isArray(value)) throw new Error("apply payload must be an operation array");
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error("apply payload must be a non-empty operation array");
+  }
 
   return value.map((operation) => {
     if (
