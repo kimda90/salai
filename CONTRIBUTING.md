@@ -1,19 +1,24 @@
 # Contributing to Salai
 
-Salai is still in discovery and spike-driven development. Contributions should optimize for learning and clear product/domain evidence rather than premature breadth.
+Salai is still in discovery and spike-driven development. Contributions should optimize for validated product learning, clear domain behavior, and maintainable boundaries rather than premature breadth.
+
+Coding agents must also follow [`AGENTS.md`](AGENTS.md) and [`docs/agent-development.md`](docs/agent-development.md).
 
 ## Current priority
 
-The active implementation target is **Spike 0B — Familiar Authoring UX**.
+The active milestone is **Spike 0C — External-Agent Authoring + Narrative Lenses**.
 
-Before changing Spike 0B behavior, read:
+Before changing current behavior, read:
 
-- `docs/authoring-ux-spec.md` — authoritative Spike 0B implementation/validation contract;
-- `docs/spike-0b-implementation-plan.md` — executable task tracker and completion evidence;
-- `docs/workflows.md` — canonical creative workflow behavior;
+- `docs/spike-0c-implementation-plan.md` — authoritative task/status/evidence tracker;
+- `docs/agent-mediated-authoring.md` — active agent-mediated interaction contract;
 - `docs/narrative-ir-spec.md` — authoritative Narrative IR semantics and operation contract;
-- `docs/mvp.md` — validation sequence;
+- `docs/architecture.md` — current application/runtime boundaries;
+- `docs/adr/0007-project-service-is-the-human-machine-boundary.md` — shared human/machine service boundary;
+- `docs/adr/0008-external-harness-owns-agent-runtime.md` — current runtime decision;
 - `docs/README.md` — documentation ownership/lifecycle.
+
+Human-validation tasks in 0C remain open until a human actually performs them.
 
 ## Development setup
 
@@ -31,27 +36,50 @@ pnpm test
 pnpm build
 ```
 
+For the local UI + bridge:
+
+```bash
+pnpm dev
+```
+
+The current browser prototype joins the machine bridge only when opened with `?bridge=1`, for example:
+
+```text
+http://localhost:5173/salai/?bridge=1
+```
+
 ## Change discipline
 
-For Spike 0B:
+For Spike 0C:
 
 - keep `@salai/script-model` as the only canonical narrative state;
-- route semantic edits through the public Narrative IR operation API;
+- keep `SalaiProjectService` as the shared human/machine application boundary;
+- route canonical multi-operation edits through the public Narrative IR operation path and `applyOperations()`;
 - keep Workspace layout/organization separate from Narrative IR semantics;
-- do not introduce Electron, Python/FastAPI, SQLite, Resolve, real LLMs, transcription, GenAI, generic canvas/graph editors, or rich-text document models unless a minimal mock is required to answer the 0B validation question;
-- prefer commodity UI libraries for mechanics while keeping gesture meaning and workflow semantics in Salai-owned code;
-- add tests around semantic boundaries rather than pixel-perfect appearance;
-- update `docs/authoring-ux-spec.md` only when implementation evidence changes the contract;
-- update `docs/spike-0b-implementation-plan.md` in every implementation PR, checking only tasks fully completed and verified by that PR;
+- keep the external harness responsible for model/provider access, authentication, sessions, history, planning, and tool-loop behavior;
+- keep the local HTTP bridge stateless and limited to prototype transport glue;
+- do not add MCP, another machine protocol, an embedded agent runtime, model/provider SDKs, CRDT/event sourcing, distributed state, production graph, real media analysis, Resolve execution, or a general plugin framework unless the active validated milestone and an explicit architecture decision require them;
+- prefer existing operations/services and platform primitives before new abstractions or dependencies;
+- add tests around semantic boundaries rather than incidental presentation;
 - do not duplicate the authoritative Narrative IR operation vocabulary into summary or tracker docs.
+
+## Agent-facing machine interface
+
+The supported Spike 0C external surface is CLI-oriented. The CLI is self-describing:
+
+```bash
+pnpm salai tools
+```
+
+When a machine command changes, update the discovery output, deterministic tests, and the canonical agent-use documentation in the same PR. See `docs/agent-development.md`.
 
 ## Task completion tracking
 
-`docs/spike-0b-implementation-plan.md` is the single task-level tracker for Spike 0B.
+`docs/spike-0c-implementation-plan.md` is the single task-level tracker for Spike 0C.
 
-A task may be marked complete only when the implementation is merged to `main`, relevant tests/typechecks/builds pass, task acceptance criteria have been verified, and any affected canonical documentation is updated.
+A tracked task may be marked complete only when its implementation and acceptance criteria are actually satisfied and verified. Human-validation items cannot be completed by automated tests or agent simulation.
 
-Partially implemented work stays unchecked. Add new required tasks to the tracker when implementation reveals them rather than silently expanding scope.
+Partially implemented work stays unchecked. Add newly required work to the tracker rather than silently expanding scope.
 
 ## Documentation changes
 
@@ -60,21 +88,25 @@ Use the canonical ownership table in `docs/README.md`.
 - product terms → `docs/glossary.md`;
 - requirements → `docs/prd.md`;
 - Narrative IR implementation semantics → `docs/narrative-ir-spec.md`;
-- Spike 0B UX/interaction contract → `docs/authoring-ux-spec.md`;
-- Spike 0B execution status → `docs/spike-0b-implementation-plan.md`;
+- agent-mediated product behavior → `docs/agent-mediated-authoring.md`;
+- agent operating procedure → `docs/agent-usage.md`;
+- coding-agent development procedure → `docs/agent-development.md`;
+- active 0C status/evidence → `docs/spike-0c-implementation-plan.md`;
 - system architecture → `docs/architecture.md`;
-- workflow UX → `docs/workflows.md`;
+- workflow UX → `docs/workflows.md` and `docs/narrative-lenses.md`;
 - proposals → `docs/rfcs/`;
 - accepted architecture decisions → `docs/adr/`.
+
+Change canonical sources rather than copying the same contract into multiple documents.
 
 ## Pull requests
 
 Prefer small reviewable PRs with:
 
-- a clear question or outcome;
+- one clear question or outcome;
 - tests for domain/interaction behavior where applicable;
-- the relevant Spike 0B tracker tasks checked only when fully satisfied;
 - explicit documentation updates when contracts change;
+- tracker updates only when existing tracked acceptance criteria are genuinely completed;
 - no unrelated refactors bundled into spike work.
 
 A failed spike hypothesis is a valid result if it is documented with evidence.
