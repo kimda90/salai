@@ -3,11 +3,11 @@
   "private": true,
   "packageManager": "pnpm@10.34.5",
   "scripts": {
-    "dev": "turbo run dev --filter=@salai/spike-demo",
+    "dev": "turbo run dev bridge --filter=@salai/spike-demo",
     "build": "turbo run build",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
-    "salai:bridge": "node packages/spike-demo/tools/bridge.mjs",
+    "salai:bridge": "turbo run bridge --filter=@salai/spike-demo",
     "salai": "node packages/spike-demo/tools/salai.mjs"
   },
   "devDependencies": {
