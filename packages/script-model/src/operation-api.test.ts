@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { applyOperation, createProductVideoFixture, type NarrativeOperation } from "./index.js";
+import {
+  NARRATIVE_OPERATION_NAMES,
+  applyOperation,
+  createProductVideoFixture,
+  isNarrativeOperationName,
+  type NarrativeOperation,
+} from "./index.js";
 
 describe("public patch operation semantics", () => {
   it("preserves omitted fields and clears optional fields with serializable null", () => {
@@ -34,5 +40,11 @@ describe("public patch operation semantics", () => {
     };
     const updated = applyOperation(initial, JSON.parse(JSON.stringify(operation)) as NarrativeOperation).model;
     expect(updated.cues.cue_demo_wide?.explicitDurationMs).toBeUndefined();
+  });
+
+  it("exposes the canonical operation-name vocabulary at runtime", () => {
+    expect(isNarrativeOperationName("updateBeat")).toBe(true);
+    expect(isNarrativeOperationName("doAnything")).toBe(false);
+    expect(new Set(NARRATIVE_OPERATION_NAMES).size).toBe(NARRATIVE_OPERATION_NAMES.length);
   });
 });
