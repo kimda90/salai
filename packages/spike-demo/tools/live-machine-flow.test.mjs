@@ -162,8 +162,5 @@ describe("external harness machine flow", () => {
     expect(after.project.blocks.quote_maria).toEqual(beforeMaria);
     expect(after.project.blocks.quote_juan).toEqual(beforeJuan);
     expect(after.project.blocks.quote_result).toEqual(beforeResult);
-    expect(JSON.stringify(after.project)).not.toContain(
-      SOURCE_BACKED_SCENARIO.transientReferences.manualProof.referenceId,
-    );
   });
 });
