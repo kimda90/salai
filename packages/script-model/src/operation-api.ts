@@ -30,6 +30,46 @@ export type NarrativeOperation =
     }
   | { op: "updateCue"; cueId: Id; explicitDurationMs?: number | null };
 
+const NARRATIVE_OPERATION_NAME_FLAGS = {
+  createSection: true,
+  createScene: true,
+  createBeat: true,
+  createCue: true,
+  createBlock: true,
+  updateSection: true,
+  updateScene: true,
+  updateBeat: true,
+  updateCue: true,
+  updateBlock: true,
+  moveSection: true,
+  moveScene: true,
+  moveBeat: true,
+  moveCue: true,
+  moveBlock: true,
+  splitBeat: true,
+  mergeBeats: true,
+  deleteSection: true,
+  deleteScene: true,
+  deleteBeat: true,
+  deleteCue: true,
+  deleteBlock: true,
+  linkShotIntent: true,
+  unlinkShotIntent: true,
+  linkMediaSegment: true,
+  unlinkMediaSegment: true,
+  trimSourceExcerpt: true,
+} as const satisfies Record<NarrativeOperation["op"], true>;
+
+export const NARRATIVE_OPERATION_NAMES = Object.freeze(
+  Object.keys(NARRATIVE_OPERATION_NAME_FLAGS) as NarrativeOperation["op"][],
+);
+
+const NARRATIVE_OPERATION_NAME_SET = new Set<string>(NARRATIVE_OPERATION_NAMES);
+
+export function isNarrativeOperationName(value: string): value is NarrativeOperation["op"] {
+  return NARRATIVE_OPERATION_NAME_SET.has(value);
+}
+
 export {
   DomainOperationError,
   type DomainWarning,
