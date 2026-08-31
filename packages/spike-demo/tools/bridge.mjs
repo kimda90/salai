@@ -1,4 +1,5 @@
 import { createServer } from "node:http";
+import { pathToFileURL } from "node:url";
 
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 4317;
@@ -105,7 +106,7 @@ export function createBridgeServer({ requestTimeoutMs = 15_000 } = {}) {
   });
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const host = process.env.SALAI_BRIDGE_HOST ?? DEFAULT_HOST;
   const port = Number(process.env.SALAI_BRIDGE_PORT ?? DEFAULT_PORT);
   const server = createBridgeServer();
