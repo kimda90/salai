@@ -6,6 +6,7 @@ import { FIXTURES, getFixtureDefinition } from "./fixtures";
 import { formatDuration, getDurationEstimate } from "./model-utils";
 import { Outline } from "./Outline";
 import { PaperEdit } from "./PaperEdit";
+import { SemanticTimeline } from "./SemanticTimeline";
 import { StoryWall } from "./StoryWall";
 
 const SURFACES = [
@@ -13,6 +14,7 @@ const SURFACES = [
   { key: "story-wall", label: "Story Wall" },
   { key: "av-script", label: "AV Script" },
   { key: "paper-edit", label: "Paper / Radio Edit" },
+  { key: "timeline", label: "Timeline" },
 ] as const;
 
 function FeedbackPanel() {
@@ -71,7 +73,7 @@ export function App() {
           <span className="brand-mark">S</span>
           <div>
             <div className="brand-name">SALAI</div>
-            <div className="brand-subtitle">Spike 0C · External-agent authoring + Narrative Lenses</div>
+            <div className="brand-subtitle">Spike 0D · Semantic Editorial Environment</div>
           </div>
         </div>
         <div className="topbar-status">
@@ -132,7 +134,7 @@ export function App() {
         </div>
       </section>
 
-      <nav className="surface-tabs" aria-label="Narrative Lenses">
+      <nav className="surface-tabs" aria-label="Creative surfaces">
         {SURFACES.map((surface) => (
           <button
             type="button"
@@ -152,6 +154,7 @@ export function App() {
         {state.activeSurface === "story-wall" ? <StoryWall /> : null}
         {state.activeSurface === "av-script" ? <AVScript /> : null}
         {state.activeSurface === "paper-edit" ? <PaperEdit /> : null}
+        {state.activeSurface === "timeline" ? <SemanticTimeline /> : null}
       </main>
 
       <footer className="app-footer">
