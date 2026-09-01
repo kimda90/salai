@@ -3,8 +3,10 @@ import type {
   TimelineEditorViewport,
 } from "@moritzbrantner/timeline-editor/core";
 import { TimelineEditor } from "@moritzbrantner/timeline-editor/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSalaiController, useSalaiState } from "./controller";
+import { toElahProject } from "./elah-adapter";
+import { createInterviewToneWavBlob } from "./fixture-audio";
 import {
   canonicalSelectionFromTimelineSelection,
   filterTimelineDocumentForZoom,
@@ -12,8 +14,15 @@ import {
   timelineSelectionForCanonical,
   type SemanticTimelineZoom,
 } from "./semantic-timeline-model";
+import {
+  createSemanticEditorialFixture,
+  type FixtureMediaSource,
+} from "./semantic-editorial-fixture";
+import { resolveSemanticAssemblyAtMs } from "./semantic-playback-model";
+import { SemanticViewer } from "./SemanticViewer";
 import { toTimelineEditorDocument } from "./timeline-editor-adapter";
 import { projectNarrativeToTimeline } from "./timeline-projection";
+import { useSemanticPlayback } from "./use-semantic-playback";
 import "./semantic-timeline.css";
 
 const ZOOMS: readonly {
@@ -38,19 +47,55 @@ export function SemanticTimeline() {
     pixelsPerSecond: 58,
     scrollLeftMs: 0,
   });
+  const [fixtureAudioUrl, setFixtureAudioUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (state.fixtureKey !== "semantic-editorial") {
+      setFixtureAudioUrl(null);
+      return;
+    }
+
+    const url = URL.createObjectURL(createInterviewToneWavBlob());
+    setFixtureAudioUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [state.fixtureKey]);
 
   const projection = useMemo(
     () => projectNarrativeToTimeline(state.project),
     [state.project],
   );
+  const mediaSources = useMemo<Readonly<Record<string, FixtureMediaSource>>>(() => {
+    if (state.fixtureKey !== "semantic-editorial") return {};
+    const base = createSemanticEditorialFixture().mediaSources;
+    if (!fixtureAudioUrl) return base;
+
+    return Object.fromEntries(
+      Object.entries(base).map(([id, source]) => [
+        id,
+        source.kind === "audio" ? { ...source, src: fixtureAudioUrl } : source,
+      ]),
+    );
+  }, [fixtureAudioUrl, state.fixtureKey]);
+  const elahProject = useMemo(
+    () => toElahProject(projection, mediaSources, { fps: 30 }),
+    [mediaSources, projection],
+  );
+  const playback = useSemanticPlayback(projection, elahProject);
+  const assembly = useMemo(
+    () => resolveSemanticAssemblyAtMs(projection, elahProject, playback.currentTimeMs),
+    [elahProject, playback.currentTimeMs, projection],
+  );
   const completeDocument = useMemo(
     () => toTimelineEditorDocument(projection),
     [projection],
   );
-  const document = useMemo(
-    () => filterTimelineDocumentForZoom(completeDocument, zoom),
-    [completeDocument, zoom],
-  );
+  const document = useMemo(() => {
+    const visible = filterTimelineDocumentForZoom(completeDocument, zoom);
+    return {
+      ...visible,
+      currentTimeMs: Math.min(playback.currentTimeMs, projection.durationMs),
+    };
+  }, [completeDocument, playback.currentTimeMs, projection.durationMs, zoom]);
   const summary = useMemo(() => semanticTimelineSummary(projection), [projection]);
   const selection = useMemo(
     () => timelineSelectionForCanonical(projection, document, state.selection),
@@ -68,8 +113,8 @@ export function SemanticTimeline() {
           <span className="semantic-timeline-eyebrow">PLAY · SEMANTIC TIME</span>
           <h2>Story in time</h2>
           <p>
-            The same canonical story, projected from narrative structure into actual duration.
-            Timeline-engine state is read-only in this slice.
+            The canonical story is materialized into a rough assembly for playback. The viewer
+            and timeline share one derived playhead; the timeline engine still owns no project truth.
           </p>
         </div>
         <div className="semantic-timeline-runtime">
@@ -77,6 +122,22 @@ export function SemanticTimeline() {
           <strong>{formatSeconds(projection.durationMs)}</strong>
         </div>
       </header>
+
+      <SemanticViewer
+        assembly={assembly}
+        audioSrc={fixtureAudioUrl}
+        currentTimeMs={playback.currentTimeMs}
+        durationMs={projection.durationMs}
+        isPlaying={playback.snapshot.isPlaying}
+        onTogglePlayback={playback.toggle}
+      />
+
+      {state.fixtureKey !== "semantic-editorial" ? (
+        <p className="semantic-playback-note">
+          Deterministic picture/audio fixture media is available in “0D semantic editorial”.
+          Other fixtures still project semantically but do not invent playback assets.
+        </p>
+      ) : null}
 
       <div className="semantic-timeline-controls">
         <div className="semantic-zoom-control" role="group" aria-label="Semantic zoom">
@@ -115,6 +176,7 @@ export function SemanticTimeline() {
           readOnly
           onSelectionChange={handleSelectionChange}
           onViewportChange={setViewport}
+          onCurrentTimeChange={playback.seekMs}
           renderTrackHeader={({ track }) => (
             <div className="semantic-track-header">
               <strong>{track.label}</strong>
