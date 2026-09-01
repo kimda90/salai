@@ -2,13 +2,15 @@
 
 ## Status
 
-**Current validation iteration. 0D.0–0D.4 complete; 0D.5 human validation next.**
+**Technical implementation complete through 0D.4. 0D.5 human evidence is the only remaining Spike 0D gate.**
 
 This file is the canonical execution tracker for Spike 0D. It owns 0D task numbering, implementation order, completion state, and exit evidence.
 
 Accepted product boundary: [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md).
 
 Validated agent boundary: [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md).
+
+Human protocol: [`spike-0d-human-validation.md`](spike-0d-human-validation.md).
 
 ## Goal
 
@@ -115,7 +117,7 @@ No production proxy/cache architecture is introduced for this spike.
   ↓
 0D.4  Agent ↔ timeline round trip              [complete]
   ↓
-0D.5  Human validation                         [next]
+0D.5  Human validation                         [open]
   ↓
 0D.GATE
   ↓
@@ -210,7 +212,7 @@ Evidence: PR #67 CI run 205 passed TypeScript, unit tests, and Vite build. The e
 
 # 0D.5 — Human validation
 
-Use the playable fixture to test the actual product distinction.
+Follow [`spike-0d-human-validation.md`](spike-0d-human-validation.md). This section must be completed from observed filmmaker evidence, not automated behavior.
 
 - [ ] **0D.5.1 — Watch the initial assembly and identify one pacing or realization problem.**
 - [ ] **0D.5.2 — Fix one narrative-order problem directly on the semantic timeline.**
@@ -227,16 +229,18 @@ Use the playable fixture to test the actual product distinction.
 
 Spike 0D passes only when:
 
-- [ ] current Narrative IR remains canonical;
-- [ ] third-party timeline/rendering state is derived/replaceable;
-- [ ] the fixture is playable inside Salai without Resolve;
-- [ ] semantic timing visibly connects Beat/Cue meaning to media realization;
-- [ ] direct structural timeline edits resolve through Salai operations;
-- [ ] SourceExcerpt identity/ranges remain source-backed;
-- [ ] external-agent interaction continues through the validated 0C boundary;
-- [ ] agent and direct temporal edits share one project;
+- [x] current Narrative IR remains canonical;
+- [x] third-party timeline/rendering state is derived/replaceable;
+- [x] the fixture is playable inside Salai without Resolve;
+- [x] semantic timing visibly connects Beat/Cue meaning to media realization;
+- [x] direct structural timeline edits resolve through Salai operations;
+- [x] SourceExcerpt identity/ranges remain source-backed;
+- [x] external-agent interaction continues through the validated 0C boundary;
+- [x] agent and direct temporal edits share one project;
 - [ ] the user can identify and improve at least one story/timing issue by watching the Salai assembly;
 - [ ] human evidence shows that the semantic layer changes the usefulness of the timeline rather than merely decorating a conventional NLE UI;
-- [ ] no specialist-NLE feature set or unrelated infrastructure was pulled into the spike.
+- [x] no specialist-NLE feature set or unrelated infrastructure was pulled into the spike.
+
+Nine technical conditions are evidenced. The two open conditions are deliberately human and must not be inferred from automated tests.
 
 After the gate, write the assessment and update the roadmap from observed evidence. A Story Spine/Arrange canvas is the next interaction experiment only if 0D confirms that the temporal spine is valuable enough to extend spatially.
