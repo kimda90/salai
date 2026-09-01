@@ -7,7 +7,7 @@ const TOOL_MANIFEST = {
     {
       name: "context",
       command: "pnpm salai context",
-      description: "Read current canonical Salai project, Workspace context, and active Narrative Lens.",
+      description: "Read current canonical Salai project, Workspace context, active Narrative Lens, and concise semantic timing/assembly context.",
       mutatesProject: false,
       requiresLiveProject: true,
       input: { kind: "none" },
