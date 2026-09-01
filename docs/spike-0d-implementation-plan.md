@@ -2,9 +2,11 @@
 
 ## Status
 
-**Technical implementation complete through 0D.4. 0D.5 human evidence is the only remaining Spike 0D gate.**
+**CLOSED / MIXED. Technical implementation passed; human interaction gate did not pass.**
 
-This file is the canonical execution tracker for Spike 0D. It owns 0D task numbering, implementation order, completion state, and exit evidence.
+The canonical assessment is [`spike-0d-assessment.md`](spike-0d-assessment.md).
+
+Spike 0D proved that Salai can derive a playable semantic timeline from Narrative IR, round-trip direct temporal gestures through canonical operations, and share the same temporal project with an external harness. Human validation found that the implemented timeline was too shallow and fragmented to make meaningful structural edits or demonstrate an advantage over a generic clip timeline.
 
 Accepted product boundary: [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md).
 
@@ -12,235 +14,177 @@ Validated agent boundary: [`adr/0008-external-harness-owns-agent-runtime.md`](ad
 
 Human protocol: [`spike-0d-human-validation.md`](spike-0d-human-validation.md).
 
-## Goal
-
-Validate that Salai can turn its existing semantic narrative state into a **playable structural audiovisual assembly** where the creator can reason about story meaning and time together, make structural edits directly or through an external agent, and remain inside Salai without requiring DaVinci Resolve for routine playback and rough editorial judgment.
-
 ## Validation question
 
 > **Can Salai provide a semantic timeline/playback loop that is materially more useful than a conventional clip timeline because narrative identity, source evidence, and structural intent remain visible and editable in time?**
 
-## Hard boundaries
+**Answer from 0D:** not yet. The architecture is viable, but the implemented interaction depth was insufficient to validate the product distinction.
 
-- `@salai/script-model` remains the canonical narrative model.
+## Hard boundaries retained
+
+- `@salai/script-model` remains canonical.
 - `SalaiProjectService` remains the shared human/machine mutation boundary.
-- The external harness remains outside Salai and uses the existing machine interface.
-- Timeline/rendering libraries are replaceable UI/materialization infrastructure and must not become canonical Salai project state.
-- The spike implements structural editorial only: playback, scrub, rough assembly, narrative/media reorder, and source-range trim sufficient to test the product thesis.
-- No attempt to reproduce specialist NLE finishing, multicam, advanced trim modes, effects/keyframe systems, color, compositing, full audio post, mastering, or delivery.
-- No Resolve dependency in the validation loop.
-- No new general agent framework, MCP interface, CRDT/event sourcing system, plugin framework, or full production graph unless the minimum experiment demonstrates that a missing semantic identity blocks the test.
-- No direct dependency on Mediabunny unless the chosen playback engine fails to expose a required capability; avoid duplicating its transitive media layer prematurely.
+- The external harness remains outside Salai and uses the existing CLI-oriented machine interface.
+- Timeline/rendering libraries remain replaceable projections, not project state.
+- Salai owns structural editorial; specialist NLE finishing remains downstream.
+- No model/provider/session runtime, second machine protocol, CRDT/event sourcing system, production graph, GenAI stack, or specialist finishing feature set was introduced to make the spike pass.
 
-## Spike implementation choices
-
-0D deliberately uses off-the-shelf editing infrastructure so the experiment measures Salai's semantic interaction rather than custom media-engine work.
-
-### Timeline interaction
-
-Use [`@moritzbrantner/timeline-editor`](https://github.com/moritzbrantner/timeline-editor) (MIT) as the controlled React timeline interaction layer.
-
-Salai feeds it a **derived timeline projection**. Timeline-editor serialization/history are not Salai project persistence.
-
-### Playback/materialization
-
-Use [`@elah/core`](https://github.com/elahlabs/elah) (Apache-2.0) as the first playback/rendering adapter.
-
-Salai derives an Elah playback project from current canonical/assembly state. Elah project state is not canonical Salai state.
-
-`@elah/core@0.4.1` ships extensionless ESM imports that Node cannot load directly during Vitest externalization. The package remains behind the adapter and is explicitly inlined through Vite for tests; Salai does not patch/fork the dependency or make its package format part of project semantics.
-
-### Spatial exploration
-
-Do **not** add a canvas dependency in the first 0D sequence. The semantic-timeline risk is tested first. Excalidraw remains the preferred MIT reference for a later Story Spine/Arrange experiment after the temporal loop passes.
-
-## State boundary
-
-0D keeps three kinds of state distinct.
-
-### 1. Canonical semantic state
-
-Owned by Salai:
-
-- Script / Section / Scene / Beat / Cue / ContentBlock;
-- SourceExcerpt identity/ranges;
-- existing explicit relationships;
-- any new production/editorial identity only if 0D evidence proves it is semantically necessary.
-
-### 2. Workspace/UI state
-
-Owned by Salai UI/Workspace as appropriate:
-
-- selection/focus;
-- timeline zoom/viewport;
-- collapsed semantic levels;
-- temporary filters/overlays;
-- viewer/playhead state that has no project meaning.
-
-### 3. Playback/materialization projection
-
-Derived/replaceable:
-
-- renderer tracks;
-- renderer clips;
-- playback frame/time;
-- resolved source placement;
-- engine-specific caches/state.
-
-Third-party timeline or renderer document formats must never become the authoritative project representation.
-
-## Minimum fixture
-
-The deterministic 0D fixture contains:
-
-- two Sections;
-- four Beats with different explicit durations;
-- five Cues, including two within one Beat;
-- authored speech;
-- two SourceExcerpts with stable source ranges;
-- visual media associated with four Cues;
-- one intentionally unsupported/missing visual moment;
-- deterministic picture and generated local WAV audio that can be played as one rough assembly.
-
-No production proxy/cache architecture is introduced for this spike.
-
-# Merge sequence
+# Merge sequence and result
 
 ```text
-0D.0  Timeline/playback adapter boundaries     [complete]
+0D.0  Timeline/playback adapter boundaries     [complete / pass]
   ↓
-0D.1  Semantic timeline projection             [complete]
+0D.1  Semantic timeline projection             [complete / technical pass]
   ↓
-0D.2  Playable rough assembly                  [complete]
+0D.2  Playable rough assembly                  [complete / technical pass]
   ↓
-0D.3  Structural editing round trip            [complete]
+0D.3  Structural editing round trip            [complete / technical pass]
   ↓
-0D.4  Agent ↔ timeline round trip              [complete]
+0D.4  Agent ↔ timeline round trip              [complete / pass]
   ↓
-0D.5  Human validation                         [open]
+0D.5  Human validation                         [complete / interaction fail]
   ↓
-0D.GATE
-  ↓
-implementation review / next evidence-backed plan
+0D.GATE                                      [NOT PASSED]
 ```
 
 ---
 
 # 0D.0 — Adapter boundaries and fixture
 
-- [x] **0D.0.1 — Add the deterministic audiovisual fixture.**
-- [x] **0D.0.2 — Define a Salai-owned timeline projection type that references canonical IDs without becoming persistence.**
-- [x] **0D.0.3 — Add a thin adapter from Salai timeline projection to `@moritzbrantner/timeline-editor`.**
-- [x] **0D.0.4 — Add a thin adapter from current assembly projection to `@elah/core`.**
-- [x] **0D.0.5 — Add architecture tests proving third-party timeline/Elah objects are derived and replaceable.**
-- [x] **0D.0.GATE — A canonical fixture can be projected into timeline UI and playback infrastructure without a second Salai project model.**
+- [x] deterministic audiovisual fixture;
+- [x] Salai-owned timeline projection referencing canonical IDs;
+- [x] thin timeline-editor adapter;
+- [x] thin Elah playback adapter;
+- [x] architecture tests proving third-party documents are derived/replaceable.
 
-Evidence: PR #63 CI run 189 completed dependency installation, TypeScript checking, unit tests, and build successfully. The fixture validates against canonical Narrative IR, source ranges survive projection, mutation of the derived timeline-editor document does not mutate Salai state, and the Elah project rebuilds deterministically from the Salai projection.
+**Gate:** pass.
+
+Evidence: PR #63 CI run 189. Narrative IR remains canonical; timeline-editor/Elah objects are disposable projections.
 
 ---
 
 # 0D.1 — Semantic timeline
 
-## Goal
+- [x] Sections/Beats represented in real time;
+- [x] Cue structure exposed at deeper semantic level;
+- [x] source/media realization shown where available;
+- [x] stable canonical selection;
+- [x] missing material explicit;
+- [x] deterministic identity/order/timing tests.
 
-Represent narrative structure in actual time without reducing the project to generic clips/tracks.
+**Technical gate:** pass.
 
-- [x] **0D.1.1 — Render Sections/Beats as temporal semantic regions.**
-- [x] **0D.1.2 — Reveal Cue structure at a closer semantic zoom level.**
-- [x] **0D.1.3 — Render source/media realization beneath the semantic structure where available.**
-- [x] **0D.1.4 — Preserve stable Salai selection across semantic levels.**
-- [x] **0D.1.5 — Expose unsupported/missing moments without inventing media.**
-- [x] **0D.1.6 — Add deterministic projection tests for identity, ordering, timing, and missing material.**
-- [x] **0D.1.GATE — The timeline visibly communicates narrative meaning + audiovisual timing rather than looking like an ordinary media-track editor with labels added.**
-
-Evidence: PR #64 CI run 193 passed TypeScript, unit tests, and build against the published timeline-editor 1.0.0 contract. The Timeline surface exposes Story (Sections/Beats), Moments (Beats/Cues), and Media (Cues/visual/source realization) semantic scales. Selection remains canonical while the visible anchor changes to the nearest semantic ancestor/descendant. Media/source selections resolve to their enclosing Cue, and unsupported visual material is explicit.
+Evidence: PR #64 CI run 193. The implemented Story / Moments / Media levels proved that the hierarchy can be projected temporally, but human validation later showed that replacing one level with another fragments context.
 
 ---
 
 # 0D.2 — Playable rough assembly
 
-## Goal
+- [x] play/pause;
+- [x] scrub/seek;
+- [x] synchronized viewer/playhead/timeline;
+- [x] SourceExcerpt audio from canonical source ranges;
+- [x] simple picture/audio assembly;
+- [x] explicit missing-visual placeholder.
 
-Let the filmmaker experience the current Salai story in time without Resolve.
+**Technical gate:** pass.
 
-- [x] **0D.2.1 — Play/pause the current rough assembly.**
-- [x] **0D.2.2 — Scrub/seek from the semantic timeline.**
-- [x] **0D.2.3 — Keep viewer/playhead/timeline state synchronized.**
-- [x] **0D.2.4 — Play SourceExcerpt audio from its canonical source range.**
-- [x] **0D.2.5 — Play simple picture + audio arrangement for the fixture.**
-- [x] **0D.2.6 — Represent missing visuals with an explicit placeholder rather than silent failure.**
-- [x] **0D.2.GATE — The user can watch the narrative assembly and identify timing/realization problems without leaving Salai.**
-
-Evidence: PR #65 CI run 197 passed TypeScript, all unit tests, and Vite build. Elah `PlaybackEngine` drives one derived playhead shared by the Viewer and semantic timeline; timeline seeks feed the same clock. Elah `resolveTimeline` resolves picture and source audio from the disposable playback project. Tests prove Juan begins at canonical source frame 300 (10s at 30fps) and Maya at source frame 630 (21s), while the final five-second payoff remains an explicit missing-visual interval with no invented renderer clip. The deterministic fixture uses four local SVG visuals and a runtime-generated 30-second WAV, avoiding external hosting or a second media stack. The technical playback loop is complete; whether that semantic playback materially improves creative judgment remains the human question in 0D.5.
+Evidence: PR #65 CI run 197. Playback works without Resolve. Human validation later found the fixed-frequency fixture audio distracting and found keyboard transport incomplete because spacebar did not toggle play/pause.
 
 ---
 
 # 0D.3 — Structural editing round trip
 
-## Goal
+- [x] Beat reorder through canonical `moveBeat`;
+- [x] Cue reorder through canonical `moveCue`;
+- [x] SourceExcerpt trim through canonical `trimSourceExcerpt` semantics;
+- [x] unsupported engine-only edits rejected;
+- [x] timeline/playback immediately re-projected from canonical state;
+- [x] grouped action/revert preserved.
 
-Prove that direct temporal editing changes Salai meaning rather than mutating an engine-owned shadow timeline.
+**Technical gate:** pass for the implemented narrow gesture set.
 
-- [x] **0D.3.1 — Reorder one Beat from the semantic timeline through canonical operations.**
-- [x] **0D.3.2 — Reorder/move one Cue while preserving identity.**
-- [x] **0D.3.3 — Trim one SourceExcerpt through canonical `trimSourceExcerpt` semantics.**
-- [x] **0D.3.4 — Prevent unsupported engine-only edits from silently diverging from Salai state.**
-- [x] **0D.3.5 — Re-project and replay immediately after canonical changes.**
-- [x] **0D.3.6 — Preserve existing grouped-action/revert behavior where a temporal gesture produces a grouped Salai action.**
-- [x] **0D.3.GATE — Direct timeline edits round-trip through Salai-owned semantics and playback reflects the new canonical state.**
-
-Evidence: PR #66 CI run 202 passed TypeScript, unit tests, and Vite build. Timeline-editor committed document changes are treated only as gesture proposals. Tests prove Beat and Cue drags compile to canonical `moveBeat` / `moveCue`, SourceExcerpt edge trims compile atomically to `trimSourceExcerpt` + Cue duration update, Elah playback re-materializes from the resulting project, engine-only and multi-item edits are rejected, and the existing one-step revert restores the pre-gesture canonical project. No timeline-editor document is persisted.
+Evidence: PR #66 CI run 202. Human validation later showed the gesture set is too small for meaningful direct structural editing.
 
 ---
 
 # 0D.4 — Agent ↔ semantic timeline round trip
 
-## Goal
+- [x] `salai context` exposes concise semantic timing/assembly context;
+- [x] external harness performs a structural timing/reorder request through the existing boundary;
+- [x] timeline/playback update through canonical state only;
+- [x] direct timeline edit visible to the next context read;
+- [x] no new model/provider/session/runtime code.
 
-Carry the validated 0C interaction into the temporal environment without creating a second agent path.
+**Gate:** pass.
 
-- [x] **0D.4.1 — Existing `salai context` exposes enough timing/assembly context for the representative task without dumping engine internals.**
-- [x] **0D.4.2 — Codex/external harness performs one structural timing/reorder request through the existing machine boundary.**
-- [x] **0D.4.3 — The semantic timeline and playback update through canonical state only.**
-- [x] **0D.4.4 — A direct timeline edit is visible to the next external-harness context read.**
-- [x] **0D.4.5 — No new model/provider/session/runtime code is added to Salai.**
-- [x] **0D.4.GATE — Agent-mediated and direct temporal work remain coherent over one project, preserving the successful 0C boundary.**
-
-Evidence: PR #67 CI run 205 passed TypeScript, unit tests, and Vite build. The existing CLI command set remains exactly `context`, `create-story`, and `apply`; `context` now adds a concise Salai-owned `semanticTime` projection containing structural runtime, ordered Beat/Cue timing, SourceExcerpt ranges, and visual realization status without timeline-editor or Elah documents. A real CLI subprocess through the local bridge moves the hook after the friction Beat; the canonical project, semantic timing, timeline projection, and Elah opening all immediately reflect the change. The same test then applies the exact canonical batch produced by a direct SourceExcerpt timeline trim and proves the next CLI context reads the new 10–14s source range and 22s runtime. No model/provider/session/router/MCP path was added.
+Evidence: PR #67 CI run 205. The command set remains `context`, `create-story`, and `apply`. Human validation confirmed the external harness performed its requested change correctly.
 
 ---
 
 # 0D.5 — Human validation
 
-Follow [`spike-0d-human-validation.md`](spike-0d-human-validation.md). This section must be completed from observed filmmaker evidence, not automated behavior.
+Human validation is complete. See [`spike-0d-assessment.md`](spike-0d-assessment.md) for the interpretation.
 
-- [ ] **0D.5.1 — Watch the initial assembly and identify one pacing or realization problem.**
-- [ ] **0D.5.2 — Fix one narrative-order problem directly on the semantic timeline.**
-- [ ] **0D.5.3 — Trim one source-backed moment while preserving its evidence identity.**
-- [ ] **0D.5.4 — Ask Codex/external harness for one story/timing change and watch the result.**
-- [ ] **0D.5.5 — Compare the experience against a generic clip timeline: record whether semantic regions/identity changed the creative reasoning.**
-- [ ] **0D.5.6 — Record whether the user could judge the rough story without opening Resolve.**
-- [ ] **0D.5.7 — Write `spike-0d-assessment.md` from observed evidence only.**
-- [ ] **0D.5.GATE — Human evidence shows that Salai's semantic timeline/playback provides useful structural editorial beyond generic clip manipulation.**
+- [x] **0D.5.1 — Watch the initial assembly.** Result: playback was watchable without issues; no useful pacing/realization problem stood out from the fixture.
+- [x] **0D.5.2 — Attempt direct story-order editing.** Result: editing was too simple and fragmented to be creatively useful; changing semantic tabs did not help.
+- [x] **0D.5.3 — Attempt source-backed temporal editing.** Result: source audio was the only materially editable item and the interaction was too shallow to yield meaningful editorial evidence.
+- [x] **0D.5.4 — External harness change.** Result: pass; the harness operated the live project correctly.
+- [x] **0D.5.5 — Compare semantic vs generic timeline.** Result: not validated; the surface was too simple to establish a meaningful semantic advantage.
+- [x] **0D.5.6 — Judge without Resolve/conventional editor.** Result: **No**; general structural editing tools such as trim, blade/split, and source in/out control were missing.
+- [x] **0D.5.7 — Assessment written.** See [`spike-0d-assessment.md`](spike-0d-assessment.md).
+- [ ] **0D.5.GATE — Human evidence shows useful structural editorial beyond generic clip manipulation.** **Not passed.**
+
+Additional human findings:
+
+- spacebar should toggle play/pause;
+- placeholder/source audio should not use a distracting fixed-frequency tone;
+- selected items need a contextual way to edit their meaningful properties;
+- Beats, Cues, and audiovisual content need to be creatable in temporal context;
+- multiple visual/audio blocks inside one Cue need to be visible and independently selectable;
+- Story / Moments / Media tab switching loses context;
+- a flamegraph-like hierarchical timeline is a promising next interaction hypothesis;
+- multiple selection is missing;
+- the minimum structural editing grammar needs trim, split/blade where semantically valid, and source I/O.
 
 ---
 
-# 0D.GATE
+# 0D.GATE — NOT PASSED
 
-Spike 0D passes only when:
+| Condition | Result |
+| --- | --- |
+| Narrative IR remains canonical | Pass |
+| timeline/rendering state derived and replaceable | Pass |
+| fixture playable inside Salai without Resolve | Technical pass |
+| semantic timing connects Beat/Cue meaning to realization | Technical pass |
+| direct timeline edits resolve through Salai operations | Technical pass for narrow gesture set |
+| SourceExcerpt identity/ranges remain source-backed | Pass |
+| external-agent interaction uses validated 0C boundary | Pass |
+| agent and direct temporal edits share one project | Pass |
+| user can identify and meaningfully improve a story/timing issue in the implemented editor | **Fail / insufficient interaction depth** |
+| semantic layer changes timeline usefulness beyond generic clip manipulation | **Not validated** |
+| no unrelated/specialist infrastructure pulled into spike | Pass |
 
-- [x] current Narrative IR remains canonical;
-- [x] third-party timeline/rendering state is derived/replaceable;
-- [x] the fixture is playable inside Salai without Resolve;
-- [x] semantic timing visibly connects Beat/Cue meaning to media realization;
-- [x] direct structural timeline edits resolve through Salai operations;
-- [x] SourceExcerpt identity/ranges remain source-backed;
-- [x] external-agent interaction continues through the validated 0C boundary;
-- [x] agent and direct temporal edits share one project;
-- [ ] the user can identify and improve at least one story/timing issue by watching the Salai assembly;
-- [ ] human evidence shows that the semantic layer changes the usefulness of the timeline rather than merely decorating a conventional NLE UI;
-- [x] no specialist-NLE feature set or unrelated infrastructure was pulled into the spike.
+The product gate therefore does not pass despite the technical architecture passing.
 
-Nine technical conditions are evidenced. The two open conditions are deliberately human and must not be inferred from automated tests.
+# Next validation priority
 
-After the gate, write the assessment and update the roadmap from observed evidence. A Story Spine/Arrange canvas is the next interaction experiment only if 0D confirms that the temporal spine is valuable enough to extend spatially.
+Proceed to **Spike 0E — Semantic Editorial Interaction Depth** before Phase 1 production infrastructure.
+
+The next question is:
+
+> **If Salai provides one context-preserving hierarchical timeline plus a minimum useful rough-editing grammar, do its semantic objects materially improve structural editing compared with generic clip manipulation?**
+
+The smallest evidence-backed scope is:
+
+1. one hierarchical/flamegraph-like Section → Beat → Cue → content/media temporal view that keeps surrounding context visible;
+2. contextual editing/inspector for the selected semantic item;
+3. creation of Beats, Cues, and appropriate visual/audio content from temporal context;
+4. multiple visual/audio blocks per Cue rendered and independently selectable;
+5. selection + multi-selection;
+6. spacebar transport, reorder, edge trim, source I/O, and the smallest semantically correct split/blade behavior;
+7. grouped canonical operations + revert;
+8. non-distracting validation media;
+9. reuse the existing external-harness boundary unchanged.
+
+Do not start Phase 1, Production Graph, Story Spine canvas, Resolve integration, GenAI, specialist finishing, or a second agent architecture until 0E answers this interaction question.
