@@ -112,7 +112,6 @@ export function SemanticTimeline() {
           selection={selection}
           viewport={viewport}
           frameRate={30}
-          timeMode="continuous"
           readOnly
           onSelectionChange={handleSelectionChange}
           onViewportChange={setViewport}
@@ -122,10 +121,9 @@ export function SemanticTimeline() {
               <span>{track.kind}</span>
             </div>
           )}
-          renderItem={({ item, selected, itemWidthPx }) => {
+          renderItem={({ item, selected }) => {
             const data = item.data;
             const kind = data?.salaiKind ?? item.kind ?? "item";
-            const compact = (itemWidthPx ?? 0) < 120;
             return (
               <div
                 className={`semantic-timeline-item semantic-timeline-item-${kind}${selected ? " selected" : ""}`}
@@ -133,7 +131,7 @@ export function SemanticTimeline() {
                 <span className="semantic-item-kind">
                   {kind === "missing-visual" ? "NEEDS COVERAGE" : kind.replaceAll("-", " ")}
                 </span>
-                {!compact ? <span className="semantic-item-label">{item.label}</span> : null}
+                <span className="semantic-item-label">{item.label}</span>
               </div>
             );
           }}
