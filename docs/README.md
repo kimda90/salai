@@ -10,14 +10,14 @@ This directory separates current product/workflow/architecture contracts from hi
 | Product requirements | [`prd.md`](prd.md) |
 | Product thesis | [`product-brief.md`](product-brief.md) |
 | Discovery observations | [`research-notes.md`](research-notes.md) |
+| Competitive positioning | [`competitive-landscape.md`](competitive-landscape.md) |
 | Workflow movement | [`workflows.md`](workflows.md) |
 | Narrative Lens semantics | [`narrative-lenses.md`](narrative-lenses.md) |
 | Narrative IR types/invariants/operations | [`narrative-ir-spec.md`](narrative-ir-spec.md) |
-| Active agent-mediated interaction contract | [`agent-mediated-authoring.md`](agent-mediated-authoring.md) |
+| Validated external-agent interaction contract | [`agent-mediated-authoring.md`](agent-mediated-authoring.md) |
 | External-agent operating procedure | [`agent-usage.md`](agent-usage.md) |
 | Coding-agent development procedure | [`agent-development.md`](agent-development.md) |
-| Active 0C tasks/status/evidence | [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md) |
-| Active 0C human validation procedure | [`spike-0c-human-validation.md`](spike-0c-human-validation.md) |
+| Active 0D tasks/status/evidence | [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md) |
 | Validation sequence | [`mvp.md`](mvp.md) |
 | Current priorities | [`backlog.md`](backlog.md) |
 | Current system architecture | [`architecture.md`](architecture.md) |
@@ -30,22 +30,22 @@ Do not duplicate exact operation vocabularies, task status, or superseded runtim
 
 ## Current contracts
 
-- [`narrative-ir-spec.md`](narrative-ir-spec.md) — implemented canonical model contract.
-- [`narrative-lenses.md`](narrative-lenses.md) — structured creative views over one project.
-- [`agent-mediated-authoring.md`](agent-mediated-authoring.md) — external-harness product behavior.
+- [`narrative-ir-spec.md`](narrative-ir-spec.md) — implemented canonical narrative-model contract.
+- [`narrative-lenses.md`](narrative-lenses.md) — validated structured-view semantics over one project; not a commitment to final top-level UI navigation.
+- [`agent-mediated-authoring.md`](agent-mediated-authoring.md) — validated external-harness product behavior from 0C.
 - [`agent-usage.md`](agent-usage.md) — required workflow for agents operating a live Salai project.
 - [`agent-development.md`](agent-development.md) — required workflow for coding agents changing Salai.
-- [`architecture.md`](architecture.md) — current runtime/application boundaries.
-- [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md) — proposed interaction model under 0C validation.
-- [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md) — current human/machine runtime decision.
-- [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md) — only current 0C execution tracker.
-- [`spike-0c-human-validation.md`](spike-0c-human-validation.md) — human validation procedure and evidence fields.
+- [`architecture.md`](architecture.md) — current runtime/application/editorial boundaries.
+- [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md) — external harness owns model/session behavior; human-validated using Codex in 0C.
+- [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md) — current product boundary: Salai owns structural editorial; specialist NLEs are optional downstream.
+- [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md) — only current 0D execution tracker.
 
 ## Historical validation records
 
 - [`spike-0a-assessment.md`](spike-0a-assessment.md) — completed Narrative IR spike.
 - [`authoring-ux-spec.md`](authoring-ux-spec.md), [`spike-0b-implementation-plan.md`](spike-0b-implementation-plan.md), [`spike-0b-human-test-plan.md`](spike-0b-human-test-plan.md), [`spike-0b-assessment.md`](spike-0b-assessment.md) — 0B structured-authoring experiment.
-- [`adr/`](adr/) — append-only architecture decision history, including superseded 0C runtime approaches.
+- [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md), [`spike-0c-human-validation.md`](spike-0c-human-validation.md), [`spike-0c-assessment.md`](spike-0c-assessment.md) — completed external-agent authoring experiment.
+- [`adr/`](adr/) — append-only architecture decision history, including superseded Resolve and 0C runtime approaches.
 
 ## Current development focus
 
@@ -53,9 +53,11 @@ Do not duplicate exact operation vocabularies, task status, or superseded runtim
 
 **0B — Structured Authoring UX:** closed/mixed. Multi-view coherence passed; routine direct structure management failed the interaction-friction test.
 
-**0C — External-Agent Authoring + Narrative Lenses:** current.
+**0C — External-Agent Authoring + Narrative Lenses:** complete/pass. Human validation using Codex confirmed that an external agent can operate the live canonical project correctly and materially reduce routine structural interaction.
 
-Current implementation strategy:
+**0D — Semantic Editorial Environment:** current.
+
+Current validation architecture:
 
 ```text
 external harness
@@ -66,9 +68,13 @@ SalaiProjectService
       ↓
 Narrative IR + Workspace
       ↓
-Narrative Lenses
+Salai timeline projection
+      ↓
+semantic timeline + playback adapter
 ```
 
-The external harness owns model/provider/auth/session/tool-loop behavior. Salai owns project semantics, canonical mutation, source provenance, grouped-action/revert behavior, and the machine interface to the same live project used by the UI.
+The external harness continues to own model/provider/auth/session/tool-loop behavior. Salai owns project semantics, canonical mutation, source provenance, structural editorial decisions, and the application boundary shared by UI and machine clients.
 
-Start with [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md), [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md), and [`spike-0c-human-validation.md`](spike-0c-human-validation.md).
+0D uses `@moritzbrantner/timeline-editor` for the first controlled React timeline interaction and `@elah/core` for the first playback/materialization adapter. Both are replaceable derived infrastructure; neither owns Salai project truth.
+
+Start with [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md) and [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md).
