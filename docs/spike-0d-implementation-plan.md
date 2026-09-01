@@ -2,7 +2,7 @@
 
 ## Status
 
-**Current validation iteration. 0D.0–0D.2 complete; 0D.3 next.**
+**Current validation iteration. 0D.0–0D.3 complete; 0D.4 next.**
 
 This file is the canonical execution tracker for Spike 0D. It owns 0D task numbering, implementation order, completion state, and exit evidence.
 
@@ -111,9 +111,9 @@ No production proxy/cache architecture is introduced for this spike.
   ↓
 0D.2  Playable rough assembly                  [complete]
   ↓
-0D.3  Structural editing round trip            [next]
+0D.3  Structural editing round trip            [complete]
   ↓
-0D.4  Agent ↔ timeline round trip
+0D.4  Agent ↔ timeline round trip              [next]
   ↓
 0D.5  Human validation
   ↓
@@ -179,13 +179,15 @@ Evidence: PR #65 CI run 197 passed TypeScript, all unit tests, and Vite build. E
 
 Prove that direct temporal editing changes Salai meaning rather than mutating an engine-owned shadow timeline.
 
-- [ ] **0D.3.1 — Reorder one Beat from the semantic timeline through canonical operations.**
-- [ ] **0D.3.2 — Reorder/move one Cue while preserving identity.**
-- [ ] **0D.3.3 — Trim one SourceExcerpt through canonical `trimSourceExcerpt` semantics.**
-- [ ] **0D.3.4 — Prevent unsupported engine-only edits from silently diverging from Salai state.**
-- [ ] **0D.3.5 — Re-project and replay immediately after canonical changes.**
-- [ ] **0D.3.6 — Preserve existing grouped-action/revert behavior where a temporal gesture produces a grouped Salai action.**
-- [ ] **0D.3.GATE — Direct timeline edits round-trip through Salai-owned semantics and playback reflects the new canonical state.**
+- [x] **0D.3.1 — Reorder one Beat from the semantic timeline through canonical operations.**
+- [x] **0D.3.2 — Reorder/move one Cue while preserving identity.**
+- [x] **0D.3.3 — Trim one SourceExcerpt through canonical `trimSourceExcerpt` semantics.**
+- [x] **0D.3.4 — Prevent unsupported engine-only edits from silently diverging from Salai state.**
+- [x] **0D.3.5 — Re-project and replay immediately after canonical changes.**
+- [x] **0D.3.6 — Preserve existing grouped-action/revert behavior where a temporal gesture produces a grouped Salai action.**
+- [x] **0D.3.GATE — Direct timeline edits round-trip through Salai-owned semantics and playback reflects the new canonical state.**
+
+Evidence: PR #66 CI run 202 passed TypeScript, unit tests, and Vite build. Timeline-editor committed document changes are treated only as gesture proposals. Tests prove Beat and Cue drags compile to canonical `moveBeat` / `moveCue`, SourceExcerpt edge trims compile atomically to `trimSourceExcerpt` + Cue duration update, Elah playback re-materializes from the resulting project, engine-only and multi-item edits are rejected, and the existing one-step revert restores the pre-gesture canonical project. No timeline-editor document is persisted.
 
 ---
 
