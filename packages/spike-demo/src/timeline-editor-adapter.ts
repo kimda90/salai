@@ -7,11 +7,30 @@ import type {
 export type TimelineEditorSalaiData = {
   salaiRef: SalaiTimelineItem["salaiRef"];
   salaiKind: SalaiTimelineItem["kind"];
+  sectionId?: string;
+  beatId?: string;
   cueId?: string;
   mediaSegmentId?: string;
   sourceInMs?: number;
   sourceOutMs?: number;
 };
+
+function colorForKind(kind: SalaiTimelineItem["kind"]): string {
+  switch (kind) {
+    case "section":
+      return "#4b5563";
+    case "beat":
+      return "#475569";
+    case "cue":
+      return "#0369a1";
+    case "visual-media":
+      return "#0f766e";
+    case "source-excerpt":
+      return "#7c3aed";
+    case "missing-visual":
+      return "#b45309";
+  }
+}
 
 export function toTimelineEditorDocument(
   projection: SalaiTimelineProjection,
@@ -30,10 +49,13 @@ export function toTimelineEditorDocument(
         startMs: item.startMs,
         durationMs: item.durationMs,
         kind: item.kind,
+        color: colorForKind(item.kind),
         locked: item.kind === "section",
         data: {
           salaiRef: item.salaiRef,
           salaiKind: item.kind,
+          ...(item.sectionId ? { sectionId: item.sectionId } : {}),
+          ...(item.beatId ? { beatId: item.beatId } : {}),
           ...(item.cueId ? { cueId: item.cueId } : {}),
           ...(item.mediaSegmentId ? { mediaSegmentId: item.mediaSegmentId } : {}),
           ...(item.sourceInMs !== undefined ? { sourceInMs: item.sourceInMs } : {}),
