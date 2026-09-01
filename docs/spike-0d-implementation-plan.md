@@ -2,7 +2,7 @@
 
 ## Status
 
-**Current validation iteration. 0D.0–0D.3 complete; 0D.4 next.**
+**Current validation iteration. 0D.0–0D.4 complete; 0D.5 human validation next.**
 
 This file is the canonical execution tracker for Spike 0D. It owns 0D task numbering, implementation order, completion state, and exit evidence.
 
@@ -113,9 +113,9 @@ No production proxy/cache architecture is introduced for this spike.
   ↓
 0D.3  Structural editing round trip            [complete]
   ↓
-0D.4  Agent ↔ timeline round trip              [next]
+0D.4  Agent ↔ timeline round trip              [complete]
   ↓
-0D.5  Human validation
+0D.5  Human validation                         [next]
   ↓
 0D.GATE
   ↓
@@ -197,12 +197,14 @@ Evidence: PR #66 CI run 202 passed TypeScript, unit tests, and Vite build. Timel
 
 Carry the validated 0C interaction into the temporal environment without creating a second agent path.
 
-- [ ] **0D.4.1 — Existing `salai context` exposes enough timing/assembly context for the representative task without dumping engine internals.**
-- [ ] **0D.4.2 — Codex/external harness performs one structural timing/reorder request through the existing machine boundary.**
-- [ ] **0D.4.3 — The semantic timeline and playback update through canonical state only.**
-- [ ] **0D.4.4 — A direct timeline edit is visible to the next external-harness context read.**
-- [ ] **0D.4.5 — No new model/provider/session/runtime code is added to Salai.**
-- [ ] **0D.4.GATE — Agent-mediated and direct temporal work remain coherent over one project, preserving the successful 0C boundary.**
+- [x] **0D.4.1 — Existing `salai context` exposes enough timing/assembly context for the representative task without dumping engine internals.**
+- [x] **0D.4.2 — Codex/external harness performs one structural timing/reorder request through the existing machine boundary.**
+- [x] **0D.4.3 — The semantic timeline and playback update through canonical state only.**
+- [x] **0D.4.4 — A direct timeline edit is visible to the next external-harness context read.**
+- [x] **0D.4.5 — No new model/provider/session/runtime code is added to Salai.**
+- [x] **0D.4.GATE — Agent-mediated and direct temporal work remain coherent over one project, preserving the successful 0C boundary.**
+
+Evidence: PR #67 CI run 205 passed TypeScript, unit tests, and Vite build. The existing CLI command set remains exactly `context`, `create-story`, and `apply`; `context` now adds a concise Salai-owned `semanticTime` projection containing structural runtime, ordered Beat/Cue timing, SourceExcerpt ranges, and visual realization status without timeline-editor or Elah documents. A real CLI subprocess through the local bridge moves the hook after the friction Beat; the canonical project, semantic timing, timeline projection, and Elah opening all immediately reflect the change. The same test then applies the exact canonical batch produced by a direct SourceExcerpt timeline trim and proves the next CLI context reads the new 10–14s source range and 22s runtime. No model/provider/session/router/MCP path was added.
 
 ---
 
