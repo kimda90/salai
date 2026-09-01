@@ -4,6 +4,7 @@ import {
   type NarrativeProject,
 } from "@salai/script-model";
 import type { SalaiProjectService } from "./controller";
+import { buildMachineSemanticTimeContext } from "./machine-semantic-time";
 
 type CreateStoryBeat = {
   title?: string;
@@ -144,10 +145,14 @@ export function handleMachineCommand(
   command: MachineCommand,
 ): unknown {
   if (command.command === "context") {
-    return service.getProjectContext({
+    const context = service.getProjectContext({
       includeWorkspace: true,
       includeActiveSurface: true,
     });
+    return {
+      ...context,
+      semanticTime: buildMachineSemanticTimeContext(context.project),
+    };
   }
 
   if (command.command === "createStory") {
