@@ -32,6 +32,10 @@ function colorForKind(kind: SalaiTimelineItem["kind"]): string {
   }
 }
 
+function itemIsEngineLocked(kind: SalaiTimelineItem["kind"]): boolean {
+  return kind === "section" || kind === "visual-media" || kind === "missing-visual";
+}
+
 export function toTimelineEditorDocument(
   projection: SalaiTimelineProjection,
 ): TimelineEditorDocument<Record<string, never>, TimelineEditorSalaiData> {
@@ -42,6 +46,7 @@ export function toTimelineEditorDocument(
       id: track.id,
       label: track.label,
       kind: track.kind,
+      acceptsItemKinds: [...new Set(track.items.map((item) => item.kind))],
       items: track.items.map((item) => ({
         id: item.id,
         trackId: track.id,
@@ -50,7 +55,7 @@ export function toTimelineEditorDocument(
         durationMs: item.durationMs,
         kind: item.kind,
         color: colorForKind(item.kind),
-        locked: item.kind === "section",
+        locked: itemIsEngineLocked(item.kind),
         data: {
           salaiRef: item.salaiRef,
           salaiKind: item.kind,
