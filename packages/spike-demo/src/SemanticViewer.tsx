@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { ResolvedSemanticAssembly } from "./semantic-playback-model";
+import "./semantic-viewer.css";
 
 export type SemanticViewerProps = {
   assembly: ResolvedSemanticAssembly;
