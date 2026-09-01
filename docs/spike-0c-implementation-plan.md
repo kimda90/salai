@@ -2,209 +2,143 @@
 
 ## Status
 
-Canonical execution tracker for Spike 0C. This file is the only source for 0C task numbering, implementation order, completion status, and exit evidence.
+**Complete / pass. Historical execution record.**
 
-Current decision: [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md).
+Spike 0C is closed. Human validation was completed using Codex as the external harness; the integration operated correctly and demonstrated the convenience of agent-mediated structural manipulation over the live canonical Salai project.
 
-## Goal
+The completed assessment is [`spike-0c-assessment.md`](spike-0c-assessment.md).
 
-Validate that a filmmaker can express ordinary story intent through an existing external agent harness with materially less structural bookkeeping than 0B, while Salai keeps one valid canonical project and the existing Narrative Lenses remain useful for direct structural work.
+The active execution tracker is now [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md).
 
-## Hard boundaries
+Current accepted runtime decision remains [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md).
+
+## Goal that was tested
+
+Validate that a filmmaker can express ordinary story intent through an existing external agent harness with materially less structural bookkeeping than 0B, while Salai keeps one valid canonical project shared with direct human UI.
+
+## Hard boundaries retained from the spike
 
 - `@salai/script-model` is the only canonical narrative model.
 - `SalaiProjectService` is the human/machine application boundary.
 - `applyOperations()` is the canonical multi-operation mutation primitive.
 - The external harness owns model choice, authentication, sessions, history, planning, and tool-loop behavior.
-- Salai contains no model/provider SDK, API-key/OAuth handling, model router, chat runtime, or embedded agent session.
-- 0C exposes one machine interface first: **CLI-oriented**, not CLI + MCP.
-- The machine interface must reach the same live project service used by the Narrative Lenses; it must not edit serialized storage or maintain another project model.
-- A Skill may later teach a harness how to use the interface, but it is instructions only.
-- CI is deterministic and provider-independent.
-- No CRDT, event sourcing, distributed state, production graph, new lens, real media analysis, Resolve execution, or general plugin framework in 0C.
+- Salai contains no required model/provider SDK, API-key/OAuth handling, model router, chat runtime, or embedded agent session.
+- 0C validated one machine interface first: CLI-oriented, not CLI + MCP.
+- The machine interface reaches the same live project service used by human UI; it does not edit serialized storage or maintain another project model.
+- CI remains deterministic and provider-independent.
 
-Principle:
+Principle validated by 0C:
 
 > **Invest in the project interface; let the harness own the agent.**
 
-## Delivery rules
-
-- Read this plan before each slice.
-- Finish one slice, run CI, then mark only verified tasks implemented.
-- Review the finished slice with the Ponytail-equivalent method before moving to the next slice.
-- Merge one reviewed slice before beginning the next.
-- Reuse existing model/controller behavior before adding abstractions.
-- Add a higher-level command only when a concrete scenario proves raw public operations are too brittle.
-- Human-validation tasks remain open until a human actually runs them.
-
-## Merge sequence
+## Completed merge sequence
 
 ```text
-0C.0  Project service + atomic batch boundary          [implemented]
+0C.0  Project service + atomic batch boundary          [complete]
   ↓
-0C.1  External-harness machine interface              [implemented]
+0C.1  External-harness machine interface              [complete]
   ↓
-0C.2  Script-first creation + revision                [implemented]
+0C.2  Script-first creation + revision                [complete]
   ↓
-0C.3  Grouped action + immediate revert               [implemented]
+0C.3  Grouped action + immediate revert               [complete]
   ↓
-0C.4  Source-backed vertical slice                    [implemented]
+0C.4  Source-backed vertical slice                    [complete]
   ↓
-0C.5  Harness ↔ Narrative Lens round trip             [implemented]
+0C.5  Harness ↔ Narrative Lens round trip             [complete]
   ↓
-0C.6  Human validation + assessment
+0C.6  Human validation using Codex                    [complete]
   ↓
-0C.GATE
-  ↓
-Ponytail-equivalent implementation review
-  ↓
-implementation-improvements plan
+0C.GATE                                               [pass]
 ```
 
----
+## Implemented result
 
-# 0C.0 — Project service + canonical batch boundary
+### 0C.0 — Project service + canonical batch boundary
 
-- [x] **0C.0.1 — Define the minimum `SalaiProjectService` contract over existing state.**
-- [x] **0C.0.2 — Add atomic `dispatchNarrativeBatch()` using existing `applyOperations()`.**
-- [x] **0C.0.3 — Preserve the existing single-operation lens path.**
-- [x] **0C.0.4 — Test one-publish success and no-publish failure behavior.**
-- [x] **0C.0.5 — Expose task-relevant current project context.**
-- [x] **0C.0.GATE — Human UI and machine-produced batches can use one Salai-owned state/mutation boundary.**
+Completed:
 
----
+- minimum `SalaiProjectService` contract over existing state;
+- atomic `dispatchNarrativeBatch()` using existing `applyOperations()`;
+- preserved single-operation direct-UI path;
+- one-publish success and no-publish failure behavior;
+- task-relevant current project context.
 
-# 0C.1 — External-harness machine interface
+### 0C.1 — External-harness machine interface
 
-## Goal
+Completed:
 
-Let a generic local harness inspect and mutate the **live Salai project** without putting model/runtime concerns inside Salai.
+- `salai tools` self-description;
+- `context` for current task-relevant project state;
+- `apply` for canonical `NarrativeOperation[]` batches;
+- narrow script-first `create-story` helper where Salai-owned ID/placement resolution was required;
+- local request/response bridge from CLI to the browser-owned live project;
+- deterministic machine-readable success/error behavior;
+- shared live-state proof between CLI and human UI.
 
-### 0C.1A — Machine command surface
+### 0C.2 — Script-first vertical slice
 
-- [x] **0C.1.1 — Define the smallest machine command vocabulary.**
-  - `context`: return task-relevant current project state as JSON;
-  - `apply`: accept a canonical `NarrativeOperation[]` batch and return the canonical operation result/feedback;
-  - no provider/session/model concepts.
+Completed:
 
-- [x] **0C.1.2 — Route machine mutations through `SalaiProjectService`.**
-  - same `dispatchNarrativeBatch()` used by the UI/controller;
-  - no direct file/storage mutation;
-  - no shadow project.
+- rough paragraph → canonical story flow;
+- ordinary-language revision while preserving stable IDs where meaning remained the same;
+- deterministic creation/revision tests;
+- real CLI-process smoke coverage.
 
-- [x] **0C.1.3 — Add deterministic command tests.**
-  - current context reflects current canonical state;
-  - valid batch publishes once;
-  - invalid batch leaves live state unchanged;
-  - JSON output is machine-readable and errors are explicit.
+### 0C.3 — Grouped action + immediate revert
 
-### 0C.1B — Local bridge + CLI
+Completed:
 
-The current React prototype owns its project in the browser, so an external process needs a small local transport to reach that same live service. The transport is glue only; it must not become another state owner.
+- one successful machine batch represented as one user-understandable action;
+- pre-action Narrative IR/Workspace snapshots;
+- immediate Revert;
+- invalidation after later canonical or Workspace edits;
+- exact-revert and failed-batch tests.
 
-- [x] **0C.1.4 — Add the smallest local request/response bridge between the browser project service and a local CLI.**
-  - prefer Node/browser built-ins before adding a transport dependency;
-  - bridge stores no narrative project;
-  - one active local browser client is sufficient for 0C;
-  - local-only binding by default.
+### 0C.4 — Source-backed vertical slice
 
-- [x] **0C.1.5 — Add one CLI entry point for a harness.**
-  - `salai context`;
-  - `salai apply <json-or-stdin>`;
-  - stable JSON stdout for success;
-  - non-zero exit + concise stderr for failure.
+Completed:
 
-- [x] **0C.1.6 — Prove live shared state.**
-  - CLI reads the same project shown by a Narrative Lens;
-  - CLI mutation immediately updates the open UI through existing project state;
-  - direct lens mutation is visible to the next CLI `context` call;
-  - restarting the harness/CLI loses no Salai project state.
+- deterministic source fixture through machine context;
+- canonical MediaSegment/SourceExcerpt identity without a second transient source model;
+- source-backed sequence construction;
+- wording/range/media-identity preservation;
+- simple missing/unsupported-material reasoning from current relationships;
+- deterministic source-preservation and CLI smoke tests.
 
-- [x] **0C.1.GATE — An external local harness can inspect and mutate the same live Salai project as the UI without Salai owning model/runtime infrastructure.**
+### 0C.5 — Harness ↔ direct UI round trip
 
----
+Completed:
 
-# 0C.2 — Script-first vertical slice
+- machine changes visible through canonical state;
+- direct human edit visible to the next machine `context` read;
+- Workspace-only Story Wall semantics preserved;
+- no export/import or conversation-memory synchronization model.
 
-## Goal
+### 0C.6 — Human validation
 
-Prove one rough-text → story → revision flow through the external harness interface.
+Completed with Codex as the external harness.
 
-- [x] **0C.2.1 — Add one fixed rough-paragraph scenario and minimum acceptable canonical result.**
-- [x] **0C.2.2 — Create the story in one machine action without manual Beat/Cue/parent bookkeeping.**
-- [x] **0C.2.3 — Add one narrow Salai creation command only if creation requires Salai-owned ID/reference resolution.**
-  - command resolves IDs/placement inside Salai;
-  - compiles immediately to `NarrativeOperation[]`;
-  - does not become a second persistent mutation model.
-- [x] **0C.2.4 — Support one ordinary-language revision through the harness while preserving stable IDs where meaning is unchanged.**
-- [x] **0C.2.5 — Add deterministic creation/revision tests, including malformed/invalid atomic failure.**
-- [x] **0C.2.6 — Run one real CLI-process smoke test against the local bridge.**
-- [x] **0C.2.GATE — The representative story can be created and revised through the external-harness interface with materially less structural bookkeeping than 0B.**
+Observed product evidence:
 
----
+- the integration worked correctly against the live Salai project;
+- keeping an agent in the loop was materially more convenient than routine direct model management from 0B;
+- Salai remained the project source of truth rather than relying on Codex conversation history;
+- the external-harness boundary was usable in practice, not only in deterministic tests.
 
-# 0C.3 — Grouped action + immediate revert
+The repository does not invent per-scenario timing/action counts that were not recorded during the run. The evidence-backed product conclusion is documented in [`spike-0c-assessment.md`](spike-0c-assessment.md).
 
-- [x] **0C.3.1 — Record one successful machine batch as the current revertible action with pre-action project/Workspace snapshots.**
-- [x] **0C.3.2 — Expose immediate Revert in Salai.**
-- [x] **0C.3.3 — Invalidate the revert snapshot after any later canonical or Workspace edit, whether machine- or lens-originated.**
-- [x] **0C.3.4 — Test exact revert, later-lens invalidation, Workspace-only invalidation, and failed-batch behavior.**
-- [x] **0C.3.GATE — One harness request behaves as one understandable, immediately revertible creative action without risking later edits.**
+## Final gate result
 
----
+**PASS.**
 
-# 0C.4 — Source-backed vertical slice
+0C established enough evidence to carry the following decisions forward:
 
-- [x] **0C.4.1 — Add one deterministic interview/source fixture exposed through task-relevant machine context.**
-- [x] **0C.4.2 — Do not add a second transient source identity model; use canonical MediaSegment/SourceExcerpt identity from machine context.**
-- [x] **0C.4.3 — Build one short source-backed sequence through the harness interface.**
-- [x] **0C.4.4 — Preserve SourceExcerpt wording, source ranges, media identity, and authored/source-backed distinction.**
-- [x] **0C.4.5 — Answer one missing/unsupported-material question from mocked relationships without building a Coverage Lens.**
-- [x] **0C.4.6 — Add deterministic source-preservation tests and one real CLI-process smoke test.**
-- [x] **0C.4.GATE — Source-backed material can be arranged through the external-harness interface without manual wiring or provenance loss.**
+- external harnesses can operate Salai through one narrow machine interface;
+- Salai should not own a general model/provider/session runtime merely to enable agent-mediated authoring;
+- agent-mediated authoring materially reduces the interaction burden exposed by 0B;
+- all machine canonical changes still pass through Salai-owned project semantics;
+- source-backed material remains source-backed;
+- direct and machine interaction can share one live canonical project;
+- harness/model history is not required to reconstruct Salai project state.
 
----
-
-# 0C.5 — Harness ↔ Narrative Lens round trip
-
-- [x] **0C.5.1 — Prove machine changes appear in all existing lenses through canonical state only.**
-- [x] **0C.5.2 — Make one meaningful direct lens edit after harness normalization.**
-- [x] **0C.5.3 — Prove the next harness `context` sees that direct edit with no export/import or conversation-memory dependency.**
-- [x] **0C.5.4 — Preserve Workspace-only Story Wall semantics.**
-- [x] **0C.5.5 — Add deterministic round-trip tests.**
-- [x] **0C.5.GATE — Harness and direct-lens work remain coherent over one live project with no shadow synchronization state.**
-
----
-
-# 0C.6 — Human validation
-
-- [ ] **0C.6.1 — Rough-paragraph script-first creation through an external harness.**
-- [ ] **0C.6.2 — Natural-language revision that would have required several 0B interactions.**
-- [ ] **0C.6.3 — Short source/interview task.**
-- [ ] **0C.6.4 — Incorrect interpretation → immediate revert.**
-- [ ] **0C.6.5 — Harness-normalized project → voluntary Narrative Lens → direct edit → follow-up harness request.**
-- [ ] **0C.6.6 — Record interaction-compression and voluntary-lens evidence.**
-- [ ] **0C.6.7 — Write the Spike 0C assessment with pass/fail evidence and evidence-backed next steps only.**
-- [ ] **0C.6.GATE — Human evidence shows materially lower routine interaction than 0B and at least one existing lens remains voluntarily useful.**
-
----
-
-# 0C.GATE
-
-Spike 0C passes only when:
-
-- [ ] an external harness can inspect and mutate the same live project as the UI through one Salai machine interface;
-- [ ] Salai contains no model/provider/auth/session runtime;
-- [ ] script-first authoring is materially lower-friction than routine 0B structure management;
-- [ ] all machine canonical changes pass through `SalaiProjectService` and `applyOperations()`;
-- [ ] invalid batches publish no partial canonical state;
-- [ ] source evidence remains source evidence;
-- [ ] one grouped machine action is immediately revertible without erasing later edits;
-- [ ] existing Narrative Lenses remain synchronized through canonical state;
-- [ ] at least one lens is voluntarily useful;
-- [ ] a direct lens edit is visible to the next harness request;
-- [ ] harness/model history is not required to reconstruct Salai project state;
-- [ ] no unvalidated second machine protocol, new lens, production graph, distributed-state system, or general agent framework was added;
-- [ ] CI is green.
-
-After the gate, run a Ponytail-equivalent review using the repository's prior multi-pass method plus the public minimalism ladder: YAGNI → reuse existing code → standard library → native platform → installed dependency → smallest implementation. Audit architecture/scope, dead/overbuilt code, duplication/legibility, performance, and maintenance. Write the resulting improvement plan, then restart this implementation loop from that plan.
+The next active product risk is no longer agent viability. It is the native structural-editorial environment defined in [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md).
