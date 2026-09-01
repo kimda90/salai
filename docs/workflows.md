@@ -2,114 +2,180 @@
 
 ## Status
 
-Living workflow behavior. Narrative Lens semantics live in [`narrative-lenses.md`](narrative-lenses.md); external-agent authoring behavior lives in [`agent-mediated-authoring.md`](agent-mediated-authoring.md).
+Living workflow behavior. Narrative semantics live in [`narrative-ir-spec.md`](narrative-ir-spec.md); validated external-agent behavior lives in [`agent-mediated-authoring.md`](agent-mediated-authoring.md); current structural-editorial validation is tracked in [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md).
 
 ## Core interaction rule
 
 > **Hide structural bookkeeping, not narrative structure.**
 
-Creators express ordinary intent through their agent harness without manually managing IDs, parent references, operation types, or object wiring. They enter a Narrative Lens when that representation helps them think or manipulate the story directly.
+Creators can express ordinary intent through an external agent harness without manually managing IDs, parent references, operation types, or object wiring. They can also work directly when a representation contributes to the creative decision.
+
+Spike 0D adds a second core rule:
+
+> **The story must be playable inside Salai without giving timeline-engine state ownership of the project.**
 
 ## Default loop
 
 ```text
-creator expresses intent in external harness
+creator expresses intent or edits directly
         ↓
-harness inspects Salai through machine interface
+Salai canonical project
         ↓
-harness requests validated Salai changes
+semantic timeline / other useful representation
+        ↓
+play and judge the result
+        ↓
+reshape directly or through external harness
         ↓
 canonical project
-        ↓
-continue in harness or open a Narrative Lens
-        ↓
-direct lens edit if useful
-        ↓
-next harness request reads current Salai state
 ```
 
-No export/import or chat-history synchronization is required between harness and lens work.
+No export/import or chat-history synchronization is required between agent and UI work.
 
 ## Script-first
 
 ```text
-rough idea / prose in harness
+rough idea / prose
       ↓
-Salai machine interface
+external harness or direct Salai input
       ↓
 usable canonical structure
       ↓
-ordinary-language revision in harness
+semantic timeline projection
       ↓
-optional Narrative Lens
+playable rough assembly as media becomes available
 ```
 
-The creator should not manually create/parent every Beat/Cue for the representative 0C scenario. Existing IDs remain stable when meaning is unchanged.
+The creator should not manually create/parent every Beat/Cue for routine story changes. Existing IDs remain stable when meaning is unchanged.
 
 ## Footage/source-first
 
 ```text
-source fixture/context + story intention
+source context / media / transcript
       ↓
-external harness
-      ↓
-Salai machine interface
+external harness or direct source selection
       ↓
 canonical narrative + source evidence
       ↓
-optional lens/direct edit
+semantic timeline
+      ↓
+play / reorder / trim while preserving source identity
 ```
 
-Recorded wording/ranges remain source evidence; authored bridges remain authored. Mocked source metadata is sufficient for 0C.
+Recorded wording/ranges remain source evidence; authored bridges remain authored.
 
-## Harness → lens
+## Agent ↔ temporal UI
 
-Machine changes are visible in every lens because both use the same project service/canonical state.
+Agent changes are visible on the semantic timeline because both use the same project service/canonical state.
 
-## Lens → harness
-
-A direct lens edit changes current Narrative IR or justified Workspace state. The next machine `context` call returns that current state; the harness does not need a separate synchronization record.
+A direct temporal edit changes Salai state through canonical operations. The next machine `context` read sees that current state; the harness does not require a separate synchronization record.
 
 Examples:
 
-- move sourced material in Paper/Radio, then ask the harness to tighten authored material around it;
-- adjust audiovisual realization, then ask for a simpler surrounding Beat;
-- restructure hierarchy in Outline, then continue the story through the harness.
+- ask the harness to move a payoff earlier, then play the new timing;
+- trim a SourceExcerpt directly on the semantic timeline, then ask the harness to tighten authored material around it;
+- move a Cue while planning audiovisual rhythm, then continue through the harness;
+- ask the harness to identify unsupported material, then inspect the explicit missing moment in the timeline.
+
+## Semantic timeline workflow
+
+The 0D timeline is a projection of Salai meaning into time, not a generic clip document.
+
+At broad scale it should expose narrative regions such as Sections/Beats. At closer scale it exposes Cues and available source/media realization.
+
+Direct temporal gestures are interpreted before state changes occur:
+
+```text
+Timeline gesture
+      ↓
+Salai intent interpretation
+      │
+      ├── canonical narrative/source operation
+      │       ↓
+      │   Narrative IR
+      │
+      └── UI/view-only change
+              ↓
+          viewport/focus only
+```
+
+Examples:
+
+```text
+Move Beat temporal region
+→ moveBeat canonical operation
+
+Move Cue temporal region
+→ moveCue canonical operation
+
+Trim SourceExcerpt edge
+→ trimSourceExcerpt canonical operation
+
+Zoom timeline
+→ UI state only
+
+Seek playhead
+→ viewer/UI state only
+```
+
+Engine-specific interactions that cannot be represented safely in Salai semantics must not silently create divergent renderer state.
+
+## Playback/review
+
+The creator can play the rough audiovisual assembly in Salai and use playback as a story-development loop:
+
+```text
+construct
+   ↓
+play
+   ↓
+notice pacing / evidence / realization problem
+   ↓
+change canonical story/source structure
+   ↓
+play again
+```
+
+0D only requires enough picture/audio assembly to validate this loop. Specialist finishing remains downstream.
 
 ## Workspace vs narrative change
 
 Story Wall x/y position and parking are Workspace semantics, not canonical narrative order. Spatial movement must not silently reorder the story. Explicit narrative reorder remains a canonical operation.
 
-## Narrative Lenses
+The same principle applies to future spatial Story Spine work: physical proximity is not automatically semantic relation.
 
-0C reuses:
+## Existing structured views
+
+0B/0C validated:
 
 - Outline;
 - Story Wall;
 - AV Script;
 - Paper / Radio Edit.
 
-A new Coverage Lens is deferred until the production graph exists. 0C may answer a simple missing/unsupported-material question from mocked relationships.
+These remain valid ways of perceiving/manipulating one canonical project, but the product no longer assumes they are the final top-level navigation model.
 
-## Resolve
+0D tests the temporal surface first. A future Story Spine/Arrange experiment follows only if the semantic temporal spine proves useful.
+
+## Downstream finishing
 
 ```text
-creative work in Salai
+creative + structural editorial work in Salai
         ↓
-canonical state
+canonical state / structural assembly
         ↓
-explicit materialization decision
+explicit materialization/interchange decision
         ↓
-Resolve adapter
-        ↓
-DaVinci Resolve
+optional specialist NLE
 ```
 
-Neither harness instructions nor a Narrative Lens bypass canonical Salai state to mutate Resolve directly.
+Neither harness instructions nor direct temporal UI bypass canonical Salai state to mutate a downstream NLE directly.
 
-## 0C workflow proof
+## Current 0D workflow proof
 
-1. rough prose → canonical story → harness-driven revision;
-2. fixture-backed source context → source-preserving structure;
-3. one grouped harness change → summary → immediate revert;
-4. harness-normalized project → existing lens → direct edit → follow-up harness request.
+1. canonical fixture → semantic timeline;
+2. timeline → playable rough assembly without Resolve;
+3. play → identify one pacing/realization issue;
+4. direct temporal edit → canonical operation → replay;
+5. external-harness change → canonical state → replay;
+6. direct temporal edit → next harness context sees the result.
