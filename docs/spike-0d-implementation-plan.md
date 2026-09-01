@@ -2,7 +2,7 @@
 
 ## Status
 
-**Current validation iteration.**
+**Current validation iteration. 0D.0 complete; 0D.1 next.**
 
 This file is the canonical execution tracker for Spike 0D. It owns 0D task numbering, implementation order, completion state, and exit evidence.
 
@@ -119,9 +119,9 @@ Use small local fixture media suitable for deterministic development/test execut
 # Merge sequence
 
 ```text
-0D.0  Timeline/playback adapter boundaries
+0D.0  Timeline/playback adapter boundaries     [complete]
   ↓
-0D.1  Semantic timeline projection
+0D.1  Semantic timeline projection             [next]
   ↓
 0D.2  Playable rough assembly
   ↓
@@ -140,12 +140,14 @@ implementation review / next evidence-backed plan
 
 # 0D.0 — Adapter boundaries and fixture
 
-- [ ] **0D.0.1 — Add the deterministic audiovisual fixture.**
-- [ ] **0D.0.2 — Define a Salai-owned timeline projection type that references canonical IDs without becoming persistence.**
-- [ ] **0D.0.3 — Add a thin adapter from Salai timeline projection to `@moritzbrantner/timeline-editor`.**
-- [ ] **0D.0.4 — Add a thin adapter from current assembly projection to `@elah/core`.**
-- [ ] **0D.0.5 — Add architecture tests proving third-party timeline/Elah objects are derived and replaceable.**
-- [ ] **0D.0.GATE — A canonical fixture can be projected into timeline UI and playback infrastructure without a second Salai project model.**
+- [x] **0D.0.1 — Add the deterministic audiovisual fixture.**
+- [x] **0D.0.2 — Define a Salai-owned timeline projection type that references canonical IDs without becoming persistence.**
+- [x] **0D.0.3 — Add a thin adapter from Salai timeline projection to `@moritzbrantner/timeline-editor`.**
+- [x] **0D.0.4 — Add a thin adapter from current assembly projection to `@elah/core`.**
+- [x] **0D.0.5 — Add architecture tests proving third-party timeline/Elah objects are derived and replaceable.**
+- [x] **0D.0.GATE — A canonical fixture can be projected into timeline UI and playback infrastructure without a second Salai project model.**
+
+Evidence: PR #63 CI run 189 completed dependency installation, TypeScript checking, unit tests, and build successfully. The fixture validates against the canonical Narrative IR, source ranges survive projection, and mutation of the derived timeline-editor document does not mutate or replace the Salai project. The Elah project is regenerated deterministically from the same Salai projection and fixture-only media registry.
 
 ---
 
