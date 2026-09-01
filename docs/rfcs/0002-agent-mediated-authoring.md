@@ -2,7 +2,9 @@
 
 ## Status
 
-Proposed. Validate through Spike 0C before acceptance.
+**Accepted by Spike 0C.**
+
+Implementation/human evidence: [`../spike-0c-assessment.md`](../spike-0c-assessment.md).
 
 Accepted architectural baseline: one canonical Narrative IR with synchronized Projections/Workspaces (ADR 0005) and an external harness operating through a Salai-owned project/machine boundary (ADR 0008).
 
@@ -11,25 +13,25 @@ Accepted architectural baseline: one canonical Narrative IR with synchronized Pr
 Salai combines:
 
 - **external-agent-mediated low-friction authoring** for ordinary intent expression and routine structural normalization; and
-- **Narrative Lenses** for deliberate structural perception and direct manipulation.
+- **human semantic representations** for deliberate structural perception and direct manipulation.
 
 Core principle:
 
 > **Hide structural bookkeeping, not narrative structure.**
 
-Harness conversation/history and Narrative Lenses are not separate sources of story truth.
+Harness conversation/history and human projections are not separate sources of story truth.
 
-## Proposal
+## Accepted interaction model
 
 ### Shared application boundary
 
 Human UI and machine integrations operate on the same authoritative project through `SalaiProjectService`.
 
 ```text
-Narrative Lenses ───────────┐
-                            ↓
-                    SalaiProjectService
-                            ↑
+human UI ──────────────────┐
+                           ↓
+                   SalaiProjectService
+                           ↑
 external harness → Salai machine interface
 ```
 
@@ -39,7 +41,9 @@ The service provides task-relevant context, applies canonical changes, and publi
 
 Model/provider selection, authentication, conversation history, planning, and tool-loop behavior remain outside Salai.
 
-Salai exposes one CLI-oriented machine interface in 0C. Add MCP only after a concrete later need. A Skill may teach a harness how to use the machine interface but does not own capability or state.
+Salai exposes one CLI-oriented machine interface as the first validated protocol. Add MCP or another protocol only after a concrete integration requires it. A Skill may teach a harness how to use the interface but does not own capability or state.
+
+Spike 0C human validation used Codex successfully. Codex is evidence for the boundary, not a mandatory product dependency.
 
 ### Canonical changes
 
@@ -63,7 +67,7 @@ Add a higher-level Salai command only when a real scenario requires Salai-owned 
 
 ### Live browser-project bridge
 
-The current spike UI owns project state in the browser. A minimal local request/response bridge is allowed so the external CLI can reach that same live project service.
+The current prototype UI owns project state in the browser. A minimal local request/response bridge lets the external CLI reach that same live project service.
 
 The bridge carries requests/results only. It owns no narrative project, model session, or persistence and does not justify distributed-state infrastructure.
 
@@ -75,29 +79,43 @@ One harness request may contain several operations but appears as one creative a
 - keep the pre-action project/Workspace snapshot;
 - show a concise action summary;
 - allow immediate one-step revert while no later project/Workspace edit has occurred;
-- invalidate the revert on any later machine or direct-lens edit.
+- invalidate the revert on any later machine or direct edit.
 
-Do not add a general event-history/inverse-operation architecture for 0C.
+This does not require general event sourcing.
 
 ### Source evidence
 
 Recorded evidence remains recorded evidence. Machine-driven changes may arrange/select or explicitly trim source excerpts using existing canonical rules but must not silently turn SourceExcerpt wording/ranges into authored copy.
 
-### Narrative Lenses
+### Human UI continuity
 
-Existing lenses reflect machine changes through shared canonical state. Direct lens edits use the same project/Workspace boundary and must be visible to the next harness context read without export/import or chat-memory synchronization.
+Human projections reflect machine changes through shared canonical state. Direct edits use the same project/Workspace boundary and are visible to the next harness context read without export/import or chat-memory synchronization.
 
 Workspace-only intent remains Workspace-only.
 
-### Resolve boundary
+### Structural-editorial continuation
 
-Harness instructions and lens edits change canonical Salai state first. Resolve automation remains downstream behind the Salai Resolve adapter.
+ADR 0009 changes the downstream product boundary but does not change the accepted agent architecture.
 
-## Alternatives considered
+In Spike 0D the same flow continues into the semantic timeline:
+
+```text
+external harness
+      ↓
+SalaiProjectService
+      ↓
+canonical narrative/source change
+      ↓
+semantic timeline / playback
+```
+
+The harness never manipulates third-party timeline/rendering state as project truth.
+
+## Alternatives rejected
 
 ### Routine direct structured manipulation
 
-Rejected by 0B human evidence as too interaction-heavy. Structured surfaces remain Narrative Lenses.
+Rejected by 0B human evidence as too interaction-heavy for ordinary authoring.
 
 ### Hide all structure behind chat
 
@@ -109,61 +127,26 @@ Rejected by ADR 0008. It makes Salai own provider/auth/session infrastructure in
 
 ### Direct project-file editing by the harness
 
-Rejected. It bypasses application validation, Workspace ownership, grouped-action behavior, and future persistence policy.
+Rejected. It bypasses application validation, Workspace ownership, grouped-action behavior, and persistence policy.
 
-### Build CLI and MCP together
+### Build CLI and MCP together without evidence
 
-Rejected. One machine interface is sufficient for 0C.
+Rejected. One machine interface was sufficient for 0C.
 
 ### Distributed-state infrastructure
 
-Rejected. One local authoritative project and serialized mutations are enough for this spike.
+Rejected. One local authoritative project and serialized mutations are enough for the validated flow.
 
-## Consequences
+## Evidence / outcome
 
-Benefits:
+Spike 0C implementation and human validation established that:
 
-- interaction burden can scale with creative decisions rather than operation count;
-- Salai avoids generic model/auth/chat infrastructure;
-- users can bring an existing harness/account/model setup;
-- human and machine edits share one semantic model/validation path;
-- Narrative Lenses remain direct creative tools;
-- project continuity does not depend on harness history.
+- an external harness can inspect and mutate the same live Salai project as the UI;
+- script-first and source-backed changes can resolve through canonical operations;
+- grouped changes can remain atomic/revertible;
+- source evidence can remain source-backed;
+- human and machine edits share one project;
+- a fresh harness can reason from current Salai state rather than conversation history;
+- using Codex as the harness materially reduced routine structural interaction compared with 0B.
 
-Risks:
-
-- model interpretation can be wrong;
-- the local bridge may add temporary prototype glue;
-- a higher-level command can accidentally grow into a second mutation language;
-- an external harness may require clear instructions/Skill guidance to use Salai semantics reliably;
-- immediate snapshot revert is intentionally limited, not a general undo system.
-
-## Spike 0C validation
-
-Validate only:
-
-1. external harness can inspect/mutate the same live project as the UI;
-2. one script-first creation/revision flow;
-3. one fixture-backed source flow;
-4. one grouped multi-operation action + immediate revert;
-5. source evidence preserved;
-6. one harness-normalized project → existing lens → direct edit → follow-up harness request;
-7. a fresh harness session can continue from current Salai state;
-8. human evidence of materially lower routine interaction than 0B;
-9. human evidence that at least one lens provides useful structural insight.
-
-Executable tasks are canonical in [`../spike-0c-implementation-plan.md`](../spike-0c-implementation-plan.md).
-
-## Open questions
-
-1. Which creation/reference scenario first justifies a higher-level Salai command?
-2. What is the smallest local bridge that allows a CLI to reach the live browser-owned project service?
-3. Is serialized mutation enough throughout 0C or does a stale-write case justify revisions?
-4. What history/undo behavior is needed beyond immediate revert?
-5. Does the external harness need a formal Skill after the raw CLI workflow is tested?
-6. Does messy agent-mediated input expose a Narrative IR semantic gap?
-7. Which existing lenses remain useful enough to justify continued investment?
-
-## Decision / outcome
-
-Pending Spike 0C implementation and human validation.
+The proposal is therefore accepted and carried forward as the external-agent interaction architecture.
