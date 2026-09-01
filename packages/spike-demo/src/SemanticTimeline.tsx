@@ -19,6 +19,7 @@ import {
   type FixtureMediaSource,
 } from "./semantic-editorial-fixture";
 import { resolveSemanticAssemblyAtMs } from "./semantic-playback-model";
+import { interpretSemanticTimelineDocumentChange } from "./semantic-timeline-edit";
 import { SemanticViewer } from "./SemanticViewer";
 import { toTimelineEditorDocument } from "./timeline-editor-adapter";
 import { projectNarrativeToTimeline } from "./timeline-projection";
@@ -48,6 +49,7 @@ export function SemanticTimeline() {
     scrollLeftMs: 0,
   });
   const [fixtureAudioUrl, setFixtureAudioUrl] = useState<string | null>(null);
+  const [editFeedback, setEditFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     if (state.fixtureKey !== "semantic-editorial") {
@@ -106,6 +108,30 @@ export function SemanticTimeline() {
     controller.select(canonicalSelectionFromTimelineSelection(document, next));
   };
 
+  const handleDocumentChange = (nextDocument: typeof document) => {
+    const interpretation = interpretSemanticTimelineDocumentChange(
+      state.project,
+      document,
+      nextDocument,
+    );
+
+    if (interpretation.kind === "noop") return;
+    if (interpretation.kind === "rejected") {
+      setEditFeedback(`Not applied: ${interpretation.reason}`);
+      return;
+    }
+
+    playback.pause();
+    const accepted = controller.dispatchNarrativeBatch(interpretation.operations, {
+      revertible: true,
+    });
+    setEditFeedback(
+      accepted
+        ? `${interpretation.summary}. Reprojected from canonical Salai state.`
+        : "Not applied: canonical Salai validation rejected the timeline gesture.",
+    );
+  };
+
   return (
     <section className="semantic-timeline-surface" aria-label="Semantic timeline">
       <header className="semantic-timeline-header">
@@ -113,8 +139,9 @@ export function SemanticTimeline() {
           <span className="semantic-timeline-eyebrow">PLAY · SEMANTIC TIME</span>
           <h2>Story in time</h2>
           <p>
-            The canonical story is materialized into a rough assembly for playback. The viewer
-            and timeline share one derived playhead; the timeline engine still owns no project truth.
+            Drag Beats or Cues to reorder story structure. In Media view, trim a SourceExcerpt
+            edge to change its canonical evidence range. Every accepted gesture is reprojected
+            from Salai state; engine-only edits are discarded.
           </p>
         </div>
         <div className="semantic-timeline-runtime">
@@ -147,7 +174,10 @@ export function SemanticTimeline() {
               type="button"
               className={zoom === option.key ? "active" : ""}
               aria-pressed={zoom === option.key}
-              onClick={() => setZoom(option.key)}
+              onClick={() => {
+                setZoom(option.key);
+                setEditFeedback(null);
+              }}
             >
               <strong>{option.label}</strong>
               <span>{option.description}</span>
@@ -167,13 +197,20 @@ export function SemanticTimeline() {
         </div>
       </div>
 
+      {editFeedback ? (
+        <p className="semantic-timeline-edit-feedback" role="status">
+          {editFeedback}
+        </p>
+      ) : null}
+
       <div className="semantic-timeline-editor-frame" data-semantic-zoom={zoom}>
         <TimelineEditor
           document={document}
           selection={selection}
           viewport={viewport}
           frameRate={30}
-          readOnly
+          editPolicy={{ overlap: "allow", ripple: false }}
+          onDocumentChange={handleDocumentChange}
           onSelectionChange={handleSelectionChange}
           onViewportChange={setViewport}
           onCurrentTimeChange={playback.seekMs}
