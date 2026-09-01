@@ -1,12 +1,12 @@
 # Salai Glossary
 
-Canonical product/domain terminology. Implementation constraints belong in [`narrative-ir-spec.md`](narrative-ir-spec.md); detailed Narrative Lens behavior belongs in [`narrative-lenses.md`](narrative-lenses.md).
+Canonical product/domain terminology. Implementation constraints belong in [`narrative-ir-spec.md`](narrative-ir-spec.md); current structural-editorial execution belongs in [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md).
 
 ## Narrative terms
 
 ### Script
 
-Canonical semantic narrative structure for a Salai project. It is not a particular editor document, chat transcript, or screenplay format.
+Canonical semantic narrative structure for a Salai project. It is not a particular editor document, chat transcript, screenplay format, or third-party timeline document.
 
 ### Section
 
@@ -52,17 +52,57 @@ Concrete media or production artifact such as captured footage, audio, still, ge
 
 ### Coverage
 
-State of how narrative/ShotIntent needs are or are not realized by available production material. The production graph and dedicated Coverage Lens are later than Spike 0C.
+State of how narrative/ShotIntent needs are or are not realized by available production material. A dedicated Coverage representation is introduced only when real production-graph workflows prove what form it should take.
 
 ### ResolveBinding
 
-Persisted mapping between Salai identity and corresponding DaVinci Resolve project/timeline/media identity when integration is implemented.
+Persisted mapping between Salai identity and corresponding DaVinci Resolve project/timeline/media identity when Resolve integration is used. ResolveBinding is optional downstream integration state, not part of Salai's core editing requirement.
+
+## Structural editorial terms
+
+### Structural editorial
+
+Salai-owned temporal/media editing required to construct, play, judge, and revise an audiovisual story while preserving narrative and source identity.
+
+The accepted boundary includes semantic timeline/playback, rough assembly, narrative/media reorder, source-range trimming, and basic picture/audio arrangement as validated by workflows.
+
+It explicitly does not imply full specialist-NLE finishing such as advanced precision trim, multicam, compositing, color, full audio post, mastering, or delivery.
+
+### Semantic timeline
+
+Temporal projection of Salai-owned narrative/source state that keeps Section/Beat/Cue identity and relevant media/source realization visible in actual time.
+
+The semantic timeline is a product interaction surface, not a separate canonical timeline document. Third-party timeline-library data is derived from Salai state.
+
+### Structural assembly
+
+Current playable rough audiovisual arrangement derived from Salai canonical state and any justified structural-editorial state.
+
+It is sufficient to experience the story in time. Renderer-specific tracks/clips/caches used to play it are materialization details, not canonical project truth.
+
+### Timeline projection
+
+Salai-owned derived representation used to map canonical semantic identity into a timeline UI. It references stable Salai IDs and can be regenerated from current project state.
+
+### Playback materialization
+
+Conversion of current Salai structural assembly into the engine-specific representation required to play/render it.
+
+Playback materialization is replaceable and downstream of Salai semantics.
+
+### Specialist NLE
+
+A downstream editing/finishing environment such as DaVinci Resolve used for capabilities beyond Salai's structural-editorial boundary: precision editorial, advanced post, compositing, color, audio finishing, mastering, and delivery.
+
+Specialist NLE use is optional for Salai's core product workflow.
 
 ## Interaction terms
 
 ### Agent-mediated authoring
 
-Current low-friction interaction hypothesis: the user expresses creative intent through working text, natural-language instructions, and relevant media/source context while Salai normalizes committed meaning into canonical project changes.
+Validated low-friction interaction capability: the user expresses creative intent through working text, natural-language instructions, and relevant media/source context while an external harness interprets the task and Salai applies validated canonical project changes.
+
+Spike 0C human validation using Codex demonstrated that this interaction works correctly and materially reduces routine structural bookkeeping.
 
 The agent is an interaction/normalization layer, not a second source of project truth.
 
@@ -80,7 +120,7 @@ Media/document/reference handle supplied to the current authoring context. Early
 
 ### Agent action
 
-One user-understandable agent-applied change that may contain several canonical `NarrativeOperation`s. In Spike 0C it is the unit for change summary and one-step revert.
+One user-understandable agent-applied change that may contain several canonical `NarrativeOperation`s. Spike 0C validated grouped apply/revert behavior around this unit.
 
 ### Graduated autonomy
 
@@ -90,13 +130,13 @@ Trust policy in which clearly requested reversible local changes may apply as gr
 
 Structured representation of the same canonical project that deliberately emphasizes one aspect of the narrative system so the creator can perceive/manipulate it from that angle.
 
-Existing lenses: Outline, Story Wall, AV Script, Paper/Radio Edit. Later candidates include Coverage and Frame Wall/Selects.
+0B/0C validated Outline, Story Wall, AV Script, and Paper/Radio Edit as coherent lenses over one project. They are not assumed to be the final top-level product navigation after the structural-editorial pivot.
 
 A lens may be implemented as a Projection, Workspace, or combination. “Lens” describes creative purpose; Projection/Workspace describe state ownership.
 
 ### Projection
 
-Deterministic presentation derived from canonical project data. It owns no independent narrative truth. Existing examples include Outline, AV Script, and Paper/Radio Edit.
+Deterministic presentation derived from Salai-owned project data. It owns no independent narrative truth. Existing examples include Outline, AV Script, Paper/Radio Edit, and the 0D semantic timeline projection.
 
 ### Workspace
 
@@ -128,7 +168,7 @@ Narrative Lens/Projection for Beat/Cue visual/audio realization and timing.
 
 ### Paper Edit
 
-Source-evidence Narrative Lens/Projection for arranging and inspecting recorded excerpts, authored bridges, source identity, and narrative placement before timeline commitment.
+Source-evidence Narrative Lens/Projection for arranging and inspecting recorded excerpts, authored bridges, source identity, and narrative placement.
 
 ### Radio Edit
 
@@ -142,17 +182,21 @@ Later spatial Narrative Lens/Workspace candidate for comparing representative fr
 
 ### Narrative IR
 
-Versioned semantic representation that keeps narrative identity stable across authoring, source evidence, production planning, Narrative Lenses, and later editorial integration.
+Versioned semantic representation that keeps narrative identity stable across authoring, source evidence, production planning, semantic projections, structural editorial, and later downstream integration.
 
 ### SalaiController
 
 Application boundary currently coordinating canonical Narrative IR, Workspace state, selection, feedback, and UI publication without redefining domain semantics.
 
+### SalaiProjectService
+
+Product-level name for the shared application boundary used by human UI and machine clients. The current implementation may remain the existing controller rather than adding a redundant state owner.
+
 ## Spike terms
 
 ### Spike 0A
 
-Pure-TypeScript experiment that validated the Narrative IR before UI, persistence, Resolve, or real AI integration. **Complete/pass.**
+Pure-TypeScript experiment that validated the Narrative IR before UI, persistence, downstream NLE integration, or real AI integration. **Complete/pass.**
 
 ### Spike 0B
 
@@ -160,4 +204,8 @@ Structured-authoring UX experiment over Story Wall, Outline, AV Script, and Pape
 
 ### Spike 0C
 
-Current agent-mediated authoring + Narrative Lens experiment. It validates one script-first flow, one fixture-backed source flow, grouped apply/revert, one agent↔existing-lens round trip, and human evidence of interaction compression plus structural insight.
+External-agent authoring experiment. Human validation using Codex confirmed that an external harness can operate the live Salai project correctly and make routine structural interaction materially more convenient while Salai remains canonical. **Complete/pass.**
+
+### Spike 0D
+
+Current semantic-editorial experiment. It validates a playable semantic timeline, rough structural assembly, direct temporal editing through Salai operations, and agent ↔ temporal UI coherence without requiring Resolve. **Current.**
