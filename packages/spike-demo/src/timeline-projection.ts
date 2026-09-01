@@ -25,6 +25,8 @@ export type SalaiTimelineItem = {
   startMs: number;
   durationMs: number;
   salaiRef: TimelineSalaiRef;
+  sectionId?: string;
+  beatId?: string;
   cueId?: string;
   mediaSegmentId?: string;
   sourceInMs?: number;
@@ -110,6 +112,7 @@ export function projectNarrativeToTimeline(
       startMs: sectionStartMs,
       durationMs: sectionDurationMs,
       salaiRef: { type: "section", id: sectionId },
+      sectionId,
     });
 
     let beatStartMs = sectionStartMs;
@@ -126,6 +129,8 @@ export function projectNarrativeToTimeline(
         startMs: beatStartMs,
         durationMs: beatDurationMs,
         salaiRef: { type: "beat", id: beatId },
+        sectionId,
+        beatId,
       });
 
       let cueStartMs = beatStartMs;
@@ -142,6 +147,8 @@ export function projectNarrativeToTimeline(
           startMs: cueStartMs,
           durationMs: cueDurationMs,
           salaiRef: { type: "cue", id: cueId },
+          sectionId,
+          beatId,
           cueId,
         });
 
@@ -163,6 +170,8 @@ export function projectNarrativeToTimeline(
             startMs: cueStartMs,
             durationMs: cueDurationMs,
             salaiRef: { type: "media-segment", id: segment.id },
+            sectionId,
+            beatId,
             cueId,
             mediaSegmentId: segment.id,
             sourceInMs: segment.sourceInMs,
@@ -179,6 +188,8 @@ export function projectNarrativeToTimeline(
             startMs: cueStartMs,
             durationMs: cueDurationMs,
             salaiRef: { type: "cue", id: cueId },
+            sectionId,
+            beatId,
             cueId,
           });
         }
@@ -195,6 +206,8 @@ export function projectNarrativeToTimeline(
             startMs: cueStartMs,
             durationMs: cueDurationMs,
             salaiRef: { type: "block", id: block.id },
+            sectionId,
+            beatId,
             cueId,
             mediaSegmentId: block.mediaSegmentId,
             sourceInMs: block.sourceInMs,
