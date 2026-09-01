@@ -2,7 +2,7 @@
 
 ## Status
 
-**Current validation iteration. 0D.0–0D.1 complete; 0D.2 next.**
+**Current validation iteration. 0D.0–0D.2 complete; 0D.3 next.**
 
 This file is the canonical execution tracker for Spike 0D. It owns 0D task numbering, implementation order, completion state, and exit evidence.
 
@@ -38,36 +38,23 @@ Validate that Salai can turn its existing semantic narrative state into a **play
 
 Use [`@moritzbrantner/timeline-editor`](https://github.com/moritzbrantner/timeline-editor) (MIT) as the controlled React timeline interaction layer.
 
-Reasons:
-
-- host-owned document/selection/viewport/history state;
-- replaceable React clip/track/header rendering;
-- move/resize/split/playhead/ruler/zoom mechanics already implemented;
-- source-range, waveform, thumbnail, marker, and transport support available without making its document model canonical.
-
-Salai will feed it a **derived timeline projection**. Timeline-editor serialization/history are not Salai project persistence.
+Salai feeds it a **derived timeline projection**. Timeline-editor serialization/history are not Salai project persistence.
 
 ### Playback/materialization
 
-Use [`@elah/core`](https://github.com/elahlabs/elah) from Elah (Apache-2.0) as the first playback/rendering adapter.
+Use [`@elah/core`](https://github.com/elahlabs/elah) (Apache-2.0) as the first playback/rendering adapter.
 
-Reasons:
+Salai derives an Elah playback project from current canonical/assembly state. Elah project state is not canonical Salai state.
 
-- browser-native deterministic playback architecture;
-- frame-based timeline resolution;
-- media playback/export infrastructure already exists;
-- core is renderer-oriented infrastructure rather than a Salai domain model;
-- Apache-2.0 licensing is compatible with a replaceable spike dependency.
-
-Salai will derive an Elah playback project from current canonical/assembly state. Elah project state is not canonical Salai state.
+`@elah/core@0.4.1` ships extensionless ESM imports that Node cannot load directly during Vitest externalization. The package remains behind the adapter and is explicitly inlined through Vite for tests; Salai does not patch/fork the dependency or make its package format part of project semantics.
 
 ### Spatial exploration
 
-Do **not** add a canvas dependency in the first 0D slice. The semantic-timeline risk is tested first. Excalidraw remains the preferred MIT reference for a later Story Spine/Arrange experiment after the temporal loop passes.
+Do **not** add a canvas dependency in the first 0D sequence. The semantic-timeline risk is tested first. Excalidraw remains the preferred MIT reference for a later Story Spine/Arrange experiment after the temporal loop passes.
 
 ## State boundary
 
-0D must keep three kinds of state distinct.
+0D keeps three kinds of state distinct.
 
 ### 1. Canonical semantic state
 
@@ -86,7 +73,7 @@ Owned by Salai UI/Workspace as appropriate:
 - timeline zoom/viewport;
 - collapsed semantic levels;
 - temporary filters/overlays;
-- current viewer state that has no project meaning.
+- viewer/playhead state that has no project meaning.
 
 ### 3. Playback/materialization projection
 
@@ -102,19 +89,18 @@ Third-party timeline or renderer document formats must never become the authorit
 
 ## Minimum fixture
 
-Use one deterministic project that contains enough semantic/media pressure to test the pivot:
+The deterministic 0D fixture contains:
 
-- at least two Sections;
-- several Beats with different estimated durations;
-- multiple Cues inside at least one Beat;
+- two Sections;
+- four Beats with different explicit durations;
+- five Cues, including two within one Beat;
 - authored speech;
-- at least two SourceExcerpts with stable source ranges;
-- visual media associated with several Cues;
-- at least one intentionally unsupported/missing visual moment;
-- at least one replaceable media choice represented with the smallest temporary mechanism necessary for the experiment;
-- picture and audio that can be played as one rough assembly.
+- two SourceExcerpts with stable source ranges;
+- visual media associated with four Cues;
+- one intentionally unsupported/missing visual moment;
+- deterministic picture and generated local WAV audio that can be played as one rough assembly.
 
-Use small local fixture media suitable for deterministic development/test execution. Do not introduce production proxy/cache infrastructure for this spike.
+No production proxy/cache architecture is introduced for this spike.
 
 # Merge sequence
 
@@ -123,9 +109,9 @@ Use small local fixture media suitable for deterministic development/test execut
   ↓
 0D.1  Semantic timeline projection             [complete]
   ↓
-0D.2  Playable rough assembly                  [next]
+0D.2  Playable rough assembly                  [complete]
   ↓
-0D.3  Structural editing round trip
+0D.3  Structural editing round trip            [next]
   ↓
 0D.4  Agent ↔ timeline round trip
   ↓
@@ -147,7 +133,7 @@ implementation review / next evidence-backed plan
 - [x] **0D.0.5 — Add architecture tests proving third-party timeline/Elah objects are derived and replaceable.**
 - [x] **0D.0.GATE — A canonical fixture can be projected into timeline UI and playback infrastructure without a second Salai project model.**
 
-Evidence: PR #63 CI run 189 completed dependency installation, TypeScript checking, unit tests, and build successfully. The fixture validates against the canonical Narrative IR, source ranges survive projection, and mutation of the derived timeline-editor document does not mutate or replace the Salai project. The Elah project is regenerated deterministically from the same Salai projection and fixture-only media registry.
+Evidence: PR #63 CI run 189 completed dependency installation, TypeScript checking, unit tests, and build successfully. The fixture validates against canonical Narrative IR, source ranges survive projection, mutation of the derived timeline-editor document does not mutate Salai state, and the Elah project rebuilds deterministically from the Salai projection.
 
 ---
 
@@ -165,7 +151,7 @@ Represent narrative structure in actual time without reducing the project to gen
 - [x] **0D.1.6 — Add deterministic projection tests for identity, ordering, timing, and missing material.**
 - [x] **0D.1.GATE — The timeline visibly communicates narrative meaning + audiovisual timing rather than looking like an ordinary media-track editor with labels added.**
 
-Evidence: PR #64 CI run 193 passed TypeScript, unit tests, and build against the published timeline-editor 1.0.0 contract. The Timeline surface exposes three semantic scales: Story (Sections/Beats), Moments (Beats/Cues), and Media (Cues/visual/source realization). Selection remains canonical while the visible timeline anchor changes to the nearest semantic ancestor/descendant. Media/source selections resolve back to their enclosing Cue, and unsupported visual material is rendered as an explicit `missing-visual` item. The engine remains read-only, so no timeline-only mutation path exists in this slice.
+Evidence: PR #64 CI run 193 passed TypeScript, unit tests, and build against the published timeline-editor 1.0.0 contract. The Timeline surface exposes Story (Sections/Beats), Moments (Beats/Cues), and Media (Cues/visual/source realization) semantic scales. Selection remains canonical while the visible anchor changes to the nearest semantic ancestor/descendant. Media/source selections resolve to their enclosing Cue, and unsupported visual material is explicit.
 
 ---
 
@@ -175,13 +161,15 @@ Evidence: PR #64 CI run 193 passed TypeScript, unit tests, and build against the
 
 Let the filmmaker experience the current Salai story in time without Resolve.
 
-- [ ] **0D.2.1 — Play/pause the current rough assembly.**
-- [ ] **0D.2.2 — Scrub/seek from the semantic timeline.**
-- [ ] **0D.2.3 — Keep viewer/playhead/timeline state synchronized.**
-- [ ] **0D.2.4 — Play SourceExcerpt audio from its canonical source range.**
-- [ ] **0D.2.5 — Play simple picture + audio arrangement for the fixture.**
-- [ ] **0D.2.6 — Represent missing visuals with an explicit placeholder rather than silent failure.**
-- [ ] **0D.2.GATE — The user can watch the narrative assembly and identify timing/realization problems without leaving Salai.**
+- [x] **0D.2.1 — Play/pause the current rough assembly.**
+- [x] **0D.2.2 — Scrub/seek from the semantic timeline.**
+- [x] **0D.2.3 — Keep viewer/playhead/timeline state synchronized.**
+- [x] **0D.2.4 — Play SourceExcerpt audio from its canonical source range.**
+- [x] **0D.2.5 — Play simple picture + audio arrangement for the fixture.**
+- [x] **0D.2.6 — Represent missing visuals with an explicit placeholder rather than silent failure.**
+- [x] **0D.2.GATE — The user can watch the narrative assembly and identify timing/realization problems without leaving Salai.**
+
+Evidence: PR #65 CI run 197 passed TypeScript, all unit tests, and Vite build. Elah `PlaybackEngine` drives one derived playhead shared by the Viewer and semantic timeline; timeline seeks feed the same clock. Elah `resolveTimeline` resolves picture and source audio from the disposable playback project. Tests prove Juan begins at canonical source frame 300 (10s at 30fps) and Maya at source frame 630 (21s), while the final five-second payoff remains an explicit missing-visual interval with no invented renderer clip. The deterministic fixture uses four local SVG visuals and a runtime-generated 30-second WAV, avoiding external hosting or a second media stack. The technical playback loop is complete; whether that semantic playback materially improves creative judgment remains the human question in 0D.5.
 
 ---
 
