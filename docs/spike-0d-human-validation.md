@@ -25,13 +25,7 @@ Open the spike demo using the URL printed by Vite and add:
 
 The validation fixture should open directly on the Timeline surface. The root `dev` command starts both the UI and the local bridge.
 
-After this branch merges, the viewer/timeline portion is also available from GitHub Pages at:
-
-```text
-https://kimda90.github.io/salai/?fixture=semantic-editorial
-```
-
-Use the local run for the agent step.
+GitHub Pages is intentionally not part of the validation requirement. The deployment build itself succeeds, but the connected GitHub Actions token cannot create/enable the repository Pages site. Keep validation local unless Pages is enabled separately in repository settings later.
 
 ## Evidence rule
 
