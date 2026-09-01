@@ -6,7 +6,7 @@ This document explains **why** Salai needs a structured scripting/narrative mode
 
 Canonical terminology lives in [`glossary.md`](glossary.md). Exact types, invariants, operation vocabulary, fixtures, and tests live in [`narrative-ir-spec.md`](narrative-ir-spec.md).
 
-This document does not maintain a parallel schema/API, Narrative Lens taxonomy, or implementation tracker.
+This document does not maintain a parallel schema/API, Narrative Lens taxonomy, structural-editorial implementation contract, or iteration tracker.
 
 ## Why structured narrative data still matters
 
@@ -21,13 +21,13 @@ A Salai “script” is not only formatted prose. It must work across:
 
 Projects may begin from a blank idea or from existing footage/source evidence.
 
-Working hypothesis:
+Current thesis:
 
-> A Salai script is stable semantic production data that can be normalized from messy authored intent or source material, inspected through several representations, and consumed by downstream production/editorial systems without losing identity.
+> A Salai script is stable semantic production data that can be normalized from messy authored intent or source material, inspected through several representations, projected into structural editorial time, and consumed by later production/interchange systems without losing identity.
 
-The user should not have to manually construct every level of that structure for ordinary creative work. The structure may still be exposed deliberately through Narrative Lenses when it contributes to a creative decision.
+The user should not have to manually construct every level of that structure for ordinary creative work. Spike 0C human validation using Codex confirmed that external-agent mediation can handle much of that routine bookkeeping while Salai remains canonical.
 
-See [`agent-mediated-authoring.md`](agent-mediated-authoring.md) and [`narrative-lenses.md`](narrative-lenses.md).
+See [`agent-mediated-authoring.md`](agent-mediated-authoring.md), [`spike-0c-assessment.md`](spike-0c-assessment.md), and [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md).
 
 ## Why Beat and Cue are separate
 
@@ -55,9 +55,9 @@ For example:
 Show three quick installation moments under the same line of VO.
 ```
 
-may normalize to one Beat with several Cues. An AV-oriented view can expose them later when audiovisual realization is the actual creative question.
+may normalize to one Beat with several Cues. A temporal/AV representation can expose them later when audiovisual realization is the actual creative question.
 
-No lower semantic layer is currently justified.
+No lower semantic narrative layer is currently justified.
 
 ## Script-first and footage-first share one model
 
@@ -71,7 +71,7 @@ Then show installation in three fast moments.
 End on the time saved.
 ```
 
-That intent can normalize into the same canonical model used by structured views and downstream production planning.
+That intent can normalize into the same canonical model used by human semantic surfaces, structural editorial, and later production planning.
 
 ### Footage-first
 
@@ -86,7 +86,7 @@ The critical semantic distinction is between:
 - **authored material**, whose words/content are intentionally editable; and
 - **sourced material**, whose wording/timing comes from recorded evidence.
 
-An agent must not turn a recorded interview excerpt into editable authored copy merely because rewriting would be easier.
+An agent or temporal editor must not turn a recorded interview excerpt into editable authored copy merely because rewriting would be easier.
 
 ## Narrative intent is independent from realization
 
@@ -114,11 +114,11 @@ This separation enables later questions such as:
 - which alternatives exist;
 - whether a missing moment should be shot, found, generated, or represented as previs.
 
-The full production graph is intentionally later than Spike 0C.
+The full production graph remains later than Spike 0D. The current timeline spike must not invent a production ontology merely to satisfy a third-party editor model.
 
-## Stable identity matters more than formatted text
+## Stable identity matters more than formatted text or clip placement
 
-Narrative objects may eventually link to source media, ShotIntents, annotations, generated alternatives, Workspace cards, action history, views, and Resolve objects.
+Narrative objects may eventually link to source media, ShotIntents, annotations, generated alternatives, Workspace cards, action history, semantic timeline projections, and optional downstream NLE bindings.
 
 Therefore:
 
@@ -127,30 +127,27 @@ Therefore:
 - split/merge/delete must report relationship consequences explicitly;
 - source-backed content must keep source identity;
 - agent normalization should preserve identity during restructuring where possible;
+- timeline projection must reference canonical IDs rather than create a second story model;
 - switching representations must not create another copy of the story.
 
 Exact behavior belongs to [`narrative-ir-spec.md`](narrative-ir-spec.md).
 
-## Duration is part of authoring
+## Duration has two levels
 
-Video work frequently has a target duration before a timeline exists.
-
-Narrative IR therefore provides approximate structural timing from Cue-level inputs such as:
+Before media exists, Narrative IR provides approximate structural timing from Cue-level inputs such as:
 
 - authored speech estimate;
 - actual source-excerpt duration;
 - explicit duration;
 - simple visual hold estimate.
 
-This is creative feedback, not frame-accurate editorial timing.
-
-Natural-language requests such as:
+That remains useful for requests such as:
 
 ```text
 Get this under 45 seconds without losing the result quote.
 ```
 
-should be able to operate over that same canonical duration information.
+After ADR 0009, Salai also owns enough structural editorial to represent/play the current story in actual time. Spike 0D tests the relationship between these levels rather than replacing semantic duration with a renderer-owned clip timeline.
 
 ## Free-form working text is not the Script
 
@@ -176,7 +173,7 @@ write / imagine
       ↓
 structure / inspect
       ↓
-shoot or generate
+shoot, find, or generate
       ↓
 watch material
       ↓
@@ -184,6 +181,8 @@ place in context
       ↓
 edit until it feels right
 ```
+
+ADR 0009 makes the **watch / place in context / structural edit** part of Salai's own product loop instead of requiring Resolve for every iteration.
 
 Salai should preserve intent, identity, source evidence, and alternatives as work moves through these levels rather than treating an early script choice as permanently committed.
 
@@ -193,8 +192,10 @@ See [`research-notes.md`](research-notes.md).
 
 ## Current validation implication
 
-Spike 0A validated the current semantic model against representative fixtures. Spike 0B showed the same model can back several synchronized structured views. Spike 0C now tests whether agent-mediated input can reduce routine structural interaction while those views remain useful when deliberately chosen.
+Spike 0A validated the current semantic model against representative fixtures. Spike 0B showed the same model can back several synchronized structured views. Spike 0C validated external-agent mediation in a human run using Codex.
 
-If messy 0C inputs expose a real semantic failure, update [`narrative-ir-spec.md`](narrative-ir-spec.md) and its tests rather than compensating with workflow-specific shadow state.
+Spike 0D now tests whether the same semantic model remains useful when projected into a **playable structural timeline** and edited directly in time.
 
-Interchange formats, rich-text frameworks, Resolve integration, real media analysis, and model-provider/runtime choices remain adapters around this semantic model rather than determinants of it.
+If 0D exposes a real semantic failure, update [`narrative-ir-spec.md`](narrative-ir-spec.md) and its tests based on that evidence rather than compensating with timeline-engine-specific shadow state.
+
+Interchange formats, rich-text frameworks, media engines, specialist NLE integrations, real media analysis, and model-provider/runtime choices remain adapters around the semantic model rather than determinants of it.

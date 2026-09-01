@@ -16,10 +16,12 @@ If a task spans both modes, follow both standards. Do not use repository/source-
 - `@salai/script-model` is the only canonical narrative model.
 - `SalaiProjectService` is the human/machine application boundary.
 - Canonical multi-operation changes go through `applyOperations()` via the project service.
-- Narrative Lenses and agents operate on the same live project; there is no shadow agent project.
+- Human semantic surfaces and agents operate on the same live project; there is no shadow agent project.
 - The external agent harness owns model/provider access, authentication, conversation history, planning, and tool-loop behavior.
+- Salai owns structural editorial semantics; third-party timeline/rendering state is derived and replaceable.
+- Specialist NLEs such as DaVinci Resolve are optional downstream precision/finishing targets, not canonical Salai state.
 - The local HTTP bridge is prototype transport glue for the browser-owned project, not a second domain API or state owner.
-- Do not add MCP, another transport, another agent runtime, or a parallel mutation model unless a validated need and an explicit architecture decision require it.
+- Do not add MCP, another transport, another agent runtime, a parallel mutation model, or a canonical third-party timeline document unless a validated need and an explicit architecture decision require it.
 
 ## Using Salai
 
@@ -55,14 +57,16 @@ Use only tools reported by `pnpm salai tools`. Treat Salai project state, not co
 
 The canonical development standard for agents is [`docs/agent-development.md`](docs/agent-development.md). Human contribution guidance is in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-The current milestone is **Spike 0C — External-Agent Authoring + Narrative Lenses**. Before changing current behavior, read at minimum:
+The current milestone is **Spike 0D — Semantic Editorial Environment**. Before changing current behavior, read at minimum:
 
-- [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md)
+- [`docs/spike-0d-implementation-plan.md`](docs/spike-0d-implementation-plan.md)
+- [`docs/adr/0009-salai-owns-structural-editorial.md`](docs/adr/0009-salai-owns-structural-editorial.md)
 - [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md)
 - [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md)
 - [`docs/architecture.md`](docs/architecture.md)
-- [`docs/adr/0007-project-service-is-the-human-machine-boundary.md`](docs/adr/0007-project-service-is-the-human-machine-boundary.md)
 - [`docs/adr/0008-external-harness-owns-agent-runtime.md`](docs/adr/0008-external-harness-owns-agent-runtime.md)
+
+0D deliberately uses `@moritzbrantner/timeline-editor` as the first controlled React timeline adapter and `@elah/core` as the first playback/materialization adapter. Keep both replaceable and keep their document/project state out of Salai persistence.
 
 Prefer the smallest implementation that preserves the existing boundaries. Reuse existing operations and services before adding abstractions or dependencies.
 

@@ -1,49 +1,40 @@
 # Salai
 
-Salai is an experimental local-first, narrative-aware production companion for DaVinci Resolve.
+Salai is an experimental local-first, narrative-aware audiovisual construction environment.
 
-Its purpose is to keep **story intent, source material, production needs, real/generated media, alternatives, and Resolve editorial context connected** without making the filmmaker manually manage all of that structure.
+Its purpose is to keep **story intent, source material, production needs, real/generated media, alternatives, and the active structural edit connected** without making the filmmaker manually manage all of that structure.
 
-## Product hypothesis
+## Product thesis
 
-> **Express intent naturally; Salai structures it for production. See and reshape that structure through narrative lenses.**
+> **Express intent naturally; Salai structures it for production and structural editorial. See, play, and reshape the same story through semantic creative surfaces.**
 
 Underlying architecture:
 
-> **One Narrative IR, multiple human and machine interfaces.**
+> **One canonical narrative/project model, multiple human and machine interfaces.**
 
-Key UX refinement after Spike 0B:
+Key UX principle after Spike 0B:
 
 > **Hide structural bookkeeping, not narrative structure.**
 
-Salai automates incidental mechanics such as IDs, parent references, operation selection, and obvious relationship wiring. Structured views remain first-class when they help the creator understand or reshape the story.
+Spike 0C then human-validated the external-agent loop with Codex: the integration worked correctly and demonstrated that an agent in the loop materially reduces the friction of manipulating Salai's canonical narrative structure.
 
-## Narrative Lenses
+## Product/editorial boundary
 
-The existing structured surfaces are Narrative Lenses over the same canonical project:
+Salai now owns **narrative construction + structural editorial**.
 
-- Outline;
-- Story Wall / Beat Board;
-- AV Script;
-- Paper / Radio Edit.
+Structural editorial means the minimum temporal/media capability needed to construct, play, judge, and revise an audiovisual story while preserving narrative identity and source provenance: semantic timeline, rough assembly, playback, narrative/media reordering, source-range trimming, and basic picture/audio arrangement as validated by workflows.
 
-A creator enters a lens when that representation is useful for thinking or direct manipulation; a lens is not a separate project document. DaVinci Resolve remains the frame-accurate editing, Fusion, color, Fairlight, and delivery environment.
+Salai does not aim to reproduce specialist NLE finishing systems. DaVinci Resolve and other NLEs are optional downstream targets for precision editorial, advanced post, color, audio finishing, compositing, mastering, and delivery.
 
-See [`docs/narrative-lenses.md`](docs/narrative-lenses.md).
+See [`docs/adr/0009-salai-owns-structural-editorial.md`](docs/adr/0009-salai-owns-structural-editorial.md).
 
-## What Spike 0B taught us
-
-0B established that one Narrative IR can support synchronized creative views, while routine direct structured authoring requires too much interaction to be the default creative path. The views remain useful when deliberately entered as Narrative Lenses.
-
-See [`docs/spike-0b-assessment.md`](docs/spike-0b-assessment.md).
-
-## Current development state
+## Validated foundation
 
 ### Spike 0A — Narrative IR
 
 **Complete / pass.**
 
-`packages/script-model/` provides the canonical TypeScript model, typed operations, validation, serialization, runtime estimation, stable identity, source-backed semantics, and representative fixtures.
+`packages/script-model/` provides the canonical TypeScript model, typed operations, validation, serialization, runtime estimation, stable identity, source-backed semantics, and representative script-first/footage-first fixtures.
 
 Authoritative contract: [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md).
 
@@ -51,15 +42,15 @@ Authoritative contract: [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md)
 
 **Closed / mixed.**
 
-The React prototype proved synchronized views over one canonical project but failed the creative-friction test as the routine authoring path.
+The React prototype proved synchronized Story Wall, Outline, AV Script, and Paper/Radio views over one canonical project, while human testing showed that routine direct structure management required too much interaction to be the default creative path.
 
 Historical contract: [`docs/authoring-ux-spec.md`](docs/authoring-ux-spec.md).
 
 ### Spike 0C — External-Agent Authoring + Narrative Lenses
 
-**Current validation milestone.**
+**Complete / pass.**
 
-0C validates a deliberately small architecture:
+0C validated this boundary:
 
 ```text
 external agent harness
@@ -72,35 +63,49 @@ NarrativeOperation[] / applyOperations()
         ↓
 Narrative IR + Workspace
         ↓
-Narrative Lenses
+human UI
 ```
 
-The external harness owns model access, authentication, sessions, history, planning, and its tool loop. Salai owns the narrative/project semantics and exposes one narrow machine interface to the same live project service used by the UI.
+Codex was used as the human-validation harness. It operated the live Salai project correctly and demonstrated the convenience of agent-mediated structural manipulation without Salai owning provider auth, sessions, model routing, conversation history, or the harness tool loop.
 
-0C must prove:
+See [`docs/spike-0c-assessment.md`](docs/spike-0c-assessment.md) and [`docs/adr/0008-external-harness-owns-agent-runtime.md`](docs/adr/0008-external-harness-owns-agent-runtime.md).
 
-- an external harness can inspect and mutate the same live Salai project as the Narrative Lenses;
-- one script-first low-friction vertical slice;
-- one fixture-backed source vertical slice;
-- grouped canonical application + immediate one-step revert;
-- one harness-normalized project → lens → direct edit → follow-up harness round trip;
-- human evidence of materially lower routine interaction than 0B and useful voluntary structural insight.
+## Current development state
 
-Salai does **not** embed a model/provider SDK, provider authentication, chat runtime, model router, or agent session in 0C. The current browser prototype may use a minimal local request/response bridge solely so an external CLI can reach its live `SalaiProjectService`.
+### Spike 0D — Semantic Editorial Environment
 
-See [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md), [`docs/adr/0008-external-harness-owns-agent-runtime.md`](docs/adr/0008-external-harness-owns-agent-runtime.md), and [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md).
+**Current validation iteration.**
+
+0D tests whether Salai's semantic narrative state remains valuable when the story becomes playable and structurally editable in time without Resolve.
+
+The first implementation deliberately reuses open-source media/editor infrastructure:
+
+- [`@moritzbrantner/timeline-editor`](https://github.com/moritzbrantner/timeline-editor) for controlled React timeline interaction;
+- [`@elah/core`](https://github.com/elahlabs/elah) for the first playback/materialization adapter.
+
+Both remain replaceable infrastructure. Their project/timeline models must not become canonical Salai project state.
+
+0D must prove:
+
+- a semantic timeline that exposes narrative meaning and audiovisual timing together;
+- playable rough assembly inside Salai;
+- direct timeline edits round-tripping through Salai-owned operations;
+- source-backed ranges preserving provenance;
+- Codex/external-agent changes and direct temporal edits sharing one project;
+- human evidence that semantic structure makes the timeline more useful than a generic clip timeline.
+
+Canonical tracker: [`docs/spike-0d-implementation-plan.md`](docs/spike-0d-implementation-plan.md).
 
 ## Architecture direction
 
-- TypeScript Narrative IR is canonical semantic state.
-- One canonical IR backs synchronized Projections/Workspaces/Lenses (ADR 0005).
-- `SalaiProjectService` is the shared human/machine application boundary.
+- TypeScript Narrative IR remains canonical semantic state.
+- One canonical project backs human surfaces and the machine interface.
+- `SalaiProjectService` remains the shared human/machine application boundary.
 - External harnesses own model/runtime/auth/session behavior (ADR 0008).
-- The first machine interface is CLI-oriented; MCP is added only if later evidence requires it.
-- Machine changes reuse public `NarrativeOperation[]` / `applyOperations()` before any scenario-specific higher-level command is introduced.
-- Higher-level commands are allowed only when Salai must resolve IDs/references/placement itself and compile immediately to canonical operations.
+- Salai owns structural editorial/playback while specialist NLEs remain optional downstream (ADR 0009).
+- Timeline/rendering engines are adapters/projections, never project truth.
+- The first machine interface remains CLI-oriented; add another protocol only when an integration demonstrates a concrete need.
 - Harness/model history is not Salai project persistence.
-- Resolve remains downstream behind an explicit Salai adapter/materialization boundary.
 
 See [`docs/architecture.md`](docs/architecture.md) and [`docs/adr/`](docs/adr/).
 
@@ -113,9 +118,10 @@ Most relevant current docs:
 - [`docs/product-brief.md`](docs/product-brief.md) — product thesis/positioning;
 - [`docs/prd.md`](docs/prd.md) — product requirements/success criteria;
 - [`docs/research-notes.md`](docs/research-notes.md) — discovery evidence;
-- [`docs/narrative-lenses.md`](docs/narrative-lenses.md) — Narrative Lens semantics;
-- [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md) — active 0C interaction contract;
-- [`docs/spike-0c-implementation-plan.md`](docs/spike-0c-implementation-plan.md) — only 0C task/status tracker;
+- [`docs/narrative-lenses.md`](docs/narrative-lenses.md) — structured-view semantics retained from 0B/0C;
+- [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md) — validated external-agent interaction contract;
+- [`docs/spike-0c-assessment.md`](docs/spike-0c-assessment.md) — completed 0C result;
+- [`docs/spike-0d-implementation-plan.md`](docs/spike-0d-implementation-plan.md) — current task/status tracker;
 - [`docs/mvp.md`](docs/mvp.md) — validation sequence;
 - [`docs/backlog.md`](docs/backlog.md) — NOW/NEXT/LATER outcomes;
 - [`docs/architecture.md`](docs/architecture.md) — current system architecture.

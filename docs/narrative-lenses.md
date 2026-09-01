@@ -2,9 +2,9 @@
 
 ## Status
 
-Living canonical product/UX contract for Salai's structured creative views.
+Living canonical contract for the **Narrative Lens** concept and the structured-view semantics validated in 0B/0C.
 
-This document owns Narrative Lens definition, taxonomy, expose/hide rules, and direct-manipulation semantics. Other docs should link here rather than restating them.
+The existing Outline, Story Wall, AV Script, and Paper/Radio surfaces remain valid examples of coherent views over one project. After ADR 0009, they are **not** assumed to be the final top-level application navigation. Spike 0D tests a temporal semantic surface separately.
 
 ## Core principle
 
@@ -31,9 +31,9 @@ A lens may be implemented as a Projection, a Workspace, or a combination:
 - **Workspace** describes persistent human organization outside canonical narrative semantics;
 - **Narrative Lens** describes creative purpose.
 
-## Lens taxonomy
+The Lens concept does not require every major creative surface to be implemented as a tab/page. A later surface may combine temporal, spatial, or document-like interaction while still exposing lens-like emphasis.
 
-### Existing / validated surfaces
+## Validated surfaces
 
 | Lens | Primary creative perception |
 | --- | --- |
@@ -42,15 +42,22 @@ A lens may be implemented as a Projection, a Workspace, or a combination:
 | AV Script | audiovisual density, realization over time, visual/audio interplay |
 | Paper / Radio Edit | evidentiary spine, voice, source pacing, authored-vs-sourced balance |
 
-### Later candidates
+These four surfaces were validated as coherent projections/workspaces over one canonical project. They are historical/product evidence, not a commitment that Salai's future shell must present four permanent lens tabs.
 
-| Lens | Primary creative perception |
+## Later semantic emphases
+
+Potential creative dimensions include:
+
+| Emphasis | Creative perception |
 | --- | --- |
-| Coverage | gaps between intent and available realization; build after the production graph exists |
+| Coverage | gaps between intent and available realization |
 | Frame Wall / Selects | visual coverage, contrast, repetition, usable alternatives |
-| Runtime / pacing view | temporal pressure and proportional weight if a dedicated view proves useful |
+| Runtime / pacing | temporal pressure and proportional weight |
+| Sources | where evidence comes from and how concentrated/reused it is |
+| Continuity | consistency of people/places/props/style across realizations when required |
+| Alternatives | competing realizations or narrative choices |
 
-Do not create a new lens only because a derived value can be displayed. A lens needs a demonstrated creative job.
+Do not create a new permanent lens only because a derived value can be displayed. A representation needs a demonstrated creative job.
 
 ## What a lens should expose
 
@@ -84,20 +91,21 @@ The distinction is not “simple vs advanced UI.” It is whether the exposed st
 
 ## Direct manipulation
 
-Direct manipulation remains first-class when the user intentionally chooses the lens as the way they want to think.
+Direct manipulation remains first-class when the user intentionally chooses the representation as the way they want to think.
 
 Examples:
 
 - drag cards while thinking spatially in Story Wall;
 - move sourced excerpts while shaping spoken rhythm in Paper/Radio;
 - adjust Visual/Audio realization while planning in AV Script;
-- restructure hierarchy while intentionally working in Outline.
+- restructure hierarchy while intentionally working in Outline;
+- in 0D, move a Beat/Cue or trim a SourceExcerpt on the semantic timeline when timing itself is the creative question.
 
 The 0B failure was not that these operations exist. It was making structured operation the compulsory route for ordinary creative intent.
 
 ## Agent relationship
 
-The agent and lenses operate on the same canonical project.
+The agent and human projections operate on the same canonical project.
 
 ```text
 working input / instruction
@@ -106,30 +114,35 @@ working input / instruction
           ↓
     canonical project
       ↙    ↓    ↘
-      Narrative Lenses
+  human semantic surfaces
       ↖    ↓    ↗
- direct lens edits
+ direct human edits
           ↓
     canonical project
 ```
 
 Requirements:
 
-- agent changes appear in a lens automatically because the lens reads canonical state;
-- direct lens changes become visible to subsequent agent reasoning through the same state;
-- active lens identity may be sent as context when it materially helps interpretation;
+- agent changes appear automatically because surfaces read canonical state;
+- direct changes become visible to subsequent agent reasoning through the same state;
+- active representation/focus may be sent as context when it materially helps interpretation;
 - arbitrary presentation state should not automatically become agent context;
-- Workspace-only changes remain Workspace-only.
+- Workspace-only changes remain Workspace-only;
+- third-party timeline/rendering state is never a second synchronization model.
+
+Spike 0C human validation using Codex confirmed the external-agent side of this relationship.
 
 ## Narrative pulse
 
-“Narrative pulse” is a **discovery metaphor**, not a domain object or product score. It refers to patterns such as pacing, density, repetition, voice distribution, audiovisual complexity, coverage, and structural balance that may become easier to perceive through one or more lenses. Keep exploring the metaphor through human observation and simple derived information; do not create a canonical `Pulse` object or universal quality metric without evidence.
+“Narrative pulse” is a **discovery metaphor**, not a domain object or product score. It refers to patterns such as pacing, density, repetition, voice distribution, audiovisual complexity, coverage, and structural balance that may become easier to perceive through one or more representations.
 
-Discovery evidence for the metaphor belongs in [`research-notes.md`](research-notes.md).
+Keep exploring the metaphor through human observation and simple derived information; do not create a canonical `Pulse` object or universal quality metric without evidence.
+
+Discovery evidence belongs in [`research-notes.md`](research-notes.md).
 
 ## Design requirements
 
-A useful Narrative Lens should satisfy most of these:
+A useful lens/semantic emphasis should satisfy most of these:
 
 1. reveal a story property difficult to perceive in ordinary prose/conversation;
 2. operate on the same canonical project rather than a duplicate document;
@@ -140,21 +153,16 @@ A useful Narrative Lens should satisfy most of these:
 7. feed direct changes back into subsequent agent context through shared state;
 8. allow entry/exit without export/import or conceptual state loss.
 
-## 0C validation
+## Relationship to Spike 0D
 
-0C does not need to redesign every lens or create new ones.
+0D does not need to redesign the existing four lenses.
 
-It needs to prove:
+It tests whether **time/playback** becomes a foundational semantic surface:
 
-- the four existing surfaces remain synchronized after agent-mediated changes;
-- at least one is opened voluntarily because it reveals something useful;
-- one direct edit in an existing lens feels creatively meaningful;
-- that edit is visible to a subsequent agent request through shared state.
+- Section/Beat/Cue structure projected into actual duration;
+- source/media realization visible beneath narrative meaning;
+- direct temporal edits resolving through canonical operations;
+- playback used to judge pacing and realization;
+- agent and direct temporal work sharing one project.
 
-Coverage reasoning may be mocked conversationally during 0C, but the actual Coverage Lens is deferred until the production graph exists.
-
-A successful 0C result is not “users never touch structured UI.”
-
-It is:
-
-> **Users can create with low friction, then deliberately enter structured lenses when they want to understand or reshape the narrative system from another angle.**
+The result of 0D will determine whether future Coverage, Sources, Alternatives, and related dimensions are best expressed as dedicated lenses, temporal overlays/probes, or a combination. That decision belongs in the 0D assessment/next iteration, not in this contract in advance.
