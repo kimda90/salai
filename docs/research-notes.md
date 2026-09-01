@@ -2,7 +2,15 @@
 
 This document records concrete workflow observations gathered during product discovery. These are **observations and research inputs**, not architecture decisions or committed requirements.
 
-When an observation becomes a product requirement, technical proposal, or accepted decision, it should be reflected in the PRD, backlog, RFC, or ADR rather than silently promoted here.
+When an observation becomes a product requirement, technical proposal, or accepted decision, it must be reflected in the PRD, implementation plan, RFC, or ADR rather than silently promoted here.
+
+Accepted current decisions are recorded elsewhere:
+
+- external harness owns agent runtime — ADR 0008;
+- Salai owns structural editorial and specialist NLEs are optional downstream — ADR 0009;
+- current validation iteration — Spike 0D implementation plan.
+
+# Narrative / interaction evidence
 
 ## Narrative thinking is idea-first
 
@@ -24,7 +32,7 @@ A common loop is closer to:
 ```text
 read / imagine
     ↓
-shoot or generate
+shoot, find, or generate
     ↓
 watch the material
     ↓
@@ -41,7 +49,7 @@ Salai should preserve intent and alternatives as work moves through these levels
 
 Editors commonly keep rejected ideas, takes, scenes, or alternate structures nearby rather than deleting them immediately.
 
-This suggests that `remove from active structure` and `delete permanently` should remain distinct concepts.
+This supports keeping `remove from active structure` and `delete permanently` distinct.
 
 ## Spatial proximity can keep alternatives “in hand”
 
@@ -49,11 +57,11 @@ Keeping alternatives physically or visually nearby is useful because material ca
 
 The Story Wall / Workspace parking-lot concept preserves this behavior.
 
-The 0B human test also showed that spatial organization should not become mandatory interaction overhead. Spatial organization is useful when the creator chooses to think spatially.
+0B human evidence also showed that spatial organization should not become mandatory interaction overhead. Spatial organization is useful when the creator chooses to think spatially.
 
 ## Previs can move the feedback loop earlier
 
-Low-friction previs may let the creator feel the idea before expensive production or timeline work.
+Low-friction previs may let the creator feel the idea before expensive production.
 
 ```text
 write / restructure
@@ -65,46 +73,36 @@ feel the idea earlier
 revise before expensive production
 ```
 
-This remains a product opportunity, but it should connect to the same low-friction authoring and Narrative Lens model rather than becoming a separate GenAI workflow.
+Previs/generation should connect to the same narrative/production/assembly state rather than becoming a separate canonical GenAI workflow.
 
-# Spike 0B human-test findings
+# Spike evidence
 
-## Finding 1 — routine structured authoring creates too much creative friction
+## Spike 0B — routine structured authoring creates too much friction
 
-The first human test of the 0B prototype produced a cross-cutting observation:
+The 0B human test found:
 
 > **The prototype requires too much user interaction to be creatively useful as the routine authoring path.**
 
-The issue was broader than any one Story Wall, Outline, AV Script, or Paper Edit affordance.
-
 The user was repeatedly required to operate the structure of the product instead of simply expressing the intended story change.
 
-Examples of friction include:
+Examples included:
 
 - explicitly creating and parenting narrative objects;
 - selecting a structural destination before expressing an idea;
 - manually managing spatial placement vs narrative order;
-- switching surfaces because a particular operation is exposed there;
+- switching surfaces because a particular operation was exposed there;
 - translating one creative intention into several UI actions;
-- thinking about Beat/Cue/Scene mechanics before those distinctions are creatively relevant.
+- thinking about Beat/Cue/Scene mechanics before those distinctions were creatively relevant.
 
-This is important because the implementation simultaneously showed that the Narrative IR can support these operations safely.
+The implementation simultaneously showed that the Narrative IR can support these operations safely.
 
-The problem is therefore not primarily:
+The problem was therefore interaction, not representational failure.
 
-> “The model cannot represent the workflow.”
+## Structured representations remain creatively useful
 
-It is:
+The follow-up finding was not “hide the Narrative IR completely.”
 
-> **“The user is being asked to manage the model too often.”**
-
-## Finding 2 — exposing the narrative system can still be creatively useful
-
-Follow-up reflection on the 0B test produced an important qualification.
-
-The structured views themselves can be useful precisely because they expose the internal narrative system.
-
-A creator may want to see:
+A creator may deliberately want to see:
 
 - hierarchy;
 - progression;
@@ -116,119 +114,344 @@ A creator may want to see:
 - runtime proportion;
 - alternatives.
 
-This can help the creator understand the story's **pulse** and modify it from a different angle.
-
-Therefore the 0B result should **not** be interpreted as:
-
-> “Hide the Narrative IR completely and replace the product with chat.”
-
-A better interpretation is:
+This produced the Narrative Lens concept and the principle:
 
 > **Hide structural bookkeeping, not narrative structure.**
 
-The structured surfaces remain potentially valuable when the representation itself contributes to the creative decision.
+## Spike 0C — external agent is convenient in practice
 
-## Narrative Lenses hypothesis
+Human validation was completed with Codex as the external harness.
 
-The follow-up concept is a **Narrative Lens**: a structured representation of the same canonical project that emphasizes one creative dimension.
+Observed result:
 
-Examples:
+- Codex operated the live Salai project correctly through the machine interface;
+- keeping an agent in the loop materially reduced the inconvenience of routine structural manipulation compared with 0B;
+- Salai remained canonical project truth;
+- conversation/model/session infrastructure did not need to become Salai project state.
 
-- Outline → hierarchy/proportion;
-- Story Wall → spatial rhythm/alternatives;
-- AV Script → audiovisual density/realization;
-- Paper/Radio → evidence/voice/source pacing;
-- Coverage → gaps between intent and realization.
+This moves external-agent viability out of open discovery and into validated product architecture. See `spike-0c-assessment.md` and ADR 0008.
 
-A creator can deliberately enter a lens when that representation helps them think.
+# Causality research
 
-Direct manipulation inside the lens remains useful when the structure being manipulated is itself the creative question.
+Causality is one of the closest conceptual references because it treats story Beats as persistent identity across script, whiteboard, and timeline representations.
 
-This is distinct from being forced into the lens because Salai exposes an operation only there.
+Important lessons from its public product/history:
 
-## Agent mediation and lenses are complementary
+## Same semantic objects across representations
 
-The next hypothesis is:
+Causality's valuable precedent is not its particular whiteboard. The same underlying Beat can appear in script, whiteboard, and timeline.
+
+Salai should preserve this principle as media/time surfaces expand: UI objects should reference canonical Salai identity rather than become separate documents that synchronize later.
+
+## Narrative order and dependency are different
+
+Causality's whiteboard originally behaved more like a dependency graph and evolved toward timeline/order behavior because users interpreted it spatially as sequence.
+
+Lesson: Salai should not infer causal/dependency semantics merely from temporal order or canvas position.
+
+## Persistent lanes do not scale well
+
+Causality's own product history shows that many long-running story dimensions represented as physical lanes become difficult to trace and maintain.
+
+Characters, themes, arcs, emotions, source distribution, coverage, and other cross-cutting dimensions are better candidates for relationships, filters, or temporary perceptual probes than permanent spatial containers.
+
+## Multi-membership creates synchronization complexity
+
+Experiments allowing the same Beat to appear as membership in several lanes created substantial complexity.
+
+Lesson: prefer one canonical object with many queryable dimensions over duplicated or multi-owned view objects.
+
+## Forced categorization consumes creative bandwidth
+
+Story/Beat boundaries can be fuzzy while thinking. Causality's development discussion repeatedly emphasizes the cognitive cost of requiring the writer to classify everything upfront.
+
+This reinforces Salai's agent-mediated normalization and “structure when useful” approach.
+
+## Disconnected canvases are dangerous
+
+Causality removed a relationship canvas partly because its spatial relationships were not deeply connected to the rest of the product semantics.
+
+A future Salai canvas/Story Spine should therefore place references to the same project objects used elsewhere; canvas geometry itself should remain Workspace state unless the user explicitly creates semantic meaning.
+
+## Research/boneyard material should remain available
+
+Causality's Research area preserves Beats/ideas outside active script order. This closely matches editorial practice of moving material aside rather than destroying it.
+
+## Human cognitive bandwidth is a real product constraint
+
+Causality's recent simplification work and cancellation feedback are a strong warning against displaying all story dimensions simultaneously.
+
+Salai should favor temporary probes such as “show sources,” “show coverage,” or “show Alice's path” over permanently encoding every dimension into color, lanes, shapes, or separate canonical object types.
+
+# Competitive workflow decomposition
+
+The adjacent market solves pieces of the Salai problem:
+
+| Problem | Strong references |
+| --- | --- |
+| Story structure | Causality, Arc Studio, Plottr |
+| Screenplay authoring | Final Draft, WriterDuet |
+| Story → preproduction | Celtx, StudioBinder |
+| Freeform visual ideation | Milanote, PureRef, Excalidraw-like canvases |
+| Script → footage matching | Resolve IntelliScript, Avid ScriptSync |
+| Footage → text edit | Premiere Text-Based Editing, Descript |
+| Documentary paper edit | Lumberjack Builder |
+| Local AI footage understanding | StoryToolkitAI |
+| Script markup through production | Scriptation |
+
+The current Salai white space is the persistent connection:
 
 ```text
-user writes / talks / drops media
-             ↓
-        Salai interprets
-             ↓
- typed canonical project changes
-             ↓
-      Narrative IR
-       ↙   ↓   ↘
-   Narrative Lenses
+narrative intent
+      ↕
+production / realization need
+      ↕
+real / generated / missing media
+      ↕
+structural editorial assembly
 ```
 
-The agent reduces routine model-management work.
+# Modern creative-AI UI observations
 
-The lenses preserve structural legibility and alternate creative modes.
+Recent tools increasingly combine multimodal generation, spatial work, timeline/playback, and contextual prompting rather than treating “AI” as a separate destination.
 
-The strongest product loop may be:
+Useful references include Krea, Runway, Adobe Firefly, Figma Weave, Freepik Spaces, ComfyUI, Gradio, and related generative-media environments.
+
+These references are interaction research, not dependencies.
+
+## Prompt is becoming a control rather than the whole application
+
+The useful pattern is increasingly:
 
 ```text
-express intent
-     ↓
-Salai structures it
-     ↓
-see through a useful lens
-     ↓
-reshape directly or conversationally
-     ↓
-continue
+focus/select creative material
+        ↓
+type / drag / draw / perform / generate / transform
+        ↓
+result remains in working context
 ```
 
-## Agent mediation should not become approval friction
+Natural language should be one modality among direct manipulation, media selection, drawing, timing, and references.
 
-If one natural instruction becomes several operations but the user must approve every operation independently, the product recreates the same interaction burden.
+## Every creative object can become an input
 
-The next prototype should test grouped, reversible actions:
+Modern multimodal systems increasingly allow images, clips, audio, text, masks, drawings, and prior outputs to become inputs to the next operation.
+
+For Salai, that suggests contextual operations scoped by current project identity rather than a separate universal chat/generation page.
+
+## Generation history is creative provenance
+
+Generative work branches rapidly. A useful system preserves candidate lineage and allows comparison/selection rather than flattening every generation into a media bin.
+
+Salai's semantic opportunity is to organize those branches around the narrative/production job they might perform rather than around model-processing nodes.
+
+## Avoid becoming a node-processing product
+
+ComfyUI-style graphs are excellent for computational workflows. Salai's graph of interest is different:
 
 ```text
-one creative instruction
-        ↓
-0..N typed operations
-        ↓
-one understandable change batch
-        ↓
-revert / inspect if needed
+story intent
+   ↓
+possible audiovisual expression
+   ↓
+candidate media
+   ↓
+selection
+   ↓
+structural edit
 ```
 
-Clarification should be reserved for meaningful creative ambiguity rather than ordinary model bookkeeping.
+If visible relationships are introduced, they should communicate filmmaking meaning rather than model plumbing.
 
-## Narrative pulse is a metaphor, not yet a model
+# Time / timeline observations
 
-“Narrative pulse” currently describes patterns the creator may perceive through one or more lenses:
+## Audiovisual stories are irreducibly temporal
 
-- pacing;
-- density;
-- alternation;
-- repetition;
-- source/voice distribution;
-- audiovisual complexity;
-- coverage completeness;
-- structural balance.
+Outline, boards, and paper edits reveal useful structure but cannot fully communicate duration, rhythm, overlap, silence, or how audiovisual material feels in sequence.
 
-This should not yet become a canonical `Pulse` object or universal AI quality score.
+This was the main reason to pivot away from mandatory Resolve playback and toward Salai-owned structural editorial (ADR 0009).
 
-0C should first test whether simple derived indicators and existing lenses make these patterns meaningfully useful.
+## Semantic zoom is a promising timeline property
 
-# Implications for current validation
+Salai has identity above the clip level:
 
-The evidence now suggests:
+```text
+Section → Beat → Cue → source/media realization
+```
 
-- keep the existing Beat/Cue distinction until messy agent-mediated inputs prove it inadequate;
-- preserve canonical Narrative IR and source-evidence rules validated in 0A/0B;
-- stop treating Story Wall, Outline, AV Script, and Paper/Radio Edit as mandatory stages;
-- retain those views as first-class Narrative Lenses when their representation adds creative value;
-- test free-form text + conversation + media before adding more routine structured controls;
-- test agent + active-lens interaction, not agent and views as separate product modes;
-- make interaction compression a first-class success criterion;
-- make structural insight a second first-class success criterion;
-- make grouped revert/history part of the next spike;
-- do not introduce a generic canvas or rich-text document as canonical storage;
-- keep Resolve downstream of normalized Salai state.
+A temporal surface can therefore reveal different semantic levels as the user changes scale rather than exposing only generic tracks/clips.
 
-See [`agent-mediated-authoring.md`](agent-mediated-authoring.md), [`narrative-lenses.md`](narrative-lenses.md), and [`rfcs/0002-agent-mediated-authoring.md`](rfcs/0002-agent-mediated-authoring.md).
+This is the central product hypothesis of Spike 0D.
+
+## The timeline may be foundational rather than merely another lens
+
+This remains a discovery question, correctly scoped to post-0D interpretation.
+
+A possible model is that time becomes a persistent story spine while cross-cutting dimensions—coverage, sources, voice distribution, alternatives—become temporary overlays/probes.
+
+Do not make this taxonomy canonical before 0D human evidence.
+
+# Viewer / review observations
+
+Filmmaking contains a repeated loop:
+
+```text
+construct
+→ watch
+→ judge
+→ revise
+```
+
+A narrative-aware system should eventually make review actions attach to stable meaning where possible rather than fragile timeline timecodes alone.
+
+Potential review interactions include identifying weak moments, marking useful source moments, creating missing-production intent at the playhead, or attaching observations to Beat/Cue/media identity.
+
+These are later workflow questions; 0D first validates simple playback + structural revision.
+
+# Sound observations
+
+Audio cannot be treated only as decoration under picture.
+
+Documentary work often begins as a radio edit, and narrative progression may depend on speech, music, ambience, silence, or SFX before picture exists.
+
+Current Cue/audio ContentBlocks may remain sufficient; do not add an `AudioIntent` domain type without evidence. The 0D playback fixture should nevertheless include meaningful picture + audio so the temporal model is not accidentally picture-only.
+
+# Alternatives / version-space observations
+
+Undo and alternatives are different:
+
+- **Undo** — the previous operation was unwanted;
+- **Alternative** — multiple possibilities remain creatively legitimate.
+
+Alternatives may exist at media-realization, Beat, Section, or full structural-edit levels.
+
+Do not solve all levels with one generic version graph in the current iteration. Later workflow evidence should determine which identities deserve persistence.
+
+# Continuity / world identity observations
+
+Generated media increases pressure to preserve consistency of characters, locations, props, wardrobe, voice, time-of-day, and visual identity across separately produced realizations.
+
+This may eventually justify persistent continuity/world constraints, but it does not belong in the Narrative IR until concrete production/generation failures demonstrate the required semantics.
+
+# Provenance observations
+
+Generated and transformed media can accumulate lineage such as:
+
+```text
+production intent
+→ storyboard
+→ generated previs
+→ camera take
+→ AI cleanup
+→ structural/editorial use
+```
+
+Provenance should eventually help answer where material came from and why it exists, not merely satisfy technical metadata requirements.
+
+The production-graph phase should preserve enough identity to expose this without making provider/model details canonical narrative meaning.
+
+# Search / retrieval observations
+
+Large projects require more than bins and filenames.
+
+Useful queries include:
+
+- unused close-ups of a character;
+- interview excerpts about a concept excluding already-used material;
+- visual material that could support a narrative intention;
+- source material from a particular location/time/state;
+- possible bridges between two current story moments.
+
+The Salai-specific opportunity is retrieval in the context of current narrative intent rather than generic media similarity alone.
+
+# Interaction-model observations
+
+## Focus is a promising universal interaction scope
+
+A user's current focus may be a whole project, Section, Beat, Cue, timeline range, SourceExcerpt, media segment, or later production realization.
+
+Contextual commands can inherit that focus instead of requiring a permanent global chat pane.
+
+This remains interaction research, not a canonical domain type.
+
+## Write / Arrange / Play is a useful design hypothesis
+
+One possible simplification of Salai's creative spaces is:
+
+- **Write** — linear/semantic thought such as outline, paper/radio, AV planning;
+- **Arrange** — spatial exploration, alternatives, references, story wall;
+- **Play** — temporal assembly, viewer, rough structural editorial.
+
+Do not store this as final navigation until human tests demonstrate it is better than other organizations.
+
+## Story Spine is a later spatial hypothesis
+
+A possible mixed temporal/spatial surface would keep active material on a temporal spine while references, alternatives, unused Beats, and generated candidates remain nearby off-spine.
+
+This may combine the useful behaviors of a timeline, Murch-style scene cards, and generative branching.
+
+Spike 0D deliberately tests the temporal spine first. Spatial expansion should follow only if the timeline proves valuable.
+
+# Open-source implementation research for Spike 0D
+
+These are concrete implementation references selected to retire commodity UI/media risk while keeping Salai semantics independent.
+
+## `@moritzbrantner/timeline-editor`
+
+Repository: https://github.com/moritzbrantner/timeline-editor
+
+License: MIT.
+
+Useful because it provides controlled React timeline mechanics while allowing the host to own document/selection/viewport/history and replace track/clip rendering.
+
+0D decision: use it as the first timeline interaction adapter. Its document serialization is not Salai persistence.
+
+## Elah / `@elah/core`
+
+Repository: https://github.com/elahlabs/elah
+
+License for current core/timeline/editor packages: Apache-2.0.
+
+Useful because it provides browser-native deterministic playback/timeline/rendering infrastructure without requiring Salai to implement the media engine before testing product interaction.
+
+0D decision: use `@elah/core` as the first playback/materialization adapter. Elah project state is derived and replaceable.
+
+## Mediabunny
+
+Repository: https://github.com/Vanilagy/mediabunny
+
+Useful low-level TypeScript/WebCodecs media foundation and already used by modern browser-editor projects.
+
+0D decision: do not add it directly unless Elah fails to expose a required capability. Avoid duplicate media stacks in the spike.
+
+## Excalidraw
+
+Repository: https://github.com/excalidraw/excalidraw
+
+License: MIT.
+
+Useful mature reference for a later spatial Story Spine/Arrange experiment.
+
+0D decision: defer. Validate the semantic temporal spine before adding a canvas dependency.
+
+## Cutaway / OpenCut and OpenReel
+
+Useful open-source browser-editor references for architecture, media lifecycle, WebCodecs, local project behavior, and timeline implementation.
+
+Decision: study/selectively reuse patterns if needed; do not fork either application or make its editor model canonical Salai state.
+
+## OpenTimelineIO
+
+Useful downstream interchange model for editorial materialization.
+
+Decision: defer until the downstream NLE/interchange phase. OTIO must not become the canonical Salai timeline because it does not model Beat/Cue/source/production intent semantics.
+
+# Current discovery interpretation
+
+The next risk is not whether Salai can represent narrative semantics or whether an agent can conveniently manipulate them. Those questions have enough positive evidence from 0A–0C.
+
+The active question is:
+
+> **Does preserving narrative/source semantics on a playable timeline materially change how useful structural editing feels?**
+
+That question is intentionally isolated in Spike 0D.
