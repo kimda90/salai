@@ -19,7 +19,10 @@ import {
   type FixtureMediaSource,
 } from "./semantic-editorial-fixture";
 import { resolveSemanticAssemblyAtMs } from "./semantic-playback-model";
-import { interpretSemanticTimelineDocumentChange } from "./semantic-timeline-edit";
+import {
+  interpretSemanticTimelineDocumentChange,
+  type SemanticTimelineDocument,
+} from "./semantic-timeline-edit";
 import { SemanticViewer } from "./SemanticViewer";
 import { toTimelineEditorDocument } from "./timeline-editor-adapter";
 import { projectNarrativeToTimeline } from "./timeline-projection";
@@ -91,7 +94,7 @@ export function SemanticTimeline() {
     () => toTimelineEditorDocument(projection),
     [projection],
   );
-  const document = useMemo(() => {
+  const document: SemanticTimelineDocument = useMemo(() => {
     const visible = filterTimelineDocumentForZoom(completeDocument, zoom);
     return {
       ...visible,
@@ -108,7 +111,7 @@ export function SemanticTimeline() {
     controller.select(canonicalSelectionFromTimelineSelection(document, next));
   };
 
-  const handleDocumentChange = (nextDocument: typeof document) => {
+  const handleDocumentChange = (nextDocument: SemanticTimelineDocument) => {
     const interpretation = interpretSemanticTimelineDocumentChange(
       state.project,
       document,
