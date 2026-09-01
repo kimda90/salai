@@ -18,23 +18,30 @@ The default decision ladder is:
 4. use an already-installed dependency;
 5. add the smallest new dependency or abstraction only when necessary.
 
+Spike 0D has two explicit new dependencies because they retire commodity timeline/playback risk for the active validation:
+
+- `@moritzbrantner/timeline-editor` — controlled React timeline interaction;
+- `@elah/core` — playback/materialization adapter.
+
+Treat both as replaceable adapters, not project-domain foundations.
+
 ## Required context before changing code
 
 Always read [`../AGENTS.md`](../AGENTS.md) first.
 
-For current Spike 0C work, read at minimum:
+For current Spike 0D work, read at minimum:
 
-- [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md) — current task/status/evidence source of truth;
-- [`agent-mediated-authoring.md`](agent-mediated-authoring.md) — current external-agent interaction contract;
+- [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md) — current task/status/evidence source of truth;
+- [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md) — accepted product/editorial boundary;
+- [`agent-mediated-authoring.md`](agent-mediated-authoring.md) — validated external-agent interaction contract;
 - [`narrative-ir-spec.md`](narrative-ir-spec.md) — canonical Narrative IR semantics and operation contract;
 - [`architecture.md`](architecture.md) — current system boundaries;
-- [`adr/0007-project-service-is-the-human-machine-boundary.md`](adr/0007-project-service-is-the-human-machine-boundary.md);
-- [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md);
+- [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md) — validated agent-runtime boundary;
 - [`README.md`](README.md) — canonical documentation ownership map.
 
-Read additional canonical docs for the surface being changed. For example, read [`narrative-lenses.md`](narrative-lenses.md) and [`workflows.md`](workflows.md) before changing lens/workflow semantics.
+Read additional canonical docs for the surface being changed. For example, read [`narrative-lenses.md`](narrative-lenses.md) and [`workflows.md`](workflows.md) before changing structured-view/workflow semantics.
 
-Do not use historical Spike 0A/0B documents as current requirements except when explicitly comparing evidence or behavior.
+Do not use historical Spike 0A/0B/0C implementation documents as current requirements except when explicitly comparing evidence or behavior.
 
 ## Architecture invariants
 
@@ -44,7 +51,8 @@ Coding agents must preserve these boundaries unless an accepted architecture dec
 
 - `@salai/script-model` is the only canonical narrative model.
 - Narrative IR operation semantics live in the script-model package and [`narrative-ir-spec.md`](narrative-ir-spec.md).
-- Do not create a second canonical or agent-specific narrative representation.
+- Do not create a second canonical narrative representation for agents, timelines, renderers, or NLE adapters.
+- New production/editorial identity is introduced only when the active spike proves existing stable IDs/relationships cannot represent the required meaning.
 
 ### Application boundary
 
@@ -52,6 +60,16 @@ Coding agents must preserve these boundaries unless an accepted architecture dec
 - Human UI actions and machine actions must converge on the same live project state.
 - Canonical multi-operation changes use the public `NarrativeOperation[]` path and `applyOperations()`.
 - Do not mutate persistence or serialized state behind the project service.
+
+### Structural-editorial boundary
+
+- Salai owns structural editorial semantics.
+- The semantic timeline is a projection of Salai-owned state, not a third-party timeline document used as project truth.
+- Timeline-engine gestures must resolve to Salai canonical operations or remain UI-only state.
+- `@moritzbrantner/timeline-editor` document/history/serialization state must not become Salai persistence.
+- `@elah/core` project/renderer state must be derivable and disposable.
+- Do not add a direct Mediabunny dependency during 0D unless Elah fails to expose a concrete required capability.
+- Specialist NLEs are optional downstream targets; do not route canonical editing through Resolve or another NLE during 0D.
 
 ### Agent/runtime boundary
 
@@ -69,7 +87,7 @@ Salai owns project semantics and the machine interface. Do not add embedded prov
 
 There is one Salai machine semantic interface. Transport adapters are replaceable glue and must not acquire domain logic or state ownership.
 
-For Spike 0C the supported external surface is CLI-oriented. The local HTTP bridge exists only because the current live project is browser-owned.
+The validated external surface is CLI-oriented. The local HTTP bridge exists only because the current live project is browser-owned.
 
 Do not add MCP, stdio RPC, WebSocket APIs, REST domain APIs, or another protocol simply because an agent framework supports them. A new transport requires a concrete validated need and an explicit architecture decision. When another adapter is eventually justified, it must reuse the same command semantics rather than defining a parallel API.
 
@@ -91,6 +109,8 @@ When adding, removing, or changing a machine command:
 
 Higher-level commands are justified only when Salai must resolve canonical IDs, references, placement, or another Salai-owned concern that would be brittle in raw operations. They must compile immediately to canonical operations and must not become another persistent mutation model.
 
+For 0D, prefer exposing additional **derived timing/assembly context** through existing context mechanisms before inventing timeline-engine commands.
+
 ## Change procedure
 
 ### 1. Establish the current state
@@ -107,7 +127,7 @@ Do not silently expand the milestone scope.
 
 ### 3. Reuse before abstracting
 
-Search for existing operations, service methods, utilities, fixtures, and tests before creating new abstractions.
+Search for existing operations, service methods, utilities, fixtures, adapters, and tests before creating new abstractions.
 
 Prefer extending an existing semantic boundary over introducing another layer.
 
@@ -122,16 +142,30 @@ Prioritize:
 - human/machine shared-state behavior;
 - source provenance preservation;
 - stable identity during revisions;
-- cross-lens coherence;
-- adapter behavior at the boundary.
+- timeline projection identity/order/timing;
+- direct temporal gesture → canonical operation behavior;
+- third-party adapter derivability/replacement boundary;
+- viewer/playback synchronization where behavior is part of the spike contract.
 
 Avoid pixel-perfect tests for incidental presentation unless visual output itself is the contract.
 
 ### 5. Implement the smallest change
 
-Keep domain logic out of transport/adapters. Keep provider/runtime concerns out of Salai. Keep Workspace-only meaning separate from canonical story meaning.
+Keep domain logic out of transport/adapters. Keep provider/runtime concerns out of Salai. Keep Workspace/UI-only meaning separate from canonical story meaning.
 
-Do not introduce speculative plugin systems, generic graph/canvas systems, event sourcing, CRDTs, distributed state, production graphs, real media analysis, or Resolve execution unless the active validated milestone explicitly requires them.
+For 0D specifically, do not introduce:
+
+- a full production graph;
+- Story Spine/infinite canvas implementation;
+- real GenAI execution;
+- production proxy/cache architecture;
+- OTIO/downstream interchange;
+- Resolve execution;
+- advanced NLE trim/effect/keyframe systems;
+- CRDT/event sourcing;
+- a general plugin framework.
+
+unless the smallest possible piece is necessary to answer the current pass/fail question.
 
 ### 6. Validate locally
 
@@ -151,7 +185,9 @@ pnpm dev
 
 and use a browser opened with `?bridge=1`.
 
-Do not claim a command or test passed unless it was actually run or CI provides the evidence.
+If the change affects 0D playback/timeline behavior, exercise the actual fixture in the browser; deterministic unit tests alone cannot prove that the assembly can be watched and judged.
+
+Do not claim a command, test, playback behavior, or human result passed unless it was actually run or CI/human evidence provides the proof.
 
 ### 7. Update canonical documentation
 
@@ -165,7 +201,8 @@ Change the canonical source rather than copying the same contract into multiple 
 - agent operating behavior → `agent-usage.md` and, where product-level, `agent-mediated-authoring.md`;
 - agent development process → this document;
 - architecture → `architecture.md` and ADRs when a decision changes;
-- current 0C implementation status/evidence → `spike-0c-implementation-plan.md`.
+- current 0D implementation status/evidence → `spike-0d-implementation-plan.md`;
+- discovery observations/uncertainties → `research-notes.md`.
 
 Do not mark human-validation tasks complete based on automated tests or agent simulation.
 
@@ -175,24 +212,28 @@ Prefer a small PR with one clear outcome. Do not bundle unrelated cleanup, depen
 
 Document meaningful tradeoffs and any intentionally deferred work.
 
-## Current Spike 0C constraints
+## Current Spike 0D constraints
 
-Until the 0C human gate is complete:
+Until the 0D human gate is complete:
 
-- preserve the CLI-first external machine interface;
+- preserve the existing CLI-first external machine interface;
 - preserve the external-harness runtime boundary;
+- preserve `@salai/script-model` as canonical narrative state;
+- keep timeline-editor/Elah state derived and replaceable;
 - do not add a second machine protocol;
 - do not introduce real model/provider integration inside Salai;
-- do not build production graph/Coverage Lens, real transcription/vision, Resolve execution, durable chat history, CRDT/event sourcing, or a general agent/plugin framework;
+- do not build the full production graph, Story Spine canvas, real transcription/vision, Resolve execution, OTIO interchange, durable chat history, CRDT/event sourcing, or a general agent/plugin framework;
 - keep the local bridge minimal and stateless;
 - keep CI deterministic and provider-independent;
 - human-validation items remain open until a human performs them.
 
 ## Dependency discipline
 
-Before adding a dependency, establish that the standard library, browser/Node platform, existing dependencies, or a small local implementation cannot reasonably solve the task.
+Before adding a dependency, establish that the standard library, browser/Node platform, existing dependencies, or the two accepted 0D adapters cannot reasonably solve the task.
 
 A dependency must serve the current validated requirement rather than a hypothetical future adapter or architecture.
+
+For 0D, do not add a second timeline or playback engine “just in case.” Replace an accepted spike adapter only when concrete implementation evidence shows it cannot satisfy the experiment.
 
 ## Git and pull-request discipline
 
@@ -214,6 +255,7 @@ A coding task is complete only when all applicable items are true:
 - relevant tests cover the semantic boundary;
 - `pnpm typecheck`, `pnpm test`, and `pnpm build` pass;
 - machine-interface changes are reflected by `pnpm salai tools`;
+- timeline/rendering adapter state remains derived rather than project truth;
 - canonical docs are updated without introducing contradictory duplicate contracts;
 - implementation tracker status is updated only where the task genuinely completes existing tracked work;
 - no human-validation evidence is fabricated or inferred from automation;
