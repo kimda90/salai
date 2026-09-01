@@ -3,7 +3,10 @@ import { describe, expect, it } from "vitest";
 import { toElahProject } from "./elah-adapter";
 import { createSemanticEditorialFixture } from "./semantic-editorial-fixture";
 import { resolveSemanticAssemblyAtMs } from "./semantic-playback-model";
-import { interpretSemanticTimelineDocumentChange } from "./semantic-timeline-edit";
+import {
+  interpretSemanticTimelineDocumentChange,
+  type SemanticTimelineDocument,
+} from "./semantic-timeline-edit";
 import { toTimelineEditorDocument } from "./timeline-editor-adapter";
 import { projectNarrativeToTimeline } from "./timeline-projection";
 
@@ -18,11 +21,10 @@ function setup() {
   return { fixture, projection, document };
 }
 
-function itemById<T extends { tracks: Array<{ items: Array<{ id: string }> }> }>(
-  document: T,
-  id: string,
-) {
-  const item = document.tracks.flatMap((track) => track.items).find((candidate) => candidate.id === id);
+function itemById(document: SemanticTimelineDocument, id: string) {
+  const item = document.tracks
+    .flatMap((track) => track.items)
+    .find((candidate) => candidate.id === id);
   if (!item) throw new Error(`Missing timeline item ${id}`);
   return item;
 }
