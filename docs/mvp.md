@@ -4,25 +4,26 @@
 
 Living validation sequence.
 
-This document owns **when** major product and technical risks are tested. It does not own implementation task numbering. The canonical active task tracker is [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md).
+This document owns **when** major product and technical risks are tested. It does not own implementation task numbering. The canonical active task tracker is [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md).
 
-Narrative semantics remain authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md). Current interaction contracts are [`agent-mediated-authoring.md`](agent-mediated-authoring.md) and [`narrative-lenses.md`](narrative-lenses.md).
+Narrative semantics remain authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md). The current product/editorial boundary is [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md).
 
 ## MVP goal
 
-Validate Salai's narrative/production model and primary creative interaction before investing heavily in desktop/runtime infrastructure, Resolve automation, real media analysis, or GenAI execution.
+Validate that Salai can carry durable narrative intent from low-friction authoring into a playable structural audiovisual edit while preserving stable identity, source evidence, and a clean path to real media, production intent, alternatives, generation, and optional downstream finishing.
 
 The MVP should ultimately prove that:
 
 1. one semantic narrative model can represent script-first and footage-first work;
 2. stable narrative identity can retain source evidence and production intent through restructuring;
 3. ordinary creative intent can be expressed with substantially less interaction than manual model management requires;
-4. structured Narrative Lenses can reveal useful story properties and support direct manipulation when that representation helps the creator think;
-5. agent-mediated authoring and direct lens editing can share one canonical project without document drift;
-6. Resolve can consume normalized downstream choices without Salai becoming an NLE or chat-controlled command shell;
-7. captured and generated media can later participate in the same production flow.
+4. an external agent can operate the same canonical project without becoming a second source of truth;
+5. semantic structure remains useful when the story is represented and played in actual time;
+6. direct structural editorial and agent-mediated changes share one canonical project;
+7. captured and generated media can participate in the same realization/assembly flow;
+8. specialist NLEs can receive deliberate downstream materialization without owning Salai project truth.
 
-# Phase 0 — Narrative and authoring foundation
+# Phase 0 — Narrative, interaction, and editorial foundation
 
 ## Spike 0A — Narrative IR
 
@@ -48,103 +49,135 @@ See [`narrative-ir-spec.md`](narrative-ir-spec.md) and [`spike-0a-assessment.md`
 
 0B proved that Story Wall, Outline, AV Script, and Paper/Radio Edit can manipulate one canonical Narrative IR while preserving stable identity, Workspace isolation, source semantics, and cross-surface propagation.
 
-The first human UX test also found:
+Human testing also found:
 
 > **Using direct structured manipulation as the routine path requires too much interaction to be creatively useful.**
 
-That is an interaction failure, not a failure of the Narrative IR.
-
-The same structured views remain valuable when deliberately used to perceive or reshape the story, so they continue as **Narrative Lenses**.
+The architectural result remains valid; the four surfaces are evidence for multiple coherent views, not a commitment to the final top-level UI.
 
 See [`spike-0b-assessment.md`](spike-0b-assessment.md).
 
-## Spike 0C — Agent-Mediated Authoring + Narrative Lenses
+## Spike 0C — External-Agent Authoring + Narrative Lenses
+
+**Status: complete / pass.**
+
+Human validation was completed using Codex as the external harness. The integration operated the live Salai project correctly and demonstrated the convenience of keeping an agent in the loop for routine structural manipulation.
+
+Validated:
+
+- external harness ↔ live `SalaiProjectService` boundary;
+- one narrow CLI-oriented machine interface;
+- agent changes through typed canonical operations;
+- grouped apply/revert mechanics;
+- source-backed semantics through the machine boundary;
+- direct UI and machine interaction sharing one project;
+- materially lower routine structural interaction than the 0B direct-authoring path;
+- no need for Salai-owned provider auth, sessions, model routing, or general agent runtime.
+
+See [`spike-0c-assessment.md`](spike-0c-assessment.md) and [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md).
+
+## Spike 0D — Semantic Editorial Environment
 
 **Status: current validation priority.**
 
+ADR 0009 superseded the original Resolve-only editorial boundary. Salai now owns structural editorial; specialist NLEs are optional downstream precision/finishing targets.
+
 ### Validation question
 
-Can a filmmaker express ordinary creative intent through free-form writing, conversation, and supplied media while Salai performs routine structural normalization, and can the same creator deliberately use Narrative Lenses when structured perception or direct manipulation is creatively useful?
-
-0C must prove both **interaction compression** and **structural insight**.
+Can the existing Salai semantic model drive a playable audiovisual assembly where narrative meaning, source evidence, and temporal/media structure remain connected enough to make direct and agent-mediated structural editing more useful than a conventional clip timeline?
 
 ### Minimum proof
 
-0C should stay narrow. It needs to demonstrate:
+0D must demonstrate:
 
-- one script-first authoring/revision flow;
-- one footage/source-backed flow using mocked or fixture-backed attachment metadata;
-- one atomic multi-operation agent change with understandable summary and one-step revert;
-- source evidence preserved through agent-mediated changes;
-- one meaningful direct-lens edit that is visible to the next agent request;
-- existing lenses remaining synchronized with canonical state;
-- human evidence that routine interaction is lower than 0B and at least one lens adds structural insight.
+- a semantic timeline derived from the canonical project;
+- Section/Beat/Cue timing on an actual temporal surface;
+- playable picture/audio rough assembly without Resolve;
+- direct Beat/Cue reorder and SourceExcerpt trim through canonical operations;
+- missing/unsupported material remaining explicit;
+- agent-mediated timing/structure changes through the validated 0C machine boundary;
+- one direct timeline edit visible to the next agent context read;
+- human evidence that semantic structure helps identify or solve a story/timing problem.
 
-Coverage **reasoning** may be tested with mocked relationships, but a new Coverage Lens belongs to the later production-graph phase.
+### 0D implementation boundary
 
-### 0C exit gate
+Use replaceable off-the-shelf infrastructure:
+
+- `@moritzbrantner/timeline-editor` for the first controlled React timeline interaction;
+- `@elah/core` for the first playback/materialization adapter.
+
+Neither third-party document/project model is canonical Salai state.
+
+### 0D exit gate
 
 Proceed only if:
 
-1. representative routine tasks require materially less incidental interaction than 0B;
-2. agent output resolves through validated typed canonical operations;
-3. failed grouped changes do not partially publish live state;
-4. source-backed content remains source-backed;
-5. grouped changes are understandable and revertible;
-6. direct lens edits and agent changes share one canonical project;
-7. at least one existing Narrative Lens provides useful structural insight in human testing;
-8. no second canonical chat/document/lens model is required.
+1. Narrative IR remains canonical;
+2. timeline/rendering state is derived and replaceable;
+3. the representative story can be played inside Salai without Resolve;
+4. semantic timing visibly connects Beat/Cue meaning to source/media realization;
+5. direct temporal edits resolve through Salai operations;
+6. SourceExcerpt provenance survives temporal editing;
+7. external-agent and direct temporal edits share one live project;
+8. human evidence shows that the semantic layer changes the usefulness of the timeline rather than merely decorating a normal NLE UI;
+9. no specialist-NLE feature set is required to make the spike pass.
 
-The executable tasks and evidence live only in [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md).
+The executable tasks and evidence live only in [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md).
 
 # Phase 1 — Local production application
 
-Proceed only after 0C validates the interaction model.
+Proceed only after 0D validates the structural-editorial interaction.
 
-Introduce the accepted local-first desktop/runtime direction: Electron/React shell, local filesystem/process access, a local service boundary where justified, durable project persistence, and recovery/history sufficient for production use.
+Introduce the local-first production runtime needed for real projects: desktop shell/runtime, durable canonical/Workspace/editorial persistence, project folders, local/NAS media access, recovery/history sufficient for production use, and the validated semantic timeline/playback adapters.
 
 See [`adr/0002-local-first-desktop-runtime.md`](adr/0002-local-first-desktop-runtime.md) and [`architecture.md`](architecture.md).
 
-# Phase 2 — Production graph and Coverage Lens
+# Phase 2 — Production graph and real media relationships
 
-Introduce durable production relationships around the validated narrative model: ShotIntent, real Asset / MediaSegment identity, realization alternatives, provenance, missing-coverage reasoning over real project data, and Coverage as a first-class Narrative Lens if the workflow proves useful.
+Introduce durable production relationships around the validated narrative/editorial model: ShotIntent, real Asset / MediaSegment identity, evidence-backed realization alternatives, provenance, and missing-coverage reasoning over real project data.
 
-# Phase 3 — Resolve vertical slice
+Build a dedicated Coverage representation only if the workflow demonstrates that a separate view adds value beyond timeline/other semantic overlays.
 
-Prove the downstream boundary:
+# Phase 3 — Reverse scripting with real media
+
+Replace fixture-backed source data with real media-derived data using commodity tools where appropriate. Validate that real transcripts, source ranges, thumbnails/waveforms, and media metadata preserve the Narrative IR/source semantics already proven by fixtures.
+
+# Phase 4 — Alternatives, review, and editorial comparison
+
+Validate story-level and realization alternatives without duplicating the entire project unnecessarily. Preserve tried/rejected material, compare alternatives, review the playable assembly, and keep annotations tied to stable narrative/media identity rather than fragile timeline timecodes.
+
+Introduce new version/editorial-plan domain types only if this phase demonstrates a concrete need.
+
+# Phase 5 — Downstream NLE interchange / finishing handoff
+
+Prove the optional downstream boundary:
 
 ```text
 Salai canonical state
         ↓
-materialization decision
+structural assembly / materialization decision
         ↓
-Salai Resolve adapter
+interchange / Salai NLE adapter
         ↓
-CutMaster
-        ↓
-DaVinci Resolve
+Resolve or another specialist NLE
 ```
 
-Agent requests and lens edits must change canonical Salai state before Resolve materialization.
+Resolve remains an important target. When Resolve automation is used, ADR 0004 still applies to the CutMaster boundary.
 
-# Phase 4 — Reverse scripting with real media
+OpenTimelineIO and other interchange formats may be introduced here if they materially reduce adapter-specific coupling.
 
-Replace mocked 0C attachment evidence with real media-derived data using commodity tools where appropriate. Validate that real transcripts, source ranges, and media metadata preserve the same Narrative IR/source semantics already proven by fixtures.
+# Phase 6 — GenAI / previs / generative realization
 
-# Phase 5 — Alternatives / editorial materialization
+Add generation after ordinary media/realization relationships work. Generated output should enter the same Asset/provenance/assembly flow as captured material and remain downstream of narrative/production intent.
 
-Validate story-level alternatives independent from a Resolve timeline. Preserve tried/rejected material, compare alternatives, estimate runtime, and choose materialization targets. Introduce new version/editorial-plan domain types only if this phase demonstrates a concrete need.
-
-# Phase 6 — GenAI / previs
-
-Add generation only after ordinary ShotIntent/media relationships work. Generated output should enter the same Asset/provenance flow as captured material and remain downstream of narrative/production intent.
+Generation should occur in story context rather than through a parallel canonical AI project model.
 
 # Conditional / later work
 
-Introduce only when validated workflows require it: collaboration/sync, hosted review, richer screenplay interchange, optional mixed-media spatial lenses/workspaces, OpenAssetIO interoperability, and richer generation operations.
+Introduce only when validated workflows require it: collaboration/sync, hosted review, richer screenplay interchange, Story Spine/mixed-media spatial exploration, continuity/world constraints, broader asset-management interoperability, and additional machine protocols.
 
 # Current gate
 
-Work only on **Spike 0C — Agent-Mediated Authoring + Narrative Lenses** until its interaction-compression and structural-insight questions are answered.
+Work only on **Spike 0D — Semantic Editorial Environment** until its semantic-timeline/playback question is answered.
 
-Do not pull desktop packaging, durable persistence, real Resolve execution, full media analysis, a new Coverage Lens, GenAI execution, a canonical rich-text model, or a general agent framework into 0C unless the smallest possible mock is necessary to answer its pass/fail question.
+Do not pull a full production graph, Story Spine canvas, real GenAI execution, specialist NLE feature set, second agent protocol/runtime, or broad desktop infrastructure into 0D unless the smallest possible piece is necessary to answer its pass/fail question.
