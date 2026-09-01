@@ -4,9 +4,9 @@
 
 Living validation sequence.
 
-This document owns **when** major product and technical risks are tested. It does not own implementation task numbering. The canonical active task tracker is [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md).
+This document owns **when** major product and technical risks are tested. It does not own detailed implementation task numbering. Narrative semantics remain authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md), and the product/editorial boundary remains [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md).
 
-Narrative semantics remain authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md). The current product/editorial boundary is [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md).
+Current validation priority: **Spike 0E — Semantic Editorial Interaction Depth**.
 
 ## MVP goal
 
@@ -49,11 +49,7 @@ See [`narrative-ir-spec.md`](narrative-ir-spec.md) and [`spike-0a-assessment.md`
 
 0B proved that Story Wall, Outline, AV Script, and Paper/Radio Edit can manipulate one canonical Narrative IR while preserving stable identity, Workspace isolation, source semantics, and cross-surface propagation.
 
-Human testing also found:
-
-> **Using direct structured manipulation as the routine path requires too much interaction to be creatively useful.**
-
-The architectural result remains valid; the four surfaces are evidence for multiple coherent views, not a commitment to the final top-level UI.
+Human testing found that routine direct structured manipulation requires too much interaction to be creatively useful. Structured representations remain useful as deliberate Narrative Lenses.
 
 See [`spike-0b-assessment.md`](spike-0b-assessment.md).
 
@@ -61,72 +57,137 @@ See [`spike-0b-assessment.md`](spike-0b-assessment.md).
 
 **Status: complete / pass.**
 
-Human validation was completed using Codex as the external harness. The integration operated the live Salai project correctly and demonstrated the convenience of keeping an agent in the loop for routine structural manipulation.
+Human validation using Codex as the external harness demonstrated that routine structural manipulation can remain low-friction while Salai stays the source of truth.
 
 Validated:
 
 - external harness ↔ live `SalaiProjectService` boundary;
 - one narrow CLI-oriented machine interface;
-- agent changes through typed canonical operations;
-- grouped apply/revert mechanics;
+- typed canonical operation batches;
+- grouped apply/revert;
 - source-backed semantics through the machine boundary;
 - direct UI and machine interaction sharing one project;
-- materially lower routine structural interaction than the 0B direct-authoring path;
-- no need for Salai-owned provider auth, sessions, model routing, or general agent runtime.
+- materially lower routine structural interaction than 0B;
+- no Salai-owned provider auth, sessions, model routing, or agent runtime.
 
 See [`spike-0c-assessment.md`](spike-0c-assessment.md) and [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md).
 
 ## Spike 0D — Semantic Editorial Environment
 
-**Status: current validation priority.**
+**Status: closed / mixed. Technical architecture passes; human interaction gate does not.**
 
-ADR 0009 superseded the original Resolve-only editorial boundary. Salai now owns structural editorial; specialist NLEs are optional downstream precision/finishing targets.
+0D proved that Narrative IR can drive a playable temporal audiovisual assembly, direct timeline gestures can round-trip through canonical operations, and external-agent and direct temporal changes can share one live project.
 
-### Validation question
+Human validation found that the implemented timeline was too shallow and fragmented to demonstrate a meaningful semantic advantage or replace a conventional editor for structural judgment.
 
-Can the existing Salai semantic model drive a playable audiovisual assembly where narrative meaning, source evidence, and temporal/media structure remain connected enough to make direct and agent-mediated structural editing more useful than a conventional clip timeline?
+### Technical results
 
-### Minimum proof
+Validated:
 
-0D must demonstrate:
-
-- a semantic timeline derived from the canonical project;
+- semantic timeline derived from canonical Narrative IR;
 - Section/Beat/Cue timing on an actual temporal surface;
 - playable picture/audio rough assembly without Resolve;
 - direct Beat/Cue reorder and SourceExcerpt trim through canonical operations;
-- missing/unsupported material remaining explicit;
-- agent-mediated timing/structure changes through the validated 0C machine boundary;
-- one direct timeline edit visible to the next agent context read;
-- human evidence that semantic structure helps identify or solve a story/timing problem.
+- missing/unsupported material explicit;
+- agent-mediated timing/structure changes through the validated 0C boundary;
+- direct timeline changes visible to the next agent context read;
+- timeline/rendering engines remain replaceable projections.
 
-### 0D implementation boundary
+### Human findings
 
-Use replaceable off-the-shelf infrastructure:
+- playback itself worked;
+- external harness behavior worked correctly;
+- spacebar transport was missing;
+- fixed-frequency placeholder audio was distracting;
+- too few timeline items/properties could be edited;
+- new Beats/Cues/audiovisual material could not be created in temporal context;
+- multiple visual/audio material inside a Cue was not exposed as independently manipulable;
+- Story / Moments / Media tab switching fragmented context;
+- multi-selection was missing;
+- baseline structural editing operations such as trim, split/blade, and source in/out were insufficient;
+- the user could not meaningfully judge and improve the rough story in Salai alone.
 
-- `@moritzbrantner/timeline-editor` for the first controlled React timeline interaction;
-- `@elah/core` for the first playback/materialization adapter.
+The key interpretation is:
 
-Neither third-party document/project model is canonical Salai state.
+> **Semantic visibility without enough direct editing power is insufficient.**
 
-### 0D exit gate
+The result does not invalidate Narrative IR or Salai-owned structural editorial. It shows that the interaction experiment was underpowered.
 
-Proceed only if:
+See [`spike-0d-assessment.md`](spike-0d-assessment.md) and [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md).
 
-1. Narrative IR remains canonical;
-2. timeline/rendering state is derived and replaceable;
-3. the representative story can be played inside Salai without Resolve;
-4. semantic timing visibly connects Beat/Cue meaning to source/media realization;
-5. direct temporal edits resolve through Salai operations;
-6. SourceExcerpt provenance survives temporal editing;
-7. external-agent and direct temporal edits share one live project;
-8. human evidence shows that the semantic layer changes the usefulness of the timeline rather than merely decorating a normal NLE UI;
-9. no specialist-NLE feature set is required to make the spike pass.
+## Spike 0E — Semantic Editorial Interaction Depth
 
-The executable tasks and evidence live only in [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md).
+**Status: current validation priority.**
+
+### Validation question
+
+> **If Salai provides one context-preserving hierarchical timeline plus a minimum useful rough-editing grammar, do its semantic objects materially improve structural editing compared with generic clip manipulation?**
+
+### Why this spike exists
+
+0D intentionally avoided building an NLE, but the boundary was drawn too narrowly to produce meaningful human evidence. 0E should add only the interaction depth necessary to test the same semantic-editorial thesis fairly.
+
+The main interaction hypothesis is a **flamegraph-like hierarchical temporal view** that keeps the whole story visible while exposing nested semantic detail:
+
+```text
+Section ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Beat ━━━━━━━━━━━━━━━  Beat ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    Cue ━━━━━ Cue ━━━      Cue ━━━━━━━━━━━━━ Cue ━━━━━━━━━━━
+      visual ━━━━━━━        visual ━━━━━━━   missing ━━━━━━━
+      audio  ━━━━━━━━━       source ━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+The exact visual form is not predetermined. The required property is preserving global temporal context while drilling into Section → Beat → Cue → content/media.
+
+### Minimum proof
+
+0E must demonstrate:
+
+- one context-preserving hierarchical temporal surface rather than mechanical Story/Moments/Media tab switching;
+- contextual editing/inspector for the selected semantic object;
+- creation of Beats, Cues, and appropriate visual/audio content from temporal context;
+- multiple visual/audio blocks within a Cue visible and independently selectable;
+- selection and multi-selection;
+- standard spacebar play/pause;
+- reorder/move;
+- source/media edge trim;
+- source in/out adjustment;
+- the smallest semantically correct split/blade behavior;
+- grouped canonical action + revert for direct editing;
+- non-distracting validation media;
+- external harness continuity through the existing 0C/0D machine interface without a new agent path.
+
+### 0E boundaries
+
+0E is **not** a full NLE implementation.
+
+Do not add unless directly required by the validation task:
+
+- color grading;
+- compositing/VFX;
+- keyframe/effects systems;
+- multicam;
+- advanced trim modes;
+- full audio post/mixing;
+- mastering/delivery;
+- production graph;
+- real Resolve integration;
+- GenAI execution;
+- Story Spine/canvas;
+- second machine protocol or Salai-owned model runtime.
+
+### 0E exit gate
+
+Proceed only if human evidence shows both:
+
+1. the hierarchical semantic timeline changes at least one real structural/editorial decision compared with generic clip thinking; and
+2. the minimum editing grammar is sufficient to judge and improve the representative rough story without requiring Resolve for that structural task.
+
+If this still fails, reassess whether Salai should own the direct temporal editor at all rather than continuing to add NLE surface area by default.
 
 # Phase 1 — Local production application
 
-Proceed only after 0D validates the structural-editorial interaction.
+Proceed only after 0E validates the structural-editorial interaction.
 
 Introduce the local-first production runtime needed for real projects: desktop shell/runtime, durable canonical/Workspace/editorial persistence, project folders, local/NAS media access, recovery/history sufficient for production use, and the validated semantic timeline/playback adapters.
 
@@ -178,6 +239,6 @@ Introduce only when validated workflows require it: collaboration/sync, hosted r
 
 # Current gate
 
-Work only on **Spike 0D — Semantic Editorial Environment** until its semantic-timeline/playback question is answered.
+Work only on **Spike 0E — Semantic Editorial Interaction Depth** until the timeline interaction question is answered.
 
-Do not pull a full production graph, Story Spine canvas, real GenAI execution, specialist NLE feature set, second agent protocol/runtime, or broad desktop infrastructure into 0D unless the smallest possible piece is necessary to answer its pass/fail question.
+Do not pull Phase 1 desktop/persistence, Production Graph, Story Spine canvas, real GenAI execution, Resolve integration, specialist finishing features, or a second agent protocol/runtime into 0E unless the smallest possible piece is necessary to answer the pass/fail question.
