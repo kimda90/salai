@@ -6,8 +6,14 @@ import {
   estimateNarrativeDuration,
   type NarrativeProject,
 } from "@salai/script-model";
+import { createSemanticEditorialFixture } from "./semantic-editorial-fixture";
 
-export type FixtureKey = "scratch" | "product" | "interview" | "documentary";
+export type FixtureKey =
+  | "scratch"
+  | "product"
+  | "interview"
+  | "documentary"
+  | "semantic-editorial";
 
 export type FixtureDefinition = {
   key: FixtureKey;
@@ -40,6 +46,12 @@ export const FIXTURES: readonly FixtureDefinition[] = [
     label: "Footage-first mini-doc",
     description: "Narrative constructed from mocked MediaSegments and source-backed excerpts.",
     create: createFootageFirstFixture,
+  },
+  {
+    key: "semantic-editorial",
+    label: "0D semantic editorial",
+    description: "Deterministic audiovisual fixture for semantic timeline and playback validation.",
+    create: () => createSemanticEditorialFixture().project,
   },
 ];
 
