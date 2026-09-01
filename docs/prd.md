@@ -2,122 +2,145 @@
 
 ## Status
 
-Living product requirements and success criteria. Current execution is tracked only in [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md).
+Living product requirements and success criteria. Current execution is tracked only in [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md).
 
 ## Product goal
 
-Salai lets filmmakers express story/production intent with low interaction overhead while maintaining a durable typed connection among narrative structure, source evidence, production needs, media, alternatives, and downstream Resolve materialization.
+Salai lets filmmakers express story/production intent with low interaction overhead while maintaining a durable typed connection among narrative structure, source evidence, production needs, media, alternatives, and the active structural audiovisual edit.
 
-> **Express intent naturally; Salai structures it for production. See and reshape that structure through narrative lenses.**
+> **Express intent naturally; Salai structures it for production and structural editorial. See, play, and reshape the same story through semantic creative surfaces.**
 
 > **Hide structural bookkeeping, not narrative structure.**
 
-## P0 — Spike 0C requirements
+## Validated foundation
 
-### Canonical project
+### Narrative/project semantics
 
 - One Narrative IR is canonical semantic narrative state.
-- Structured surfaces keep no independent narrative copies.
-- Workspace-only organization remains separate from canonical narrative meaning.
 - Stable identity survives ordinary edits/restructuring.
 - Authored and source-backed material remain distinct.
+- Structured views keep no independent narrative copies.
+- Workspace-only organization remains separate from canonical narrative meaning.
 
 ### External-agent authoring
 
-- A creator can express rough prose and ordinary revisions in an existing agent harness without manually managing every Section/Scene/Beat/Cue operation.
-- The harness can inspect task-relevant current Salai state through one machine interface.
+Spike 0C is complete/pass.
+
+- An external harness can inspect and mutate the same live Salai project as the UI.
+- Human validation using Codex demonstrated that the integration works correctly and materially reduces routine structural bookkeeping.
 - Harness-requested mutations go through `SalaiProjectService`, `NarrativeOperation[]`, and `applyOperations()` before project state changes.
 - Salai does not require harness conversation/session history to reconstruct the project.
-- Salai does not embed model/provider authentication, model routing, chat runtime, or a provider SDK for 0C.
-- A higher-level Salai command may exist only for a concrete case where Salai must resolve IDs/references/placement the harness should not manufacture.
+- Salai does not embed model/provider authentication, model routing, chat runtime, or a provider SDK as a requirement of the product architecture.
 - Failed grouped changes do not partially publish live state.
+- The first validated machine interface remains CLI-oriented; add another protocol only when a concrete integration requires it.
 
-### Shared live state
+See [`spike-0c-assessment.md`](spike-0c-assessment.md) and [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md).
 
-- The external harness and Narrative Lenses operate on the same live Salai project.
-- A machine change appears in existing lenses through canonical state, not per-lens synchronization.
-- A direct lens edit is visible to the next machine context read.
-- The local bridge needed by the current browser prototype must not own another project model or persistence path.
+## P0 — Spike 0D requirements
 
-### Grouped trust / recovery
+### Structural editorial
 
-- One user intention may produce several canonical operations but appears as one understandable action.
-- The current machine-applied action is immediately revertible while no later canonical or Workspace edit has occurred.
-- Any later machine or direct edit invalidates that snapshot-based revert.
-- External/destructive effects are outside 0C.
+- Salai can represent the current story in actual time while retaining Section/Beat/Cue identity.
+- Salai can play a deterministic rough audiovisual assembly without requiring Resolve.
+- The creator can scrub/seek and understand the relationship between narrative structure and current media realization.
+- Direct temporal structural edits must change Salai canonical state rather than a third-party engine-owned shadow timeline.
+- The representative spike supports narrative reorder, Cue movement, and SourceExcerpt trimming through existing canonical operations.
+- Missing/unsupported visual moments remain explicit rather than being replaced with invented media.
+
+### Timeline/playback state ownership
+
+- Narrative IR remains canonical semantic state.
+- Timeline viewport/selection/focus remain UI/Workspace state as appropriate.
+- Timeline-editor documents and Elah projects are derived materialization/projection state only.
+- Third-party timeline/rendering serialization is not Salai project persistence.
+- Engine-specific edits that cannot map safely to Salai semantics must be rejected/disabled rather than silently diverging.
+
+### Timeline implementation
+
+- Use `@moritzbrantner/timeline-editor` as the first controlled React timeline interaction layer for 0D.
+- Use `@elah/core` as the first playback/materialization adapter for 0D.
+- Keep both behind Salai-owned adapters so either can be replaced without project migration.
+- Do not add a direct Mediabunny dependency unless Elah fails to expose a required spike capability.
+
+### Agent ↔ temporal UI continuity
+
+- External-agent changes appear on the semantic timeline through canonical state only.
+- A direct semantic-timeline edit is visible to the next machine context read.
+- No second agent/project/editing model is introduced for temporal work.
+- Existing grouped-action/revert semantics remain available where one temporal user action produces grouped canonical operations.
 
 ### Source evidence
 
-- SourceExcerpt wording/ranges remain source evidence through machine-mediated changes.
+- SourceExcerpt wording/ranges remain source evidence through playback and temporal editing.
 - Raw camera/media originals remain local by default.
-- The machine interface returns task-relevant project/source context rather than implicitly exposing arbitrary local files.
-- Attachment/reference identity does not imply file-upload permission.
+- The machine interface returns task-relevant project/source/timing context rather than implicitly exposing arbitrary local files.
 
-### Narrative Lenses
+### Product/editorial boundary
 
-- Existing structured surfaces remain synchronized Narrative Lenses.
-- Direct editing remains first-class when the creator deliberately chooses that representation.
-- Lenses expose useful structure without requiring incidental low-level mechanics.
+- Salai owns structural editorial needed to construct, play, judge, and revise the story.
+- Specialist NLE capabilities such as advanced precision trim, multicam, compositing, color, full audio post, mastering, and delivery are non-goals for the structural-editorial surface.
+- DaVinci Resolve and other NLEs are optional downstream targets, not required runtime dependencies.
 
-Detailed lens semantics: [`narrative-lenses.md`](narrative-lenses.md).
+See [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md).
 
-### Resolve
+## P1 — after 0D passes
 
-- Resolve remains the downstream NLE/finishing environment.
-- Harness instructions and lens edits change canonical Salai state first.
-- Resolve materialization uses an explicit Salai adapter boundary rather than direct conversation-to-Resolve mutation.
-
-## P1 — after 0C passes
-
-- local desktop runtime and persistent project access;
-- durable Narrative IR/Workspace/action persistence;
-- production graph with ShotIntent, Asset, MediaSegment, realization/provenance relationships;
-- Coverage Lens over real production data if validated;
-- Resolve handoff through reusable automation infrastructure;
+- local desktop runtime and persistent project/media access;
+- durable Narrative IR/Workspace/structural-editorial persistence;
+- local media lifecycle sufficient for validated workflows;
+- production graph with ShotIntent, Asset, MediaSegment, and evidence-backed realization/provenance relationships;
+- real missing-coverage reasoning and a Coverage representation if validated;
 - reverse scripting from real media/transcripts;
-- alternative story/source versions;
+- alternatives/versioning/review tied to stable narrative/media identity;
+- downstream interchange/materialization to specialist NLEs;
 - generated media as ordinary project assets with provenance.
 
 ## Non-goals
 
 Salai is not initially:
 
-- a replacement NLE;
+- a full professional finishing NLE;
 - a screenplay-formatting competitor;
 - a cloud MAM;
-- a generic chatbot that maps language directly to Resolve commands;
+- a generic chatbot that maps language directly to timeline-engine commands;
 - an unattended autonomous editing agent;
 - a standalone GenAI video generator;
-- a full VFX/color/audio/delivery environment;
+- a full VFX/color/audio-finishing/delivery environment;
 - a graph database or generic node/canvas editor;
 - a rich-text document used as canonical project storage;
-- a system that hides all narrative structure behind opaque AI output.
+- a system that hides all narrative structure behind opaque AI output;
+- a project whose truth is stored in a third-party timeline/rendering engine format.
 
-## Spike 0C success criteria
+## Spike 0D success criteria
 
-### Interaction compression
+### Semantic value in time
 
-- one rough script-first story is created without manual Beat/Cue construction;
-- one ordinary revision is expressed as one natural instruction in the harness;
-- one source-backed task is completed without manual relationship wiring;
-- routine tasks require materially fewer explicit user actions than 0B.
+- Section/Beat/Cue timing is legible on a real temporal surface;
+- semantic zoom reveals deeper audiovisual structure without losing stable Salai identity;
+- the user can identify a story/timing or realization problem by watching the Salai assembly;
+- human evidence shows that semantic structure changes the usefulness of the timeline rather than merely decorating a conventional clip editor.
 
-### Canonical safety / trust
+### Structural editorial
 
-- machine mutations resolve through typed canonical operations;
-- grouped changes publish atomically;
-- failed batches leave live state unchanged;
-- source identity/ranges survive;
-- one current machine action can be immediately reverted without rolling back later edits.
+- the fixture can be played and scrubbed without Resolve;
+- direct Beat/Cue ordering changes resolve through Salai operations;
+- SourceExcerpt trimming preserves source identity/ranges;
+- playback immediately reflects canonical changes.
 
-### Structural insight
+### State safety
 
-- existing lenses reflect machine changes automatically;
-- at least one lens is opened voluntarily because it exposes/manipulates useful story structure;
-- a subsequent harness request sees the direct lens edit through current Salai state.
+- third-party timeline/rendering state is derived and replaceable;
+- failed/unsupported temporal changes do not publish divergent canonical state;
+- agent and direct temporal edits share one live project.
+
+### Scope discipline
+
+- no specialist-NLE feature set is required to pass the spike;
+- no second agent runtime/protocol is introduced without evidence;
+- no full production graph or canvas system is added solely to make the demo look complete.
 
 ## Current milestone
 
-**Spike 0C — External-Agent Authoring + Narrative Lenses.**
+**Spike 0D — Semantic Editorial Environment.**
 
-See [`agent-mediated-authoring.md`](agent-mediated-authoring.md), [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md), and [`spike-0c-implementation-plan.md`](spike-0c-implementation-plan.md).
+See [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md), [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md), and [`spike-0c-assessment.md`](spike-0c-assessment.md).
