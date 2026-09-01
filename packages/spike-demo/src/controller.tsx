@@ -43,7 +43,7 @@ export type SalaiAppState = {
   project: NarrativeProject;
   workspace: Workspace;
   selection: CanonicalSelection | null;
-  activeSurface: "outline" | "story-wall" | "av-script" | "paper-edit";
+  activeSurface: "outline" | "story-wall" | "av-script" | "paper-edit" | "timeline";
   feedback: OperationFeedback;
   canRevertMachineAction: boolean;
 };
@@ -94,7 +94,7 @@ function initialState(fixtureKey: FixtureKey): SalaiAppState {
     project,
     workspace: createStoryWallWorkspace(project),
     selection: null,
-    activeSurface: "outline",
+    activeSurface: fixtureKey === "semantic-editorial" ? "timeline" : "outline",
     feedback: EMPTY_FEEDBACK,
     canRevertMachineAction: false,
   };

@@ -2,7 +2,7 @@
 
 ## Status
 
-**Current validation iteration. 0D.0 complete; 0D.1 next.**
+**Current validation iteration. 0D.0–0D.1 complete; 0D.2 next.**
 
 This file is the canonical execution tracker for Spike 0D. It owns 0D task numbering, implementation order, completion state, and exit evidence.
 
@@ -121,9 +121,9 @@ Use small local fixture media suitable for deterministic development/test execut
 ```text
 0D.0  Timeline/playback adapter boundaries     [complete]
   ↓
-0D.1  Semantic timeline projection             [next]
+0D.1  Semantic timeline projection             [complete]
   ↓
-0D.2  Playable rough assembly
+0D.2  Playable rough assembly                  [next]
   ↓
 0D.3  Structural editing round trip
   ↓
@@ -157,13 +157,15 @@ Evidence: PR #63 CI run 189 completed dependency installation, TypeScript checki
 
 Represent narrative structure in actual time without reducing the project to generic clips/tracks.
 
-- [ ] **0D.1.1 — Render Sections/Beats as temporal semantic regions.**
-- [ ] **0D.1.2 — Reveal Cue structure at a closer semantic zoom level.**
-- [ ] **0D.1.3 — Render source/media realization beneath the semantic structure where available.**
-- [ ] **0D.1.4 — Preserve stable Salai selection across semantic levels.**
-- [ ] **0D.1.5 — Expose unsupported/missing moments without inventing media.**
-- [ ] **0D.1.6 — Add deterministic projection tests for identity, ordering, timing, and missing material.**
-- [ ] **0D.1.GATE — The timeline visibly communicates narrative meaning + audiovisual timing rather than looking like an ordinary media-track editor with labels added.**
+- [x] **0D.1.1 — Render Sections/Beats as temporal semantic regions.**
+- [x] **0D.1.2 — Reveal Cue structure at a closer semantic zoom level.**
+- [x] **0D.1.3 — Render source/media realization beneath the semantic structure where available.**
+- [x] **0D.1.4 — Preserve stable Salai selection across semantic levels.**
+- [x] **0D.1.5 — Expose unsupported/missing moments without inventing media.**
+- [x] **0D.1.6 — Add deterministic projection tests for identity, ordering, timing, and missing material.**
+- [x] **0D.1.GATE — The timeline visibly communicates narrative meaning + audiovisual timing rather than looking like an ordinary media-track editor with labels added.**
+
+Evidence: PR #64 CI run 193 passed TypeScript, unit tests, and build against the published timeline-editor 1.0.0 contract. The Timeline surface exposes three semantic scales: Story (Sections/Beats), Moments (Beats/Cues), and Media (Cues/visual/source realization). Selection remains canonical while the visible timeline anchor changes to the nearest semantic ancestor/descendant. Media/source selections resolve back to their enclosing Cue, and unsupported visual material is rendered as an explicit `missing-visual` item. The engine remains read-only, so no timeline-only mutation path exists in this slice.
 
 ---
 
