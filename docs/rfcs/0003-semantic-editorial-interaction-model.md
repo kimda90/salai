@@ -2,15 +2,15 @@
 
 ## Status
 
-**Proposed — shaping Spike 0E before implementation.**
+**Accepted — September 2, 2026.**
 
-This RFC is the scoped place for unresolved interaction questions discovered by Spike 0D. Accepted behavior is promoted into [`../editorial-interaction.md`](../editorial-interaction.md), product requirements, and the 0E implementation plan only after review.
+This RFC establishes the accepted interaction direction for Spike 0E. Observable behavior is owned by [`../editorial-interaction.md`](../editorial-interaction.md). The five questions in **Deferred questions** remain deliberately unresolved until implementation or human evidence requires them; acceptance of this RFC does not silently settle those domain questions.
 
 ## Summary
 
 Spike 0D proved that Salai can project Narrative IR into real time, play a rough assembly, round-trip a small set of timeline gestures through canonical operations, and keep an external harness coherent with direct temporal edits. Human validation did **not** validate the timeline as a useful editing environment because the surface exposed too little semantic depth and too few editing verbs.
 
-0E should therefore test one stronger interaction model rather than adding isolated controls to the 0D UI:
+0E will therefore test one stronger interaction model rather than adding isolated controls to the 0D UI:
 
 > **One context-preserving hierarchical timeline exposes Section → Beat → Cue → visual/audio content in time, while selection, creation, trimming, splitting, grouping, and playback compile to Salai-owned semantics.**
 
@@ -296,9 +296,9 @@ Rejected for 0E. 0D failed because the temporal editor was not deep enough, not 
 
 These are exactly the risks 0E should measure rather than pre-solving with a full NLE model.
 
-## Open questions
+## Deferred questions
 
-These questions are intentionally scoped to this RFC and must be resolved by review or 0E evidence before becoming broader canonical requirements:
+These questions remain intentionally scoped to this RFC after acceptance. They are not prerequisites for 0E.0–0E.3 unless a slice directly reaches the behavior, and they must not be implemented as hidden engine/UI state:
 
 1. **Cue split:** Is splitting a Cue necessary for the 0E validation fixture, and if so what deterministic rule distributes visual/audio blocks and duration?
 2. **SourceExcerpt split:** Can a two-excerpt split be expressed safely as one atomic batch with existing operations, or does the Narrative IR need a dedicated operation?
@@ -310,6 +310,8 @@ No other unresolved interaction behavior should be duplicated into living canoni
 
 ## Decision / outcome
 
-**Pending review.**
+**Accepted on September 2, 2026.**
 
-If accepted, this RFC establishes the 0E interaction direction. Accepted observable behavior is owned by `docs/editorial-interaction.md`; Narrative IR changes, if any become necessary, must be made explicitly in `narrative-ir-spec.md` and may require an ADR/RFC follow-up.
+Spike 0E will implement and validate the interaction direction defined here. `docs/editorial-interaction.md` owns the accepted observable interaction contract. The five deferred questions above remain evidence-driven follow-ups and do not become implicit requirements through this acceptance.
+
+Narrative IR changes, if later proven necessary, must be made explicitly in `narrative-ir-spec.md` and may require a follow-up RFC/ADR rather than being smuggled into timeline-engine state.
