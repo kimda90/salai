@@ -6,9 +6,9 @@ Living validation sequence.
 
 This document owns **when** major product and technical risks are tested. It does not own detailed implementation task numbering. Narrative semantics remain authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md), and the product/editorial boundary remains [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md).
 
-Current validation priority: **Spike 0E — Semantic Editorial Interaction Depth, shaping before implementation.**
+Current validation priority: **Spike 0E — Semantic Editorial Interaction Depth, implementation starting at 0E.0.**
 
-Current shaping documents:
+Current accepted interaction documents:
 
 - [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md)
 - [`editorial-interaction.md`](editorial-interaction.md)
@@ -107,15 +107,15 @@ See [`spike-0d-assessment.md`](spike-0d-assessment.md).
 
 ## Spike 0E — Semantic Editorial Interaction Depth
 
-**Status: current shaping/validation priority; implementation blocked on `0E.SHAPE.GATE`.**
+**Status: current validation priority; shaping accepted, implementation starts at 0E.0.**
 
 ### Validation question
 
 > **If Salai provides one context-preserving hierarchical timeline plus the minimum useful canonical rough-editing grammar, do its semantic objects materially improve structural editing compared with generic clip manipulation?**
 
-### Shaped interaction direction
+### Accepted interaction direction
 
-0E proposes one temporal context with nested semantic depth:
+RFC 0003 was accepted on September 2, 2026. 0E uses one temporal context with nested semantic depth:
 
 ```text
 Script  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -128,7 +128,7 @@ Section ━━━━━━━━━━━━━━━━━━━━━━━━
 
 The design reference may resemble a flamegraph, but the product requirement is context preservation, not a specific drawing style.
 
-Current proposed semantic constraints:
+Accepted semantic constraints:
 
 - Cue is the canonical narrative-time interval;
 - all visual/audio ContentBlocks inside a Cue are exposed;
@@ -140,18 +140,9 @@ Current proposed semantic constraints:
 - timeline/playback engines remain replaceable;
 - external harness boundary remains unchanged.
 
-### Shaping gate
+Five questions remain deliberately deferred in RFC 0003 and must not be implemented implicitly: Cue split, SourceExcerpt split, independent within-Cue timing, intentional black-vs-missing identity, and broad cross-parent grouped moves.
 
-Before code:
-
-1. review RFC 0003;
-2. accept/revise the proposed interaction contract;
-3. resolve any RFC question required by the first implementation slice;
-4. mark `0E.SHAPE.GATE` accepted in the tracker.
-
-Unresolved questions are intentionally confined to RFC 0003: Cue split, SourceExcerpt split, independent within-Cue timing, intentional black-vs-missing identity, and broad cross-parent grouped moves.
-
-### Minimum proof after shaping
+### Minimum proof
 
 0E must demonstrate:
 
@@ -176,7 +167,7 @@ Proceed only if human evidence shows both:
 1. semantic hierarchy materially changes at least one real structural/editorial decision compared with generic clip thinking; and
 2. the minimum editing grammar is sufficient to judge/improve the representative rough story without Resolve for that structural task.
 
-If those still fail after the shaped interaction is implemented, reassess whether Salai should own the direct temporal editor instead of automatically adding more NLE surface area.
+If those still fail after the accepted interaction is implemented, reassess whether Salai should own the direct temporal editor instead of automatically adding more NLE surface area.
 
 # Phase 1 — Local production application
 
@@ -228,6 +219,6 @@ Introduce only when validated workflows require it: collaboration/sync, hosted r
 
 # Current gate
 
-Work only on **Spike 0E — Semantic Editorial Interaction Depth shaping** until `0E.SHAPE.GATE` is accepted.
+Work only on **Spike 0E — Semantic Editorial Interaction Depth**, starting with **0E.0 — Interaction foundation and evaluation noise**.
 
-Do not begin implementation or pull Phase 1 persistence, Production Graph, Story Spine, real GenAI, Resolve integration, specialist finishing features, or a second agent protocol/runtime into 0E before that gate.
+Do not pull Phase 1 persistence, Production Graph, Story Spine, real GenAI, Resolve integration, specialist finishing features, or a second agent protocol/runtime into 0E. Do not implement the five deferred RFC 0003 questions unless a later slice explicitly resolves one first.
