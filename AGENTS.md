@@ -57,18 +57,24 @@ Use only tools reported by `pnpm salai tools`. Treat Salai project state, not co
 
 The canonical development standard for agents is [`docs/agent-development.md`](docs/agent-development.md). Human contribution guidance is in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-The current milestone is **Spike 0D — Semantic Editorial Environment**. Before changing current behavior, read at minimum:
+The current milestone is **Spike 0E — Semantic Editorial Interaction Depth**. 0E is in a shaping-before-build state: do not begin implementation that resolves interaction/domain questions which remain open in RFC 0003.
 
-- [`docs/spike-0d-implementation-plan.md`](docs/spike-0d-implementation-plan.md)
-- [`docs/adr/0009-salai-owns-structural-editorial.md`](docs/adr/0009-salai-owns-structural-editorial.md)
-- [`docs/agent-mediated-authoring.md`](docs/agent-mediated-authoring.md)
+Before changing current structural-editorial behavior, read at minimum:
+
+- [`docs/rfcs/0003-semantic-editorial-interaction-model.md`](docs/rfcs/0003-semantic-editorial-interaction-model.md)
+- [`docs/editorial-interaction.md`](docs/editorial-interaction.md)
+- [`docs/spike-0e-implementation-plan.md`](docs/spike-0e-implementation-plan.md)
+- [`docs/spike-0d-assessment.md`](docs/spike-0d-assessment.md)
 - [`docs/narrative-ir-spec.md`](docs/narrative-ir-spec.md)
 - [`docs/architecture.md`](docs/architecture.md)
+- [`docs/adr/0009-salai-owns-structural-editorial.md`](docs/adr/0009-salai-owns-structural-editorial.md)
 - [`docs/adr/0008-external-harness-owns-agent-runtime.md`](docs/adr/0008-external-harness-owns-agent-runtime.md)
 
-0D deliberately uses `@moritzbrantner/timeline-editor` as the first controlled React timeline adapter and `@elah/core` as the first playback/materialization adapter. Keep both replaceable and keep their document/project state out of Salai persistence.
+0E reuses `@moritzbrantner/timeline-editor` as the controlled timeline adapter and `@elah/core` as the playback/materialization adapter unless evidence from the shaped interaction contract proves one cannot satisfy the required behavior. Keep both replaceable and keep their state out of Salai persistence.
 
-Prefer the smallest implementation that preserves the existing boundaries. Reuse existing operations and services before adding abstractions or dependencies.
+Prefer existing canonical operations before adding domain behavior. In particular, existing `create*`, `update*`, `move*`, `moveBlock`, `splitBeat`, `mergeBeats`, delete operations, and `trimSourceExcerpt` are the starting vocabulary for 0E direct manipulation.
+
+Do not implement unresolved Cue split, SourceExcerpt split, independent within-Cue block timing, or generic free-positioned clip behavior unless RFC 0003 is explicitly resolved first.
 
 Before declaring a code change complete, run:
 
