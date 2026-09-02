@@ -2,11 +2,11 @@
 
 ## Status
 
-**Proposed 0E interaction contract.**
+**Accepted 0E interaction contract.**
 
-This document owns observable structural-editorial interaction behavior once RFC 0003 is accepted. Until then, implementation must not outrun the constraints below or treat unresolved RFC questions as settled domain semantics.
+This document owns observable structural-editorial interaction behavior for Spike 0E under accepted RFC 0003. The RFC's five deferred questions remain intentionally unresolved until implementation or human evidence reaches them; this contract must not silently implement those behaviors through engine/UI state.
 
-Narrative object semantics and canonical operations remain authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md). Product boundaries remain authoritative in [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md). The shaping proposal and scoped open questions live in [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md).
+Narrative object semantics and canonical operations remain authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md). Product boundaries remain authoritative in [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md). The accepted cross-cutting direction and deferred questions live in [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md).
 
 ## Purpose
 
@@ -233,11 +233,11 @@ Supported through `mergeBeats` with explicit surviving Beat identity and Cue ord
 
 ### Cue split
 
-Not part of the accepted baseline until RFC 0003 resolves deterministic block/duration distribution.
+Deferred by accepted RFC 0003. It is not part of the 0E baseline until a deterministic block/duration policy is explicitly accepted.
 
 ### SourceExcerpt split
 
-Not part of the accepted baseline until RFC 0003 resolves whether existing operations can safely compose the behavior.
+Deferred by accepted RFC 0003. It is not part of the 0E baseline until a safe canonical composition or dedicated operation is explicitly accepted.
 
 ### Ordinary ContentBlock split
 
@@ -253,7 +253,7 @@ The timeline must distinguish states the user reasons about differently.
 - A Cue with no visual content displays the absence rather than inventing media.
 - A known unsupported/missing visual realization is displayed explicitly as missing.
 - A generic free-positioned timeline gap is not a 0E canonical concept.
-- Intentional black versus missing realization remains governed by RFC 0003 until later semantic evidence resolves it.
+- Intentional black versus missing realization remains a deferred RFC 0003 question and must not be guessed into canonical state.
 
 ## Playback and transport
 
