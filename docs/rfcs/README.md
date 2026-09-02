@@ -44,10 +44,11 @@ Once accepted:
 
 - promote observable product/interaction behavior into the canonical owning specification;
 - promote architecture decisions into ADRs when the choice and consequences need durable decision history;
+- keep intentionally deferred questions scoped in the accepted RFC until evidence resolves them;
 - remove resolved uncertainty from living canonical docs rather than duplicating the RFC discussion everywhere.
 
 ## Current RFCs
 
 - [`0001-one-narrative-ir-multiple-workflows.md`](0001-one-narrative-ir-multiple-workflows.md) — one canonical Narrative IR across workflows.
 - [`0002-agent-mediated-authoring.md`](0002-agent-mediated-authoring.md) — external-agent authoring direction that led to the validated 0C boundary.
-- [`0003-semantic-editorial-interaction-model.md`](0003-semantic-editorial-interaction-model.md) — **Proposed** 0E hierarchical temporal interaction model, direct-edit grammar, and the only current home for unresolved Cue/source split and within-Cue timing questions.
+- [`0003-semantic-editorial-interaction-model.md`](0003-semantic-editorial-interaction-model.md) — **Accepted** 0E hierarchical temporal interaction model and direct-edit grammar; it remains the canonical home for five explicitly deferred questions around Cue/source splitting, within-Cue timing, intentional black-vs-missing, and broad cross-parent grouped moves.

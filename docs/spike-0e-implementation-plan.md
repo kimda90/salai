@@ -2,17 +2,17 @@
 
 ## Status
 
-**Current validation iteration — SHAPING COMPLETE FOR REVIEW; implementation not started.**
+**Current validation iteration — SHAPING ACCEPTED; implementation ready to start at 0E.0.**
 
-Do not begin 0E implementation until `0E.SHAPE.GATE` is explicitly accepted.
+`0E.SHAPE.GATE` was accepted on September 2, 2026 through RFC 0003. Implementation must follow the accepted interaction contract and must not silently resolve the RFC's five deferred questions.
 
 This file is the canonical execution tracker for Spike 0E. It owns 0E task numbering, implementation order, completion state, and exit evidence. It does **not** own unresolved product semantics.
 
 Shaping inputs/contracts:
 
 - 0D evidence: [`spike-0d-assessment.md`](spike-0d-assessment.md)
-- proposed cross-cutting decision: [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md)
-- proposed observable interaction contract: [`editorial-interaction.md`](editorial-interaction.md)
+- accepted cross-cutting decision: [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md)
+- accepted observable interaction contract: [`editorial-interaction.md`](editorial-interaction.md)
 - canonical Narrative IR: [`narrative-ir-spec.md`](narrative-ir-spec.md)
 - roadmap: [`mvp.md`](mvp.md)
 
@@ -41,7 +41,7 @@ Make the temporal environment deep enough to fairly test Salai's semantic-editor
 
 ## Shaped 0E baseline
 
-Unless RFC 0003 is revised before acceptance, implementation works from these constraints:
+Under accepted RFC 0003, implementation works from these constraints:
 
 - one hierarchical temporal context exposes Section → Beat → Cue → all ContentBlocks;
 - Cue is the canonical narrative-time interval;
@@ -53,7 +53,7 @@ Unless RFC 0003 is revised before acceptance, implementation works from these co
 - creation resolves to a valid semantic parent/insertion point before commit;
 - direct gestures compile to existing canonical operations/batches wherever possible;
 - Beat split/merge are supported by existing canonical operations;
-- Cue split, SourceExcerpt split, independent within-Cue timing, intentional black-vs-missing, and broad cross-parent multi-move remain RFC-scoped until resolved;
+- Cue split, SourceExcerpt split, independent within-Cue timing, intentional black-vs-missing, and broad cross-parent multi-move remain RFC-scoped deferred questions until explicitly resolved;
 - timeline-editor and Elah remain replaceable adapters;
 - external harness remains on the validated existing machine boundary.
 
@@ -63,7 +63,7 @@ Unless RFC 0003 is revised before acceptance, implementation works from these co
 - `SalaiProjectService` remains the human/machine mutation boundary.
 - No engine-owned edited document may become project truth.
 - Do not add a canonical operation merely to mirror an editor gesture if existing operations can express it safely.
-- Do not implement unresolved RFC behavior by silently persisting UI/engine state.
+- Do not implement deferred RFC behavior by silently persisting UI/engine state.
 - Do not add provider/model/session/runtime code.
 - Do not add Phase 1 desktop/persistence infrastructure.
 - Do not add Production Graph, Resolve execution/interchange, GenAI execution, Story Spine canvas, color, VFX, multicam, keyframes/effects, full audio post, mastering, delivery, CRDT/event sourcing, or a second machine protocol/runtime.
@@ -71,9 +71,9 @@ Unless RFC 0003 is revised before acceptance, implementation works from these co
 # Merge sequence
 
 ```text
-0E.SHAPE  Interaction/domain contract review        [current gate]
+0E.SHAPE  Interaction/domain contract review        [complete]
     ↓
-0E.0      Interaction foundation + evaluation noise
+0E.0      Interaction foundation + evaluation noise [current]
     ↓
 0E.1      Hierarchical semantic timeline
     ↓
@@ -110,10 +110,12 @@ Prevent implementation from deciding product semantics accidentally.
 - [x] **0E.SHAPE.4 — Write `editorial-interaction.md` as the observable direct-edit contract.**
 - [x] **0E.SHAPE.5 — Normalize living docs around 0D closed/mixed and 0E current.**
 - [x] **0E.SHAPE.6 — Keep unresolved semantics only in RFC 0003.**
-- [ ] **0E.SHAPE.7 — Review/resolve RFC 0003 open questions that must be decided before code.**
-- [ ] **0E.SHAPE.GATE — Accept the shaped 0E interaction contract for implementation.**
+- [x] **0E.SHAPE.7 — Review RFC 0003 and classify non-blocking questions as explicitly deferred.**
+- [x] **0E.SHAPE.GATE — Accept the shaped 0E interaction contract for implementation.**
 
-### RFC questions that do not block initial slices unless the implementation task reaches them
+Evidence: RFC 0003 was accepted on September 2, 2026. The hierarchical temporal interaction direction and `editorial-interaction.md` contract are binding for 0E. The five questions below remain deliberately deferred and are not implicitly resolved by acceptance.
+
+### Deferred RFC questions that do not block initial slices unless the implementation task reaches them
 
 1. Cue split semantics.
 2. SourceExcerpt split composition vs dedicated operation.
@@ -121,7 +123,7 @@ Prevent implementation from deciding product semantics accidentally.
 4. Intentional black vs missing realization identity.
 5. Broad cross-parent grouped moves.
 
-0E.0–0E.3 may begin after the overall interaction direction is accepted while individual questions above remain deferred **only if those slices do not implement the unresolved behavior**. 0E.4 must not implement an unresolved split/timing behavior without resolving its RFC question first.
+0E.0–0E.3 may proceed while individual questions above remain deferred **only if those slices do not implement the unresolved behavior**. 0E.4 must not implement an unresolved split/timing behavior without resolving its RFC question first.
 
 ---
 

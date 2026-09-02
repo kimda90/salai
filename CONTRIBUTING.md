@@ -6,12 +6,12 @@ Coding agents must also follow [`AGENTS.md`](AGENTS.md) and [`docs/agent-develop
 
 ## Current priority
 
-The active milestone is **Spike 0E — Semantic Editorial Interaction Depth**, currently in a shaping-before-build state.
+The active milestone is **Spike 0E — Semantic Editorial Interaction Depth**. RFC 0003 and the structural-editorial interaction contract are accepted; implementation starts at **0E.0 — Interaction foundation and evaluation noise**.
 
 Before changing structural-editorial behavior, read:
 
-- `docs/rfcs/0003-semantic-editorial-interaction-model.md` — proposed cross-cutting interaction direction and scoped unresolved semantics;
-- `docs/editorial-interaction.md` — proposed observable interaction contract;
+- `docs/rfcs/0003-semantic-editorial-interaction-model.md` — accepted cross-cutting interaction direction and scoped deferred semantics;
+- `docs/editorial-interaction.md` — accepted observable interaction contract;
 - `docs/spike-0e-implementation-plan.md` — authoritative 0E task/status/evidence tracker;
 - `docs/spike-0d-assessment.md` — human evidence motivating 0E;
 - `docs/narrative-ir-spec.md` — authoritative Narrative IR semantics/operations;
@@ -20,7 +20,7 @@ Before changing structural-editorial behavior, read:
 - `docs/adr/0008-external-harness-owns-agent-runtime.md` — validated external-agent boundary;
 - `docs/README.md` — documentation ownership/lifecycle.
 
-Do not begin 0E implementation until `0E.SHAPE.GATE` is explicitly accepted. Do not use code to silently resolve RFC 0003 questions.
+Do not use implementation to silently resolve RFC 0003's deferred questions. If a later slice reaches one, resolve that question explicitly before implementing the behavior.
 
 ## Development setup
 
@@ -65,7 +65,7 @@ For Spike 0E:
 - keep local bridge stateless prototype transport glue;
 - keep third-party timeline/rendering state derived/replaceable;
 - keep `@moritzbrantner/timeline-editor` and `@elah/core` behind Salai-owned adapters;
-- do not implement unresolved Cue split, SourceExcerpt split, independent within-Cue timing, or broad cross-parent grouped moves before RFC resolution;
+- do not implement deferred Cue split, SourceExcerpt split, independent within-Cue timing, intentional black-vs-missing identity, or broad cross-parent grouped moves before explicit RFC resolution;
 - do not add MCP/another machine protocol, embedded agent runtime, Production Graph, Story Spine canvas, real media-analysis pipeline, Resolve execution, OTIO interchange, advanced NLE systems, CRDT/event sourcing, distributed state, or general plugin architecture unless the active milestone and an explicit decision require them;
 - prefer existing operations/services/platform primitives before new abstractions/dependencies;
 - test semantic boundaries rather than incidental presentation.
@@ -98,7 +98,7 @@ Use the canonical ownership table in `docs/README.md`.
 - requirements → `docs/prd.md`;
 - Narrative IR semantics → `docs/narrative-ir-spec.md`;
 - structural-editorial interaction → `docs/editorial-interaction.md`;
-- unresolved cross-cutting questions → `docs/rfcs/`;
+- unresolved/deferred cross-cutting questions → `docs/rfcs/`;
 - agent product behavior/procedure → agent docs;
 - active 0E status/evidence → `docs/spike-0e-implementation-plan.md`;
 - architecture → `docs/architecture.md` / ADRs;

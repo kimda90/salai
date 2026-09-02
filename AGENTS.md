@@ -57,7 +57,7 @@ Use only tools reported by `pnpm salai tools`. Treat Salai project state, not co
 
 The canonical development standard for agents is [`docs/agent-development.md`](docs/agent-development.md). Human contribution guidance is in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-The current milestone is **Spike 0E — Semantic Editorial Interaction Depth**. 0E is in a shaping-before-build state: do not begin implementation that resolves interaction/domain questions which remain open in RFC 0003.
+The current milestone is **Spike 0E — Semantic Editorial Interaction Depth**. RFC 0003 and the structural-editorial interaction contract are accepted; implementation begins at **0E.0 — Interaction foundation and evaluation noise**.
 
 Before changing current structural-editorial behavior, read at minimum:
 
@@ -70,11 +70,11 @@ Before changing current structural-editorial behavior, read at minimum:
 - [`docs/adr/0009-salai-owns-structural-editorial.md`](docs/adr/0009-salai-owns-structural-editorial.md)
 - [`docs/adr/0008-external-harness-owns-agent-runtime.md`](docs/adr/0008-external-harness-owns-agent-runtime.md)
 
-0E reuses `@moritzbrantner/timeline-editor` as the controlled timeline adapter and `@elah/core` as the playback/materialization adapter unless evidence from the shaped interaction contract proves one cannot satisfy the required behavior. Keep both replaceable and keep their state out of Salai persistence.
+0E reuses `@moritzbrantner/timeline-editor` as the controlled timeline adapter and `@elah/core` as the playback/materialization adapter unless evidence from the accepted interaction contract proves one cannot satisfy the required behavior. Keep both replaceable and keep their state out of Salai persistence.
 
 Prefer existing canonical operations before adding domain behavior. In particular, existing `create*`, `update*`, `move*`, `moveBlock`, `splitBeat`, `mergeBeats`, delete operations, and `trimSourceExcerpt` are the starting vocabulary for 0E direct manipulation.
 
-Do not implement unresolved Cue split, SourceExcerpt split, independent within-Cue block timing, or generic free-positioned clip behavior unless RFC 0003 is explicitly resolved first.
+RFC 0003 intentionally defers Cue split, SourceExcerpt split, independent within-Cue block timing, intentional black-vs-missing identity, and broad cross-parent grouped moves. Do not implement any of those implicitly through UI/engine state; resolve the relevant RFC question explicitly first if a later slice reaches it.
 
 Before declaring a code change complete, run:
 
