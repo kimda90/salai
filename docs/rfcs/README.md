@@ -1,11 +1,12 @@
 # Salai RFC Process
 
-RFCs are used for proposals that materially change shared product/technical architecture and benefit from review before implementation.
+RFCs are used for proposals that materially change shared product/technical architecture or cross-cutting interaction semantics and benefit from review before implementation.
 
 Use an RFC for changes such as:
 
 - Narrative IR semantics;
 - new canonical domain objects or relationship rules;
+- cross-cutting structural-editorial interaction rules that may imply domain changes;
 - major persistence/runtime changes;
 - introduction/replacement of core libraries or infrastructure;
 - cross-cutting API conventions;
@@ -18,12 +19,6 @@ Do not require an RFC for small implementation choices that are local to one mod
 
 ```text
 NNNN-short-title.md
-```
-
-Example:
-
-```text
-0001-one-narrative-ir-multiple-workflows.md
 ```
 
 ## Required sections
@@ -43,6 +38,16 @@ Example:
 Draft → Proposed → Accepted / Rejected / Superseded
 ```
 
-The pull request containing the RFC is the primary discussion surface.
+The pull request or review discussion containing the RFC is the primary decision surface.
 
-Once accepted, architectural consequences that represent final decisions should be captured as ADRs. The RFC may remain more detailed and exploratory; the ADR records the final choice and consequences.
+Once accepted:
+
+- promote observable product/interaction behavior into the canonical owning specification;
+- promote architecture decisions into ADRs when the choice and consequences need durable decision history;
+- remove resolved uncertainty from living canonical docs rather than duplicating the RFC discussion everywhere.
+
+## Current RFCs
+
+- [`0001-one-narrative-ir-multiple-workflows.md`](0001-one-narrative-ir-multiple-workflows.md) — one canonical Narrative IR across workflows.
+- [`0002-agent-mediated-authoring.md`](0002-agent-mediated-authoring.md) — external-agent authoring direction that led to the validated 0C boundary.
+- [`0003-semantic-editorial-interaction-model.md`](0003-semantic-editorial-interaction-model.md) — **Proposed** 0E hierarchical temporal interaction model, direct-edit grammar, and the only current home for unresolved Cue/source split and within-Cue timing questions.
