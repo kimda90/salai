@@ -23,23 +23,23 @@ This directory separates current product/workflow/architecture contracts from hi
 | Current priorities | [`backlog.md`](backlog.md) |
 | Current system architecture | [`architecture.md`](architecture.md) |
 | Accepted/superseded decisions | [`adr/`](adr/) |
-| Proposed cross-cutting changes / scoped uncertainty | [`rfcs/`](rfcs/) |
+| Cross-cutting proposals / scoped deferred questions | [`rfcs/`](rfcs/) |
 
 Root-level [`../AGENTS.md`](../AGENTS.md) is the concise repository entrypoint for coding agents and delegates detailed behavior to the canonical standards above.
 
-Do not duplicate exact operation vocabularies, active task state, or unresolved design questions across living docs. Narrative operations belong in `narrative-ir-spec.md`; active implementation state belongs in the current spike plan; unresolved cross-cutting questions belong in an RFC until accepted.
+Do not duplicate exact operation vocabularies, active task state, or unresolved design questions across living docs. Narrative operations belong in `narrative-ir-spec.md`; active implementation state belongs in the current spike plan; deferred cross-cutting questions remain in their RFC until explicitly resolved.
 
 ## Current contracts
 
 - [`narrative-ir-spec.md`](narrative-ir-spec.md) — implemented canonical narrative-model contract.
-- [`editorial-interaction.md`](editorial-interaction.md) — proposed 0E direct structural-editorial interaction contract; it must not outrun RFC 0003 on unresolved semantics.
+- [`editorial-interaction.md`](editorial-interaction.md) — accepted 0E direct structural-editorial interaction contract under RFC 0003.
 - [`narrative-lenses.md`](narrative-lenses.md) — validated structured-view semantics over one project; not a commitment to final top-level navigation.
 - [`agent-mediated-authoring.md`](agent-mediated-authoring.md) — validated external-harness product behavior from 0C.
 - [`architecture.md`](architecture.md) — current runtime/application/editorial boundaries.
 - [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md) — external harness owns model/session behavior.
 - [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md) — Salai owns structural editorial; specialist NLEs are optional downstream.
-- [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md) — proposed 0E interaction model and the only home for its scoped unresolved semantics.
-- [`spike-0e-implementation-plan.md`](spike-0e-implementation-plan.md) — current execution tracker; implementation remains blocked until the 0E interaction contract is reviewed/stable.
+- [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md) — accepted 0E interaction model and the canonical home for its five deferred semantic questions.
+- [`spike-0e-implementation-plan.md`](spike-0e-implementation-plan.md) — current execution tracker; shaping is accepted and implementation starts at 0E.0.
 
 ## Historical validation records
 
@@ -59,7 +59,7 @@ Do not duplicate exact operation vocabularies, active task state, or unresolved 
 
 **0D — Semantic Editorial Environment:** closed/mixed. Playback, derived timeline architecture, canonical round-trip, and agent continuity passed; human editing usefulness did not.
 
-**0E — Semantic Editorial Interaction Depth:** current shaping/validation iteration.
+**0E — Semantic Editorial Interaction Depth:** current implementation/validation iteration. RFC 0003 and the structural-editorial interaction contract are accepted; 0E.0 is the current implementation slice.
 
 Current direction:
 
@@ -85,3 +85,5 @@ Before implementing 0E, start with:
 5. [`spike-0d-assessment.md`](spike-0d-assessment.md)
 
 The external harness continues to own model/provider/auth/session/tool-loop behavior. Salai owns project semantics, canonical mutation, source provenance, structural editorial meaning, and the shared application boundary. Timeline-editor and Elah remain replaceable adapters; their state is never project truth.
+
+RFC 0003 acceptance intentionally leaves five questions deferred: Cue split, SourceExcerpt split, independent within-Cue timing, intentional black-vs-missing identity, and broad cross-parent grouped moves. Do not implement them implicitly.
