@@ -31,8 +31,8 @@ Always read [`../AGENTS.md`](../AGENTS.md) first.
 
 For current Spike 0E work, read at minimum:
 
-- [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md) — proposed cross-cutting interaction direction and scoped unresolved semantics;
-- [`editorial-interaction.md`](editorial-interaction.md) — proposed observable direct-edit contract;
+- [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md) — accepted cross-cutting interaction direction and scoped deferred semantics;
+- [`editorial-interaction.md`](editorial-interaction.md) — accepted observable direct-edit contract;
 - [`spike-0e-implementation-plan.md`](spike-0e-implementation-plan.md) — active task/status/evidence tracker;
 - [`spike-0d-assessment.md`](spike-0d-assessment.md) — human evidence that motivates 0E;
 - [`narrative-ir-spec.md`](narrative-ir-spec.md) — canonical Narrative IR semantics/operations;
@@ -45,11 +45,11 @@ Read [`narrative-lenses.md`](narrative-lenses.md) and [`workflows.md`](workflows
 
 Do not use historical spike implementation documents as current requirements except when explicitly comparing evidence.
 
-## Current shaping gate
+## Accepted 0E shaping boundary
 
-0E implementation must not begin until `0E.SHAPE.GATE` in the active tracker is explicitly accepted.
+`0E.SHAPE.GATE` is accepted. Implementation begins at 0E.0 and must follow RFC 0003 plus `editorial-interaction.md`.
 
-Do not use code to decide RFC 0003 open questions. In particular, do not silently implement:
+RFC 0003 intentionally leaves these questions deferred:
 
 - Cue split semantics;
 - SourceExcerpt split semantics;
@@ -57,7 +57,7 @@ Do not use code to decide RFC 0003 open questions. In particular, do not silentl
 - intentional black vs missing-realization identity;
 - broad cross-parent grouped moves.
 
-If a task reaches one of these questions, resolve/update RFC 0003 first, then promote accepted behavior into the canonical owning docs before implementation.
+Do not use code to decide those questions implicitly. If a task reaches one, resolve/update RFC 0003 first, then promote accepted behavior into the canonical owning docs before implementation.
 
 ## Architecture invariants
 
@@ -197,7 +197,7 @@ Use `docs/README.md` to find the owner of information.
 - product requirements → `prd.md`;
 - Narrative IR operations/invariants → `narrative-ir-spec.md`;
 - structural-editorial interaction → `editorial-interaction.md`;
-- unresolved cross-cutting interaction/domain questions → RFC 0003;
+- deferred cross-cutting interaction/domain questions → RFC 0003;
 - agent operating behavior → agent docs;
 - architecture → `architecture.md` + ADRs when decisions change;
 - active 0E status/evidence → `spike-0e-implementation-plan.md`;
@@ -213,7 +213,7 @@ Prefer small PRs with one clear outcome. Do not bundle unrelated cleanup, upgrad
 
 Before adding a dependency, establish that platform capabilities, existing dependencies, or current accepted adapters cannot reasonably solve the task.
 
-Do not add a second timeline/playback engine “just in case.” Replace/wrap an existing adapter only when concrete evidence shows it cannot satisfy the shaped interaction contract.
+Do not add a second timeline/playback engine “just in case.” Replace/wrap an existing adapter only when concrete evidence shows it cannot satisfy the accepted interaction contract.
 
 ## Git and pull-request discipline
 
@@ -230,7 +230,7 @@ Agents should:
 
 A coding task is complete only when all applicable items are true:
 
-- shaping gate permits the work;
+- accepted RFC/interaction contract permits the work;
 - requested behavior is implemented;
 - architecture invariants remain intact or an explicit accepted decision changes them;
 - relevant semantic-boundary tests exist;
