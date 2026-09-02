@@ -4,7 +4,9 @@
 
 Living canonical contract for the **Narrative Lens** concept and the structured-view semantics validated in 0B/0C.
 
-The existing Outline, Story Wall, AV Script, and Paper/Radio surfaces remain valid examples of coherent views over one project. After ADR 0009, they are **not** assumed to be the final top-level application navigation. Spike 0D tests a temporal semantic surface separately.
+Outline, Story Wall, AV Script, and Paper/Radio remain valid examples of coherent views over one project. They are **not** assumed to be the final top-level application navigation.
+
+Spike 0D established that time/playback can be a Salai-owned semantic surface but did not validate its first direct-edit UI. Spike 0E tests a deeper hierarchical temporal surface. Proposed direct temporal behavior lives in [`editorial-interaction.md`](editorial-interaction.md), not in this document.
 
 ## Core principle
 
@@ -21,17 +23,18 @@ The product therefore distinguishes:
 
 ## Definition
 
-A **Narrative Lens** is a structured representation of the same canonical Salai project that deliberately emphasizes one creative aspect of the narrative system.
+A **Narrative Lens** is a structured representation or emphasis over the same canonical Salai project that deliberately makes one creative aspect perceptually dominant.
 
-A lens is not a second document, an expert settings screen, or a separate state model. It is a way to **see and modify the story from a particular creative angle**.
+A lens is not a second document, a separate canonical state model, or necessarily a permanent tab/page.
 
-A lens may be implemented as a Projection, a Workspace, or a combination:
+A lens may be implemented as:
 
-- **Projection** describes deterministic state ownership;
-- **Workspace** describes persistent human organization outside canonical narrative semantics;
-- **Narrative Lens** describes creative purpose.
+- a Projection;
+- a Workspace;
+- an overlay/emphasis inside a broader creative surface;
+- a combination of the above.
 
-The Lens concept does not require every major creative surface to be implemented as a tab/page. A later surface may combine temporal, spatial, or document-like interaction while still exposing lens-like emphasis.
+Projection/Workspace describe state ownership. Narrative Lens describes creative purpose.
 
 ## Validated surfaces
 
@@ -39,14 +42,32 @@ The Lens concept does not require every major creative surface to be implemented
 | --- | --- |
 | Outline | hierarchy, progression, proportion, structural weight |
 | Story Wall | spatial rhythm, balance, turning points, alternatives, clustering |
-| AV Script | audiovisual density, realization over time, visual/audio interplay |
+| AV Script | audiovisual density, realization, visual/audio interplay |
 | Paper / Radio Edit | evidentiary spine, voice, source pacing, authored-vs-sourced balance |
 
-These four surfaces were validated as coherent projections/workspaces over one canonical project. They are historical/product evidence, not a commitment that Salai's future shell must present four permanent lens tabs.
+These were validated as coherent views/workspaces over one project. They are product evidence, not shell/navigation requirements.
+
+## Foundational temporal surface vs lens
+
+0D/0E sharpen the distinction between a **foundational creative surface** and a **lens**.
+
+The temporal editor may become foundational because audiovisual stories must be experienced in duration and sequence. A lens can then emphasize one dimension inside that same temporal context rather than replacing the editor.
+
+Examples of possible temporal emphases:
+
+- coverage/missing realization;
+- pacing/runtime proportion;
+- source/evidence concentration;
+- character/voice distribution;
+- continuity warnings;
+- alternatives;
+- provenance.
+
+This does not require permanent lanes for every dimension.
+
+The 0E hierarchical timeline specifically tests whether narrative hierarchy itself should remain visible as persistent temporal structure rather than as a separate Story/Moments/Media lens switch.
 
 ## Later semantic emphases
-
-Potential creative dimensions include:
 
 | Emphasis | Creative perception |
 | --- | --- |
@@ -57,7 +78,7 @@ Potential creative dimensions include:
 | Continuity | consistency of people/places/props/style across realizations when required |
 | Alternatives | competing realizations or narrative choices |
 
-Do not create a new permanent lens only because a derived value can be displayed. A representation needs a demonstrated creative job.
+Do not create a permanent lens merely because a derived value can be displayed. A representation needs a demonstrated creative job.
 
 ## What a lens should expose
 
@@ -66,32 +87,32 @@ Expose canonical or Workspace structure when it contributes to a creative decisi
 Examples:
 
 - one Beat has substantially more audiovisual moments than neighboring Beats;
-- one section consumes disproportionate runtime;
-- several consecutive story moments depend on the same interview voice;
+- one Section consumes disproportionate runtime;
+- several consecutive moments depend on the same interview voice;
 - a Beat has no credible visual/source support;
 - the middle of a Story Wall is spatially crowded;
 - several source excerpts compete for the same narrative function;
 - a simple narrative idea requires unexpectedly complex realization.
 
-Stable identity and important relationships may be visible when they help the creator reason, but raw implementation identifiers usually do not.
+Stable identity and important relationships may be visible when they help the creator reason, but raw IDs usually do not.
 
 ## What a lens should hide
 
 Normally keep these implicit:
 
 - generating canonical IDs;
-- constructing raw `ParentRef` values;
-- calculating insertion indices;
+- constructing raw parent references;
+- calculating insertion indexes;
 - choosing an operation type for an obvious creative change;
-- creating a Cue only because the schema requires one;
-- manually wiring source relationships that can be inferred safely;
+- manually creating structure only because the schema requires it;
+- wiring source relationships that can be inferred safely;
 - switching views merely because an operation is unavailable elsewhere.
 
-The distinction is not “simple vs advanced UI.” It is whether the exposed structure contributes to the creative question.
+The distinction is not simple vs advanced UI. It is whether exposed structure contributes to the creative question.
 
 ## Direct manipulation
 
-Direct manipulation remains first-class when the user intentionally chooses the representation as the way they want to think.
+Direct manipulation remains first-class when the representation itself is useful.
 
 Examples:
 
@@ -99,13 +120,15 @@ Examples:
 - move sourced excerpts while shaping spoken rhythm in Paper/Radio;
 - adjust Visual/Audio realization while planning in AV Script;
 - restructure hierarchy while intentionally working in Outline;
-- in 0D, move a Beat/Cue or trim a SourceExcerpt on the semantic timeline when timing itself is the creative question.
+- expand/select/reorder semantic objects in the 0E temporal hierarchy when time and containment are the creative question.
 
-The 0B failure was not that these operations exist. It was making structured operation the compulsory route for ordinary creative intent.
+The 0B failure was not that direct operations exist. It was making specialized structural mechanics the compulsory route for ordinary creative intent.
+
+0D added another failure mode: changing semantic-level views for mechanical access can fragment context. 0E therefore tries to expose nested temporal structure continuously rather than making semantic depth a page/tab switch.
 
 ## Agent relationship
 
-The agent and human projections operate on the same canonical project.
+The agent and human surfaces operate on the same canonical project.
 
 ```text
 working input / instruction
@@ -125,20 +148,18 @@ Requirements:
 
 - agent changes appear automatically because surfaces read canonical state;
 - direct changes become visible to subsequent agent reasoning through the same state;
-- active representation/focus may be sent as context when it materially helps interpretation;
+- active representation/focus may be supplied as task context when materially useful;
 - arbitrary presentation state should not automatically become agent context;
 - Workspace-only changes remain Workspace-only;
 - third-party timeline/rendering state is never a second synchronization model.
 
-Spike 0C human validation using Codex confirmed the external-agent side of this relationship.
+Spike 0C and the 0D temporal round trip validated this external-agent boundary.
 
 ## Narrative pulse
 
-“Narrative pulse” is a **discovery metaphor**, not a domain object or product score. It refers to patterns such as pacing, density, repetition, voice distribution, audiovisual complexity, coverage, and structural balance that may become easier to perceive through one or more representations.
+“Narrative pulse” remains a **discovery metaphor**, not a domain object or product score. It refers to patterns such as pacing, density, repetition, voice distribution, audiovisual complexity, coverage, and structural balance that may become easier to perceive through one or more representations.
 
-Keep exploring the metaphor through human observation and simple derived information; do not create a canonical `Pulse` object or universal quality metric without evidence.
-
-Discovery evidence belongs in [`research-notes.md`](research-notes.md).
+Keep exploring through human observation and simple derived information; do not create a canonical `Pulse` object or universal quality metric without evidence.
 
 ## Design requirements
 
@@ -151,18 +172,19 @@ A useful lens/semantic emphasis should satisfy most of these:
 5. avoid incidental domain mechanics unrelated to the creative question;
 6. reflect agent changes automatically;
 7. feed direct changes back into subsequent agent context through shared state;
-8. allow entry/exit without export/import or conceptual state loss.
+8. allow entry/exit without export/import or conceptual state loss;
+9. avoid destroying broader temporal/spatial context merely to reveal deeper detail.
 
-## Relationship to Spike 0D
+## Relationship to Spike 0E
 
-0D does not need to redesign the existing four lenses.
+0E does not redesign the validated four lenses.
 
-It tests whether **time/playback** becomes a foundational semantic surface:
+It tests whether a context-preserving temporal hierarchy can become the primary structural-editorial surface while lens-like emphases remain available within or around it.
 
-- Section/Beat/Cue structure projected into actual duration;
-- source/media realization visible beneath narrative meaning;
-- direct temporal edits resolving through canonical operations;
-- playback used to judge pacing and realization;
-- agent and direct temporal work sharing one project.
+The 0E result should determine whether future Coverage, Sources, Pacing, Alternatives, and related dimensions are best expressed as:
 
-The result of 0D will determine whether future Coverage, Sources, Alternatives, and related dimensions are best expressed as dedicated lenses, temporal overlays/probes, or a combination. That decision belongs in the 0D assessment/next iteration, not in this contract in advance.
+- overlays/probes inside the temporal surface;
+- dedicated lenses/workspaces;
+- or a combination.
+
+Do not settle those later representations in advance of 0E human evidence.
