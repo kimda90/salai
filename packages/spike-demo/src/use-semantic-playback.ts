@@ -15,6 +15,21 @@ const INITIAL_SNAPSHOT: PlaybackSnapshot = {
   epoch: 0,
 };
 
+export function shouldToggleSemanticPlayback(
+  event: Pick<KeyboardEvent, "key" | "defaultPrevented" | "repeat" | "target">,
+): boolean {
+  if (event.key !== " " || event.defaultPrevented || event.repeat) return false;
+
+  const target = event.target as HTMLElement | null;
+  const tagName = target?.tagName?.toLowerCase();
+  return !(
+    target?.isContentEditable ||
+    target?.getAttribute?.("contenteditable") === "true" ||
+    ["input", "textarea", "select", "button"].includes(tagName ?? "") ||
+    target?.getAttribute?.("role") === "button"
+  );
+}
+
 export function useSemanticPlayback(
   projection: SalaiTimelineProjection,
   project: Project,

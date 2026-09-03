@@ -5,6 +5,8 @@ import {
   filterTimelineDocumentForZoom,
   semanticTimelineSummary,
   timelineSelectionForCanonical,
+  filterTimelineDocumentForExpansion,
+  resolveSemanticInsertionContext,
 } from "./semantic-timeline-model";
 import { toTimelineEditorDocument } from "./timeline-editor-adapter";
 import { projectNarrativeToTimeline } from "./timeline-projection";
@@ -18,7 +20,8 @@ function setup() {
 
 describe("semantic timeline model", () => {
   it("reveals semantic levels progressively without changing the projection", () => {
-    const { projection, document } = setup();
+    const { fixture, projection, document } = setup();
+    const canonicalBefore = JSON.stringify(fixture.project);
 
     expect(filterTimelineDocumentForZoom(document, "story").tracks.map((track) => track.id)).toEqual([
       "semantic-sections",
@@ -28,11 +31,11 @@ describe("semantic timeline model", () => {
       "semantic-beats",
       "semantic-cues",
     ]);
-    expect(filterTimelineDocumentForZoom(document, "media").tracks.map((track) => track.id)).toEqual([
-      "semantic-cues",
-      "visual-realization",
-      "source-audio",
-    ]);
+    const mediaTrackIds = filterTimelineDocumentForZoom(document, "media").tracks.map((track) => track.id);
+    expect(mediaTrackIds).toContain("semantic-cues");
+    expect(mediaTrackIds).toContain("visual-realization");
+    expect(mediaTrackIds.filter((id) => id.startsWith("visual-content:"))).toHaveLength(6);
+    expect(mediaTrackIds.filter((id) => id.startsWith("source-audio:"))).toHaveLength(5);
 
     expect(semanticTimelineSummary(projection)).toEqual({
       sections: 2,
@@ -41,7 +44,10 @@ describe("semantic timeline model", () => {
       visualMedia: 4,
       sourceExcerpts: 2,
       missingVisuals: 1,
+      visualBlocks: 5,
+      audioBlocks: 5,
     });
+    expect(JSON.stringify(fixture.project)).toBe(canonicalBefore);
   });
 
   it("keeps a Cue perceptually anchored to its Beat when zoomed out", () => {
@@ -95,7 +101,7 @@ describe("semantic timeline model", () => {
         itemIds: ["timeline:source:source-juan"],
         anchorItemId: "timeline:source:source-juan",
       }),
-    ).toEqual({ type: "cue", id: "cue-friction" });
+    ).toEqual({ type: "block", id: "source-juan" });
 
     expect(
       canonicalSelectionFromTimelineSelection(mediaDocument, {
@@ -120,5 +126,25 @@ describe("semantic timeline model", () => {
       type: "cue",
       id: "cue-demo-result",
     });
+  });
+
+  it("hides descendants by branch while preserving the shared time axis and canonical state", () => {
+    const { fixture, projection, document } = setup();
+    const before = JSON.stringify(fixture.project);
+    const collapsed = filterTimelineDocumentForExpansion(document, new Set(["section:section-problem", "cue:cue-demo-result"]));
+    const ids = collapsed.tracks.flatMap((track) => track.items).map((item) => item.id);
+
+    expect(ids).toContain("timeline:section:section-problem");
+    expect(ids).not.toContain("timeline:beat:beat-hook");
+    expect(ids).toContain("timeline:cue:cue-demo-result");
+    expect(ids).not.toContain("timeline:block:visual-demo-result");
+    expect(collapsed.currentTimeMs).toBe(document.currentTimeMs);
+    expect(JSON.stringify(fixture.project)).toBe(before);
+    expect(resolveSemanticInsertionContext(projection, 4_500, null)).toMatchObject({ cueId: "cue-friction", beatId: "beat-friction" });
+  });
+
+  it("keeps ContentBlock selection identity when a block is visible", () => {
+    const { document } = setup();
+    expect(canonicalSelectionFromTimelineSelection(document, { itemIds: ["timeline:block:visual-hook"] })).toEqual({ type: "block", id: "visual-hook" });
   });
 });

@@ -73,7 +73,7 @@ export function App() {
           <span className="brand-mark">S</span>
           <div>
             <div className="brand-name">SALAI</div>
-            <div className="brand-subtitle">Spike 0D · Semantic Editorial Environment</div>
+            <div className="brand-subtitle">Spike 0E · Semantic Editorial Environment</div>
           </div>
         </div>
         <div className="topbar-status">

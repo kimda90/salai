@@ -22,7 +22,7 @@ import {
   type Workspace,
 } from "./workspace";
 
-export type SelectionType = "section" | "scene" | "beat" | "cue";
+export type SelectionType = "section" | "scene" | "beat" | "cue" | "block";
 
 export type CanonicalSelection = {
   type: SelectionType;

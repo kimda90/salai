@@ -112,6 +112,23 @@ describe("Spike 0D adapter boundaries", () => {
       .not.toEqual(document);
   });
 
+  it("keeps semantic ancestry available for custom nested-row rendering", () => {
+    const { project } = createSemanticEditorialFixture();
+    const document = toTimelineEditorDocument(projectNarrativeToTimeline(project));
+    const items = document.tracks.flatMap((track) => track.items);
+
+    expect(items).toHaveLength(26);
+    expect(items.every((item) => item.data?.salaiKind === item.kind)).toBe(true);
+    expect(items.filter((item) => item.data?.salaiKind === "cue")).toHaveLength(5);
+    expect(items.filter((item) => item.data?.salaiKind === "visual-description")).toHaveLength(5);
+    expect(items.filter((item) => item.data?.salaiKind === "authored-speech")).toHaveLength(3);
+    expect(
+      items
+        .filter((item) => item.data?.salaiKind === "source-excerpt")
+        .every((item) => item.data?.sectionId && item.data.beatId && item.data.cueId),
+    ).toBe(true);
+  });
+
   it("materializes a disposable Elah project from Salai state", () => {
     const fixture = createSemanticEditorialFixture();
     const projection = projectNarrativeToTimeline(fixture.project);

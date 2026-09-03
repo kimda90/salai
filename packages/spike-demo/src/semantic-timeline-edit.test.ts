@@ -98,7 +98,30 @@ describe("semantic timeline canonical editing", () => {
     expect(result.model.cues["cue-demo-import"]?.id).toBe("cue-demo-import");
   });
 
-  it("turns a SourceExcerpt edge trim into an atomic source-range + Cue-duration batch", () => {
+  it("turns Section and ContentBlock drags into canonical reorder operations", () => {
+    const { fixture, document } = setup();
+    const sectionProposed = cloneDocument(document);
+    itemById(sectionProposed, "timeline:section:section-problem").startMs = 24_000;
+    expect(interpretSemanticTimelineDocumentChange(fixture.project, document, sectionProposed)).toMatchObject({
+      kind: "canonical",
+      operations: [{ op: "moveSection", sectionId: "section-problem", toIndex: 1 }],
+    });
+
+    const withSecondVisual = applyOperations(fixture.project, [{
+      op: "createBlock",
+      block: { id: "visual-hook-second", type: "visual_description", text: "Second visual" },
+      cueId: "cue-hook",
+    }]).model;
+    const blockDocument = toTimelineEditorDocument(projectNarrativeToTimeline(withSecondVisual));
+    const proposed = cloneDocument(blockDocument);
+    itemById(proposed, "timeline:block:visual-hook").startMs = 1_000;
+    expect(interpretSemanticTimelineDocumentChange(withSecondVisual, blockDocument, proposed)).toMatchObject({
+      kind: "canonical",
+      operations: [{ op: "moveBlock", blockId: "visual-hook", toCueId: "cue-hook", toIndex: 1 }],
+    });
+  });
+
+  it("turns a SourceExcerpt edge trim into a source-range operation", () => {
     const { fixture, document } = setup();
     const proposed = cloneDocument(document);
     const source = itemById(proposed, "timeline:source:source-juan");
@@ -109,22 +132,7 @@ describe("semantic timeline canonical editing", () => {
       document,
       proposed,
     );
-    expect(interpretation).toMatchObject({
-      kind: "canonical",
-      operations: [
-        {
-          op: "trimSourceExcerpt",
-          blockId: "source-juan",
-          sourceInMs: 10_000,
-          sourceOutMs: 14_000,
-        },
-        {
-          op: "updateCue",
-          cueId: "cue-friction",
-          explicitDurationMs: 4_000,
-        },
-      ],
-    });
+    expect(interpretation).toMatchObject({ kind: "canonical", operations: [{ op: "trimSourceExcerpt", blockId: "source-juan", sourceInMs: 10_000, sourceOutMs: 14_000 }] });
     if (interpretation.kind !== "canonical") throw new Error("Expected canonical edit");
 
     const result = applyOperations(fixture.project, interpretation.operations);
@@ -133,15 +141,15 @@ describe("semantic timeline canonical editing", () => {
       sourceInMs: 10_000,
       sourceOutMs: 14_000,
     });
-    expect(result.model.cues["cue-friction"]?.explicitDurationMs).toBe(4_000);
+    expect(result.model.cues["cue-friction"]?.explicitDurationMs).toBe(6_000);
 
     const projection = projectNarrativeToTimeline(result.model);
-    expect(projection.durationMs).toBe(22_000);
+    expect(projection.durationMs).toBe(24_000);
     expect(
       projection.tracks
-        .find((track) => track.id === "source-audio")
-        ?.items.find((item) => item.salaiRef.id === "source-juan"),
-    ).toMatchObject({ durationMs: 4_000, sourceInMs: 10_000, sourceOutMs: 14_000 });
+        .flatMap((track) => track.items)
+        .find((item) => item.salaiRef.id === "source-juan"),
+    ).toMatchObject({ durationMs: 6_000, sourceInMs: 10_000, sourceOutMs: 14_000 });
 
     const elah = toElahProject(projection, fixture.mediaSources, { fps: 30 });
     const assembly = resolveSemanticAssemblyAtMs(projection, elah, 4_000);
@@ -150,7 +158,7 @@ describe("semantic timeline canonical editing", () => {
       sourceFrame: 300,
     });
     expect(elah.clips["salai-audio"]?.find((clip) => clip.id === "elah:timeline:source:source-juan"))
-      .toMatchObject({ durationFrames: 120, sourceDurationFrames: 120 });
+      .toMatchObject({ durationFrames: 180, sourceDurationFrames: 120 });
   });
 
   it("rejects engine-only media placement and multi-item ripple state", () => {

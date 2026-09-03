@@ -25,15 +25,27 @@ function colorForKind(kind: SalaiTimelineItem["kind"]): string {
       return "#0369a1";
     case "visual-media":
       return "#0f766e";
+    case "visual-description":
+      return "#15803d";
+    case "on-screen-text":
+      return "#0d9488";
+    case "graphic":
+      return "#0891b2";
+    case "authored-speech":
+      return "#2563eb";
     case "source-excerpt":
       return "#7c3aed";
+    case "music":
+      return "#9333ea";
+    case "sfx":
+      return "#c026d3";
     case "missing-visual":
       return "#b45309";
   }
 }
 
 function itemIsEngineLocked(kind: SalaiTimelineItem["kind"]): boolean {
-  return kind === "section" || kind === "visual-media" || kind === "missing-visual";
+  return kind === "visual-media" || kind === "missing-visual";
 }
 
 export function toTimelineEditorDocument(

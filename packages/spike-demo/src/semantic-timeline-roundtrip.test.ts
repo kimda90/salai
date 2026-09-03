@@ -48,4 +48,18 @@ describe("semantic timeline direct edit round trip", () => {
     expect(reverted.project).toEqual(before);
     expect(reverted.canRevertMachineAction).toBe(false);
   });
+
+  it("publishes grouped deletion as one revertible canonical batch", () => {
+    const controller = new SalaiController("semantic-editorial");
+    const before = controller.getSnapshot().project;
+
+    expect(controller.dispatchNarrativeBatch([
+      { op: "deleteBlock", blockId: "visual-hook" },
+      { op: "deleteBlock", blockId: "speech-hook" },
+    ], { revertible: true })).toBe(true);
+    expect(controller.getSnapshot().project.blocks["visual-hook"]).toBeUndefined();
+    expect(controller.getSnapshot().project.blocks["speech-hook"]).toBeUndefined();
+    expect(controller.revertMachineAction()).toBe(true);
+    expect(controller.getSnapshot().project).toEqual(before);
+  });
 });

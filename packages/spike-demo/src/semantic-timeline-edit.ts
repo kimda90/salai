@@ -7,6 +7,7 @@ import type {
   NarrativeProject,
   ParentRef,
 } from "@salai/script-model";
+import { isVisualBlock } from "@salai/script-model";
 import type { TimelineEditorSalaiData } from "./timeline-editor-adapter";
 
 export type SemanticTimelineDocument = TimelineEditorDocument<
@@ -91,7 +92,7 @@ function desiredIndexFromStart(
   movedId: string,
   proposedStartMs: number,
   currentItems: Map<string, SalaiTimelineEditorItem>,
-  refType: "beat" | "cue",
+  refType: "section" | "beat" | "cue",
 ): number | null {
   const ordered = siblingIds
     .map((id, canonicalIndex) => {
@@ -111,6 +112,59 @@ function desiredIndexFromStart(
 
   if (ordered.length !== siblingIds.length) return null;
   return ordered.findIndex((item) => item.id === movedId);
+}
+
+function desiredBlockIndex(
+  siblingIds: readonly string[],
+  movedId: string,
+  proposedStartMs: number,
+  currentItems: Map<string, SalaiTimelineEditorItem>,
+): number | null {
+  const ordered = siblingIds
+    .map((id, canonicalIndex) => {
+      const item = [...currentItems.values()].find(
+        (candidate) => candidate.data?.salaiRef.type === "block" && candidate.data.salaiRef.id === id,
+      );
+      if (!item) return null;
+      return {
+        id,
+        startMs: id === movedId ? proposedStartMs : item.startMs,
+        canonicalIndex,
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => item !== null)
+    .sort((a, b) => a.startMs - b.startMs || a.canonicalIndex - b.canonicalIndex);
+
+  return ordered.length === siblingIds.length
+    ? ordered.findIndex((item) => item.id === movedId)
+    : null;
+}
+
+function interpretSectionMove(
+  project: NarrativeProject,
+  current: SalaiTimelineEditorItem,
+  proposed: SalaiTimelineEditorItem,
+  currentItems: Map<string, SalaiTimelineEditorItem>,
+): SemanticTimelineEditInterpretation {
+  if (!nearlyEqual(current.durationMs, proposed.durationMs)) {
+    return { kind: "rejected", reason: "Section duration is derived; resize a Cue instead." };
+  }
+  const sectionId = current.data?.salaiRef.type === "section" ? current.data.salaiRef.id : null;
+  if (!sectionId) return { kind: "rejected", reason: "Timeline Section lost its Salai identity." };
+  const toIndex = desiredIndexFromStart(
+    project.script.sectionIds,
+    sectionId,
+    proposed.startMs,
+    currentItems,
+    "section",
+  );
+  if (toIndex === null) return { kind: "rejected", reason: "Could not resolve Section order from the semantic projection." };
+  if (toIndex === project.script.sectionIds.indexOf(sectionId)) return { kind: "noop" };
+  return {
+    kind: "canonical",
+    operations: [{ op: "moveSection", sectionId, toIndex }],
+    summary: `Moved Section ${sectionId} to position ${toIndex + 1}`,
+  };
 }
 
 function interpretBeatMove(
@@ -179,6 +233,32 @@ function interpretCueMove(
   };
 }
 
+function interpretBlockMove(
+  project: NarrativeProject,
+  current: SalaiTimelineEditorItem,
+  proposed: SalaiTimelineEditorItem,
+  currentItems: Map<string, SalaiTimelineEditorItem>,
+): SemanticTimelineEditInterpretation {
+  if (!nearlyEqual(current.durationMs, proposed.durationMs)) {
+    return { kind: "rejected", reason: "ContentBlock timing is owned by its Cue in this spike." };
+  }
+  const blockId = current.data?.salaiRef.type === "block" ? current.data.salaiRef.id : null;
+  const cueId = current.data?.cueId;
+  if (!blockId || !cueId) return { kind: "rejected", reason: "ContentBlock lost its canonical Cue ancestry." };
+  const block = project.blocks[blockId];
+  const cue = project.cues[cueId];
+  if (!block || !cue) return { kind: "rejected", reason: "ContentBlock is no longer in the canonical project." };
+  const siblingIds = isVisualBlock(block) ? cue.visualBlockIds : cue.audioBlockIds;
+  const toIndex = desiredBlockIndex(siblingIds, blockId, proposed.startMs, currentItems);
+  if (toIndex === null) return { kind: "rejected", reason: "Could not resolve ContentBlock order from the semantic projection." };
+  if (toIndex === siblingIds.indexOf(blockId)) return { kind: "noop" };
+  return {
+    kind: "canonical",
+    operations: [{ op: "moveBlock", blockId, toCueId: cueId, toIndex }],
+    summary: `Moved ContentBlock ${blockId} to position ${toIndex + 1}`,
+  };
+}
+
 function interpretSourceTrim(
   project: NarrativeProject,
   current: SalaiTimelineEditorItem,
@@ -218,9 +298,7 @@ function interpretSourceTrim(
   const nextSourceOutMs = endChanged
     ? Math.round(sourceOutMs + (proposedEndMs - currentEndMs))
     : sourceOutMs;
-  const nextDurationMs = Math.round(proposed.durationMs);
-
-  if (nextSourceOutMs <= nextSourceInMs || nextDurationMs <= 0) {
+  if (nextSourceOutMs <= nextSourceInMs || proposed.durationMs <= 0) {
     return { kind: "rejected", reason: "SourceExcerpt trim would produce an empty range." };
   }
 
@@ -232,11 +310,6 @@ function interpretSourceTrim(
         blockId,
         sourceInMs: nextSourceInMs,
         sourceOutMs: nextSourceOutMs,
-      },
-      {
-        op: "updateCue",
-        cueId,
-        explicitDurationMs: nextDurationMs,
       },
     ],
     summary: `Trimmed SourceExcerpt ${blockId} to ${nextSourceInMs}–${nextSourceOutMs} ms`,
@@ -280,18 +353,28 @@ export function interpretSemanticTimelineDocumentChange(
 
   const { current, proposed } = changed[0]!;
   switch (current.data?.salaiKind) {
+    case "section":
+      return interpretSectionMove(project, current, proposed, currentItems);
     case "beat":
       return interpretBeatMove(project, current, proposed, currentItems);
     case "cue":
       return interpretCueMove(project, current, proposed, currentItems);
     case "source-excerpt":
+      if (nearlyEqual(current.durationMs, proposed.durationMs)) {
+        return interpretBlockMove(project, current, proposed, currentItems);
+      }
       return interpretSourceTrim(project, current, proposed);
-    case "section":
-      return { kind: "rejected", reason: "Section timing is derived from its narrative contents." };
     case "visual-media":
       return { kind: "rejected", reason: "Media realization placement is derived from its Cue in Spike 0D." };
     case "missing-visual":
       return { kind: "rejected", reason: "Missing coverage is an explicit semantic gap, not a movable clip." };
+    case "visual-description":
+    case "on-screen-text":
+    case "graphic":
+    case "authored-speech":
+    case "music":
+    case "sfx":
+      return interpretBlockMove(project, current, proposed, currentItems);
     default:
       return { kind: "rejected", reason: "Unsupported timeline engine edit." };
   }

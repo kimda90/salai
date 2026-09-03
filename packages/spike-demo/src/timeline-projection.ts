@@ -1,5 +1,6 @@
 import {
   estimateNarrativeDuration,
+  type ContentBlock,
   type Beat,
   type NarrativeProject,
 } from "@salai/script-model";
@@ -14,7 +15,13 @@ export type SalaiTimelineItemKind =
   | "beat"
   | "cue"
   | "visual-media"
+  | "visual-description"
+  | "on-screen-text"
+  | "graphic"
+  | "authored-speech"
   | "source-excerpt"
+  | "music"
+  | "sfx"
   | "missing-visual";
 
 export type SalaiTimelineItem = {
@@ -50,7 +57,8 @@ const TRACKS = {
   sections: "semantic-sections",
   beats: "semantic-beats",
   cues: "semantic-cues",
-  visual: "visual-realization",
+  visual: "visual-content",
+  realization: "visual-realization",
   audio: "source-audio",
 } as const;
 
@@ -95,6 +103,7 @@ export function projectNarrativeToTimeline(
   const beats: SalaiTimelineItem[] = [];
   const cues: SalaiTimelineItem[] = [];
   const visual: SalaiTimelineItem[] = [];
+  const visualRealization: SalaiTimelineItem[] = [];
   const audio: SalaiTimelineItem[] = [];
 
   let sectionStartMs = 0;
@@ -162,9 +171,9 @@ export function projectNarrativeToTimeline(
           .map((relationship) => project.mediaSegments[relationship.targetId]!);
 
         for (const segment of supportedMedia) {
-          visual.push({
+          visualRealization.push({
             id: `timeline:visual:${cueId}:${segment.id}`,
-            trackId: TRACKS.visual,
+            trackId: TRACKS.realization,
             kind: "visual-media",
             label: segment.assetId ?? segment.id,
             startMs: cueStartMs,
@@ -194,24 +203,45 @@ export function projectNarrativeToTimeline(
           });
         }
 
-        for (const blockId of cue.audioBlockIds) {
+        for (const blockId of cue.visualBlockIds) {
           const block = project.blocks[blockId];
-          if (block?.type !== "source_excerpt") continue;
-
-          audio.push({
-            id: `timeline:source:${block.id}`,
-            trackId: TRACKS.audio,
-            kind: "source-excerpt",
-            label: block.transcriptSnapshot ?? block.id,
+          if (!block) continue;
+          visual.push({
+            id: `timeline:block:${block.id}`,
+            trackId: TRACKS.visual,
+            kind: blockKind(block),
+            label: blockLabel(block),
             startMs: cueStartMs,
             durationMs: cueDurationMs,
             salaiRef: { type: "block", id: block.id },
             sectionId,
             beatId,
             cueId,
-            mediaSegmentId: block.mediaSegmentId,
-            sourceInMs: block.sourceInMs,
-            sourceOutMs: block.sourceOutMs,
+          });
+        }
+
+        for (const blockId of cue.audioBlockIds) {
+          const block = project.blocks[blockId];
+          if (!block) continue;
+
+          audio.push({
+            id: block.type === "source_excerpt" ? `timeline:source:${block.id}` : `timeline:block:${block.id}`,
+            trackId: TRACKS.audio,
+            kind: blockKind(block),
+            label: blockLabel(block),
+            startMs: cueStartMs,
+            durationMs: cueDurationMs,
+            salaiRef: { type: "block", id: block.id },
+            sectionId,
+            beatId,
+            cueId,
+            ...(block.type === "source_excerpt"
+              ? {
+                  mediaSegmentId: block.mediaSegmentId,
+                  sourceInMs: block.sourceInMs,
+                  sourceOutMs: block.sourceOutMs,
+                }
+              : {}),
           });
         }
 
@@ -224,6 +254,21 @@ export function projectNarrativeToTimeline(
     sectionStartMs += sectionDurationMs;
   }
 
+  const itemRows = (
+    items: SalaiTimelineItem[],
+    prefix: string,
+    label: string,
+    kind: SalaiTimelineTrack["kind"],
+  ): SalaiTimelineTrack[] => items.map((item) => {
+    const trackId = `${prefix}:${item.id}`;
+    return {
+      id: trackId,
+      label: `${label} · ${item.label}`,
+      kind,
+      items: [{ ...item, trackId }],
+    };
+  });
+
   return {
     scriptId: project.script.id,
     durationMs: duration.scriptMs,
@@ -231,8 +276,49 @@ export function projectNarrativeToTimeline(
       { id: TRACKS.sections, label: "Sections", kind: "semantic", items: sections },
       { id: TRACKS.beats, label: "Beats", kind: "semantic", items: beats },
       { id: TRACKS.cues, label: "Cues", kind: "semantic", items: cues },
-      { id: TRACKS.visual, label: "Visual", kind: "visual", items: visual },
-      { id: TRACKS.audio, label: "Source audio", kind: "audio", items: audio },
+      {
+        id: "visual-realization",
+        label: "Visual realization",
+        kind: "visual",
+        items: visualRealization,
+      },
+      ...itemRows(visual, TRACKS.visual, "Visual", "visual"),
+      ...itemRows(audio, TRACKS.audio, "Audio", "audio"),
     ],
   };
+}
+
+function blockKind(block: ContentBlock): SalaiTimelineItemKind {
+  switch (block.type) {
+    case "visual_description":
+      return "visual-description";
+    case "on_screen_text":
+      return "on-screen-text";
+    case "graphic":
+      return "graphic";
+    case "authored_speech":
+      return "authored-speech";
+    case "source_excerpt":
+      return "source-excerpt";
+    case "music":
+      return "music";
+    case "sfx":
+      return "sfx";
+  }
+}
+
+function blockLabel(block: ContentBlock): string {
+  switch (block.type) {
+    case "visual_description":
+    case "on_screen_text":
+      return block.text;
+    case "graphic":
+    case "music":
+    case "sfx":
+      return block.description ?? block.id;
+    case "authored_speech":
+      return block.text;
+    case "source_excerpt":
+      return block.transcriptSnapshot ?? `Source excerpt ${block.id}`;
+  }
 }

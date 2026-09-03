@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { toElahProject } from "./elah-adapter";
 import {
-  createInterviewToneWavBlob,
+  createInterviewFixtureWavBlob,
   INTERVIEW_FIXTURE_DURATION_MS,
   INTERVIEW_FIXTURE_SAMPLE_RATE,
 } from "./fixture-audio";
@@ -64,7 +64,7 @@ describe("semantic playback model", () => {
   });
 
   it("generates deterministic local audio long enough for canonical source ranges", async () => {
-    const blob = createInterviewToneWavBlob();
+    const blob = createInterviewFixtureWavBlob();
     const bytes = new Uint8Array(await blob.arrayBuffer());
 
     expect(blob.type).toBe("audio/wav");
@@ -72,5 +72,24 @@ describe("semantic playback model", () => {
     expect(INTERVIEW_FIXTURE_DURATION_MS).toBe(30_000);
     expect(String.fromCharCode(...bytes.slice(0, 4))).toBe("RIFF");
     expect(String.fromCharCode(...bytes.slice(8, 12))).toBe("WAVE");
+    expect(
+      new Set(
+        bytes.slice(
+          44 + 10 * INTERVIEW_FIXTURE_SAMPLE_RATE,
+          44 + 16 * INTERVIEW_FIXTURE_SAMPLE_RATE,
+        ),
+      ).size,
+    ).toBeGreaterThan(20);
+    expect(
+      bytes.slice(
+        44 + 10 * INTERVIEW_FIXTURE_SAMPLE_RATE,
+        44 + 11 * INTERVIEW_FIXTURE_SAMPLE_RATE,
+      ),
+    ).not.toEqual(
+      bytes.slice(
+        44 + 21 * INTERVIEW_FIXTURE_SAMPLE_RATE,
+        44 + 22 * INTERVIEW_FIXTURE_SAMPLE_RATE,
+      ),
+    );
   });
 });
