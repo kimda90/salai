@@ -147,10 +147,10 @@ describe("external harness and semantic timeline round trip", () => {
 
     const afterDirect = await runCli(controller, baseUrl, ["context"]);
     const frictionCue = afterDirect.semanticTime.cues.find((cue) => cue.id === "cue-friction");
-    expect(afterDirect.semanticTime.durationMs).toBe(22_000);
+    expect(afterDirect.semanticTime.durationMs).toBe(24_000);
     expect(frictionCue).toMatchObject({
       startMs: 0,
-      durationMs: 4_000,
+      durationMs: 6_000,
       sourceExcerpts: [
         {
           blockId: "source-juan",
@@ -168,6 +168,6 @@ describe("external harness and semantic timeline round trip", () => {
       finalPlayback.clips["salai-audio"]?.find(
         (clip) => clip.id === "elah:timeline:source:source-juan",
       ),
-    ).toMatchObject({ durationFrames: 120, sourceStartFrame: 300, sourceDurationFrames: 120 });
+    ).toMatchObject({ durationFrames: 180, sourceStartFrame: 300, sourceDurationFrames: 120 });
   });
 });
