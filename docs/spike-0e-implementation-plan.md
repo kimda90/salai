@@ -162,7 +162,7 @@ Evidence:
 - `semantic-playback-model.test.ts` verifies deterministic varied local audio.
 - `pnpm typecheck`, `pnpm test`, and `pnpm build` passed on September 2, 2026.
 
-The hierarchical row surface remains the next `0E.1` slice.
+Technical implementation continues through `0E.4`. Human validation remains in `0E.5`.
 
 ---
 
@@ -256,6 +256,18 @@ Provide enough familiar direct editorial control to make the semantic-vs-generic
 - [x] **0E.4.12 — Re-project hierarchy and playback immediately after every accepted edit.**
 - [x] **0E.4.13 — Unsupported timeline-engine gestures are disabled/rejected/reverted rather than becoming shadow state.**
 - [ ] **0E.4.GATE — The representative story can be meaningfully rearranged, Cue-timed, source-trimmed, and Beat-split/merged without a conventional NLE or semantic ambiguity.**
+
+Technical evidence for `0E.1–0E.4`:
+
+- `timeline-projection.ts` emits Section, Beat, Cue, per-block, realization, and missing-realization rows on one time axis.
+- `semantic-timeline-model.ts` keeps expansion, viewport, selection, and playhead state outside Narrative IR.
+- `SemanticTimeline.tsx` provides the shared timeline, hierarchy controls, contextual inspector, creation actions, grouped deletion, and contextual Beat split/merge actions.
+- `semantic-timeline-edit.ts` accepts only canonical Section, Beat, Cue, ContentBlock, and SourceExcerpt interpretations. Unsupported engine changes are rejected.
+- `semantic-timeline-model.test.ts`, `semantic-timeline-edit.test.ts`, `semantic-timeline-roundtrip.test.ts`, and `semantic-editorial-adapters.test.ts` cover hierarchy, identity, timing, operations, and adapter boundaries.
+- `semantic-timeline-machine-flow.test.mjs` verifies external-harness continuity after a direct SourceExcerpt edit.
+- `pnpm typecheck`, `pnpm test`, and `pnpm build` pass on September 2, 2026.
+
+The four technical gates remain open until `0E.5` provides human evidence. Automated tests do not prove filmmaker usability.
 
 ---
 
