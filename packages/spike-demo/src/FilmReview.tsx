@@ -19,8 +19,7 @@ export function FilmReview() {
   const controller = useSalaiController();
   const state = useSalaiState();
   const { project, direction } = state;
-  const [noteText, setNoteText] = useState("");
-  const [scope, setScope] = useState("cue");
+  const { text: noteText, scope } = state.directionDraft;
   const [notice, setNotice] = useState({ text: "", revision: state.projectRevision });
   const projection = useMemo(() => projectNarrativeToTimeline(project), [project]);
   const moments = useMemo(() => filmMoments(project), [project]);
@@ -163,11 +162,11 @@ export function FilmReview() {
             event.preventDefault();
             playback.pause();
             if (controller.submitDirection(noteText, target, playback.currentTimeMs)) {
-              setNoteText("");
+              controller.updateDirectionDraft({ text: "" });
               showNotice("Direction captured. Your external agent can now prepare a proposal.");
             }
           }}>
-            <label>Note target<select value={target.type === "shot-intent" ? `shot-intent:${target.id}` : target.type} onChange={(event) => setScope(event.target.value)}>
+            <label>Note target<select value={target.type === "shot-intent" ? `shot-intent:${target.id}` : target.type} onChange={(event) => controller.updateDirectionDraft({ scope: event.target.value })}>
               {selected ? <option value="cue">Selected moment {moments.indexOf(selected) + 1}</option> : null}
               {selected ? <option value="beat">Beat · {beat?.title}</option> : null}
               {selected?.sceneId ? <option value="scene">Scene · {project.scenes[selected.sceneId]?.title}</option> : null}
@@ -175,8 +174,8 @@ export function FilmReview() {
               <option value="script">Whole story</option>
               {selected?.shotIntents.map((shot, index) => <option key={shot.id} value={`shot-intent:${shot.id}`}>Linked shot direction {index + 1}</option>)}
             </select></label>
-            <label>What should change?<textarea value={noteText} onFocus={playback.pause} onChange={(event) => setNoteText(event.target.value)} placeholder="What should the audience understand or feel here?" required /></label>
-            {selected?.cueId === "cue-f0-reaction" && !pending ? <button className="ghost-button" type="button" onClick={() => { setScope("cue"); setNoteText("Ivo already suspects she is leaving. Make his reaction guarded rather than surprised, and hold it for five seconds."); }}>Use the example direction</button> : null}
+            <label>What should change?<textarea value={noteText} onFocus={playback.pause} onChange={(event) => controller.updateDirectionDraft({ text: event.target.value })} placeholder="What should the audience understand or feel here?" required /></label>
+            {selected?.cueId === "cue-f0-reaction" && !pending ? <button className="ghost-button" type="button" onClick={() => controller.updateDirectionDraft({ scope: "cue", text: "Ivo already suspects she is leaving. Make his reaction guarded rather than surprised, and hold it for five seconds." })}>Use the example direction</button> : null}
             <button type="submit" className="primary-button" disabled={!noteText.trim() || pending}>Submit direction</button>
             {pending ? <p>Resolve or dismiss the current note before submitting another.</p> : null}
           </form>

@@ -81,7 +81,7 @@ The development harness can validate early slices, but final pilot evidence must
 
 The fixture review uses the existing Narrative IR. A visible moment corresponds to a Cue for this fixture. Beat intent and explicit ShotIntent links remain separate. The detail panel retains all content blocks and distinguishes source evidence from authored text.
 
-Submitting a note freezes its explicit target and project context. The external harness returns an interpretation and an operation batch through the existing machine bridge. Salai shows field changes derived from that batch. The user can accept or dismiss it. No canonical edit occurs when a proposal arrives.
+An unfinished note and its scope survive view changes. They remain temporary controller state and clear when the fixture resets or changes. Submitting a note freezes its explicit target and project context. The external harness returns an interpretation and an operation batch through the existing machine bridge. Salai shows field changes derived from that batch. The user can accept or dismiss it. No canonical edit occurs when a proposal arrives.
 
 Any canonical edit after submission makes the proposal stale. The user can resubmit the same note against current context if its target still exists. Selection changes do not retarget a submitted note. Direct edits and accepted proposals use the shared operation boundary and its immediate one-step revert.
 

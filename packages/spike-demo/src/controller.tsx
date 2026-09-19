@@ -44,6 +44,7 @@ export type SalaiAppState = {
   project: NarrativeProject;
   projectRevision: number;
   direction: DirectionReview | null;
+  directionDraft: { text: string; scope: string };
   workspace: Workspace;
   selection: CanonicalSelection | null;
   activeSurface: "outline" | "story-wall" | "av-script" | "paper-edit" | "timeline" | "film";
@@ -98,6 +99,7 @@ function initialState(fixtureKey: FixtureKey): SalaiAppState {
     project,
     projectRevision: 0,
     direction: null,
+    directionDraft: { text: "", scope: "cue" },
     workspace: createStoryWallWorkspace(project),
     selection: null,
     activeSurface: fixtureKey === "filmmaking" ? "film" : fixtureKey === "semantic-editorial" ? "timeline" : "outline",
@@ -211,6 +213,10 @@ export class SalaiController implements SalaiProjectService {
 
   select(selection: CanonicalSelection | null): void {
     this.publish({ ...this.state, selection });
+  }
+
+  updateDirectionDraft(draft: Partial<SalaiAppState["directionDraft"]>): void {
+    this.publish({ ...this.state, directionDraft: { ...this.state.directionDraft, ...draft } });
   }
 
   submitDirection(text: string, target: DirectionTarget, playheadMs: number): boolean {

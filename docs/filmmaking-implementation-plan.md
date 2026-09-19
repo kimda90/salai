@@ -69,13 +69,15 @@ Technical verification date: September 19, 2026. This is an agent-operated imple
 
 Adopted 0E work: 0E.0.3 safe Space transport, the timeline projection and viewer, 0E.2 contextual selection, and 0E.4 canonical order/duration/text edits. F0 uses silent local sketches. Playback retains its position after canonical edits. Revert retains a selection when that object exists in the restored project. No deferred timing or split behavior is added.
 
-Checks: `pnpm typecheck`, `pnpm test`, and `pnpm build` pass with Node.js 24.19.0 and pnpm 10.34.5. The uncached suite passes 145 tests across 35 files. CLI/bridge tests require local socket and child-process access. The build reports a bundle-size warning above 500 kB. Hosted CI has not run because this work is not pushed.
+Checks: `pnpm typecheck`, `pnpm test`, and `pnpm build` pass with Node.js 24.19.0 and pnpm 10.34.5. The uncached suite passes 146 tests across 35 files. CLI/bridge tests require local socket and child-process access. The build reports a bundle-size warning above 500 kB. [PR #74](https://github.com/kimda90/salai/pull/74) contains the implementation and hosted CI results. CI passes for the initial implementation commit `2cebcd7`.
 
 Browser evidence covers proposal acceptance, grouped revert, direct text/duration/order edits, unchanged source ranges, stale-note resubmission, dismissal, and Space in a text field. Timeline navigation preserves the selected Cue and returns to its review context. Narrow and wide layouts show the controls without document-level horizontal overflow. A clean final load has no console errors or warnings. These checks establish technical behavior, not narrative quality or filmmaker usability.
 
 Known limits: one active note/proposal, conservative whole-project revision checks, no saved notes, no durable project/media bundle, and no automatic agent dispatch. The external harness must read context and propose changes. Fixture drawings remain fixed after text edits. ShotIntent and MediaSegment stubs are fixture inputs because current public operations can only link them.
 
 Development observation: hot updates to shared controller code caused transient React context errors during implementation. A full reload restores the prototype. This does not occur on the verified clean load.
+
+The follow-up UI review found that view changes discarded an unfinished direction note. The draft text and scope now remain in controller interaction state. A regression test and browser round-trip verify retention without a canonical edit or loss of immediate revert. Resetting or changing the fixture clears the draft.
 
 To conduct the human review, start `pnpm dev` and open `http://localhost:5173/salai/?bridge=1&fixture=filmmaking`.
 

@@ -22,6 +22,22 @@ function submit(controller: SalaiController): DirectionProposalInput {
 }
 
 describe("F0 filmmaking review", () => {
+  it("retains an unfinished note across views without changing the project or invalidating revert", () => {
+    const controller = new SalaiController("filmmaking");
+    controller.dispatchNarrativeBatch([{ op: "updateCue", cueId: "cue-f0-reaction", explicitDurationMs: 5000 }], { revertible: true });
+    const before = controller.getSnapshot();
+    controller.updateDirectionDraft({ text: "Keep the departure uncertain.", scope: "scene" });
+    controller.setSurface("outline");
+    controller.setSurface("film");
+    expect(controller.getSnapshot().directionDraft).toEqual({ text: "Keep the departure uncertain.", scope: "scene" });
+    expect(controller.getSnapshot().project).toBe(before.project);
+    expect(controller.getSnapshot().projectRevision).toBe(before.projectRevision);
+    expect(controller.revertMachineAction()).toBe(true);
+    expect(controller.getSnapshot().directionDraft.text).toBe("Keep the departure uncertain.");
+    controller.setFixture("scratch");
+    expect(controller.getSnapshot().directionDraft).toEqual({ text: "", scope: "cue" });
+  });
+
   it("builds a valid, deterministic two-scene story with eight linked moments and multiple contents", () => {
     const project = createFilmmakingFixture();
     expect(validateNarrativeProject(project).valid).toBe(true);
