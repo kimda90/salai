@@ -1,183 +1,43 @@
-# Agent development standard
-
-## Status
-
-Canonical standard for coding agents that modify the Salai repository.
-
-This document defines required context, architecture constraints, change procedure, validation, documentation discipline, and completion criteria for agent-authored changes.
+# Agent Development Standard
 
 ## Objective
 
-Optimize for validated product learning and a small maintainable architecture. Do not optimize for framework breadth, speculative extensibility, or agent-specific infrastructure.
+Develop the smallest maintainable implementation that tests the current product question. Salai is now an AI filmmaking interface focused on narrative intent. The loop is Tell → See → Direct → Update → See; it is not an instruction to build a complete production platform.
 
-Default decision ladder:
+## Required context
 
-1. do not add it unless the current task needs it;
-2. reuse existing Salai behavior;
-3. use the standard library or native platform;
-4. use an already-installed dependency;
-5. add the smallest new dependency/abstraction only when necessary.
+Read [AGENTS.md](../AGENTS.md) and [the documentation map](README.md), then the [PRD](prd.md), [filmmaking interaction contract](filmmaking-interaction.md), [architecture](architecture.md), [active plan](filmmaking-implementation-plan.md), and relevant code/tests. Read [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md) before proposed model/execution additions and [Narrative IR](narrative-ir-spec.md) before domain edits.
 
-Validated structural-editorial adapters:
+ADR 0010 accepts product direction. RFC 0004 is proposed technical shape; its explicit review gates must be resolved for the slice being implemented. Do not turn a draft schema into an implemented contract by copying it into code without review.
 
-- `@moritzbrantner/timeline-editor` — controlled timeline interaction mechanics;
-- `@elah/core` — playback/materialization adapter.
+Standalone 0E is paused, not passed. Consult [editorial-interaction.md](editorial-interaction.md) and RFC 0003 for temporal changes. Historical plans are evidence and reusable work, not current priority instructions.
 
-Treat both as replaceable adapters, not domain foundations.
+## Non-negotiable boundaries
 
-## Required context before changing code
+- Keep one canonical narrative model in `@salai/script-model` and one human/machine boundary at `SalaiProjectService` (the existing controller, not another state owner).
+- Apply canonical changes through validated public operations; multi-operation actions publish atomically through `applyOperations()`.
+- Keep authored and recorded source material distinct, and retain existing stable-ID and relationship behavior.
+- Preserve multi-block Cues, supported Section/Scene structures, and existing ShotIntent references. Do not silently replace them with a single-parent shot schema.
+- Keep renderer/timeline/stage internals derived. UI selection, viewport, playhead, and draft feedback are not another canonical film.
+- External harnesses own generic model/auth/session/tool-loop behavior under ADR 0008. A generation adapter does not justify a second agent runtime, secret store inside the project, or unreviewed transport.
+- Do not resolve RFC 0003's five deferred timing/editing questions through engine-only fields.
 
-Always read [`../AGENTS.md`](../AGENTS.md) first.
+## Procedure
 
-For current Spike 0E work, read at minimum:
+1. Inspect the current branch, implementation, tests, tracker, and owning documents. Separate working code from plans.
+2. Name one observable outcome from the active slice. Prefer existing behavior, then native facilities, then an installed dependency, then the smallest justified new dependency.
+3. Resolve only the design gate that this outcome reaches. New fields/operations require a concrete contract, migration behavior where relevant, and tests in the owning spec; avoid generic mutation escape hatches.
+4. Implement and test the smallest vertical change. Do not bundle infrastructure or framework upgrades unrelated to the question.
+5. Review the diff for source preservation, scoped feedback, stable selection, stale requests, failed/duplicate jobs, and accidental global changes.
+6. Update canonical docs and the sole active tracker. Implementation and human evidence have different completion criteria.
 
-- [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md) — accepted cross-cutting interaction direction and scoped deferred semantics;
-- [`editorial-interaction.md`](editorial-interaction.md) — accepted observable direct-edit contract;
-- [`spike-0e-implementation-plan.md`](spike-0e-implementation-plan.md) — active task/status/evidence tracker;
-- [`spike-0d-assessment.md`](spike-0d-assessment.md) — human evidence that motivates 0E;
-- [`narrative-ir-spec.md`](narrative-ir-spec.md) — canonical Narrative IR semantics/operations;
-- [`architecture.md`](architecture.md) — current system boundaries;
-- [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md) — product/editorial boundary;
-- [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md) — agent-runtime boundary;
-- [`README.md`](README.md) — documentation ownership map.
+## Testing priorities
 
-Read [`narrative-lenses.md`](narrative-lenses.md) and [`workflows.md`](workflows.md) before changing structured-view/workflow semantics.
+Keep CI deterministic and independent from paid providers. Test interpretation/application boundaries with fixtures or recorded inputs and a fake executor, without treating those as real-generation or human validation.
 
-Do not use historical spike implementation documents as current requirements except when explicitly comparing evidence.
+For new generation work, cover frozen request context, added/removed dependencies, inherited guidance changes, unknown provenance, candidate selection, late responses, removed targets, failures, retry approval, and save/reopen with actual accessible media. Test that unrelated accepted choices remain unchanged. A unit test cannot establish whether a film communicates its intent.
 
-## Accepted 0E shaping boundary
-
-`0E.SHAPE.GATE` is accepted. Implementation begins at 0E.0 and must follow RFC 0003 plus `editorial-interaction.md`.
-
-RFC 0003 intentionally leaves these questions deferred:
-
-- Cue split semantics;
-- SourceExcerpt split semantics;
-- independent within-Cue ContentBlock timing;
-- intentional black vs missing-realization identity;
-- broad cross-parent grouped moves.
-
-Do not use code to decide those questions implicitly. If a task reaches one, resolve/update RFC 0003 first, then promote accepted behavior into the canonical owning docs before implementation.
-
-## Architecture invariants
-
-### Canonical state
-
-- `@salai/script-model` is the only canonical narrative model.
-- Narrative IR operation semantics live in `narrative-ir-spec.md`.
-- Do not create a second canonical representation for agents, timelines, renderers, or NLE adapters.
-- New production/editorial identity is introduced only when validated workflow evidence proves existing IDs/relationships cannot represent required meaning.
-
-For 0E, current canonical timing remains Cue-owned sequential narrative time. Ordinary ContentBlocks do not gain hidden independent offsets/durations.
-
-### Application boundary
-
-- `SalaiProjectService` is the shared human/machine boundary.
-- Human UI and machine actions converge on the same live project.
-- Canonical multi-operation changes use public `NarrativeOperation[]` and `applyOperations()`.
-- Do not mutate persistence or serialized state behind the service.
-
-### Structural-editorial boundary
-
-- Salai owns structural-editorial semantics.
-- The semantic timeline is a projection/interaction surface, not project truth.
-- Timeline gestures/inspector edits must resolve to canonical operations or remain UI-only state.
-- Timeline-editor document/history/serialization must not become Salai persistence.
-- Elah project/renderer state must remain derivable/disposable.
-- Specialist NLEs remain optional downstream targets.
-
-Reuse existing operation vocabulary before proposing new operations:
-
-- create/update/move/delete operations;
-- `moveBlock`;
-- `splitBeat` / `mergeBeats`;
-- `trimSourceExcerpt`;
-- atomic operation batches.
-
-### Agent/runtime boundary
-
-External harness owns model/provider access, authentication, session history, reasoning/tool loops, and model-specific context management.
-
-Salai owns project semantics and machine interface. Do not add embedded provider SDKs, chat persistence, model routers, OAuth/API-key management, or another agent runtime to solve a harness problem.
-
-### Interface/transport boundary
-
-There is one Salai machine semantic interface. Transport adapters are replaceable glue and must not acquire domain logic/state ownership.
-
-The validated surface is CLI-oriented; the local HTTP bridge exists because the prototype project is browser-owned.
-
-Do not add MCP, parallel REST/stdio/WebSocket domain APIs, or another protocol without a concrete validated need and explicit architecture decision.
-
-## Machine-tool evolution
-
-The agent-facing CLI remains self-describing through:
-
-```bash
-pnpm salai tools
-```
-
-When changing machine commands:
-
-1. change implementation;
-2. update tool discovery in the same PR;
-3. update deterministic tests;
-4. update agent operating docs when the contract changes;
-5. do not duplicate the Narrative IR operation vocabulary outside its canonical spec.
-
-Higher-level commands are justified only when Salai must resolve canonical IDs/references/placement or another Salai-owned concern. They compile immediately to canonical operations and do not become persistent mutation models.
-
-## Change procedure
-
-### 1. Establish current state
-
-Inspect relevant code, tests, canonical docs, RFC/ADR decisions, and active tracker. Do not rely on conversation memory or earlier branches.
-
-### 2. Define the smallest outcome
-
-State the concrete behavior/invariant the change must produce. Do not silently expand the milestone.
-
-### 3. Reuse before abstracting
-
-Search existing operations, services, fixtures, adapters, utilities, and tests before creating new abstractions.
-
-### 4. Test the semantic boundary
-
-Prioritize tests for:
-
-- Narrative IR invariants;
-- atomicity/no-partial-publish;
-- stable identity;
-- source provenance;
-- direct human action → canonical operation/batch;
-- nested timeline projection identity/order/timing;
-- selection/expand/viewport state remaining non-canonical;
-- grouped multi-selection operations;
-- adapter derivability;
-- playback synchronization.
-
-Avoid pixel-perfect tests unless visual output itself is the contract.
-
-### 5. Implement the smallest change
-
-Keep domain logic out of transport/adapters. Keep provider/runtime concerns out of Salai. Keep UI/Workspace meaning separate from canonical meaning.
-
-For 0E, do not introduce unless an explicitly resolved/accepted requirement demands it:
-
-- free-positioned generic clip state;
-- independent ordinary ContentBlock timing;
-- full Production Graph;
-- Story Spine/infinite canvas;
-- GenAI execution;
-- proxy/cache architecture;
-- OTIO/downstream interchange;
-- Resolve execution;
-- advanced NLE trim/effect/keyframe systems;
-- CRDT/event sourcing;
-- general plugin framework.
-
-### 6. Validate
-
-Run focused tests while iterating. Before completion, run from repository root:
+Preserve the existing canonical test suite, grouped revert semantics, and machine discovery. Run focused tests while iterating; for code changes run:
 
 ```bash
 pnpm typecheck
@@ -185,59 +45,18 @@ pnpm test
 pnpm build
 ```
 
-If the live machine interface is affected, exercise the relevant CLI path with `pnpm dev` and `?bridge=1`.
+Use the actual browser for changed interaction/playback. Record real provider and human tests separately, with authorization, scope, and limitations. Never label a synthetic pipeline as an end-to-end product pass.
 
-If playback/timeline interaction is affected, exercise the actual 0E fixture in the browser. Automated tests cannot prove human creative usefulness.
+For documentation-only changes, validate links, ownership/status consistency, preserved history, and absence of code changes. Report application checks as not run unless actually executed locally or by CI; do not infer passing tests from a clean documentation diff.
 
-### 7. Update canonical documentation
+## Machine and provider contracts
 
-Use `docs/README.md` to find the owner of information.
+Discover implemented tools with `pnpm salai tools`. A future action described in a plan is not callable. When adding a command, update discovery, tests, and [agent usage](agent-usage.md) in the same PR. Commands compile to the same canonical operations used by the UI.
 
-- terms → `glossary.md`;
-- product requirements → `prd.md`;
-- Narrative IR operations/invariants → `narrative-ir-spec.md`;
-- structural-editorial interaction → `editorial-interaction.md`;
-- deferred cross-cutting interaction/domain questions → RFC 0003;
-- agent operating behavior → agent docs;
-- architecture → `architecture.md` + ADRs when decisions change;
-- active 0E status/evidence → `spike-0e-implementation-plan.md`;
-- discovery observations → `research-notes.md`.
+A pending job records the submitted target and inputs; it does not follow later selection. Require explicit approval for external transmission and cost. Do not claim to cancel or make a provider request idempotent unless that backend supports it. Secrets stay outside canonical project state.
 
-Do not mark human-validation tasks complete from automated tests or agent simulation.
+## Documentation and Git discipline
 
-### 8. Keep changes reviewable
+Use [docs/README.md](README.md) to find the owner. Preserve accepted ADR history; add an ADR for a changed boundary and mark partial/full supersession explicitly. RFC questions remain in their RFC until resolved. Do not repeat exact field vocabularies in summary documents.
 
-Prefer small PRs with one clear outcome. Do not bundle unrelated cleanup, upgrades, architecture, and feature work unless inseparable.
-
-## Dependency discipline
-
-Before adding a dependency, establish that platform capabilities, existing dependencies, or current accepted adapters cannot reasonably solve the task.
-
-Do not add a second timeline/playback engine “just in case.” Replace/wrap an existing adapter only when concrete evidence shows it cannot satisfy the accepted interaction contract.
-
-## Git and pull-request discipline
-
-Agents should:
-
-- work on a focused branch unless explicitly instructed otherwise;
-- avoid rewriting unrelated history;
-- keep generated artifacts/caches out of commits;
-- summarize behavior, tests, and docs in the PR;
-- wait for required CI before merge when repository access is available;
-- never mark tracker work complete until acceptance criteria are actually satisfied.
-
-## Completion checklist
-
-A coding task is complete only when all applicable items are true:
-
-- accepted RFC/interaction contract permits the work;
-- requested behavior is implemented;
-- architecture invariants remain intact or an explicit accepted decision changes them;
-- relevant semantic-boundary tests exist;
-- `pnpm typecheck`, `pnpm test`, and `pnpm build` pass;
-- machine changes are reflected by `pnpm salai tools`;
-- timeline/rendering state remains derived;
-- canonical docs are updated without contradictory duplicate contracts;
-- tracker status reflects only genuinely completed evidence;
-- no human-validation evidence is fabricated;
-- PR contains no unrelated scope.
+Work on a focused branch. Do not rewrite unrelated history, delete source media, or merge without instruction. The PR states what changed, what remains proposed, tests performed, checks unavailable, and validation still outstanding. A task stays unchecked until its stated criteria are met; no human-validation completion from agent simulation.

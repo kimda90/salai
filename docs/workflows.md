@@ -1,272 +1,69 @@
 # Salai Creative Workflows
 
-## Status
+Target workflow under [ADR 0010](adr/0010-narrative-first-ai-filmmaking.md). These are requirements for the new loop, not claims that generation/transcription already work. Exact acceptance requirements belong in [the PRD](prd.md); task state belongs in [the active plan](filmmaking-implementation-plan.md).
 
-Living workflow behavior. Narrative semantics live in [`narrative-ir-spec.md`](narrative-ir-spec.md); validated external-agent behavior lives in [`agent-mediated-authoring.md`](agent-mediated-authoring.md); proposed direct structural-editorial behavior lives in [`editorial-interaction.md`](editorial-interaction.md); current execution is tracked in [`spike-0e-implementation-plan.md`](spike-0e-implementation-plan.md).
-
-## Core interaction rules
-
-> **Hide structural bookkeeping, not narrative structure.**
-
-> **One temporal context, progressively revealed semantic depth.**
-
-> **The story must be playable inside Salai without giving timeline-engine state ownership of the project.**
-
-Creators can express ordinary intent through an external agent harness without manually managing IDs, parents, operation types, or low-level structure. They can also work directly when the representation itself contributes to the creative decision.
-
-## Default loop
+## The loop
 
 ```text
-creator expresses intent or edits directly
-        ↓
-Salai canonical project
-        ↓
-hierarchical semantic timeline / other useful representation
-        ↓
-play and judge
-        ↓
-reshape directly or through external harness
-        ↓
-canonical project
+Tell → See → Direct → Update → See … → Stop / save / hand off
 ```
 
-No export/import or chat-history synchronization is required between agent and UI work.
+There is no compulsory “approve every breakdown field” step. There is also no automatic march to HQ. The filmmaker chooses what question to explore next and when the current result is enough.
 
-## Script-first
+## Tell
 
-```text
-rough idea / prose
-      ↓
-external harness or direct Salai input
-      ↓
-usable canonical structure
-      ↓
-hierarchical temporal projection
-      ↓
-playable rough assembly as material becomes available
-```
+Speak, paste a story, or bring a draft screenplay. Preserve the original input. A transcript records what was said; the screenplay/narrative interpretation is separately authored and editable.
 
-The creator should not manually create/parent every Beat/Cue for routine story changes. Direct creation remains available when temporal context itself is useful.
+Present a compact interpretation and begin an inexpensive visual plan. Expose uncertainty that matters, especially names, pronouns, motivation, and who knows what. Do not present inferred details as supplied facts. Let the creator correct the story directly rather than requiring structural terminology.
 
-## Footage/source-first
+The first implementation may use written input and the existing external harness. Voice intake must be labeled unavailable until its explicit transcription path works; a text-only development fixture is not validation of spoken-story intake.
 
-```text
-source context / media / transcript
-      ↓
-external harness or direct source selection
-      ↓
-canonical narrative + source evidence
-      ↓
-hierarchical semantic timeline
-      ↓
-play / reorder / trim source I/O while preserving evidence identity
-```
+## See
 
-Recorded wording/ranges remain source evidence; authored bridges remain authored.
+Show an ordered still storyboard with enough scene/beat context to understand why each shot exists. Support timed playback as an animatic, and identify missing material rather than fabricating completed results.
 
-## Hierarchical semantic timeline workflow
+The viewer and a compact shot strip/timeline are the working context. The screenplay, intent, references, and details are accessible there. Expanding detail must not require losing the surrounding film.
 
-0D showed that replacing the whole timeline with Story / Moments / Media levels caused context loss. 0E therefore tests nested semantic depth inside one temporal context.
+Results can arrive progressively. Keep existing material visible and distinguish queued, running, failed, and ready work. Do not manufacture a duration estimate when none is available.
 
-A representative interaction is:
+## Direct
 
-```text
-whole story visible
-      ↓
-expand a Section / Beat
-      ↓
-inspect Cue detail without leaving surrounding time
-      ↓
-select Cue / ContentBlock
-      ↓
-edit or create in contextual inspector
-      ↓
-canonical operation/batch
-      ↓
-reproject + replay
-```
-
-Expansion/collapse, viewport zoom, selection, and playhead remain non-canonical interaction state.
-
-## Select → inspect → edit
-
-Selecting a canonical object should make the selected object useful immediately.
+React through text, voice when supported, references, candidate selection, direct edits, or later optional 3D staging. Reference upload is opportunistic, not required onboarding.
 
 Examples:
 
-- select Beat → edit title/summary, inspect duration/Cues, create Cue, split/merge when valid;
-- select Cue → edit explicit duration, inspect all visual/audio blocks, add a block;
-- select SourceExcerpt → inspect evidence identity and source in/out, trim the range;
-- select authored/visual/sound block → edit its type-owned properties and move/delete it.
+- “She suspects him already; do not play this as a surprise.”
+- “Use this apartment, but keep the framing.”
+- “Keep this take. Shorten the pause before he answers.”
 
-The inspector does not expose engine clip properties merely because the timeline library has them.
+Capture the selected scope and project revision when the note is submitted. “Here” must not silently switch targets when the user moves the playhead. A scene note does not automatically rewrite a character globally.
 
-## Creation in temporal context
+Use existing atomic project edits for clear, reversible changes. Show a proposed change for ambiguous, destructive, or wide-reaching direction. Preserve the difference between a note, a proposed interpretation, and an accepted project change.
 
-The creator can add semantic structure without changing to a separate mechanical surface.
+## Update
 
-Examples:
+Separate changing the plan from spending resources to produce new media. Show the proposed targets, output profile, external recipient, references to be sent, and available cost information. Get approval before external generation or quality escalation.
 
-- add a Beat inside/relative to the selected Section/Scene/Beat;
-- add a Cue inside/relative to the selected Beat/Cue;
-- add a visual/audio ContentBlock to a selected Cue;
-- use the playhead as a placement hint only after Salai resolves the intended canonical parent/insertion point.
+Resolve guidance from the relevant project, section, scene, beat, shot, and selected references. Preserve where it came from. Do not re-create a full prompt hierarchy as a separate project.
 
-When structure is materially ambiguous, show the resolved semantic target rather than inferring destructive reparenting from pixel position.
+Store a frozen request and its inputs with each result. Compare current effective inputs with those recorded inputs to identify material that may need updating. A mismatch is not proof that the existing take is unusable.
 
-## Multiple material in one Cue
+Keep the previous selection while candidates are generated. A completion from an older project revision is still useful history, but must not silently become the current take. Let the user compare, accept, retain, or reject it.
 
-A Cue can already contain multiple visual and audio blocks. The workflow must expose every one of them.
+For a beat, scene, or sequence, update a scoped set of shots and rebuild the review assembly. Do not assume the whole sequence is one model request. Failed shots can be retried separately without erasing successful results or triggering unapproved duplicate charges.
 
-```text
-Cue: "She realizes the installation is easy"
-  visual
-    - wide installation description
-    - on-screen text: "30 seconds"
-    - graphic: connector callout
-  audio
-    - interview SourceExcerpt
-    - SFX: connector click
-    - Music: light continuation
-```
+## Increase fidelity only when useful
 
-For 0E all blocks share the Cue's narrative interval. SourceExcerpt preserves source I/O. Independent within-Cue offsets/durations are not silently invented.
+Stills answer composition and broad story questions. Timed stills help assess order and holds. Cheap generated motion tests movement and pacing. These are different output kinds, not interchangeable proof of quality.
 
-## Multi-selection / grouped editing
+The user may update only one shot, keep a mixed-fidelity assembly, or stop at a storyboard/animatic. Later low/HQ profiles and 3D direction use the same loop and retained narrative identity; they are not separate canonical workflows.
 
-Selection may include multiple compatible semantic items.
+## Keep and resume
 
-Useful first grouped workflows:
+Save the canonical project, accepted selections, relevant guidance/revisions, request provenance, and asset references. Reopening must not depend on the original chat. Missing/offline media is reported and relinked, not reinterpreted as intentionally absent or regenerated automatically.
 
-- select several sibling Beats/Cues/blocks and move them while preserving relative order;
-- delete a compatible set in one action;
-- apply one shared semantic property only when every selected object supports it.
+Imported/captured material retains its acquisition/source provenance. A story revision may change its use or suitability; it does not rewrite the recording or imply it was generated from the story.
 
-One grouped direct action becomes one atomic `NarrativeOperation[]` batch. Unsupported heterogeneous mutations stay disabled rather than guessing.
+## Supporting editorial work
 
-## Minimum temporal editing grammar
-
-### Transport
-
-- Space toggles play/pause unless text editing or another focused control consumes Space.
-- Seek/scrub uses the same Viewer playhead.
-
-### Reorder / move
-
-```text
-Move Section      → moveSection
-Move Beat         → moveBeat
-Move Cue          → moveCue
-Move ContentBlock → moveBlock
-```
-
-Canonical sequence changes ripple all later derived start times.
-
-### Cue duration
-
-Change Cue narrative duration through `updateCue.explicitDurationMs`.
-
-This is distinct from source trimming.
-
-### Source I/O
-
-```text
-SourceExcerpt edge trim / inspector in-out
-      ↓
-trimSourceExcerpt
-```
-
-The source range remains inside the MediaSegment and keeps evidence identity.
-
-### Split / merge
-
-Beat split at a Cue boundary uses `splitBeat`; Beat merge uses `mergeBeats`.
-
-A universal razor is not assumed. Cue split and SourceExcerpt split remain scoped RFC 0003 questions until their semantics are explicitly resolved.
-
-### Delete
-
-Delete uses the corresponding canonical delete operation(s); external production media is not cascade-deleted.
-
-## Ripple and absence
-
-The current story is sequential Cue time, not arbitrary clip space.
-
-- reorder/duration changes ripple later story time;
-- no 0E overwrite/free-positioned-gap mode exists;
-- no audio blocks means silence;
-- no visual content remains visibly absent;
-- known unsupported realization remains explicitly missing;
-- the UI does not invent clips/material to hide absence.
-
-## Agent ↔ temporal UI
-
-Agent changes are visible automatically because both agent and UI use the same project service/canonical state.
-
-Examples:
-
-- directly create/trim/reorder, then ask the harness to tighten the surrounding story;
-- ask the harness to restructure a Beat, then inspect the same nested hierarchy and play the result;
-- multi-edit several objects, then read fresh machine context without synchronization bookkeeping.
-
-Selection/viewport/collapse state is not automatically agent context unless the current user request explicitly makes it relevant.
-
-## Playback/review
-
-```text
-construct
-   ↓
-play
-   ↓
-notice pacing / evidence / realization problem
-   ↓
-select the relevant semantic object(s)
-   ↓
-edit directly or through external harness
-   ↓
-replay canonical result
-```
-
-Validation fixtures must not be dominated by placeholder artifacts such as fixed-frequency tones that distort creative judgment.
-
-## Workspace vs narrative change
-
-Story Wall x/y and parking remain Workspace semantics. Timeline hierarchy expansion/collapse, selection, viewport, and playhead are likewise non-canonical interaction state.
-
-Physical position does not silently become narrative meaning unless an explicit semantic gesture commits a canonical change.
-
-## Existing structured views
-
-0B/0C validated Outline, Story Wall, AV Script, and Paper/Radio Edit as coherent representations of one project.
-
-They remain valid Narrative Lens evidence, but ordinary temporal editing must not require switching to another surface for mechanical reasons. 0E tests whether one hierarchical temporal surface can expose much of the needed story/AV depth while preserving global context.
-
-## Downstream finishing
-
-```text
-creative + structural editorial work in Salai
-        ↓
-canonical state / structural assembly
-        ↓
-explicit materialization/interchange decision
-        ↓
-optional specialist NLE
-```
-
-Neither harness instructions nor direct temporal UI bypass canonical Salai state to mutate a downstream NLE directly.
-
-## Current 0E workflow proof
-
-Human validation should be possible entirely from this loop:
-
-1. watch the representative rough story;
-2. navigate whole story → nested Cue/material detail without losing temporal context;
-3. edit a selected Beat/Cue/block through its inspector;
-4. create new Beat/Cue/material in temporal context;
-5. work with multiple visual/audio blocks inside a Cue;
-6. perform one useful multi-selection/grouped edit;
-7. reorder and change Cue duration;
-8. adjust SourceExcerpt source I/O;
-9. split/merge where accepted semantics exist;
-10. use external harness for one structural/timing change;
-11. replay and compare whether semantic hierarchy changed the creative decision.
+Reorder, select, change Cue duration, edit useful fields, and play/scrub through the existing service and canonical model. Keep [source I/O and timing boundaries](editorial-interaction.md) intact. Do not require a complete NLE or completion of the entire former 0E checklist before testing this loop.

@@ -1,201 +1,41 @@
 # Salai Scripting Model
 
-## Role of this document
+## Purpose and ownership
 
-This document explains **why** Salai needs a structured scripting/narrative model and which creative problems pressure-test it.
+The script preserves **what the creator is trying to communicate**, not just the wording of a screenplay or the prompts for current shots. This rationale supports the narrative-first filmmaking loop; it does not introduce a second schema. Exact implemented types and operations remain in [narrative-ir-spec.md](narrative-ir-spec.md), and proposed generation extensions belong in [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md).
 
-Canonical terminology lives in [`glossary.md`](glossary.md). Exact types, invariants, operation vocabulary, fixtures, and tests live in [`narrative-ir-spec.md`](narrative-ir-spec.md).
+## From telling to a working film
 
-This document does not maintain a parallel schema/API, Narrative Lens taxonomy, structural-editorial implementation contract, or iteration tracker.
+A spoken telling is source input. Its recording and transcript remain distinguishable from the authored screenplay interpretation. Salai may propose scene structure, Beats, Cues, and shot descriptions, but interpretation must not silently rewrite the source recording or misrepresent a synthesized line as a recorded quote.
 
-## Why structured narrative data still matters
+Breakdown is assistance, not a required form-filling stage. The creator can correct what matters and add references when useful. Unknown details can remain visibly provisional; the system must not imply that a suggested prop, motivation, or setting was specified by the user.
 
-A Salai “script” is not only formatted prose. It must work across:
+## Small semantic distinctions worth keeping
 
-- short-form branded/product work;
-- interviews/documentary;
-- corporate video;
-- YouTube/educational content;
-- commercials;
-- traditional scene-based work.
+A **Beat** expresses a meaningful narrative progression. A **Cue** expresses an audiovisual moment in time. A **ShotIntent** describes a desired production realization; it is not currently a new mandatory child below every Cue.
 
-Projects may begin from a blank idea or from existing footage/source evidence.
+For example, “Maria realizes Pedro lied” can need an insert, a reaction, and a sound, or one sustained shot. Changing that coverage should not erase the Beat's identity or force a fixed shot count into the story hierarchy.
 
-Current thesis:
+Use existing Section/optional Scene/Beat/Cue structure. “Sequence” can be user-facing language for an appropriate Section; it does not authorize an additional nesting layer. Preserve existing direct Beats inside Sections and multi-block Cues. Exact new shot/asset bindings require explicit design rather than a silent `cueId` shortcut.
 
-> A Salai script is stable semantic production data that can be normalized from messy authored intent or source material, inspected through several representations, projected into structural editorial time, and consumed by later production/interchange systems without losing identity.
+## Intent, direction, and prompts
 
-The user should not have to manually construct every level of that structure for ordinary creative work. Spike 0C human validation using Codex confirmed that external-agent mediation can handle much of that routine bookkeeping while Salai remains canonical.
+Narrative intent answers why a moment exists. Direction describes a desired expression of it: a performance, composition, sound, pace, or reference. A provider prompt is one generated request representation, not the definition of the story.
 
-See [`agent-mediated-authoring.md`](agent-mediated-authoring.md), [`spike-0c-assessment.md`](spike-0c-assessment.md), and [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md).
+Keep initial intent in ordinary readable text and the smallest relevant fields. Do not require formal preconditions, audience-state logic, satisfaction graphs, or controlled emotional taxonomies. Scoped guidance and its revision history should remain understandable without exposing compiler terminology.
 
-## Why Beat and Cue are separate
+An instruction such as “she is pretending to be frightened” may require interpretation and a proposed change. It is not a deterministic rewrite rule. The creator approves the meaning and judges the result; recording the changed inputs only establishes provenance.
 
-A creator may have one narrative idea that requires several audiovisual moments.
+## Authored versus sourced material
 
-```text
-Beat: installation is simple
+Script-first is the first product loop, but footage-first semantics remain valid and must not regress. SourceExcerpt retains its source identity and range. Authored bridges and rewritten dialogue remain authored material. Imported media may be linked to an intention without claiming that the intention caused or generated the recording.
 
-Cue 1  wide installation      VO starts
-Cue 2  connector insert       VO continues
-Cue 3  UI confirmation        SFX
-Cue 4  reaction               music rises
-```
+## Timing and stable identity
 
-The conceptual distinction is:
+Reordering or rewriting should preserve identity where the implemented operation semantics allow it. Splits, merges, and deletion must retain their explicit relationship policies. The current Cue-owned timing contract remains authoritative; a generated video's duration does not automatically replace the intended Cue duration.
 
-- **Beat** — the narrative progression the audience should receive;
-- **Cue** — an audiovisual moment used to express part of that Beat.
+Screenplay, outline, storyboard, and temporal review are representations of the project. Free-form working text may include notes, questions, and rejected ideas; it is not automatically canonical story state. Do not promise lossless bidirectional editing across arbitrary screenplay formats before implementing and testing it.
 
-This distinction can remain semantically important without forcing users to explicitly create every Cue.
+## Next proof
 
-For example:
-
-```text
-Show three quick installation moments under the same line of VO.
-```
-
-may normalize to one Beat with several Cues. A temporal/AV representation can expose them later when audiovisual realization is the actual creative question.
-
-No lower semantic narrative layer is currently justified.
-
-## Script-first and footage-first share one model
-
-### Script-first
-
-A creator may begin with rough prose:
-
-```text
-Open with the frustration of the old process.
-Then show installation in three fast moments.
-End on the time saved.
-```
-
-That intent can normalize into the same canonical model used by human semantic surfaces, structural editorial, and later production planning.
-
-### Footage-first
-
-An editor may begin with interview excerpts, B-roll, screen recordings, or archive material plus an instruction such as:
-
-```text
-Build a short story around the old process, what changed, and the result.
-```
-
-The critical semantic distinction is between:
-
-- **authored material**, whose words/content are intentionally editable; and
-- **sourced material**, whose wording/timing comes from recorded evidence.
-
-An agent or temporal editor must not turn a recorded interview excerpt into editable authored copy merely because rewriting would be easier.
-
-## Narrative intent is independent from realization
-
-A narrative need should not become equivalent to whichever clip currently fills it.
-
-Conceptually:
-
-```text
-Beat / Cue
-    ↓
-ShotIntent
-    ↓
-possible realizations
-- captured take
-- generated previs/final
-- stock
-- graphic/composite
-- storyboard
-```
-
-This separation enables later questions such as:
-
-- what coverage is missing;
-- which footage supports this idea;
-- which alternatives exist;
-- whether a missing moment should be shot, found, generated, or represented as previs.
-
-The full production graph remains later than Spike 0D. The current timeline spike must not invent a production ontology merely to satisfy a third-party editor model.
-
-## Stable identity matters more than formatted text or clip placement
-
-Narrative objects may eventually link to source media, ShotIntents, annotations, generated alternatives, Workspace cards, action history, semantic timeline projections, and optional downstream NLE bindings.
-
-Therefore:
-
-- rewriting text should not recreate identity unnecessarily;
-- reordering should not sever relationships;
-- split/merge/delete must report relationship consequences explicitly;
-- source-backed content must keep source identity;
-- agent normalization should preserve identity during restructuring where possible;
-- timeline projection must reference canonical IDs rather than create a second story model;
-- switching representations must not create another copy of the story.
-
-Exact behavior belongs to [`narrative-ir-spec.md`](narrative-ir-spec.md).
-
-## Duration has two levels
-
-Before media exists, Narrative IR provides approximate structural timing from Cue-level inputs such as:
-
-- authored speech estimate;
-- actual source-excerpt duration;
-- explicit duration;
-- simple visual hold estimate.
-
-That remains useful for requests such as:
-
-```text
-Get this under 45 seconds without losing the result quote.
-```
-
-After ADR 0009, Salai also owns enough structural editorial to represent/play the current story in actual time. Spike 0D tests the relationship between these levels rather than replacing semantic duration with a renderer-owned clip timeline.
-
-## Free-form working text is not the Script
-
-A low-friction working area may contain:
-
-- prose;
-- questions;
-- production notes;
-- alternatives;
-- uncertainty;
-- pasted source context.
-
-It should not automatically become canonical story storage.
-
-Salai normalizes committed meaning into Narrative IR and may leave unresolved material unstructured. Do not require lossless bidirectional synchronization between scratch text and canonical state unless later evidence proves it necessary.
-
-## Progressive creative validation
-
-A production idea is rarely validated once.
-
-```text
-write / imagine
-      ↓
-structure / inspect
-      ↓
-shoot, find, or generate
-      ↓
-watch material
-      ↓
-place in context
-      ↓
-edit until it feels right
-```
-
-ADR 0009 makes the **watch / place in context / structural edit** part of Salai's own product loop instead of requiring Resolve for every iteration.
-
-Salai should preserve intent, identity, source evidence, and alternatives as work moves through these levels rather than treating an early script choice as permanently committed.
-
-Low-friction previs remains interesting because it can move visual feedback earlier without pretending preview media is final.
-
-See [`research-notes.md`](research-notes.md).
-
-## Current validation implication
-
-Spike 0A validated the current semantic model against representative fixtures. Spike 0B showed the same model can back several synchronized structured views. Spike 0C validated external-agent mediation in a human run using Codex.
-
-Spike 0D now tests whether the same semantic model remains useful when projected into a **playable structural timeline** and edited directly in time.
-
-If 0D exposes a real semantic failure, update [`narrative-ir-spec.md`](narrative-ir-spec.md) and its tests based on that evidence rather than compensating with timeline-engine-specific shadow state.
-
-Interchange formats, rich-text frameworks, media engines, specialist NLE integrations, real media analysis, and model-provider/runtime choices remain adapters around the semantic model rather than determinants of it.
+Test whether the filmmaker can tell a small story, see stills, give a narrative correction, see the revised sequence, and retain useful choices through cheap motion. Keep the model as small as that proof permits. A comprehensive screenplay parser, formal narrative solver, or production ontology is not a prerequisite.
