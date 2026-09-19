@@ -79,6 +79,10 @@ Development observation: hot updates to shared controller code caused transient 
 
 The follow-up UI review found that view changes discarded an unfinished direction note. The draft text and scope now remain in controller interaction state. A regression test and browser round-trip verify retention without a canonical edit or loss of immediate revert. Resetting or changing the fixture clears the draft.
 
+The review also found horizontal overflow from the shared header in a narrow window. The grid now permits shrinking, the fixture header stays within its parent, and view tabs wrap. Browser checks verify the correction at narrow and phone sizes.
+
+The [F0 usability and architecture review](f0-review-and-next-step.md) records tool comparisons, remaining interaction risks, and proposed execution order. Its layout study is a separate illustration. F1–F4 scope and gates remain unchanged.
+
 To conduct the human review, start `pnpm dev` and open `http://localhost:5173/salai/?bridge=1&fixture=filmmaking`.
 
 1. Watch the storyboard and select moment 4.

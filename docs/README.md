@@ -8,6 +8,8 @@ Product direction is accepted in [ADR 0010](adr/0010-narrative-first-ai-filmmaki
 
 Standalone Spike 0E is **paused, not passed**. Its accepted interaction work remains available for selective reuse; completing every 0E feature is no longer a prerequisite for testing generation.
 
+The [F0 usability and architecture review](f0-review-and-next-step.md) compares current tools and proposes the next bounded experiment. Its [layout study](design/f0-review-concept.html) is illustrative, not implemented application behavior.
+
 ## Canonical ownership
 
 | Information | Owner |

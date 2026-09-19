@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Salai · Review layout study</title>
+<style>
+  :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#f2f3f5;background:#111216;--line:#343842;--muted:#b6bdc8;--accent:#e5c88b}
+  *{box-sizing:border-box}body{margin:0}button,textarea,select{font:inherit;color:inherit}button,select{border:1px solid var(--line);background:#242831;border-radius:7px;padding:9px 12px;cursor:pointer}button:hover{border-color:var(--accent)}button:disabled{opacity:.5;cursor:default}button[aria-pressed=true]{background:#383327;border-color:var(--accent)}button:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+  a{color:var(--accent)}p{line-height:1.5;margin:8px 0}h1,h2,h3{margin:0}h1{font-size:22px}h2{font-size:19px}h3{font-size:15px}small,.muted{color:var(--muted)}[hidden]{display:none!important}
+  .study{padding:8px 24px;background:#2b251b;color:#ead6b0;font-size:12px;line-height:1.5}.study strong{margin-right:12px}
+  header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:14px 24px;border-bottom:1px solid var(--line)}.brand{font-size:12px;font-weight:800;letter-spacing:.15em}.project{border-left:1px solid var(--line);padding-left:16px;flex:1}.project strong{display:block}.project small{font-size:12px}.tools{display:flex;gap:8px;flex-wrap:wrap}
+  main{max-width:1440px;margin:auto;padding:18px 24px}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:24px}.review{min-width:0}.scene-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.scene-row select{max-width:65%;font-size:13px}.count{font-size:12px;color:var(--muted)}.intent{font-size:14px;color:#e4e6eb;margin:8px 0 14px}.intent span{color:var(--accent);font-weight:650}.stage{position:relative;background:#080b10;border:1px solid var(--line);border-radius:10px;overflow:hidden}.stage img{width:100%;height:clamp(190px,31vh,340px);object-fit:contain;display:block}.badge{position:absolute;right:10px;bottom:10px;background:#11161fed;border:1px solid #48515f;border-radius:5px;padding:5px 8px;font-size:11px;color:#e5e8ef}
+  .transport{display:flex;align-items:center;gap:12px;margin:10px 0;font-size:13px}.transport button{font-size:13px}.transport span{margin-left:auto;color:var(--muted)}.strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.moment{padding:6px;text-align:left;min-width:0}.moment img{width:100%;height:54px;object-fit:cover;border-radius:4px;display:block;margin-bottom:6px}.moment span{font-size:12px;display:block;line-height:1.4}.moment small{font-size:11px}
+  .direction{align-self:start;background:#191c22;border:1px solid var(--line);border-radius:10px;padding:18px}.target{color:var(--accent);font-size:13px;margin:8px 0}.direction label{display:block;font-size:13px;margin:14px 0 7px}.direction textarea{width:100%;min-height:102px;resize:vertical;line-height:1.5;background:#101319;border:1px solid #596170;border-radius:6px;padding:10px;font-size:14px}.direction .primary{background:var(--accent);color:#191a1c;border-color:var(--accent);font-weight:700;margin-top:12px}.direction small{display:block;font-size:12px;line-height:1.5;margin-top:9px}.target-return{font-size:12px;margin:0 0 8px}.proposal{border-top:1px solid var(--line);margin-top:18px;padding-top:15px}.change{background:#11151b;border-radius:6px;padding:12px;margin:10px 0;font-size:13px}.change dt{color:var(--muted);font-size:12px;margin-bottom:5px}.change dd{margin:0;line-height:1.45}.change dd+dt{margin-top:12px}.change .after{color:#e5d3a8}.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}.actions button{font-size:13px}.scope-summary{font-size:12px;color:var(--muted)}#status{font-size:13px;min-height:20px;color:#e9d5a5}
+  .story{border:1px solid var(--line);background:#20242b;border-radius:8px;padding:14px;margin:0 0 14px}.story p{font-size:14px;max-width:70ch}.story small{font-size:12px}.notes{border-top:1px solid var(--line);margin-top:24px;padding-top:16px;color:var(--muted);font-size:13px}.notes summary{cursor:pointer;color:#eef0f4}.notes ul{padding-left:20px;line-height:1.6}.notes .boundary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0}.boundary span{padding:10px 12px;background:#1e2229;border:1px solid var(--line);border-radius:6px}.boundary b{font-weight:400;color:var(--accent)}footer{font-size:12px;color:var(--muted);line-height:1.6;padding:0 24px 20px;max-width:1440px;margin:auto}
+  @media(max-width:860px){.workspace{grid-template-columns:minmax(0,1fr)}.direction{width:100%}.stage img{height:220px}.project{min-width:160px}.tools{width:100%}.tools button{flex:1}.scene-row select{max-width:75%}}
+  @media(max-width:480px){header,main{padding:14px}.study{padding:8px 14px}.strip{gap:5px}.moment span{font-size:11px}.moment img{height:42px}.transport{flex-wrap:wrap}.transport span{margin-left:0}.count{display:none}.scene-row select{max-width:100%;width:100%}.stage img{height:185px}.direction{padding:14px}h1{font-size:20px}}
+</style>
+<body>
+<div class="study"><strong>Proposed layout · interactive study</strong>This page changes an example only. It does not edit Salai, run an agent, generate media, or save work.</div>
+<header>
+  <span class="brand">SALAI</span>
+  <div class="project"><strong>The last light</strong><small>Working story · <span id="runtime">33 seconds</span> · fixture artwork</small></div>
+  <div class="tools"><button id="story-toggle" aria-expanded="false" aria-controls="story-text">Show scene text</button><button id="undo" disabled>Undo example</button></div>
+</header>
+<main>
+  <div class="workspace">
+    <section class="review" aria-label="Story review">
+      <div class="scene-row"><select id="scene" aria-label="Scene"><option value="0">Scene 1 · Workshop, before dawn</option><option value="1">Scene 2 · Platform, dawn</option></select><span class="count" id="position">Moment 4 of 8</span></div>
+      <div class="story" id="story-text" hidden><h3 id="story-heading">Scene text</h3><p id="story-copy"></p><small>Read-only scene text in this study. The production view should reuse canonical text edits.</small></div>
+      <h1 id="moment-title">Ivo notices the letter</h1>
+      <p class="intent"><span>Purpose:</span> <span id="purpose" style="color:inherit;font-weight:400"></span></p>
+      <div class="stage"><img id="frame" src="../../packages/spike-demo/public/fixtures/f0-4.svg" alt="Fixture storyboard: Ivo notices the letter."><span class="badge">Selected artwork · fixed fixture</span></div>
+      <p class="muted" id="action" style="font-size:13px"></p>
+      <div class="transport"><button id="play">Preview scene stills</button><span id="duration">3-second hold · no audio</span></div>
+      <div class="strip" id="strip" aria-label="Moments in this scene"></div>
+    </section>
+    <aside class="direction" aria-label="Direction and review">
+      <h2 id="panel-title" tabindex="-1">Direct this moment</h2>
+      <p class="target" id="target">Scene 1 · Moment 4 · Ivo notices the letter</p>
+      <button class="target-return" id="return-target" hidden>Return to note target</button>
+      <div id="composer"><label for="note">What should change?</label>
+      <textarea id="note">Ivo already suspects she is leaving. Make his reaction guarded, and hold for five seconds.</textarea>
+      <button class="primary" id="propose">Show example proposal</button>
+      <small>This study always shows the same prepared example. Text entered here is not interpreted.</small></div>
+      <section class="proposal" id="proposal" aria-label="Example proposal" hidden>
+        <p class="scope-summary" id="review-note"></p>
+        <h3>One moment changes</h3>
+        <p class="scope-summary">Scene 1 · Moment 4<br>Reaction and duration · story becomes 35 seconds</p>
+        <dl class="change"><dt>Current</dt><dd>Ivo looks surprised when he notices the letter.<br><strong>3 seconds</strong></dd><dt>Proposed</dt><dd class="after">Ivo watches the letter, guarded. He already suspects she is leaving.<br><strong>5 seconds</strong></dd></dl>
+        <p class="scope-summary">Other moments and source evidence stay unchanged. The artwork stays fixed. No generation is requested.</p>
+        <div class="actions"><button class="primary" id="apply">Apply example</button><button id="dismiss">Keep current</button></div>
+      </section>
+      <p id="status" role="status"></p>
+    </aside>
+  </div>
+  <details class="notes"><summary>Why this layout and what remains to build</summary>
+    <ul><li>The writer can read scene text without leaving the selected moment.</li><li>The director sees purpose, artwork, duration, and note together at desktop size.</li><li>The producer can review one affected moment and a clear change summary.</li><li>A draft keeps its target when the user inspects another scene. Use <strong>Return to note target</strong> to recover context.</li><li>Outline, Story Wall, AV Script, and source review remain useful optional lenses. This study does not replace them.</li></ul>
+    <div class="boundary" aria-label="Proposed ownership stays unchanged"><span>Human or external agent</span><b>→</b><span>Existing project service</span><b>→</b><span>Canonical project</span><b>→</b><span>Review and playback</span></div>
+    <p>Save/open, real candidates, generation approval, and a supported agent handoff require their implementation slices. This is a layout proposal.</p>
+    <p><a href="https://github.com/kimda90/salai/blob/codex/f0-film-review/docs/f0-review-and-next-step.md">Read the evidence, comparisons, and next experiment</a></p>
+  </details>
+</main>
+<footer>Try: show scene text → inspect another scene → return to the note target → show the example proposal → apply → undo.<br>This local study uses the existing eight storyboard sketches. It contains no paid calls, uploads, or persistent changes.</footer>
+<script>
+  const $ = id => document.getElementById(id);
+  const moments = [
+    {title:'Mara returns',text:'Mara enters the dark workshop, carrying a sealed letter.',purpose:'Make the return look like a farewell.',seconds:4},
+    {title:'The broken lamp',text:"Ivo looks up from their father's broken signal lamp.",purpose:'Connect Ivo to their shared history.',seconds:4},
+    {title:'Mara hides the letter',text:'Mara covers the letter with her hand beside the lamp.',purpose:'Reveal that Mara withholds something.',seconds:4},
+    {title:'Ivo notices the letter',text:'Ivo looks surprised when he notices the letter.',purpose:'Let the audience read Ivo’s interpretation.',seconds:3},
+    {title:'The handover',text:'On the platform, Mara hands the letter to Ivo.',purpose:'Turn concealment into an invitation.',seconds:4},
+    {title:'A plan to stay',text:'Ivo unfolds a plan to keep the workshop open.',purpose:'Reverse the apparent departure.',seconds:5},
+    {title:'The shared decision',text:'Mara and Ivo light the repaired signal lamp together.',purpose:'Make the decision visible through shared action.',seconds:4},
+    {title:'Let the train pass',text:'The train passes. Mara and Ivo remain beside the lit lamp.',purpose:'Resolve the question through their choice to stay.',seconds:5},
+  ];
+  const sceneText = [
+    "Before dawn, Mara returns to the station workshop with a sealed letter. Ivo assumes she is leaving. She hides the letter while they repair their father's signal lamp.",
+    'On the platform, Mara gives Ivo the letter: instructions for keeping the workshop open. They light the lamp together and let the train pass.',
+  ];
+  let selected=3, applied=false, timer=null;
+  const source=i=>`../../packages/spike-demo/public/fixtures/f0-${i+1}.svg`;
+  const seconds=i=>i===3&&applied?5:moments[i].seconds;
+  function stop(){clearTimeout(timer);timer=null;$('play').textContent='Preview scene stills';}
+  function render(){
+    const scene=Math.floor(selected/4), moment=moments[selected];
+    $('scene').value=String(scene);$('position').textContent=`Moment ${selected+1} of 8`;
+    $('moment-title').textContent=moment.title;$('purpose').textContent=moment.purpose;
+    $('frame').src=source(selected);$('frame').alt=`Fixture storyboard: ${moment.title}.`;
+    $('duration').textContent=`${seconds(selected)}-second hold · no audio`;
+    $('action').textContent=selected===3&&applied?'Ivo watches the letter, guarded. He already suspects she is leaving.':moment.text;
+    $('runtime').textContent=`${applied?35:33} seconds`;$('undo').disabled=!applied;
+    $('story-copy').textContent=sceneText[scene];$('story-heading').textContent=scene===0?'Workshop · before dawn':'Platform · dawn';
+    $('return-target').hidden=selected===3;
+    $('strip').replaceChildren(...moments.slice(scene*4,scene*4+4).map((item,j)=>{
+      const i=scene*4+j,b=document.createElement('button');b.className='moment';b.type='button';
+      b.setAttribute('aria-pressed',String(i===selected));b.setAttribute('aria-label',`Moment ${i+1}: ${item.title}`);
+      const img=document.createElement('img');img.src=source(i);img.alt='';
+      const label=document.createElement('span');label.textContent=`${String(i+1).padStart(2,'0')} · ${item.title}`;
+      const timing=document.createElement('small');timing.textContent=`${seconds(i)} seconds`;
+      b.append(img,label,timing);b.onclick=()=>{stop();selected=i;render();document.querySelector('.moment[aria-pressed=true]').focus({preventScroll:true})};return b;
+    }));
+  }
+  $('scene').onchange=event=>{stop();selected=Number(event.target.value)*4;render()};
+  $('story-toggle').onclick=()=>{const shown=$('story-text').hidden;$('story-text').hidden=!shown;$('story-toggle').setAttribute('aria-expanded',String(shown));$('story-toggle').textContent=shown?'Hide scene text':'Show scene text'};
+  $('return-target').onclick=()=>{stop();selected=3;render();($('composer').hidden?$('panel-title'):$('note')).focus({preventScroll:true})};
+  $('note').onfocus=stop;
+  $('propose').onclick=()=>{stop();selected=3;render();$('proposal').hidden=false;$('composer').hidden=true;$('panel-title').textContent='Review changes';$('review-note').textContent=`Your note: ${$('note').value}`;$('status').textContent='Prepared example. No work has been sent to an agent.';$('apply').disabled=applied;$('panel-title').focus({preventScroll:true})};
+  $('apply').onclick=()=>{applied=true;render();$('apply').disabled=true;$('dismiss').textContent='Close review';$('status').textContent='Example applied. Artwork is unchanged. Undo remains available.'};
+  $('dismiss').onclick=()=>{$('proposal').hidden=true;$('composer').hidden=false;$('panel-title').textContent='Direct this moment';$('status').textContent=applied?'The example remains applied. Use Undo example to restore it.':'The current example is unchanged.';$('note').focus({preventScroll:true})};
+  $('undo').onclick=()=>{stop();applied=false;render();$('apply').disabled=false;$('dismiss').textContent='Keep current';$('status').textContent='Example restored to its original text and 3-second hold.'};
+  $('play').onclick=()=>{
+    if(timer){stop();return}
+    const end=Math.floor(selected/4)*4+3;selected=Math.floor(selected/4)*4;render();$('play').textContent='Pause still preview';
+    function advance(){if(selected>=end){stop();return}selected++;render();timer=setTimeout(advance,seconds(selected)*1000)}
+    timer=setTimeout(advance,seconds(selected)*1000);
+  };
+  render();
+</script>
+</body>
+</html>
