@@ -15,6 +15,7 @@ button { color: inherit; }
 .app-shell {
   min-height: 100vh;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto auto auto 1fr auto;
   background:
     radial-gradient(circle at 20% -20%, rgba(255,255,255,.08), transparent 35%),
@@ -51,7 +52,7 @@ button { color: inherit; }
   border-bottom: 1px solid #272a31;
   background: #16181d;
 }
-.fixture-copy { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.fixture-copy { display: flex; align-items: center; gap: 12px; min-width: 0; max-width: 100%; }
 .fixture-copy label { color: #777f8d; font-size: 11px; text-transform: uppercase; letter-spacing: .12em; }
 .fixture-copy select, .parent-select {
   border: 1px solid #353945; background: #1d2026; color: #f4f5f7;
@@ -64,7 +65,7 @@ button { color: inherit; }
 .fixture-stats strong { font-size: 14px; }
 
 .surface-tabs {
-  display: flex; gap: 6px; padding: 10px 24px;
+  display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 24px;
   border-bottom: 1px solid #272a31;
   background: #14161a;
 }
