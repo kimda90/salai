@@ -1,124 +1,45 @@
 # Contributing to Salai
 
-Salai is still in discovery and spike-driven development. Contributions should optimize for validated product learning, clear domain behavior, and maintainable boundaries rather than premature breadth.
+Salai is an experimental AI filmmaking interface centered on narrative intents. Optimize for a useful **Tell → See → Direct → Update** loop and a small maintainable implementation, not the breadth of an NLE or production-management suite.
 
-Coding agents must also follow [`AGENTS.md`](AGENTS.md) and [`docs/agent-development.md`](docs/agent-development.md).
+## Start here
 
-## Current priority
+Read [AGENTS.md](AGENTS.md) and the [documentation map](docs/README.md). Product requirements live in [the PRD](docs/prd.md), current work in [the filmmaking implementation plan](docs/filmmaking-implementation-plan.md), and domain operations in [the Narrative IR specification](docs/narrative-ir-spec.md).
 
-The active milestone is **Spike 0E — Semantic Editorial Interaction Depth**. RFC 0003 and the structural-editorial interaction contract are accepted; implementation starts at **0E.0 — Interaction foundation and evaluation noise**.
+The standalone Spike 0E program is paused. Existing temporal behavior still follows [the editorial contract](docs/editorial-interaction.md); adopt a task from 0E only when the active filmmaking slice needs it. Do not mark the old spike passed.
 
-Before changing structural-editorial behavior, read:
+## Setup and validation
 
-- `docs/rfcs/0003-semantic-editorial-interaction-model.md` — accepted cross-cutting interaction direction and scoped deferred semantics;
-- `docs/editorial-interaction.md` — accepted observable interaction contract;
-- `docs/spike-0e-implementation-plan.md` — authoritative 0E task/status/evidence tracker;
-- `docs/spike-0d-assessment.md` — human evidence motivating 0E;
-- `docs/narrative-ir-spec.md` — authoritative Narrative IR semantics/operations;
-- `docs/architecture.md` — application/runtime/editorial boundaries;
-- `docs/adr/0009-salai-owns-structural-editorial.md` — accepted structural-editorial product boundary;
-- `docs/adr/0008-external-harness-owns-agent-runtime.md` — validated external-agent boundary;
-- `docs/README.md` — documentation ownership/lifecycle.
-
-Do not use implementation to silently resolve RFC 0003's deferred questions. If a later slice reaches one, resolve that question explicitly before implementing the behavior.
-
-## Development setup
-
-Requirements:
-
-- Node.js 24 LTS or compatible newer LTS;
-- pnpm 10+.
-
-Install and validate:
+The existing CI uses Node.js 24. Use the pnpm version declared by `packageManager` in `package.json`.
 
 ```bash
 pnpm install
 pnpm typecheck
 pnpm test
 pnpm build
-```
-
-For local UI + bridge:
-
-```bash
 pnpm dev
 ```
 
-The browser prototype joins the machine bridge only when opened with `?bridge=1`, for example:
-
-```text
-http://localhost:5173/salai/?bridge=1
-```
+The browser joins the current machine bridge at `http://localhost:5173/salai/?bridge=1`. Discover supported commands with `pnpm salai tools` and follow [the operating procedure](docs/agent-usage.md).
 
 ## Change discipline
 
-For Spike 0E:
+Keep one canonical project and one shared project-service mutation boundary. Preserve stable IDs, authored/source-backed distinctions, atomic changes, and derivable timeline/playback state. Keep model/session infrastructure in the external harness. A feedback box does not authorize a new agent runtime.
 
-- keep `@salai/script-model` as the only canonical narrative state;
-- keep `SalaiProjectService` as the shared human/machine boundary;
-- route canonical multi-operation edits through public Narrative IR operations and `applyOperations()`;
-- keep selection/multi-selection, hierarchy expand/collapse, viewport, and playhead outside Narrative IR;
-- preserve Cue-owned sequential narrative timing unless an explicit accepted domain decision changes it;
-- expose multiple visual/audio ContentBlocks per Cue using the existing model before adding new timing concepts;
-- reuse existing create/update/move/delete operations, `moveBlock`, `splitBeat`, `mergeBeats`, and `trimSourceExcerpt` before proposing a new operation;
-- keep the external harness responsible for model/provider access, authentication, sessions, history, planning, and tool-loop behavior;
-- keep local bridge stateless prototype transport glue;
-- keep third-party timeline/rendering state derived/replaceable;
-- keep `@moritzbrantner/timeline-editor` and `@elah/core` behind Salai-owned adapters;
-- do not implement deferred Cue split, SourceExcerpt split, independent within-Cue timing, intentional black-vs-missing identity, or broad cross-parent grouped moves before explicit RFC resolution;
-- do not add MCP/another machine protocol, embedded agent runtime, Production Graph, Story Spine canvas, real media-analysis pipeline, Resolve execution, OTIO interchange, advanced NLE systems, CRDT/event sourcing, distributed state, or general plugin architecture unless the active milestone and an explicit decision require them;
-- prefer existing operations/services/platform primitives before new abstractions/dependencies;
-- test semantic boundaries rather than incidental presentation.
+Do not silently rename ShotIntent, flatten Beat/Cue, add independent within-Cue timing, or attach new media state only to a renderer. Review [RFC 0004](docs/rfcs/0004-narrative-first-filmmaking-loop.md) before implementing proposed filmmaking data, and [RFC 0003](docs/rfcs/0003-semantic-editorial-interaction-model.md) when a temporal change reaches its deferred questions.
 
-## Agent-facing machine interface
+Generate against frozen inputs; keep completed media immutable; distinguish an input-version mismatch from a creative judgment. Scope and approve external generation, preserve selected work on failure, and never upload source/reference media implicitly.
 
-The validated external surface remains CLI-oriented and self-describing:
+## Evidence and documentation
 
-```bash
-pnpm salai tools
-```
+Use the owner named in `docs/README.md` instead of copying contracts. Update schema, operations, migration tests, discovery, and relevant docs together when actual behavior changes. Runtime specifications must describe implemented behavior, not future capability.
 
-When a machine command changes, update discovery output, deterministic tests, and canonical agent-use documentation in the same PR.
+Keep task checkboxes open until their criteria are met. A human pilot needs actual human evidence. A mock proves deterministic plumbing, not generation quality, narrative understanding, or market advantage.
 
-For 0E, prefer current semantic context and canonical operations over timeline-engine-specific agent commands.
-
-## Task completion tracking
-
-`docs/spike-0e-implementation-plan.md` is the single task-level tracker for Spike 0E.
-
-A tracked task may be marked complete only when implementation and acceptance criteria are actually satisfied and verified. Human-validation items cannot be completed by automated tests or agent simulation.
-
-Partially implemented work stays unchecked. Add newly required work to the tracker rather than silently expanding scope.
-
-## Documentation changes
-
-Use the canonical ownership table in `docs/README.md`.
-
-- terms → `docs/glossary.md`;
-- requirements → `docs/prd.md`;
-- Narrative IR semantics → `docs/narrative-ir-spec.md`;
-- structural-editorial interaction → `docs/editorial-interaction.md`;
-- unresolved/deferred cross-cutting questions → `docs/rfcs/`;
-- agent product behavior/procedure → agent docs;
-- active 0E status/evidence → `docs/spike-0e-implementation-plan.md`;
-- architecture → `docs/architecture.md` / ADRs;
-- workflow UX → `docs/workflows.md` / `docs/narrative-lenses.md`;
-- discovery observations → `docs/research-notes.md`.
-
-Change canonical sources rather than copying the same contract into multiple documents.
+For docs-only PRs, validate relative links, current-versus-historical status, scope consistency, and claims against sources. Do not claim application tests ran when the environment could not execute them.
 
 ## Pull requests
 
-Prefer small reviewable PRs with:
+Use a focused branch and a clear outcome. State changed behavior or documentation scope, checks run and not run, migration implications, and remaining blockers. Do not bundle unrelated code, dependencies, or infrastructure. Do not merge without the requested review and required CI.
 
-- one clear question/outcome;
-- tests for domain/interaction behavior where applicable;
-- explicit documentation updates when contracts change;
-- tracker updates only when criteria are genuinely completed;
-- no unrelated refactors bundled into spike work.
-
-A failed spike hypothesis is a valid result if documented with evidence.
-
-## License status
-
-Salai does not currently publish an open-source license. See `LICENSE` before assuming reuse rights. Third-party dependencies retain their own licenses.
+See [LICENSE](LICENSE) before assuming reuse rights. Third-party dependencies retain their own licenses.

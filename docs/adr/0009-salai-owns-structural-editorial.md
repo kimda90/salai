@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted.
+Accepted; product positioning and next-validation priority partially superseded by [ADR 0010](0010-narrative-first-ai-filmmaking.md) on September 18, 2026. Salai-owned structural editorial, canonical state, and optional downstream finishing remain in force. The original decision below is retained as history.
 
 Supersedes: ADR 0001.
 

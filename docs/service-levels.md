@@ -1,99 +1,35 @@
-# Salai Service Levels and Reliability Policy
+# Salai Reliability Expectations
 
-## Current SLA status
+## Status
 
-**No external Service Level Agreement applies at the current product stage.**
+No customer Service Level Agreement applies. Salai is a local-first prototype moving toward a narrative-first AI filmmaking loop, not a production service with contractual uptime, generation-quality, or response-time guarantees.
 
-Salai is presently a local-first product in discovery/alpha development, not a hosted production service with contractual uptime or support guarantees. Publishing artificial uptime or response-time commitments now would be misleading.
+This document owns reliability expectations, not implementation status. The active work is tracked in [filmmaking-implementation-plan.md](filmmaking-implementation-plan.md). Source and operation invariants remain in [narrative-ir-spec.md](narrative-ir-spec.md).
 
-## Why SLA is not applicable yet
+## Preserve the film while external work runs
 
-The product is expected to run primarily on the user's workstation with local project/media storage, Salai-owned structural playback/editorial behavior, and optional integrations such as specialist NLEs, generation backends, or hosted model providers.
+Generation, transcription, and interpretation can fail or take an unknown amount of time. The user must still be able to inspect available work. Previously selected media and committed story decisions remain intact until an explicit replacement is accepted. A failed job must not produce a half-published canonical edit or silently retry a paid request.
 
-Traditional hosted-service metrics such as `99.9% API uptime` do not describe the most important current reliability risks.
+Record submitted context independently from current mutable project state. Late results attach to their original request and become reviewable candidates, not automatic overwrites of a changed/deleted target. Duplicate callbacks must not create duplicate selected takes. Where a provider cannot guarantee cancellation or idempotency, expose that limitation and an unknown external-job state rather than promising no charge or no duplicate generation.
 
-Early concerns are instead:
+## Persistence and recovery
 
-- project data integrity;
-- deterministic save/reopen behavior;
-- crash recovery;
-- safe structural editing;
-- deterministic reconstruction of timeline/playback projections from Salai-owned state;
-- explicit degraded states when optional integrations are unavailable;
-- no silent loss of relationships or source identity;
-- predictable behavior when local files move or disappear.
+The first real-generation loop needs enough save/reopen behavior to retain committed intent, references, available media, selections, and request provenance. Saving metadata alone is insufficient if the referenced bytes are temporary, expired, or unavailable. State exactly what is durable, what needs relinking, and what is intentionally transient.
 
-The Narrative IR implementation-level data-integrity contract is authoritative in [`narrative-ir-spec.md`](narrative-ir-spec.md), especially its hierarchy, identity, deletion, relationship, atomic-operation, and serialization invariants. Structural-editorial ownership is defined by [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md). This document states quality expectations rather than duplicating those technical rules.
+Keep schema migration versioned and tested. Preserve original media and recorded input snapshots; do not overwrite source evidence. The new persistence contract is proposed in RFC 0004 and must be implemented before claiming durability. Existing Narrative IR serialization alone does not save a full generated-media project.
 
-## Non-contractual engineering quality goals
+## Honest derived status
 
-These are product-quality expectations, **not customer SLAs**.
+Input changes indicate that an output was created from older inputs, not that it is creatively invalid. Missing media, unknown provenance, execution failure, and artistic rejection are different conditions. The creator may keep an older output deliberately.
 
-### Data integrity
+Recorded prompts, parameters, seed, and provider/workflow versions improve traceability but do not guarantee bit-identical regeneration. Retaining actual output media matters. Do not advertise reproducibility without a backend-specific measured guarantee.
 
-- Ordinary edits must not silently discard narrative identity, source references, or production relationships.
-- Schema migrations must be versioned and testable.
-- Failed writes/migrations must surface clearly rather than leave partially mutated project state.
-- Persistence tests should cover the authoritative domain invariants rather than restating a parallel rule set here.
-- Timeline/rendering-engine state must not become unrecoverable project truth; validated playback/editorial projections should be reproducible from Salai-owned state.
+## External boundaries
 
-### Local dependency failures
+Show which material/context will leave the device and to whom, and request the relevant approval before transmission/spend. Do not place credentials in project files. Unavailable providers must produce understandable degraded states; existing local material remains usable where the prototype supports it.
 
-When an optional dependency such as a downstream NLE adapter, generation backend, or hosted model provider is unavailable:
+Timeline/playback libraries are product implementation dependencies, not optional external services. Their failure is a product defect, even though their state must remain disposable and derivable from Salai state.
 
-- the core Salai project and structural-editorial workflow should remain usable where possible;
-- the integration should report a clear disconnected/degraded state;
-- failed external operations should not corrupt local project state;
-- retry should be explicit and safe.
+## Measure before promising
 
-During Spike 0D, timeline/playback libraries are embedded implementation dependencies rather than optional external services; failures in those adapters are product defects, but their internal document/project state is still replaceable rather than canonical.
-
-### User work preservation
-
-Before public alpha, define and test:
-
-- autosave/manual-save behavior;
-- crash recovery expectations;
-- backup/project-copy behavior;
-- rollback behavior for failed migrations;
-- behavior when source media is offline or relinked;
-- reconstruction/recovery of the playable structural assembly.
-
-Numeric targets should be established only after the real desktop/runtime can be instrumented and measured.
-
-## When an SLA becomes necessary
-
-Create a customer-facing SLA only if Salai introduces a service for which Salai controls availability, for example:
-
-- hosted project sync/collaboration;
-- hosted authentication/licensing required for normal use;
-- cloud media processing;
-- Salai-operated GenAI inference;
-- hosted review/approval;
-- paid support plans with promised response times.
-
-At that point, define separate commitments for:
-
-1. service availability;
-2. data durability/recovery;
-3. support response/resolution targets;
-4. scheduled maintenance;
-5. third-party dependency exclusions;
-6. security-incident communication.
-
-## Relationship to SLOs and SLIs
-
-Before contractual SLAs, introduce measurable Service Level Indicators (SLIs) and Service Level Objectives (SLOs) only for components that actually exist.
-
-Possible future desktop/local SLIs include:
-
-- successful project-open rate;
-- successful save rate;
-- crash-free sessions;
-- migration success rate;
-- media relink success rate;
-- structural-assembly reconstruction success rate;
-- optional integration connection success rate;
-- operation failure/recovery rate.
-
-Do not assign numeric targets until implementation can collect representative measurements.
+Measure time to a useful first preview, update latency, generation failures, duplicate submissions, lost/relinked media, save/reopen success, and unintended changes. Report backend cost estimates as estimates and unknown prices as unknown. Do not invent response-time or cost guarantees, a quality SLA, or cancellation guarantees before representative evidence exists.
