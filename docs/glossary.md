@@ -1,251 +1,277 @@
 # Salai Glossary
 
-Canonical product/domain terminology. Implementation constraints belong in [`narrative-ir-spec.md`](narrative-ir-spec.md); proposed direct structural-editorial interaction behavior belongs in [`editorial-interaction.md`](editorial-interaction.md); current execution belongs in [`spike-0e-implementation-plan.md`](spike-0e-implementation-plan.md).
+Product terminology is defined here. Implemented fields and operations belong in [narrative-ir-spec.md](narrative-ir-spec.md); proposed additions belong in [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md). A product term does not imply that a corresponding type or feature already exists. Current task state belongs in [the active plan](filmmaking-implementation-plan.md).
 
-Unresolved terms/semantics must remain in the relevant RFC rather than being promoted into this glossary prematurely.
+## Product terms
 
-## Narrative terms
+### Narrative intent
+
+What a moment should communicate or change for the audience or a character: information, emotion, motivation, argument, or a reveal. Initially expressed in ordinary authored fields and direction, not a compulsory formal requirements object.
+
+### Direction
+
+A human instruction or direct manipulation intended to change the film. Its scope matters. The original note, an agent's interpretation, and the accepted project edit are distinct.
+
+### Update
+
+Bring a reviewed part of the current film toward accepted direction while preserving existing work. Editing the plan, requesting external generation, and selecting a result are separate actions.
+
+### Generation guidance
+
+Authored instructions/references attached to an appropriate project, narrative, subject, or shot scope. Planned versioning preserves readable prior guidance. A backend prompt is derived from relevant guidance, not a separate source of story truth.
+
+### Stills / animatic / cheap motion
+
+Stills are static candidates. An animatic plays stills or other rough material with timing. Cheap motion is actually generated or otherwise produced moving material at a low-cost review profile. These outputs answer different creative questions.
+
+### Quality profile
+
+A requested fidelity/cost choice, such as draft, low, or HQ. Separate from output kind. Higher quality requires explicit selection, not automatic promotion.
+
+### Candidate / selected material
+
+A candidate is available for review. Selected material is the candidate deliberately used in a particular place in the current assembly. Being newest does not make an asset selected, and one global choice must not accidentally change unrelated uses.
+
+### Input freshness
+
+Comparison between recorded generation inputs and current effective inputs. “Current” means they match; “needs review” means a relevant difference exists; “unknown” means comparison cannot be established. None proves creative adequacy.
+
+## Narrative terms — implemented baseline
 
 ### Script
 
-Canonical semantic narrative structure for a Salai project. It is not a particular editor document, chat transcript, screenplay format, or third-party timeline document.
+Canonical semantic narrative structure, not a formatted screenplay file, chat transcript, or timeline-engine document.
 
 ### Section
 
-High-level ordered narrative grouping inside a Script.
+High-level ordered grouping. “Sequence” may label a Section in the filmmaking UI; it is not an additional implemented hierarchy type.
 
 ### Scene
 
-Optional structural grouping inside a Section. A Section may contain Scenes and/or direct Beats when Narrative IR permits it.
+Optional grouping inside a Section. Sections can contain Scenes and/or direct Beats under the existing model.
 
 ### Beat
 
-Smallest intentional unit of narrative progression: a meaningful change in information, emotion, argument, causality, or another story dimension.
+Smallest intentional narrative progression: a meaningful change in information, emotion, argument, causality, or another story dimension. Not synonymous with a shot.
 
 ### Cue
 
-Audiovisual/temporal moment used to express part of a Beat. A Beat may contain one or several Cues. Cue is canonical domain identity but need not be user-facing terminology in every interaction.
-
-In the current structural-editorial model, Cue is also the canonical narrative-time interval. Visual/audio ContentBlocks belong to that Cue interval unless a later explicit domain decision adds more granular timing.
+Audiovisual/temporal moment expressing part of a Beat. It currently owns the canonical narrative-time interval. Cue need not be the label shown for every user interaction; it remains distinct from ShotIntent.
 
 ### ContentBlock
 
-Typed visual or audio content attached to a Cue, such as visual description, authored speech, source excerpt, sound, or music.
-
-A Cue may contain multiple visual blocks and multiple audio blocks. Their visual/audio lane order is canonical; ordinary ContentBlocks do not currently own independent narrative-time offsets/durations.
+Typed visual/audio content belonging to a Cue. Several can coexist in each lane. Ordinary blocks do not currently own independent narrative offsets/durations.
 
 ### AuthoredSpeech
 
-Editable words intentionally created for the production, including voiceover, presenter copy, scripted dialogue, or accepted agent-generated authored copy.
+Editable words intentionally written for the production, including accepted AI-assisted dialogue or narration.
 
 ### SourceExcerpt
 
-Media-backed excerpt whose wording/timing originates from recorded material. It preserves source/media identity and source in/out range and must not silently become editable authored speech.
+Recorded-media-backed evidence with stable media identity and source in/out. Rewriting a quote as authored copy is not a transcript/source edit.
 
-## Production terms
+## Production and media terms
 
 ### ShotIntent
 
-Required production realization independently of whether it has been captured, found, generated, represented as previs, or remains missing.
+Required production realization independent of whether material exists. The implemented type is a minimal stable reference with a description. Enriching that same identity with direction or optional staging is proposed; separate mandatory ShotIntent/ShotPlan/Realization hierarchies are not required.
+
+### Shot
+
+User-facing production framing/direction concept. Not a new narrative hierarchy level and not an authorization to rename or replace the implemented ShotIntent schema.
+
+### Reference
+
+Material offered to guide a particular decision, with explicit scope and intended use. A reference to layout need not also govern color, appearance, or performance.
+
+### World
+
+Convenient product shorthand for reusable characters, locations, props, and their references. Not a committed universal ontology, separate service, or mandatory graph.
+
+### Staging
+
+Optional shot-local spatial direction for subjects/props, camera, and lights. A future 3D engine materializes it; its internal scene document is not canonical Salai state.
 
 ### MediaSegment
 
-Stable reference to a useful time range/segment of source media.
+Stable reference to a source-media range. Already present in the baseline model.
 
 ### Asset
 
-Concrete media or production artifact such as captured footage, audio, still, generated media, plate, graphic, or other reusable project material.
+Concrete reusable artifact: source recording, still, generated clip, audio, graphic, or previs output. A full asset/generation registry is proposed, not implied by the current MediaSegment stub.
+
+### Generation request / provenance
+
+Planned frozen record of what was requested, its target, effective inputs, profile, and actual execution parameters, linked to returned artifacts. Captured/imported media instead keeps real source/acquisition provenance; it must not be assigned fictional generation history.
 
 ### Coverage
 
-State of how narrative/ShotIntent needs are or are not realized by available production material. A dedicated Coverage representation is introduced only when real production-graph workflows prove what form it should take.
+Available material relative to stated needs. Initially a review aid such as missing shots or changed inputs, not proof that the audience receives the intended meaning. No standalone satisfaction engine is required.
 
 ### ResolveBinding
 
-Persisted mapping between Salai identity and corresponding DaVinci Resolve project/timeline/media identity when Resolve integration is used. ResolveBinding is optional downstream integration state, not part of Salai's core editing requirement.
+Optional downstream identity mapping when Resolve integration is implemented. Not part of the initial filmmaking loop.
 
-## Structural editorial terms
+## Editorial and interaction terms
 
 ### Structural editorial
 
-Salai-owned temporal/media editing required to construct, play, judge, and revise an audiovisual story while preserving narrative and source identity.
-
-It explicitly does not imply full specialist-NLE finishing such as advanced precision trim, multicam, compositing, color, full audio post, mastering, or delivery.
+Salai-owned work needed to construct, play, judge, and revise the story. Supports the filmmaking loop; does not imply full specialist finishing.
 
 ### Semantic timeline
 
-Temporal projection/interaction surface over Salai-owned narrative/source state that keeps Section/Beat/Cue identity and relevant audiovisual/source realization visible in actual time.
-
-The semantic timeline is not a separate canonical timeline document. Third-party timeline data is derived from Salai state.
+A temporal view/interaction surface over canonical story and media state, not a second authoritative document.
 
 ### Hierarchical semantic timeline
 
-Proposed 0E form of the semantic timeline in which Section → Beat → Cue → visual/audio/source detail share one temporal context and nested detail can be expanded/collapsed without replacing the surrounding story.
-
-This term describes the proposed interaction contract; the visual analogy “flamegraph” is not canonical product vocabulary.
+The accepted 0E interaction direction for revealing nested detail without losing temporal context. The full standalone implementation program is paused; use it where the filmmaking loop needs it.
 
 ### Structural assembly
 
-Current playable rough audiovisual arrangement derived from Salai canonical state and justified structural-editorial state.
-
-Renderer-specific tracks/clips/caches used to play it are materialization details, not canonical project truth.
+Current playable rough arrangement derived from canonical order, timing, and selected material.
 
 ### Timeline projection
 
-Salai-owned derived representation mapping canonical semantic identity into timeline interaction infrastructure. It references stable Salai IDs and can be regenerated from current project state.
+Derived mapping into timeline UI mechanics, retaining Salai identity.
 
 ### Playback materialization
 
-Conversion of current Salai structural assembly into the engine-specific representation required to play/render it.
-
-Playback materialization is replaceable and downstream of Salai semantics.
+Replaceable conversion of the assembly into a player/renderer representation.
 
 ### Narrative time
 
-Derived sequential time produced by canonical Section/Scene/Beat/Cue order and Cue durations.
-
-In the current model, order or Cue-duration changes ripple later narrative start times. Narrative time is not a generic free-positioned clip coordinate system.
+Sequential time derived from canonical order and Cue duration. Not arbitrary free-positioned clip coordinates.
 
 ### Source I/O
 
-The `sourceInMs` / `sourceOutMs` range selecting evidence within a SourceExcerpt's MediaSegment. Editing Source I/O changes recorded evidence selection through `trimSourceExcerpt`; it is distinct from changing Cue narrative duration.
+The evidence range within a SourceExcerpt's MediaSegment, distinct from Cue duration.
 
 ### Specialist NLE
 
-A downstream editing/finishing environment such as DaVinci Resolve used for capabilities beyond Salai's structural-editorial boundary: precision editorial, advanced post, compositing, color, audio finishing, mastering, and delivery.
-
-Specialist NLE use is optional for Salai's core workflow.
-
-## Interaction terms
+Optional downstream precision editing/finishing environment, such as DaVinci Resolve.
 
 ### Selection
 
-Current canonical-object focus used by a human interaction surface. Selection references stable Salai identity but is not itself Narrative IR.
+Current object focus. UI state itself is not narrative truth. A submitted direction captures its target explicitly rather than following later selection changes.
 
 ### Multi-selection
 
-Non-canonical interaction state containing several selected semantic objects. Grouped mutations are allowed only when their shared meaning is explicit and compile to one atomic canonical operation batch.
+UI selection of several objects. A grouped mutation requires clear shared meaning and atomic application.
 
 ### Inspector
 
-Contextual editor driven by current canonical selection. It exposes type-owned semantic properties/actions rather than third-party timeline/renderer fields.
+Contextual controls for semantic properties of the selected object, not arbitrary engine fields.
 
 ### Semantic depth
 
-Amount of nested canonical story/audiovisual structure currently revealed in a representation. In the proposed 0E temporal interaction, semantic depth changes through expand/collapse without replacing the larger time context.
-
-Semantic depth is distinct from horizontal viewport zoom.
+How much nested detail is revealed, distinct from viewport zoom or canonical structure.
 
 ### Agent-mediated authoring
 
-Validated low-friction capability where an external harness interprets creative intent and Salai applies validated canonical project changes.
-
-Spike 0C human validation using Codex demonstrated that this materially reduces routine structural bookkeeping. The agent is an interaction/normalization layer, not a second source of project truth.
+External-harness interpretation followed by validated changes to the same live project used by the UI. Already demonstrated in 0C; not evidence that new filmmaking tools exist.
 
 ### Normalization
 
-Interpreting low-structure creative input and converting committed meaning into validated canonical changes without requiring the user to perform every structural operation manually.
+Turning accepted low-structure input into valid project changes without requiring manual ID/parent management.
 
 ### Working text
 
-Free-form material used to think, draft, instruct, and provide context before or alongside normalization. It is not automatically the canonical Script.
+Draft/input material, not automatically the canonical Script.
 
 ### Attachment
 
-Media/document/reference handle supplied to current authoring context. Early spikes may use mocked metadata; later attachments may resolve explicitly to persistent Asset/MediaSegment identity.
+A supplied reference handle. A handle alone does not prove durable access to the underlying bytes.
 
 ### Agent action
 
-One user-understandable agent-applied change that may contain several canonical `NarrativeOperation`s. Spike 0C validated grouped apply/revert around this unit.
+One user-understandable change that may compile into several atomic canonical operations.
 
 ### Graduated autonomy
 
-Trust policy in which clearly requested reversible local changes may apply as grouped undoable actions, meaningful ambiguity triggers focused clarification, and high-impact external effects remain behind explicit user action.
+Clear reversible local changes may be grouped and applied; material ambiguity is reviewed; costly or external effects require approval.
+
+## Views and state ownership
 
 ### Narrative Lens
 
-Structured representation of the same canonical project that deliberately emphasizes one creative aspect so the creator can perceive/manipulate it from that angle.
-
-0B/0C validated Outline, Story Wall, AV Script, and Paper/Radio Edit as coherent lenses. They are not assumed to be final top-level product navigation.
-
-A lens may be a Projection, Workspace, or combination. “Lens” describes creative purpose; Projection/Workspace describe state ownership.
+A creative view emphasizing an aspect of the same project. Not a required top-level navigation mode.
 
 ### Projection
 
-Deterministic presentation derived from Salai-owned project data. It owns no independent narrative truth.
+A derived presentation with no independent narrative truth.
 
 ### Workspace
 
-Persistent human organization around canonical objects that is not inherent to narrative semantics. Validated example: Story Wall position/parking. Timeline hierarchy expansion/collapse may also be Workspace or ephemeral UI state; it is never Narrative IR.
+Human organization around project objects, such as placement, parking, or view configuration, separate from narrative meaning.
 
 ### Board
 
-Spatial Workspace surface containing BoardItems. Board is a UX/Workspace concept, not Narrative IR.
+A spatial Workspace containing BoardItems; not a second narrative model.
 
 ### BoardItem
 
-Item placed on a Board. It may reference a canonical object while separately storing Workspace metadata such as position or parking state.
+A placed item referencing canonical material and carrying Workspace layout.
 
 ### IdeaCard
 
-Free-form Workspace item not yet canonical narrative/production data. It may later be promoted/interpreted into canonical structure.
+Free-form Workspace material not yet promoted into canonical story structure. Spatial position does not silently establish story order or causality.
 
 ### Story Wall
 
-Spatial Narrative Lens/Workspace based on card/sticky-note story construction.
+Spatial story-construction view validated as part of the earlier prototype.
 
 ### Outline
 
-Narrative Lens/Projection for hierarchy, progression, and structural proportion.
+View of hierarchy, progression, and proportion.
 
 ### AV Script
 
-Narrative Lens/Projection for Beat/Cue visual/audio realization and timing.
+View of visual/audio intent and timing.
 
 ### Paper Edit
 
-Source-evidence Narrative Lens/Projection for arranging and inspecting recorded excerpts, authored bridges, source identity, and narrative placement.
+A source-evidence view preserving source identity alongside authored bridges.
 
 ### Radio Edit
 
-Audio-first use of the source-evidence lens focused on spoken sequence, voice distribution, duration, and pacing.
+An audio-first use of the source-evidence view for voice, sequence, and pacing.
 
 ### Frame Wall
 
-Later spatial Narrative Lens/Workspace candidate for comparing representative frames, takes, or selected moments from real media.
+Possible later view for comparing frames/candidates, not an initial separate subsystem.
 
-## Architecture terms
+## Architecture and history
 
 ### Narrative IR
 
-Versioned semantic representation keeping narrative identity stable across authoring, source evidence, production planning, semantic projections, structural editorial, and later downstream integration.
+The canonical semantic narrative model. Its schema version is not the same thing as a future object's content revision.
 
 ### SalaiController
 
-Application boundary currently coordinating canonical Narrative IR, Workspace/interaction state, selection, feedback, and UI publication without redefining domain semantics.
+The existing controller implementing the shared application boundary.
 
 ### SalaiProjectService
 
-Product-level name for the shared application boundary used by human UI and machine clients. The current implementation may remain the existing controller rather than adding a redundant state owner.
-
-## Spike terms
+Product-level name of the shared human/machine application boundary. Do not introduce a duplicate owner merely to match a name.
 
 ### Spike 0A
 
-Pure-TypeScript experiment validating the Narrative IR before UI, persistence, downstream NLE integration, or real AI integration. **Complete/pass.**
+Narrative IR experiment; complete/pass.
 
 ### Spike 0B
 
-Structured-authoring UX experiment over Story Wall, Outline, AV Script, and Paper/Radio. It validated synchronized semantic architecture but found routine direct structured manipulation too interaction-heavy. **Closed/mixed.**
+Structured-authoring experiment; closed/mixed.
 
 ### Spike 0C
 
-External-agent authoring experiment. Human validation using Codex confirmed that an external harness can operate the live Salai project correctly and make routine structural interaction materially more convenient while Salai remains canonical. **Complete/pass.**
+External-agent authoring experiment; complete/pass.
 
 ### Spike 0D
 
-Semantic-editorial environment experiment. It validated playable semantic time, replaceable timeline/playback projections, canonical direct-edit round-trip, and external-harness continuity. Human validation found the timeline too shallow/fragmented to establish useful direct semantic editing. **Closed/mixed.**
+Semantic-editorial experiment; closed/mixed.
 
 ### Spike 0E
 
-Current semantic-editorial interaction-depth iteration. It shapes/tests one context-preserving hierarchical temporal surface plus the minimum canonical direct-edit grammar required to fairly evaluate Salai's semantic editing thesis. **Current shaping/validation priority.**
+Accepted interaction-depth plan; standalone execution paused, not passed.
+
+Historical evidence is indexed in [docs/README.md](README.md); detailed current work is tracked only in [filmmaking-implementation-plan.md](filmmaking-implementation-plan.md).

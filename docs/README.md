@@ -1,89 +1,61 @@
 # Salai Documentation Map
 
-This directory separates current product/workflow/architecture contracts from historical experiment records and scoped proposals.
+## Current direction
+
+**Salai is an AI filmmaking interface with a heavy focus on narrative intent.** The product loop is **Tell → See → Direct → Update → See**. Start with stills, review in story context, then use cheap motion when useful. Higher fidelity is a choice, not a required finish line.
+
+Product direction is accepted in [ADR 0010](adr/0010-narrative-first-ai-filmmaking.md). The concrete extension design in [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md) is **proposed**, not an implemented API. The [filmmaking implementation plan](filmmaking-implementation-plan.md) is the only active task tracker; new implementation has not started in this documentation change.
+
+Standalone Spike 0E is **paused, not passed**. Its accepted interaction work remains available for selective reuse; completing every 0E feature is no longer a prerequisite for testing generation.
 
 ## Canonical ownership
 
-| Information | Canonical source |
+| Information | Owner |
 | --- | --- |
-| Terms | [`glossary.md`](glossary.md) |
-| Product requirements | [`prd.md`](prd.md) |
-| Product thesis | [`product-brief.md`](product-brief.md) |
-| Discovery observations | [`research-notes.md`](research-notes.md) |
-| Competitive positioning | [`competitive-landscape.md`](competitive-landscape.md) |
-| Workflow movement | [`workflows.md`](workflows.md) |
-| Narrative Lens semantics | [`narrative-lenses.md`](narrative-lenses.md) |
-| Structural-editorial interaction behavior | [`editorial-interaction.md`](editorial-interaction.md) |
-| Narrative IR types/invariants/operations | [`narrative-ir-spec.md`](narrative-ir-spec.md) |
-| Validated external-agent interaction contract | [`agent-mediated-authoring.md`](agent-mediated-authoring.md) |
-| External-agent operating procedure | [`agent-usage.md`](agent-usage.md) |
-| Coding-agent development procedure | [`agent-development.md`](agent-development.md) |
-| Active 0E tasks/status/evidence | [`spike-0e-implementation-plan.md`](spike-0e-implementation-plan.md) |
-| Validation sequence | [`mvp.md`](mvp.md) |
-| Current priorities | [`backlog.md`](backlog.md) |
-| Current system architecture | [`architecture.md`](architecture.md) |
-| Accepted/superseded decisions | [`adr/`](adr/) |
-| Cross-cutting proposals / scoped deferred questions | [`rfcs/`](rfcs/) |
+| Product thesis and audience | [product-brief.md](product-brief.md) |
+| Product requirements and scope | [prd.md](prd.md) |
+| User workflow | [workflows.md](workflows.md) |
+| Filmmaking interaction and review behavior | [filmmaking-interaction.md](filmmaking-interaction.md) |
+| Supporting structural-editorial behavior | [editorial-interaction.md](editorial-interaction.md) |
+| Terms | [glossary.md](glossary.md) |
+| Narrative rationale, not a second schema | [scripting.md](scripting.md) |
+| Narrative Lens / Projection / Workspace semantics | [narrative-lenses.md](narrative-lenses.md) |
+| Implemented Narrative IR types, invariants, operations | [narrative-ir-spec.md](narrative-ir-spec.md) |
+| Proposed filmmaking model extensions and unresolved gates | [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md) |
+| Deferred temporal semantics | [RFC 0003](rfcs/0003-semantic-editorial-interaction-model.md) |
+| Current architecture and bounded future additions | [architecture.md](architecture.md) |
+| Accepted architecture decisions | [adr/README.md](adr/README.md) |
+| Active tasks, implementation order, completion evidence | [filmmaking-implementation-plan.md](filmmaking-implementation-plan.md) |
+| Priorities and user outcomes | [backlog.md](backlog.md) |
+| Validation sequence | [mvp.md](mvp.md) |
+| Discovery, learnings, and unproven ideas | [research-notes.md](research-notes.md) |
+| Dated external competitive evidence | [competitive-landscape.md](competitive-landscape.md) |
+| Implemented external-agent behavior | [agent-mediated-authoring.md](agent-mediated-authoring.md) |
+| Supported live-project operating procedure | [agent-usage.md](agent-usage.md) |
+| Coding-agent development procedure | [agent-development.md](agent-development.md) |
+| Reliability expectations, not a contractual SLA | [service-levels.md](service-levels.md) |
 
-Root-level [`../AGENTS.md`](../AGENTS.md) is the concise repository entrypoint for coding agents and delegates detailed behavior to the canonical standards above.
+Root [AGENTS.md](../AGENTS.md) is the repository entrypoint. [CONTRIBUTING.md](../CONTRIBUTING.md) covers human contribution conventions.
 
-Do not duplicate exact operation vocabularies, active task state, or unresolved design questions across living docs. Narrative operations belong in `narrative-ir-spec.md`; active implementation state belongs in the current spike plan; deferred cross-cutting questions remain in their RFC until explicitly resolved.
+## Read before implementation
 
-## Current contracts
+Read AGENTS and this map, then the PRD, filmmaking interaction contract, architecture, implemented Narrative IR spec, RFC 0004, and the active implementation plan. Read relevant code and tests before proposing schema changes. Consult RFC 0003 only when a slice reaches its deferred timing/editing questions.
 
-- [`narrative-ir-spec.md`](narrative-ir-spec.md) — implemented canonical narrative-model contract.
-- [`editorial-interaction.md`](editorial-interaction.md) — accepted 0E direct structural-editorial interaction contract under RFC 0003.
-- [`narrative-lenses.md`](narrative-lenses.md) — validated structured-view semantics over one project; not a commitment to final top-level navigation.
-- [`agent-mediated-authoring.md`](agent-mediated-authoring.md) — validated external-harness product behavior from 0C.
-- [`architecture.md`](architecture.md) — current runtime/application/editorial boundaries.
-- [`adr/0008-external-harness-owns-agent-runtime.md`](adr/0008-external-harness-owns-agent-runtime.md) — external harness owns model/session behavior.
-- [`adr/0009-salai-owns-structural-editorial.md`](adr/0009-salai-owns-structural-editorial.md) — Salai owns structural editorial; specialist NLEs are optional downstream.
-- [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md) — accepted 0E interaction model and the canonical home for its five deferred semantic questions.
-- [`spike-0e-implementation-plan.md`](spike-0e-implementation-plan.md) — current execution tracker; shaping is accepted and implementation starts at 0E.0.
+Do not duplicate operation vocabularies, exact fields, or task completion across summaries. When an RFC question is accepted, promote its contract into its canonical specification in the same implementation change. A product decision is not evidence that a proposed field, tool, provider, or UI exists.
 
-## Historical validation records
+## Preserved history
 
-- [`spike-0a-assessment.md`](spike-0a-assessment.md) — Narrative IR: complete/pass.
-- 0B structured-authoring records — synchronized-view architecture passed; routine direct structured manipulation failed the interaction-friction test.
-- 0C external-agent records — complete/pass using Codex as the external harness.
-- [`spike-0d-assessment.md`](spike-0d-assessment.md) and [`spike-0d-implementation-plan.md`](spike-0d-implementation-plan.md) — semantic-editorial architecture passed technically; the direct timeline interaction gate closed/mixed because the editor was too shallow/fragmented.
-- [`adr/`](adr/) — append-only decision history, including superseded decisions.
+- 0A: Narrative IR passed; [assessment](spike-0a-assessment.md).
+- 0B: synchronized structured views worked, routine manual structure management was too costly; [assessment](spike-0b-assessment.md). [authoring-ux-spec.md](authoring-ux-spec.md) remains a historical implementation contract, not the new UI specification.
+- 0C: external-harness authoring passed human validation; [assessment](spike-0c-assessment.md). This does not validate a new embedded chat or generation interface.
+- 0D: temporal/playback architecture passed technically; direct editing usefulness was mixed; [assessment](spike-0d-assessment.md).
+- 0E: shaping was accepted, implementation was not completed before the pivot; [paused tracker](spike-0e-implementation-plan.md).
 
-## Current development focus
+The following are exact, frozen pre-pivot snapshots. Their words such as “current,” “NOW,” and “next” describe their original period and **must not override this map or the active plan**:
 
-**0A — Narrative IR:** complete/pass.
+- [spike-0e-plan-before-pivot.md](spike-0e-plan-before-pivot.md): original accepted plan and unchecked implementation tasks.
+- [editorial-interaction-0e.md](editorial-interaction-0e.md): original accepted 0E interaction contract.
+- [research-notes-before-filmmaking-pivot.md](research-notes-before-filmmaking-pivot.md): accumulated prior discovery.
+- [competitive-landscape-2026-08-31.md](competitive-landscape-2026-08-31.md): previous market analysis; not reverified by the pivot.
 
-**0B — Structured Authoring UX:** closed/mixed.
-
-**0C — External-Agent Authoring + Narrative Lenses:** complete/pass.
-
-**0D — Semantic Editorial Environment:** closed/mixed. Playback, derived timeline architecture, canonical round-trip, and agent continuity passed; human editing usefulness did not.
-
-**0E — Semantic Editorial Interaction Depth:** current implementation/validation iteration. RFC 0003 and the structural-editorial interaction contract are accepted; 0E.0 is the current implementation slice.
-
-Current direction:
-
-```text
-external harness                         human direct editing
-      ↓                                         ↓
-Salai machine interface            hierarchical semantic timeline
-      └──────────────────┬──────────────────────┘
-                         ↓
-                SalaiProjectService
-                         ↓
-                  Narrative IR
-                         ↓
-          timeline / playback projections
-```
-
-Before implementing 0E, start with:
-
-1. [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md)
-2. [`editorial-interaction.md`](editorial-interaction.md)
-3. [`narrative-ir-spec.md`](narrative-ir-spec.md)
-4. [`spike-0e-implementation-plan.md`](spike-0e-implementation-plan.md)
-5. [`spike-0d-assessment.md`](spike-0d-assessment.md)
-
-The external harness continues to own model/provider/auth/session/tool-loop behavior. Salai owns project semantics, canonical mutation, source provenance, structural editorial meaning, and the shared application boundary. Timeline-editor and Elah remain replaceable adapters; their state is never project truth.
-
-RFC 0003 acceptance intentionally leaves five questions deferred: Cue split, SourceExcerpt split, independent within-Cue timing, intentional black-vs-missing identity, and broad cross-parent grouped moves. Do not implement them implicitly.
+Other 0A–0D plans and assessments retain their historical evidence. Accepted ADR bodies are append-only history; supersession is explicit. Do not turn paused work into a successful experiment or rewrite prior human feedback to support the new direction.

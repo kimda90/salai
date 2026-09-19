@@ -1,54 +1,20 @@
 # Salai RFC Process
 
-RFCs are used for proposals that materially change shared product/technical architecture or cross-cutting interaction semantics and benefit from review before implementation.
+Use RFCs for changes to shared product/technical semantics that benefit from review before implementation: canonical domain objects, operation contracts, timing, persistence, runtime boundaries, or changes that invalidate existing behavior. Small local implementation details do not need a separate RFC.
 
-Use an RFC for changes such as:
+## Lifecycle
 
-- Narrative IR semantics;
-- new canonical domain objects or relationship rules;
-- cross-cutting structural-editorial interaction rules that may imply domain changes;
-- major persistence/runtime changes;
-- introduction/replacement of core libraries or infrastructure;
-- cross-cutting API conventions;
-- collaboration/versioning architecture;
-- changes that would invalidate several existing features or workspaces.
+Draft → Proposed → Accepted / Rejected / Superseded.
 
-Do not require an RFC for small implementation choices that are local to one module and easy to reverse.
+An RFC includes status, summary, motivation, proposal, alternatives, consequences/risks, open questions, and decision/outcome. Use `NNNN-short-title.md`. The PR/review discussion is the decision surface.
 
-## File naming
+After acceptance, promote concrete observable behavior, types, and operations to the owning canonical specification; add an ADR where durable architecture history is needed. Keep intentionally deferred questions in the RFC until resolved. Do not duplicate active task completion or exact operation vocabularies here.
 
-```text
-NNNN-short-title.md
-```
+## Current records
 
-## Required sections
+- [0001 — One Narrative IR, multiple workflows](0001-one-narrative-ir-multiple-workflows.md): foundation of the implemented narrative model.
+- [0002 — Agent-mediated authoring](0002-agent-mediated-authoring.md): direction leading to the validated external-harness boundary.
+- [0003 — Semantic editorial interaction](0003-semantic-editorial-interaction-model.md): **accepted within its scope**. Standalone 0E execution is now paused under ADR 0010. Its deferred Cue/source splitting, within-Cue timing, intentional-black identity, and cross-parent grouped-move questions remain here and must not be implemented implicitly.
+- [0004 — Narrative-first filmmaking loop](0004-narrative-first-filmmaking-loop.md): **proposed technical shape** for the accepted product pivot. Defines bounded additions, transition from the existing model, and slice-specific review gates; not an implemented schema or generation API.
 
-- Status
-- Summary
-- Motivation
-- Proposal
-- Alternatives considered
-- Consequences / risks
-- Open questions
-- Decision / outcome
-
-## Status lifecycle
-
-```text
-Draft → Proposed → Accepted / Rejected / Superseded
-```
-
-The pull request or review discussion containing the RFC is the primary decision surface.
-
-Once accepted:
-
-- promote observable product/interaction behavior into the canonical owning specification;
-- promote architecture decisions into ADRs when the choice and consequences need durable decision history;
-- keep intentionally deferred questions scoped in the accepted RFC until evidence resolves them;
-- remove resolved uncertainty from living canonical docs rather than duplicating the RFC discussion everywhere.
-
-## Current RFCs
-
-- [`0001-one-narrative-ir-multiple-workflows.md`](0001-one-narrative-ir-multiple-workflows.md) — one canonical Narrative IR across workflows.
-- [`0002-agent-mediated-authoring.md`](0002-agent-mediated-authoring.md) — external-agent authoring direction that led to the validated 0C boundary.
-- [`0003-semantic-editorial-interaction-model.md`](0003-semantic-editorial-interaction-model.md) — **Accepted** 0E hierarchical temporal interaction model and direct-edit grammar; it remains the canonical home for five explicitly deferred questions around Cue/source splitting, within-Cue timing, intentional black-vs-missing, and broad cross-parent grouped moves.
+The [active plan](../filmmaking-implementation-plan.md) may start existing-model fixture work while RFC 0004 is proposed. A slice must resolve the relevant gate before implementing new semantics or execution boundaries. Product approval alone does not resolve those engineering details.

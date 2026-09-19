@@ -2,135 +2,56 @@
 
 ## Product thesis
 
-Salai is a local-first, narrative-aware audiovisual construction environment.
+**Salai is an AI filmmaking interface with a heavy focus on narrative intents.**
 
-Its job is to keep story intent, source evidence, production needs, real/generated media, alternatives, and the active structural edit connected across a project without making the filmmaker manually manage all of that structure.
-
-> **Express intent naturally; Salai structures it for production and structural editorial. See, play, and reshape the same story through semantic creative surfaces.**
-
-> **One canonical project, multiple human and machine interfaces.**
-
-> **Hide structural bookkeeping, not narrative structure.**
-
-## Problem
-
-Video production is fragmented across writing, planning, shooting, footage review, editing, VFX, sound, color, graphics, and GenAI. Story intent gets disconnected from media and edit, while editors carry context such as what a moment communicates, which footage supports it, what is missing, which alternatives were rejected, and what changed after restructuring.
-
-Spike 0B exposed a second problem: even when that context is represented correctly, routine manual creation/parenting/movement/wiring of narrative objects creates too much interaction overhead for creative work.
-
-Spike 0C demonstrated one practical answer. Human validation using Codex showed that an external agent can operate the live Salai project correctly and materially reduce routine structural bookkeeping while Salai remains canonical.
-
-Spike 0D then proved that the semantic project can become playable in real time, but also exposed a third product problem:
-
-> **Semantic visibility is not useful enough when the direct temporal editor exposes too little structure and too few editing verbs.**
-
-The current challenge is therefore not whether Salai can host a timeline. It is whether a sufficiently expressive **semantic** temporal editor can improve real editorial reasoning without collapsing into a conventional NLE model.
-
-## Solution direction
+Tell a story. See an early version. Direct it by responding to what you see. Salai keeps the intended meaning connected to references, shots, available media, and the current film as those decisions change.
 
 ```text
-creator intent / source material
-          ↓
-external agent and/or direct Salai interaction
-          ↓
-validated canonical project
-          ↓
-semantic narrative + source context
-          ↓
-hierarchical temporal interaction / playback / rough assembly
-          ↓
-optional specialist NLE / finishing handoff
+Tell → See → Direct → Update → See …
 ```
 
-The external harness handles natural-language reasoning/model execution. Salai handles project semantics, structural normalization requiring Salai-owned IDs/references, validation, source provenance, shared state, structural editorial, and downstream materialization/interchange.
+The product category is accepted, not something to avoid by inventing a larger architecture. The focus is whether narrative-aware iteration helps a filmmaker express and preserve their decisions. Distinctiveness is a hypothesis to test, not an established moat.
 
-The creator can manipulate the same project directly when temporal, spatial, textual, audiovisual, or source-evidence representations help them think.
+Direction accepted by the product owner on September 18, 2026; recorded in [ADR 0010](adr/0010-narrative-first-ai-filmmaking.md). This document describes the target product, not currently shipped generation features.
 
-## Script-first and footage-first
+## Problem to solve
 
-Both entry paths converge on the same canonical project.
+A filmmaker may know what a moment should communicate before knowing its exact dialogue, staging, camera, or edit. Early images make that intent easier to discuss, but each revision risks losing earlier decisions or requiring the user to reconstruct context across scripts, prompts, reference images, and takes.
 
-```text
-idea / prose                media / transcripts / selects
-     ↓                                  ↓
-external harness / direct Salai interaction
-                     ↓
-              Narrative IR
-                     ↓
-        structural audiovisual assembly
-                     ↓
-        optional downstream finishing
-```
+The first problem is therefore not “manage a complete production graph.” It is **make the intended story visible early and make the next direction easy to apply without unnecessarily disturbing the rest**.
 
-## Product principles
+## Intended experience
 
-1. **Creative intent before bookkeeping.** Users express the result they want; routine structural mechanics are hidden.
-2. **Hide bookkeeping, not structure.** Expose structure when it contributes to a creative decision.
-3. **Meaning before media.** Narrative intent is not defined by whichever clip currently represents it.
-4. **One canonical project.** Harness history, structured views, timeline engines, and workspaces must not become competing story truths.
-5. **Time is first-class.** Salai must let the filmmaker play and structurally edit the story without leaving the semantic environment.
-6. **Preserve context while revealing depth.** Drilling into Cue/media detail should not discard the larger narrative/time context.
-7. **Interaction cost follows creative decisions.** One creative intention may produce several internal operations but should not require equivalent user actions.
-8. **Stable identity.** Normal restructuring preserves source, production, and editorial relationships.
-9. **Authored and sourced material stay distinct.** Recorded evidence is not editable fiction.
-10. **Machine changes are constrained and recoverable.** Canonical changes use typed operations and grouped revert behavior.
-11. **External harnesses are commodity runtime infrastructure.** Salai does not need to own model/provider auth, sessions, planning, or chat execution.
-12. **Local-first media handling.** Raw production media remains local unless a user action explicitly materializes/exports it elsewhere.
-13. **Structural editorial, not full finishing.** Salai owns the minimum timeline/playback/editing surface required to construct and judge the story; specialist NLEs remain optional downstream.
-14. **Third-party media engines are adapters.** Timeline/rendering state never becomes canonical Salai project state.
-15. **Do not mimic NLE gestures without semantic meaning.** Familiar editing interactions should compile to Salai semantics rather than create shadow clip state.
+A spoken story or written draft becomes an editable interpretation and a first visual pass. Breakdown is useful internal work, not a mandatory form-filling stage. References can arrive before the first pass or as a response to it.
 
-## Target users
+The filmmaker can say “she already knows he is lying,” replace a location reference, edit a description, select another candidate, or later adjust a camera in 3D. These are different ways to direct the same project.
 
-Initial audience:
+Start with stills. Use a timed still animatic to examine order and duration. Request genuinely generated cheap motion when motion matters. Higher quality is an explicit investment, not an automatic next step or the only valid ending.
 
-- solo filmmakers/editors;
-- small production companies;
-- documentary and interview-driven editors;
-- commercial/corporate videographers;
-- professional YouTube/educational creators;
-- story-driven creators who need to move between intent, source media, rough assembly, and optional specialist finishing.
+Show the current film while new work runs. Preserve prior results and accepted selections. Explain what is being updated and why, but do not make the user maintain a dependency graph.
 
-DaVinci Resolve remains an important downstream integration target, but Resolve usage is no longer required for Salai's core value.
+## Narrative focus
 
-## Salai-owned semantics
+Narrative intent is what a moment should communicate or change: an audience inference, a character decision, an emotional turn, an argument, or a reveal. “Make her doubt him earlier” is different from “use a wider lens.” Salai should retain both, without reducing intent to the latest prompt string.
 
-Salai owns:
+A generated image can match its inputs and still fail creatively. The filmmaker judges that. Salai can retain notes and offer interpretations; it must not pretend to prove audience understanding or infer every consequence of a story change.
 
-- Narrative IR and stable narrative identity;
-- authored vs source-backed material;
-- semantic timeline/structural-editorial meaning;
-- direct interaction → canonical operation semantics;
-- Narrative Lens and Workspace semantics that remain useful;
-- `SalaiProjectService` and machine-facing project commands;
-- Salai-owned ID/reference/placement resolution where required;
-- grouped action/revert semantics;
-- ShotIntent and production/media relationships when introduced;
-- generation intent/provenance when introduced;
-- downstream materialization/interchange boundaries.
+## Initial audience and scope
 
-Commodity/external infrastructure should provide model inference, authentication, generic agent harness behavior, codec/rendering mechanics, media analysis, generation execution, interchange adapters, UI mechanics, and specialist NLE automation where appropriate.
+Start with a solo filmmaker or a small creative team exploring a short, story-driven piece. The initial pilot is story-first and stills-first, followed by cheap-motion review. Existing footage/source semantics remain supported foundations; a broad footage-first documentary workflow is not a parallel initial milestone.
 
-## What Salai is not
+The original 3D requirement remains in the product direction: optional per-shot placement of characters, props, camera, and lights. It follows the basic loop rather than blocking the first useful still. HQ output, advanced continuity, and specialist finishing similarly come later.
 
-Salai is not defined by transcript editing, script-to-video generation, sticky-note boards, review/comments, standalone GenAI generation, or generic chat-controlled editing.
+## What stays small
 
-Salai is also not intended to become a full professional finishing NLE with advanced trim systems, multicam, compositing, color, full audio post, mastering, and delivery.
+One canonical project, one shared service, and ordinary references between existing story objects and future media records. Generated results retain the inputs used to produce them. A changed input can prompt review; it does not justify automatic creative correction or paid regeneration.
 
-The thesis is the combination:
+There is no initial enterprise lifecycle system, generalized satisfaction model, graph database, build-system framework, or Git-like branch/merge product. Prompt guidance is authored project content; backend prompts are derived requests with saved provenance.
 
-> **Messy human creative intent and media become durable narrative/production context; the creator can experience and reshape that context in time; the context remains connected through rough assembly and optional downstream finishing.**
+## Boundaries and evidence
 
-## Validation status
+Salai owns the story and enough structural editing/playback to review it. It does not own a full finishing NLE, a foundation model, or a general agent runtime. External execution stays behind existing architectural boundaries.
 
-- **0A — Narrative IR:** complete/pass.
-- **0B — Structured Authoring UX:** closed/mixed; shared semantic architecture passed, routine direct structure management failed the interaction-friction test.
-- **0C — External-Agent Authoring:** complete/pass; Codex human validation confirmed the convenience and correctness of an external agent operating the canonical project.
-- **0D — Semantic Editorial Environment:** closed/mixed; temporal/playback architecture and agent/direct canonical round trip passed, but the direct timeline was too shallow/fragmented to validate creative usefulness.
-- **0E — Semantic Editorial Interaction Depth:** current shaping/validation iteration; tests one context-preserving hierarchical timeline plus the minimum canonical direct-edit grammar required for a fair semantic-vs-generic editorial comparison.
+Prior experiments established useful model, shared-state, and playback foundations, but did not validate this filmmaking loop. The [active plan](filmmaking-implementation-plan.md) separates those foundations from required new work. The earlier standalone timeline-depth milestone is paused; its human findings are not erased.
 
-Before 0E implementation, review [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md), [`editorial-interaction.md`](editorial-interaction.md), and [`spike-0e-implementation-plan.md`](spike-0e-implementation-plan.md).
-
-## Pricing / business model
-
-Not decided. Revisit after the primary semantic-editorial workflow demonstrates clear value.
+Success means a filmmaker can give a meaningful narrative note, see a useful revision, and retain accepted work with less bookkeeping. It does not require proving that no competitor can offer a similar experience. Pricing remains undecided pending that evidence.

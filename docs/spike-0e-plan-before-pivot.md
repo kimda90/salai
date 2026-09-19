@@ -1,22 +1,26 @@
-# Spike 0E — Paused Standalone Implementation Plan
+# Spike 0E — Semantic Editorial Interaction Depth Implementation Plan
 
 ## Status
 
-**Paused by the September 18, 2026 narrative-first filmmaking pivot; not implemented or passed by that decision.**
+**Current validation iteration — SHAPING ACCEPTED; implementation ready to start at 0E.0.**
 
-The original shape was accepted on September 2, 2026. At the inspected baseline, the implementation tasks were unchecked. Preserve that evidence in the [unchanged pre-pivot plan](spike-0e-plan-before-pivot.md).
+`0E.SHAPE.GATE` was accepted on September 2, 2026 through RFC 0003. Implementation must follow the accepted interaction contract and must not silently resolve the RFC's five deferred questions.
 
-The active task/status owner is now [filmmaking-implementation-plan.md](filmmaking-implementation-plan.md), under [ADR 0010](adr/0010-narrative-first-ai-filmmaking.md). Do not treat the old plan's “current” labels as instructions to resume its entire sequence.
+This file is the canonical execution tracker for Spike 0E. It owns 0E task numbering, implementation order, completion state, and exit evidence. It does **not** own unresolved product semantics.
 
-## Work carried forward selectively
+Shaping inputs/contracts:
 
-Transport and non-distracting review media, selection/contextual inspection, canonical order/duration editing, and preserving whole-story context remain useful. The active plan records any adopted work and its evidence; this pause does not check off the original tasks.
+- 0D evidence: [`spike-0d-assessment.md`](spike-0d-assessment.md)
+- accepted cross-cutting decision: [`rfcs/0003-semantic-editorial-interaction-model.md`](rfcs/0003-semantic-editorial-interaction-model.md)
+- accepted observable interaction contract: [`editorial-interaction.md`](editorial-interaction.md)
+- canonical Narrative IR: [`narrative-ir-spec.md`](narrative-ir-spec.md)
+- roadmap: [`mvp.md`](mvp.md)
 
-Other timeline-depth work is deferred unless the new filmmaking loop demonstrates a need. The former full 0E exit gate is no longer a prerequisite for generation, media retention, or the first filmmaking pilot.
+## Goal
 
-## Contracts retained
+Make the temporal environment deep enough to fairly test Salai's semantic-editorial product thesis **without building a specialist NLE**.
 
-The [editorial interaction contract](editorial-interaction.md), implemented [Narrative IR](narrative-ir-spec.md), and [RFC 0003](rfcs/0003-semantic-editorial-interaction-model.md) still constrain temporal changes. Pausing the milestone does not authorize generic clip state, independent within-Cue timing, universal split semantics, or silent source mutation.
+## Validation question
 
 > **If Salai provides one context-preserving hierarchical timeline plus the minimum useful canonical rough-editing grammar, do its semantic objects materially improve structural editing compared with generic clip manipulation?**
 
@@ -129,7 +133,7 @@ Evidence: RFC 0003 was accepted on September 2, 2026. The hierarchical temporal 
 
 Remove non-product friction and prove the existing adapters can host the shaped interaction without changing canonical state ownership.
 
-- [x] **0E.0.1 — Add contract tests for gesture/inspector action → canonical operation compilation.**
+- [ ] **0E.0.1 — Add contract tests for gesture/inspector action → canonical operation compilation.**
   - update Section/Scene/Beat/Cue/block;
   - create Section/Beat/Cue/block;
   - move Section/Beat/Cue/block;
@@ -139,26 +143,13 @@ Remove non-product friction and prove the existing adapters can host the shaped 
   - delete;
   - grouped atomic batch;
   - seek/zoom/selection/expand as non-canonical state.
-- [x] **0E.0.2 — Verify timeline adapter feasibility for nested rows / custom rendering / controlled selection.**
+- [ ] **0E.0.2 — Verify timeline adapter feasibility for nested rows / custom rendering / controlled selection.**
   - if current adapter cannot cleanly express the shaped contract, replace/wrap it here rather than distorting Salai semantics.
-- [x] **0E.0.3 — Add Space play/pause without interfering with text inputs or focused controls.**
-- [x] **0E.0.4 — Replace fixed-frequency validation audio with non-distracting, semantically distinguishable deterministic local media.**
-- [x] **0E.0.5 — Keep the fixture self-contained and deterministic in CI.**
-- [x] **0E.0.6 — Confirm no new canonical state/dependency model is introduced merely for UI mechanics.**
-- [x] **0E.0.GATE — Evaluation noise is removed and the adapter/operation boundary can support the shaped contract without semantic compromise.**
-
-Evidence:
-
-- `semantic-editorial-contract.test.ts` covers canonical inspector, creation, movement, deletion, grouped, and accepted Beat split/merge operations.
-- `semantic-timeline-edit.test.ts` covers Beat/Cue movement, SourceExcerpt trim, rejection, and playhead-only changes.
-- `semantic-timeline-roundtrip.test.ts` verifies canonical publication, re-projection, and immediate revert.
-- `semantic-editorial-adapters.test.ts` verifies stable semantic ancestry for adapter rendering.
-- `semantic-timeline-model.test.ts` verifies that presentation changes do not mutate the canonical project.
-- `semantic-playback-shortcut.test.ts` verifies safe Space handling.
-- `semantic-playback-model.test.ts` verifies deterministic varied local audio.
-- `pnpm typecheck`, `pnpm test`, and `pnpm build` passed on September 2, 2026.
-
-Technical implementation continues through `0E.4`. Human validation remains in `0E.5`.
+- [ ] **0E.0.3 — Add Space play/pause without interfering with text inputs or focused controls.**
+- [ ] **0E.0.4 — Replace fixed-frequency validation audio with non-distracting, semantically distinguishable deterministic local media.**
+- [ ] **0E.0.5 — Keep the fixture self-contained and deterministic in CI.**
+- [ ] **0E.0.6 — Confirm no new canonical state/dependency model is introduced merely for UI mechanics.**
+- [ ] **0E.0.GATE — Evaluation noise is removed and the adapter/operation boundary can support the shaped contract without semantic compromise.**
 
 ---
 
@@ -168,15 +159,15 @@ Technical implementation continues through `0E.4`. Human validation remains in `
 
 Keep global temporal context while exposing nested semantic structure on one shared time axis.
 
-- [x] **0E.1.1 — Render Script/Section/Beat/Cue bands from the existing timeline projection.**
-- [x] **0E.1.2 — Render every visual/audio ContentBlock and explicit missing realization beneath its Cue.**
-- [x] **0E.1.3 — Keep Cue-owned timing: ordinary blocks align to the Cue interval; SourceExcerpt shows source metadata without engine-owned narrative offsets.**
-- [x] **0E.1.4 — Add expand/collapse per hierarchy branch as non-canonical state.**
-- [x] **0E.1.5 — Keep surrounding story visible when focusing/selecting nested objects.**
-- [x] **0E.1.6 — Keep horizontal viewport zoom separate from semantic expand/collapse.**
-- [x] **0E.1.7 — Preserve one playhead/scrub coordinate through hierarchy changes.**
-- [x] **0E.1.8 — Remove/de-emphasize Story / Moments / Media mechanical level switching.**
-- [x] **0E.1.9 — Add deterministic tests for containment, timing, selection continuity, expansion state, and no canonical mutation from presentation changes.**
+- [ ] **0E.1.1 — Render Script/Section/Beat/Cue bands from the existing timeline projection.**
+- [ ] **0E.1.2 — Render every visual/audio ContentBlock and explicit missing realization beneath its Cue.**
+- [ ] **0E.1.3 — Keep Cue-owned timing: ordinary blocks align to the Cue interval; SourceExcerpt shows source metadata without engine-owned narrative offsets.**
+- [ ] **0E.1.4 — Add expand/collapse per hierarchy branch as non-canonical state.**
+- [ ] **0E.1.5 — Keep surrounding story visible when focusing/selecting nested objects.**
+- [ ] **0E.1.6 — Keep horizontal viewport zoom separate from semantic expand/collapse.**
+- [ ] **0E.1.7 — Preserve one playhead/scrub coordinate through hierarchy changes.**
+- [ ] **0E.1.8 — Remove/de-emphasize Story / Moments / Media mechanical level switching.**
+- [ ] **0E.1.9 — Add deterministic tests for containment, timing, selection continuity, expansion state, and no canonical mutation from presentation changes.**
 - [ ] **0E.1.GATE — A filmmaker can inspect Cue/material detail without losing the larger story's temporal context.**
 
 ---
@@ -187,15 +178,15 @@ Keep global temporal context while exposing nested semantic structure on one sha
 
 Make any selected semantic object useful immediately and allow structure/material creation from the temporal environment.
 
-- [x] **0E.2.1 — Use canonical `{type,id}` selection across all visible narrative/content rows.**
-- [x] **0E.2.2 — Add one contextual inspector implementing the type table from `editorial-interaction.md`.**
-- [x] **0E.2.3 — Section/Scene/Beat fields edit through existing update operations.**
-- [x] **0E.2.4 — Cue inspector exposes explicit/derived duration and all contained visual/audio blocks.**
-- [x] **0E.2.5 — ContentBlock inspector exposes only type-owned semantic properties.**
-- [x] **0E.2.6 — SourceExcerpt inspector exposes source identity and source in/out separately from Cue duration.**
-- [x] **0E.2.7 — Create Section/Beat/Cue/block through existing canonical create operations.**
-- [x] **0E.2.8 — Resolve playhead-assisted creation to a visible semantic parent/insertion point before ambiguous commit.**
-- [x] **0E.2.9 — Re-project immediately after committed inspector/creation edits.**
+- [ ] **0E.2.1 — Use canonical `{type,id}` selection across all visible narrative/content rows.**
+- [ ] **0E.2.2 — Add one contextual inspector implementing the type table from `editorial-interaction.md`.**
+- [ ] **0E.2.3 — Section/Scene/Beat fields edit through existing update operations.**
+- [ ] **0E.2.4 — Cue inspector exposes explicit/derived duration and all contained visual/audio blocks.**
+- [ ] **0E.2.5 — ContentBlock inspector exposes only type-owned semantic properties.**
+- [ ] **0E.2.6 — SourceExcerpt inspector exposes source identity and source in/out separately from Cue duration.**
+- [ ] **0E.2.7 — Create Section/Beat/Cue/block through existing canonical create operations.**
+- [ ] **0E.2.8 — Resolve playhead-assisted creation to a visible semantic parent/insertion point before ambiguous commit.**
+- [ ] **0E.2.9 — Re-project immediately after committed inspector/creation edits.**
 - [ ] **0E.2.GATE — The creator can select, understand, edit, and extend narrative/audiovisual structure without leaving the temporal context.**
 
 ---
@@ -206,17 +197,17 @@ Make any selected semantic object useful immediately and allow structure/materia
 
 Expose the actual Cue model rather than pretending each Cue has one practical visual/audio item, and add narrow useful grouped work.
 
-- [x] **0E.3.1 — Render every `visualBlockId` and `audioBlockId` in each Cue.**
-- [x] **0E.3.2 — Independently select/reorder blocks through `moveBlock`.**
-- [x] **0E.3.3 — Add multiple new visual/audio blocks to one Cue.**
-- [x] **0E.3.4 — Add additive and sibling-range multi-selection.**
-- [x] **0E.3.5 — Multi-selection remains non-canonical interaction state.**
-- [x] **0E.3.6 — Implement one or more narrow grouped actions only where semantically unambiguous:**
+- [ ] **0E.3.1 — Render every `visualBlockId` and `audioBlockId` in each Cue.**
+- [ ] **0E.3.2 — Independently select/reorder blocks through `moveBlock`.**
+- [ ] **0E.3.3 — Add multiple new visual/audio blocks to one Cue.**
+- [ ] **0E.3.4 — Add additive and sibling-range multi-selection.**
+- [ ] **0E.3.5 — Multi-selection remains non-canonical interaction state.**
+- [ ] **0E.3.6 — Implement one or more narrow grouped actions only where semantically unambiguous:**
   - delete compatible selection;
   - move/reorder compatible sibling set preserving relative order;
   - shared field edit only when every item supports it.
-- [x] **0E.3.7 — Publish each grouped edit as one atomic canonical operation batch and preserve immediate revert.**
-- [x] **0E.3.8 — Do not add independent within-Cue offsets/durations.**
+- [ ] **0E.3.7 — Publish each grouped edit as one atomic canonical operation batch and preserve immediate revert.**
+- [ ] **0E.3.8 — Do not add independent within-Cue offsets/durations.**
 - [ ] **0E.3.GATE — Multi-material Cue structures and at least one useful grouped edit work naturally without flattening semantic objects into generic clips.**
 
 ---
@@ -229,41 +220,29 @@ Provide enough familiar direct editorial control to make the semantic-vs-generic
 
 ### Reorder / move
 
-- [x] **0E.4.1 — Reorder/reparent Sections/Beats/Cues/compatible blocks with clear semantic targets.**
-- [x] **0E.4.2 — Preserve ripple of later derived narrative time after canonical order changes.**
+- [ ] **0E.4.1 — Reorder/reparent Sections/Beats/Cues/compatible blocks with clear semantic targets.**
+- [ ] **0E.4.2 — Preserve ripple of later derived narrative time after canonical order changes.**
 
 ### Duration / trim
 
-- [x] **0E.4.3 — Adjust Cue narrative duration through `updateCue.explicitDurationMs`.**
-- [x] **0E.4.4 — Edge-trim SourceExcerpt through `trimSourceExcerpt`.**
-- [x] **0E.4.5 — Expose SourceExcerpt in/out numerically and through the supported temporal edge gesture.**
-- [x] **0E.4.6 — Keep Cue duration and SourceExcerpt source I/O visibly distinct.**
+- [ ] **0E.4.3 — Adjust Cue narrative duration through `updateCue.explicitDurationMs`.**
+- [ ] **0E.4.4 — Edge-trim SourceExcerpt through `trimSourceExcerpt`.**
+- [ ] **0E.4.5 — Expose SourceExcerpt in/out numerically and through the supported temporal edge gesture.**
+- [ ] **0E.4.6 — Keep Cue duration and SourceExcerpt source I/O visibly distinct.**
 
 ### Split / merge
 
-- [x] **0E.4.7 — Implement Beat split at a Cue boundary through `splitBeat`.**
-- [x] **0E.4.8 — Implement Beat merge through `mergeBeats`.**
-- [x] **0E.4.9 — Do not implement Cue split or SourceExcerpt split until its RFC 0003 question is explicitly resolved.**
-- [x] **0E.4.10 — Do not expose a universal engine razor for semantic objects without accepted split semantics.**
+- [ ] **0E.4.7 — Implement Beat split at a Cue boundary through `splitBeat`.**
+- [ ] **0E.4.8 — Implement Beat merge through `mergeBeats`.**
+- [ ] **0E.4.9 — Do not implement Cue split or SourceExcerpt split until its RFC 0003 question is explicitly resolved.**
+- [ ] **0E.4.10 — Do not expose a universal engine razor for semantic objects without accepted split semantics.**
 
 ### State / replay
 
-- [x] **0E.4.11 — Every accepted direct edit publishes through canonical operation(s)/batch and remains immediately revertible.**
-- [x] **0E.4.12 — Re-project hierarchy and playback immediately after every accepted edit.**
-- [x] **0E.4.13 — Unsupported timeline-engine gestures are disabled/rejected/reverted rather than becoming shadow state.**
+- [ ] **0E.4.11 — Every accepted direct edit publishes through canonical operation(s)/batch and remains immediately revertible.**
+- [ ] **0E.4.12 — Re-project hierarchy and playback immediately after every accepted edit.**
+- [ ] **0E.4.13 — Unsupported timeline-engine gestures are disabled/rejected/reverted rather than becoming shadow state.**
 - [ ] **0E.4.GATE — The representative story can be meaningfully rearranged, Cue-timed, source-trimmed, and Beat-split/merged without a conventional NLE or semantic ambiguity.**
-
-Technical evidence for `0E.1–0E.4`:
-
-- `timeline-projection.ts` emits Section, Beat, Cue, per-block, realization, and missing-realization rows on one time axis.
-- `semantic-timeline-model.ts` keeps expansion, viewport, selection, and playhead state outside Narrative IR.
-- `SemanticTimeline.tsx` provides the shared timeline, hierarchy controls, contextual inspector, creation actions, grouped deletion, and contextual Beat split/merge actions.
-- `semantic-timeline-edit.ts` accepts only canonical Section, Beat, Cue, ContentBlock, and SourceExcerpt interpretations. Unsupported engine changes are rejected.
-- `semantic-timeline-model.test.ts`, `semantic-timeline-edit.test.ts`, `semantic-timeline-roundtrip.test.ts`, and `semantic-editorial-adapters.test.ts` cover hierarchy, identity, timing, operations, and adapter boundaries.
-- `semantic-timeline-machine-flow.test.mjs` verifies external-harness continuity after a direct SourceExcerpt edit.
-- `pnpm typecheck`, `pnpm test`, and `pnpm build` pass on September 2, 2026.
-
-The four technical gates remain open until `0E.5` provides human evidence. Automated tests do not prove filmmaker usability.
 
 ---
 
