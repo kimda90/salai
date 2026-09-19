@@ -76,3 +76,13 @@ If the executor disconnects, keep the project and previous media usable. Report 
 Explain unsupported capability instead of silently substituting another model, quality level, or external recipient. If a session ends during generation, reopening must recover the request and its state or state clearly that its outcome is unknown.
 
 The development harness can validate early slices, but final pilot evidence must record its interaction overhead. A developer manually moving files or directing the agent is not evidence that the intended end-user interaction is complete.
+
+## F0 interaction contract
+
+The fixture review uses the existing Narrative IR. A visible moment corresponds to a Cue for this fixture. Beat intent and explicit ShotIntent links remain separate. The detail panel retains all content blocks and distinguishes source evidence from authored text.
+
+Submitting a note freezes its explicit target and project context. The external harness returns an interpretation and an operation batch through the existing machine bridge. Salai shows field changes derived from that batch. The user can accept or dismiss it. No canonical edit occurs when a proposal arrives.
+
+Any canonical edit after submission makes the proposal stale. The user can resubmit the same note against current context if its target still exists. Selection changes do not retarget a submitted note. Direct edits and accepted proposals use the shared operation boundary and its immediate one-step revert.
+
+The prototype labels its silent fixture sketches, external-harness handoff, and reload limits. Changing narrative direction updates canonical text and timing. It does not regenerate fixture artwork. Implementation evidence and the human-review procedure belong in [the active plan](filmmaking-implementation-plan.md).

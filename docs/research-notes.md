@@ -1,5 +1,14 @@
 # Salai Product Discovery Notes
 
+## September 19, 2026 — F0 interaction references
+
+The implementation review consulted two primary sources. These references inform design choices. They do not prove product differentiation or validate Salai's usability.
+
+- [Microsoft Research: Guidelines for Human-AI Interaction](https://www.microsoft.com/en-us/research/publication/guidelines-for-human-ai-interaction/) reports evaluated guidance for AI interaction. F0 applies explicit capability disclosure, review, and correction as design goals. This is a design inference, not an evaluation result for Salai.
+- [LTX Studio: Shot video editor](https://ltx.io/studio/platform/shot-video-editor) describes shot-level direction and repeated refinement. F0 borrows the principle of keeping a selected moment visible during direction. The page is vendor documentation, not independent evidence of adherence or quality.
+
+The architecture implication is to reuse one project and one service while separating a note, a proposed interpretation, and an accepted edit. A note does not require a second conversation runtime. F0 can test that interaction with local sketches before adding generation. Human evidence must determine whether visible narrative intent improves the filmmaker's next decision.
+
 ## September 18, 2026 — narrative-first AI filmmaking pivot
 
 This record separates **user direction**, **observed earlier evidence**, **design inference**, and **unvalidated hypotheses**. It is not a second PRD or implementation tracker. Previous discovery is preserved verbatim in [research-notes-before-filmmaking-pivot.md](research-notes-before-filmmaking-pivot.md).

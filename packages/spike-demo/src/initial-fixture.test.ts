@@ -12,8 +12,10 @@ describe("initial fixture routing", () => {
     );
   });
 
-  it("falls back to the normal product fixture for unknown or absent values", () => {
-    expect(initialFixtureFromSearch("")).toBe("product");
-    expect(initialFixtureFromSearch("?fixture=unknown")).toBe("product");
+  it("opens filmmaking review by default and preserves explicit older fixtures", () => {
+    expect(initialFixtureFromSearch("")).toBe("filmmaking");
+    expect(initialFixtureFromSearch("?fixture=unknown")).toBe("filmmaking");
+    expect(initialFixtureFromSearch("?bridge=1&fixture=filmmaking")).toBe("filmmaking");
+    expect(initialFixtureFromSearch("?fixture=product")).toBe("product");
   });
 });

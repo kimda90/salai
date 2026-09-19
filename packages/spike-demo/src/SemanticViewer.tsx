@@ -74,7 +74,7 @@ export function SemanticViewer({
     <section className="semantic-viewer" aria-label="Rough assembly viewer">
       <div className="semantic-viewer-stage">
         {activeImage ? (
-          <img src={activeImage.src} alt={activeImage.name} />
+          <img src={activeImage.src} alt={assembly.cue?.label ?? activeImage.name} />
         ) : assembly.missingVisual ? (
           <div className="semantic-viewer-placeholder missing">
             <span>MISSING VISUAL</span>

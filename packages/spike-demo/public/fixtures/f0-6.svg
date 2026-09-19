@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+<title id="title">The last light: storyboard frame 6</title><desc id="desc">Original vector fixture sketch. Mara wears a long coat. Ivo wears work clothes. A signal lamp connects the workshop and platform.</desc>
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#202d3e"/><stop offset="1" stop-color="#8c7963"/></linearGradient></defs>
+<rect width="960" height="540" fill="url(#sky)"/><path d="M220 92 L770 62 L811 461 L251 492 Z" fill="#e4d8bc" stroke="#97896d" stroke-width="5"/><path d="M492 82 L528 479" fill="none" stroke="#b6a88d" stroke-width="3"/><path d="M281 192 H445 M284 221 H418 M573 301 H738 M576 333 H715" stroke="#847968" stroke-width="4"/><g transform="translate(647 199) scale(0.75)" stroke="#d9b878" stroke-width="5" fill="#383a35"><path d="M-28 -52 Q-28 -93 0 -93 Q28 -93 28 -52" fill="none"/><rect x="-37" y="-52" width="74" height="91" rx="9" fill="#ffe2a0"/><path d="M-43 42 H43 M-42 -58 H42 M-22 -49 V35 M22 -49 V35"/></g><text x="293" y="325" fill="#484a43" font-family="sans-serif" font-size="21">I am staying.</text>
+<rect x="20" y="18" width="236" height="30" rx="4" fill="#10171f" opacity=".88"/><text x="32" y="39" fill="#dfc695" font-size="14" font-family="sans-serif" letter-spacing="2">FIXTURE SKETCH · 06</text>
+</svg>

@@ -56,6 +56,12 @@ export function validateNarrativeProject(
     issues.push({ code, path, message });
   };
 
+  const validateText = (entity: Record<string, unknown>, field: string, path: string, required = false): void => {
+    if ((required || entity[field] !== undefined) && typeof entity[field] !== "string") {
+      issue("invalid_text", `${path}.${field}`, `${field} must be a string`);
+    }
+  };
+
   const registerId = (id: Id, path: string): void => {
     const existing = idOwners.get(id);
     if (existing !== undefined) {
@@ -126,6 +132,26 @@ export function validateNarrativeProject(
   registerCollection(project.blocks, "block");
   registerCollection(project.mediaSegments, "media_segment");
   registerCollection(project.shotIntents, "shot_intent");
+
+  validateText(project.script, "title", "script");
+  for (const [collection, path, fields] of [
+    [project.sections, "sections", ["title"]], [project.scenes, "scenes", ["title"]],
+    [project.beats, "beats", ["title", "summary"]], [project.mediaSegments, "mediaSegments", ["assetId", "transcript"]],
+  ] as const) {
+    for (const entity of Object.values(collection)) {
+      for (const field of fields) validateText(entity, field, `${path}.${entity.id}`);
+    }
+  }
+  for (const shot of Object.values(project.shotIntents)) validateText(shot, "description", `shotIntents.${shot.id}`, true);
+  for (const block of Object.values(project.blocks)) {
+    if (["visual_description", "on_screen_text", "authored_speech"].includes(block.type)) {
+      validateText(block, "text", `blocks.${block.id}`, true);
+    } else if (["graphic", "sfx", "music"].includes(block.type)) {
+      validateText(block, "description", `blocks.${block.id}`, block.type !== "music");
+    } else if (block.type === "source_excerpt") {
+      validateText(block, "transcriptSnapshot", `blocks.${block.id}`);
+    }
+  }
   registerCollection(project.relationships, "relationship");
 
   const entityKind = (id: Id): EntityKind | undefined => {

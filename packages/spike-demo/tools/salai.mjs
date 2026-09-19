@@ -37,6 +37,19 @@ const TOOL_MANIFEST = {
         constraints: ["batch must be non-empty", "operations use the public Narrative IR vocabulary"],
       },
     },
+    {
+      name: "propose-direction",
+      command: "pnpm salai propose-direction <json-or-stdin>",
+      description: "Stage a validated proposal for a submitted film direction note. The filmmaker reviews and applies it in Salai.",
+      mutatesProject: false,
+      requiresLiveProject: true,
+      input: {
+        kind: "json",
+        shape: "{ noteId: string, baseRevision: number, summary: string, operations: NarrativeOperation[] }",
+        schemaRef: "docs/agent-usage.md",
+        constraints: ["read fresh context", "note must be waiting", "project must match the submitted revision", "UI approval is required to apply"],
+      },
+    },
   ],
 };
 
@@ -83,6 +96,12 @@ async function main() {
     return;
   }
 
+  if (command === "propose-direction") {
+    const payload = await readJsonArgument("Usage: salai propose-direction '<{noteId, baseRevision, summary, operations}> JSON' or pipe JSON on stdin");
+    console.log(JSON.stringify(await invoke("proposeDirection", payload), null, 2));
+    return;
+  }
+
   if (command === "create-story") {
     const payload = await readJsonArgument(
       "Usage: salai create-story '<{sectionTitle?, beats:[...]}> JSON' or pipe JSON on stdin",
@@ -91,7 +110,7 @@ async function main() {
     return;
   }
 
-  throw new Error("Usage: salai tools | salai context | salai apply <json> | salai create-story <json>");
+  throw new Error("Usage: salai tools | salai context | salai apply <json> | salai create-story <json> | salai propose-direction <json>");
 }
 
 main().catch((error) => {

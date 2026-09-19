@@ -18,6 +18,7 @@ import {
   useSalaiState,
 } from "./controller";
 import { toElahProject } from "./elah-adapter";
+import { FILMMAKING_MEDIA } from "./filmmaking-fixture";
 import { createInterviewFixtureWavBlob } from "./fixture-audio";
 import {
   canonicalSelectionFromTimelineSelection,
@@ -343,6 +344,7 @@ export function SemanticTimeline() {
 
   const projection = useMemo(() => projectNarrativeToTimeline(state.project), [state.project]);
   const mediaSources = useMemo<Readonly<Record<string, FixtureMediaSource>>>(() => {
+    if (state.fixtureKey === "filmmaking") return FILMMAKING_MEDIA;
     if (state.fixtureKey !== "semantic-editorial") return {};
     const base = createSemanticEditorialFixture().mediaSources;
     if (!fixtureAudioUrl) return base;

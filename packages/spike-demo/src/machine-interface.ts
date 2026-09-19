@@ -19,6 +19,7 @@ type CreateStoryPayload = {
 export type MachineCommand =
   | { command: "context" }
   | { command: "apply"; payload: unknown }
+  | { command: "proposeDirection"; payload: unknown }
   | { command: "createStory"; payload: unknown };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -151,8 +152,24 @@ export function handleMachineCommand(
     });
     return {
       ...context,
+      projectRevision: service.getSnapshot().projectRevision,
+      direction: service.getSnapshot().direction,
       semanticTime: buildMachineSemanticTimeContext(context.project),
     };
+  }
+
+  if (command.command === "proposeDirection") {
+    const value = command.payload;
+    if (!isRecord(value) || typeof value.noteId !== "string" || !value.noteId.trim()
+      || typeof value.baseRevision !== "number" || !Number.isSafeInteger(value.baseRevision) || value.baseRevision < 0
+      || typeof value.summary !== "string" || !value.summary.trim()) {
+      throw new Error("proposeDirection requires noteId, baseRevision, summary, and operations.");
+    }
+    if (!service.proposeDirection({
+      noteId: value.noteId, baseRevision: value.baseRevision, summary: value.summary,
+      operations: parseNarrativeOperationBatch(value.operations),
+    })) throw new Error(service.getSnapshot().feedback.error ?? "Proposal rejected");
+    return { direction: service.getSnapshot().direction, projectChanged: false };
   }
 
   if (command.command === "createStory") {

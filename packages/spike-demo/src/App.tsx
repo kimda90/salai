@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { AVScript } from "./AVScript";
 import { useSalaiController, useSalaiState } from "./controller";
 import { FIXTURES, getFixtureDefinition } from "./fixtures";
+import { FilmReview } from "./FilmReview";
 import { formatDuration, getDurationEstimate } from "./model-utils";
 import { Outline } from "./Outline";
 import { PaperEdit } from "./PaperEdit";
@@ -10,6 +11,7 @@ import { SemanticTimeline } from "./SemanticTimeline";
 import { StoryWall } from "./StoryWall";
 
 const SURFACES = [
+  { key: "film", label: "Film review" },
   { key: "outline", label: "Outline" },
   { key: "story-wall", label: "Story Wall" },
   { key: "av-script", label: "AV Script" },
@@ -73,7 +75,7 @@ export function App() {
           <span className="brand-mark">S</span>
           <div>
             <div className="brand-name">SALAI</div>
-            <div className="brand-subtitle">Spike 0E · Semantic Editorial Environment</div>
+            <div className="brand-subtitle">F0 · Narrative filmmaking review</div>
           </div>
         </div>
         <div className="topbar-status">
@@ -121,7 +123,7 @@ export function App() {
               type="button"
               onClick={() => controller.revertMachineAction()}
             >
-              Revert last machine action
+              Revert last edit
             </button>
           ) : null}
           <button
@@ -150,6 +152,7 @@ export function App() {
       <FeedbackPanel />
 
       <main className="workspace-frame">
+        {state.activeSurface === "film" ? <FilmReview key={state.fixtureKey} /> : null}
         {state.activeSurface === "outline" ? <Outline /> : null}
         {state.activeSurface === "story-wall" ? <StoryWall /> : null}
         {state.activeSurface === "av-script" ? <AVScript /> : null}

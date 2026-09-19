@@ -35,6 +35,7 @@ export function useSemanticPlayback(
   project: Project,
 ) {
   const engineRef = useRef<PlaybackEngine | null>(null);
+  const positionRef = useRef<{ projectId: string; timeMs: number } | null>(null);
   const [snapshot, setSnapshot] = useState<PlaybackSnapshot>(INITIAL_SNAPSHOT);
 
   useEffect(() => {
@@ -45,8 +46,11 @@ export function useSemanticPlayback(
     engineRef.current = engine;
     setSnapshot(INITIAL_SNAPSHOT);
     const unsubscribe = engine.subscribe(setSnapshot);
+    const previous = positionRef.current;
+    if (previous?.projectId === project.id) engine.seek(Math.floor(previous.timeMs * project.fps / 1000));
 
     return () => {
+      positionRef.current = { projectId: project.id, timeMs: engine.currentFrame * 1000 / project.fps };
       unsubscribe();
       engine.destroy();
       if (engineRef.current === engine) engineRef.current = null;

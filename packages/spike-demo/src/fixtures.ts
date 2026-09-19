@@ -7,12 +7,14 @@ import {
   type NarrativeProject,
 } from "@salai/script-model";
 import { createSemanticEditorialFixture } from "./semantic-editorial-fixture";
+import { createFilmmakingFixture } from "./filmmaking-fixture";
 
 export type FixtureKey =
   | "scratch"
   | "product"
   | "interview"
   | "documentary"
+  | "filmmaking"
   | "semantic-editorial";
 
 export type FixtureDefinition = {
@@ -23,6 +25,12 @@ export type FixtureDefinition = {
 };
 
 export const FIXTURES: readonly FixtureDefinition[] = [
+  {
+    key: "filmmaking",
+    label: "F0 · The last light",
+    description: "Two scenes, eight planned shots, and a narrative reversal. Local fixture artwork. No generated media.",
+    create: createFilmmakingFixture,
+  },
   {
     key: "scratch",
     label: "Blank story",

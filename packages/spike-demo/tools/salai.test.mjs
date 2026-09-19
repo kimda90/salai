@@ -19,6 +19,7 @@ describe("salai CLI discovery", () => {
       "context",
       "create-story",
       "apply",
+      "propose-direction",
     ]);
     expect(manifest.tools.every((tool) => typeof tool.description === "string")).toBe(true);
     expect(manifest.tools.every((tool) => typeof tool.mutatesProject === "boolean")).toBe(true);

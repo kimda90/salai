@@ -1,6 +1,6 @@
 # Salai Glossary
 
-Product terminology is defined here. Implemented fields and operations belong in [narrative-ir-spec.md](narrative-ir-spec.md); proposed additions belong in [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md). A product term does not imply that a corresponding type or feature already exists. Current task state belongs in [the active plan](filmmaking-implementation-plan.md).
+Product terminology is defined here. Implemented fields and operations belong in [narrative-ir-spec.md](narrative-ir-spec.md); planned additions belong in [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md). A product term does not imply that a corresponding type or feature already exists. Current task state belongs in [the active plan](filmmaking-implementation-plan.md).
 
 ## Product terms
 

@@ -1,0 +1,54 @@
+.film-review { --film-border: #343842; --film-muted: #b0b6c2; }
+.film-fixture-note { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 12px 20px; background: #26231c; color: #e0cea8; font-size: 12px; line-height: 1.5; }
+.film-fixture-note span:last-child { flex-basis: 100%; }
+.film-story { padding: 14px 20px; border-bottom: 1px solid var(--film-border); }
+.film-review summary { cursor: pointer; font-weight: 600; }
+.film-review p { line-height: 1.55; }
+.film-story p { max-width: 80ch; color: var(--film-muted); }
+.film-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); }
+.film-screen { padding: 20px; min-width: 0; }
+.film-scrub { display: flex; align-items: center; gap: 12px; margin: 10px 0 18px; color: var(--film-muted); font-size: 12px; }
+.film-scrub input { flex: 1; min-width: 0; accent-color: #e5c88b; }
+.film-strip { display: flex; gap: 10px; overflow-x: auto; padding: 8px 2px 14px; }
+.film-shot { flex: 0 0 164px; display: flex; flex-direction: column; gap: 7px; padding: 7px; border: 1px solid var(--film-border); border-radius: 8px; background: #1d2026; text-align: left; cursor: pointer; }
+.film-shot[aria-pressed="true"] { border: 2px solid #e5c88b; padding: 6px; background: #2c2922; }
+.film-shot img, .film-shot-missing { width: 100%; aspect-ratio: 16 / 9; object-fit: contain; background: #101218; border-radius: 4px; }
+.film-shot-missing { display: grid; place-items: center; }
+.film-shot strong { font-size: 12px; line-height: 1.4; }
+.film-shot > span { color: var(--film-muted); font-size: 10px; }
+.film-shot .film-shot-meta { color: #e5c88b; font-variant-numeric: tabular-nums; }
+.film-context { margin-top: 12px; padding: 18px; border: 1px solid var(--film-border); border-radius: 10px; }
+.film-context h3 { margin: 8px 0; line-height: 1.4; font-size: 18px; }
+.film-context p { color: var(--film-muted); font-size: 13px; }
+.film-context p strong { color: #edf0f5; }
+.film-context details { margin-top: 18px; }
+.film-review form { display: grid; gap: 14px; padding-top: 16px; }
+.film-review label { display: grid; gap: 7px; color: #dce0e8; font-size: 12px; }
+.film-review textarea, .film-review select, .film-review input[type="number"] { width: 100%; color: #f1f3f7; background: #11141a; border: 1px solid #515865; border-radius: 6px; padding: 9px; }
+.film-review textarea { resize: vertical; min-height: 84px; line-height: 1.5; }
+.film-review .primary-button { margin: 0; justify-self: start; font-size: 12px; }
+.film-review .ghost-button { justify-self: start; line-height: 1.5; }
+.film-review button:disabled { opacity: .45; cursor: not-allowed; }
+.film-review :focus-visible { outline: 2px solid #e5c88b; outline-offset: 3px; }
+.film-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.film-direction { padding: 20px; border-left: 1px solid var(--film-border); background: #14171c; }
+.film-direction h3 { margin: 0; font-size: 18px; }
+.film-direction p, .film-direction details { color: var(--film-muted); font-size: 12px; line-height: 1.6; }
+.film-direction details { padding: 12px 0; }
+.film-direction code { overflow-wrap: anywhere; }
+.film-direction h4 { margin: 10px 0; font-size: 15px; line-height: 1.5; }
+.film-proposal { border-top: 1px solid var(--film-border); margin-top: 16px; padding-top: 18px; overflow-wrap: anywhere; }
+.film-proposal blockquote { margin: 12px 0; border-left: 2px solid #e5c88b; padding-left: 12px; font-size: 13px; line-height: 1.6; }
+.film-proposal .ghost-button { margin-top: 10px; }
+.film-stale { padding: 12px; background: #34271b; border: 1px solid #806345; border-radius: 6px; color: #f5d5ac; }
+.film-changes { list-style: none; padding: 0; }
+.film-changes li { margin: 14px 0; padding: 12px; background: #20242b; border-radius: 6px; font-size: 12px; }
+.film-changes li > strong { display: block; margin-bottom: 12px; }
+.film-changes li > div + div { border-top: 1px solid var(--film-border); padding-top: 10px; }
+.film-changes li > div > span { font-weight: 700; color: #e5c88b; }
+.film-changes p { margin: 6px 0 10px; white-space: pre-wrap; }
+.film-source { padding: 12px; border-left: 2px solid #8fabc8; background: #17202c; }
+.film-empty, .film-notice { color: var(--film-muted); font-size: 12px; }
+@media (min-width: 1400px) { .film-workspace { grid-template-columns: minmax(0, 1fr) 400px; } }
+@media (max-width: 960px) { .film-workspace { grid-template-columns: 1fr; } .film-direction { border-left: 0; border-top: 1px solid var(--film-border); } }
+@media (max-width: 600px) { .film-screen, .film-direction { padding: 12px; } .film-context { padding: 12px; } }

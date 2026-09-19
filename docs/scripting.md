@@ -2,7 +2,7 @@
 
 ## Purpose and ownership
 
-The script preserves **what the creator is trying to communicate**, not just the wording of a screenplay or the prompts for current shots. This rationale supports the narrative-first filmmaking loop; it does not introduce a second schema. Exact implemented types and operations remain in [narrative-ir-spec.md](narrative-ir-spec.md), and proposed generation extensions belong in [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md).
+The script preserves **what the creator is trying to communicate**, not just the wording of a screenplay or the prompts for current shots. This rationale supports the narrative-first filmmaking loop; it does not introduce a second schema. Exact implemented types and operations remain in [narrative-ir-spec.md](narrative-ir-spec.md), and planned generation extensions belong in [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md).
 
 ## From telling to a working film
 

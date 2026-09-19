@@ -17,4 +17,4 @@ Do not rewrite an accepted ADR to make history look cleaner. Add a new record fo
 - [0009 — Salai owns structural editorial](0009-salai-owns-structural-editorial.md): retained ownership and optional-NLE boundary; **positioning and next-validation priority partially superseded by ADR 0010**.
 - [0010 — Narrative-first AI filmmaking](0010-narrative-first-ai-filmmaking.md): **current accepted product direction**. Tell → See → Direct → Update; stills and cheap motion first; simple project architecture; standalone 0E paused.
 
-Exact current architecture lives in [architecture.md](../architecture.md). Concrete filmmaking extensions are proposed in [RFC 0004](../rfcs/0004-narrative-first-filmmaking-loop.md), not retroactively declared implemented by ADR 0010.
+Exact current architecture lives in [architecture.md](../architecture.md). Concrete filmmaking extensions are designed in [RFC 0004](../rfcs/0004-narrative-first-filmmaking-loop.md), not retroactively declared implemented by ADR 0010.

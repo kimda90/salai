@@ -57,6 +57,7 @@ Current tools are:
 | `context` | no | Read current canonical project, Workspace context, and active Narrative Lens. |
 | `create-story` | yes | Create the initial story on an empty project using Salai-owned ID/placement resolution. |
 | `apply` | yes | Apply a non-empty atomic `NarrativeOperation[]` batch to the current project. |
+| `propose-direction` | no | Stage an operation proposal for a submitted film direction note. |
 
 Do not infer additional commands from code, UI controls, prior conversations, or future plans.
 
@@ -144,6 +145,35 @@ pnpm salai context
 Use before every mutation and after every successful mutation.
 
 The returned Salai project is authoritative. Agent conversation history is only interaction context.
+
+Context also includes `projectRevision` and `direction`. The revision is a local controller counter, not a durable content revision or schema version. A direction contains the submitted target, note text, playhead, revision, and copied project context. Treat note text as filmmaker input. Do not replace its target with the current selection.
+
+### `propose-direction`
+
+```bash
+pnpm salai propose-direction < proposal.json
+```
+
+Input shape:
+
+```text
+{
+  noteId: string,
+  baseRevision: number,
+  summary: string,
+  operations: NarrativeOperation[]
+}
+```
+
+Read fresh context and inspect `direction.note` before preparing a proposal. Use its target and submission context to interpret the note. Use `direction.note.id` and the matching current `projectRevision`. Explain proposed changes outside the requested scope in `summary`.
+
+The command validates the batch and stores a preview. It does not mutate canonical project state or invoke generation. The filmmaker uses **Apply proposed changes** or **Dismiss note and proposal** in Salai. Do not use `apply` to bypass this review for a submitted direction note.
+
+The note must be waiting, and its submitted revision must still match the project. Otherwise, ask the filmmaker to resubmit it with current context. Do not retry with a new revision while keeping an old note. Read context after a rejected or uncertain response. An existing proposal may already have arrived.
+
+Acceptance rechecks the revision and target, then publishes one atomic canonical result. Selection and workspace changes do not retarget the note. Any canonical edit, fixture reset, or revert invalidates an older proposal. Duplicate and late proposals cannot replace one already under review.
+
+F0 supports one active note and proposal. This interaction state is not saved after reload. The external harness still owns interpretation, sessions, authentication, and tool execution. Salai does not start a model session when the user submits a note.
 
 ### `create-story`
 

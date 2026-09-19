@@ -226,6 +226,8 @@ Fixture A demonstrated that mixed direct Beats and Scenes can be useful. Spike 0
 
 Changing title/text/content preserves identity.
 
+Runtime validation rejects non-string titles, summaries, descriptions, and transcript text. Required authored text and ShotIntent descriptions must be strings. This applies to direct operation batches and staged proposals. F0 does not change schema version 1 or add canonical record types.
+
 Public update operations use JSON-safe patch semantics:
 
 ```text

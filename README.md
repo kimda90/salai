@@ -24,7 +24,7 @@ This is deliberately in the AI filmmaking category. Narrative-centered iteration
 
 The repository currently contains a TypeScript Narrative IR and a React/Vite prototype with structured views, an external-agent machine interface, and rough timeline/playback adapters. The prior human-validation results are retained in the [documentation map](docs/README.md).
 
-**The new filmmaking loop is not implemented by this documentation change.** Real story transcription, generated stills/motion, revision-aware generation provenance, durable media handling, and 3D shot direction must not be advertised as working features.
+F0 adds a fixture storyboard, contextual direction notes, reviewed external-agent proposals, direct edits, and immediate revert. Real transcription, generated stills/motion, generation provenance, durable media, and 3D direction remain planned. See [the active plan](docs/filmmaking-implementation-plan.md) for evidence and limits.
 
 The previous standalone Spike 0E timeline-depth program is paused, not passed. Useful editing work is adopted only where the new loop needs it. The active work sequence and evidence live in [the filmmaking implementation plan](docs/filmmaking-implementation-plan.md).
 
@@ -45,6 +45,10 @@ pnpm typecheck
 pnpm test
 pnpm build
 ```
+
+Open `http://localhost:5173/salai/?bridge=1&fixture=filmmaking` for F0. `pnpm dev` starts both the UI and the existing local bridge. The fixture uses local vector sketches and has no generated media. Notes and edits do not survive a reload.
+
+Select moment 4, use the example direction, and submit it. Ask the external agent to read context and return a proposal. Review its before/after fields, then apply or dismiss it. Use **Revert last edit** before another project or workspace edit.
 
 The existing machine interface is self-describing: `pnpm salai tools`. Its supported operating procedure is [agent-usage.md](docs/agent-usage.md); proposed filmmaking commands are not available until implemented and added to discovery.
 
