@@ -95,6 +95,18 @@ To conduct the human review, start `pnpm dev` and open `http://localhost:5173/sa
 
 The functional F0 path is implemented. The human observation remains unclaimed. Continue with the accepted F1 data contract only as a separate implementation slice.
 
+### F0 visual redesign follow-up
+
+On September 20, 2026, ImageGen produced a [two-state visual concept](design/f0-imagegen-concept.png) from this [saved prompt](design/f0-imagegen-prompt.md). The application implements its warm surfaces, dark viewer, compact header, gold selection, adjacent direction, and before/after review. The concept's incidental controls and illustrations do not add domain behavior. Existing fixture media remains unchanged.
+
+The shared header now uses a native **View** selector. Development controls replace the expanded fixture header and model diagnostics. The review keeps purpose above the image and direct editing in the side panel. Pending proposals replace the composer and group existing content changes by moment. A focused regression test verifies that grouping retains source edits, removals, and new items.
+
+Browser checks cover draft retention through Outline, submitted-target recovery, proposal application, complete project revert, and direct duration editing. The source-backed moment retains separate Action, Sound, and source evidence. Typing spaces in a note pauses playback and does not restart it. Desktop, narrow-window, and phone checks use 1440 × 900, 900 × 768, and 390 × 844 viewports. The page has no horizontal overflow. The thumbnail strip scrolls within its own width.
+
+Follow-up checks pass: `pnpm typecheck`, 147 tests across 35 files, and `pnpm build`. A clean browser load has no console errors or warnings. The existing build warning for a bundle above 500 kB remains.
+
+These are technical checks of the implemented design. The separate September 19 HTML study remains illustrative. Human usefulness, generation, and F1 persistence remain unverified or unimplemented as stated above.
+
 ## F1 — Minimal records, save/reopen, and still review
 
 Goal: support real candidate/reference identity without a production graph.

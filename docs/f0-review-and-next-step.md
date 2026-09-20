@@ -2,6 +2,8 @@
 
 Review date: September 19, 2026. Implementation: [PR #74](https://github.com/kimda90/salai/pull/74).
 
+September 20 follow-up: the [active plan](filmmaking-implementation-plan.md#f0-visual-redesign-follow-up) records an implemented visual redesign guided by ImageGen. The observations below describe the September 19 interface.
+
 ## Recommendation
 
 Keep the shared project model and operation boundary. Improve the working context before adding more visible structure.

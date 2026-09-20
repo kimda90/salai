@@ -167,7 +167,7 @@ Input shape:
 
 Read fresh context and inspect `direction.note` before preparing a proposal. Use its target and submission context to interpret the note. Use `direction.note.id` and the matching current `projectRevision`. Explain proposed changes outside the requested scope in `summary`.
 
-The command validates the batch and stores a preview. It does not mutate canonical project state or invoke generation. The filmmaker uses **Apply proposed changes** or **Dismiss note and proposal** in Salai. Do not use `apply` to bypass this review for a submitted direction note.
+The command validates the batch and stores a preview. It does not mutate canonical project state or invoke generation. The filmmaker uses **Apply changes** or **Dismiss direction** in Salai. Do not use `apply` to bypass this review for a submitted direction note.
 
 The note must be waiting, and its submitted revision must still match the project. Otherwise, ask the filmmaker to resubmit it with current context. Do not retry with a new revision while keeping an old note. Read context after a rejected or uncertain response. An existing proposal may already have arrived.
 

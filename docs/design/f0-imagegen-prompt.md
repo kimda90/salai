@@ -1,0 +1,18 @@
+# F0 visual redesign reference
+
+Generated on September 20, 2026 with the built-in ImageGen tool.
+The [concept image](f0-imagegen-concept.png) guides the review and proposal layout.
+Its artwork and incidental controls are illustrative. The application keeps its existing fixture media, scope options, and canonical operations.
+
+## Generation prompt
+
+```text
+Use case: ui-mockup.
+Asset type: high-fidelity desktop interface concept sheet for the existing Salai filmmaking application.
+Primary request: Reimagine two states of the same working page for nontechnical scriptwriters, directors, and producers. Show two complete 1440x900-style desktop screens stacked vertically in one tall high-resolution concept image: upper screen "Film review", lower screen "Review changes". This is a functional editorial workspace, not a marketing landing page.
+Visual direction: refined, quiet, warm off-white surfaces, charcoal typography, fine gray borders, muted gold accents, compact readable sans-serif controls, generous but useful whitespace. Dark charcoal screening area surrounded by light working surfaces. Restrained cinematic identity. Crisp flat UI, no perspective or laptop mockup, no gradients or glass effects.
+Shared layout: compact top header with small SALAI wordmark, project name "The last light", "33 seconds · 8 moments", small "Temporary project" status and native-looking "Other views" selector. All controls fit. Main page has a slim eyebrow "SCENE 01 / WORKSHOP · BEFORE DAWN" and title "Ivo notices the letter", optional Show story button. Immediately below title: small soft warm purpose band "Purpose" and "Let the audience read Ivo’s interpretation." Below that large widescreen dark storyboard viewer. The storyboard is a restrained white-line sketch of a man in a workshop with a letter and lamp, similar to previsualization, explicitly labeled "Fixture artwork". Transport directly underneath with play/pause, time and scrubber. Below viewer a horizontal strip of eight small storyboard thumbnails numbered 01 through 08, fourth selected with gold outline. Editing scene text, duration, and story context remains available without leaving the page. Right sidebar around 340px wide.
+Upper screen sidebar: heading "Direct this moment", visible selected moment target, scope selector labeled "Note target", textarea "What should change?" with text "Ivo already suspects she is leaving. Make his reaction guarded, and hold for five seconds.", primary gold button "Submit direction", small helper "Your external agent prepares a proposal." Below a quiet compact expandable "Edit this moment" section showing Duration and Action. A discreet persistent line says "Fixture artwork stays fixed. Work is lost after a reload."
+Lower screen sidebar replaces the composer with an actual review of a submitted note. Heading "Review changes", target "Moment 04 · Ivo notices the letter", submitted note in an understated blockquote, before/after text visible and duration "3 s → 5 s". Before: "Ivo looks surprised when he notices the letter." After: "Ivo watches the letter, guarded." Primary "Apply changes" and secondary "Dismiss". Include "Artwork is unchanged" below. Keep the same image, purpose, transport and strip, preserving context.
+Constraints: precise readable text, realistic functional controls, strong focus and selection visibility, no invented avatar teams, cloud save state, generation buttons, pricing, chat runtime, budget controls, graphs, or features not described. Do not illustrate save/export as implemented. Do not turn this into an analytics dashboard. Prioritize visual hierarchy and human creative decisions.
+```

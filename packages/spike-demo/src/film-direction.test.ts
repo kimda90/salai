@@ -1,7 +1,7 @@
 import { deserializeNarrativeProject, serializeNarrativeProject, validateNarrativeProject, type NarrativeOperation } from "@salai/script-model";
 import { describe, expect, it, vi } from "vitest";
 import { SalaiController } from "./controller";
-import { describeProjectChanges, filmMoments, type DirectionProposalInput } from "./film-direction";
+import { describeProjectChanges, filmMoments, groupDirectionChanges, type DirectionProposalInput } from "./film-direction";
 import { FILMMAKING_MEDIA, createFilmmakingFixture } from "./filmmaking-fixture";
 import { handleMachineCommand } from "./machine-interface";
 import { toElahProject } from "./elah-adapter";
@@ -22,6 +22,28 @@ function submit(controller: SalaiController): DirectionProposalInput {
 }
 
 describe("F0 filmmaking review", () => {
+  it("groups existing moment changes without omitting source edits, removals, or new items", () => {
+    const controller = new SalaiController("filmmaking");
+    const before = controller.getSnapshot().project;
+    controller.dispatchNarrativeBatch([
+      { op: "updateCue", cueId: "cue-f0-reaction", explicitDurationMs: 5000 },
+      { op: "updateBlock", block: { id: "visual-f0-reaction", type: "visual_description", text: "Ivo watches, guarded." } },
+      { op: "trimSourceExcerpt", blockId: "source-f0-room-tone", sourceInMs: 3000, sourceOutMs: 5000 },
+      { op: "deleteCue", cueId: "cue-f0-train" },
+      { op: "createBlock", cueId: "cue-f0-light", block: { id: "new-sound", type: "sfx", description: "Train whistle" } },
+    ]);
+    const changes = describeProjectChanges(before, controller.getSnapshot().project);
+    const groups = groupDirectionChanges(before, changes);
+    expect(groups.find((group) => group.id === "cue-f0-reaction")?.changes.map((change) => change.id))
+      .toEqual(["cue-f0-reaction", "visual-f0-reaction"]);
+    expect(groups.find((group) => group.id === "cue-f0-letter")?.changes[0]?.fields)
+      .toContainEqual({ label: "Source in", before: "2 s", after: "3 s" });
+    expect(groups.find((group) => group.id === "cue-f0-train")?.changes.some((change) => change.kind === "removed")).toBe(true);
+    expect(groups.find((group) => group.id === "new-sound")?.changes[0]?.kind).toBe("added");
+    expect(groups.flatMap((group) => group.changes).sort((a, b) => a.id.localeCompare(b.id)))
+      .toEqual([...changes].sort((a, b) => a.id.localeCompare(b.id)));
+  });
+
   it("retains an unfinished note across views without changing the project or invalidating revert", () => {
     const controller = new SalaiController("filmmaking");
     controller.dispatchNarrativeBatch([{ op: "updateCue", cueId: "cue-f0-reaction", explicitDurationMs: 5000 }], { revertible: true });

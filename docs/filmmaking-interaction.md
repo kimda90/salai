@@ -81,6 +81,10 @@ The development harness can validate early slices, but final pilot evidence must
 
 The fixture review uses the existing Narrative IR. A visible moment corresponds to a Cue for this fixture. Beat intent and explicit ShotIntent links remain separate. The detail panel retains all content blocks and distinguishes source evidence from authored text.
 
+The review places purpose above the viewer and direction beside it on desktop screens. The native **View** selector opens other Narrative Lenses. **Edit this moment** keeps authored text, duration, and source evidence near the review. Fixture selection and valid-model diagnostics appear under **Development controls**. Invalid-project errors remain visible.
+
+The proposal panel replaces the composer while a note needs attention. It groups existing Cue and content changes by moment, using the submitted order. New or unassigned items remain separate. Every changed field remains visible, including removals and source changes. Item identity and submission details can expand without changing the project.
+
 An unfinished note and its scope survive view changes. They remain temporary controller state and clear when the fixture resets or changes. Submitting a note freezes its explicit target and project context. The external harness returns an interpretation and an operation batch through the existing machine bridge. Salai shows field changes derived from that batch. The user can accept or dismiss it. No canonical edit occurs when a proposal arrives.
 
 Any canonical edit after submission makes the proposal stale. The user can resubmit the same note against current context if its target still exists. Selection changes do not retarget a submitted note. Direct edits and accepted proposals use the shared operation boundary and its immediate one-step revert.

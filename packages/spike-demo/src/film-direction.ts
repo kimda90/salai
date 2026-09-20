@@ -75,6 +75,27 @@ export function filmMoments(project: NarrativeProject) {
   })));
 }
 
+export function groupDirectionChanges(project: NarrativeProject, changes: ProjectChange[]) {
+  const moments = filmMoments(project);
+  const groups = new Map<string, { id: string; label: string; changes: ProjectChange[] }>();
+  for (const change of changes) {
+    const owners = moments.filter((moment) => {
+      const cue = project.cues[moment.cueId]!;
+      return [cue.id, ...cue.visualBlockIds, ...cue.audioBlockIds].includes(change.id);
+    });
+    const moment = owners.length === 1 ? owners[0] : undefined;
+    const id = moment?.cueId ?? change.id;
+    const group = groups.get(id) ?? {
+      id,
+      label: moment ? `Moment ${String(moments.indexOf(moment) + 1).padStart(2, "0")}` : change.label,
+      changes: [],
+    };
+    group.changes.push(change);
+    groups.set(id, group);
+  }
+  return [...groups.values()];
+}
+
 function records(project: NarrativeProject): Record<string, Record<string, unknown>> {
   return {
     [project.script.id]: project.script,
