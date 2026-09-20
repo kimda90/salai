@@ -71,6 +71,32 @@ async function runCli(controller, baseUrl, args) {
 }
 
 describe("external harness machine flow", () => {
+  it("returns an F0 proposal through the existing bridge for human review before application", async () => {
+    const controller = new SalaiController("filmmaking");
+    const baseUrl = await startServer();
+    controller.submitDirection("Hold Ivo's guarded reaction for five seconds.", { type: "cue", id: "cue-f0-reaction" }, 12000);
+    const initial = await runCli(controller, baseUrl, ["context"]);
+    controller.select({ type: "cue", id: "cue-f0-train" });
+    const response = await runCli(controller, baseUrl, ["propose-direction", JSON.stringify({
+      noteId: initial.direction.note.id,
+      baseRevision: initial.projectRevision,
+      summary: "Hold the reaction for five seconds.",
+      operations: [{ op: "updateCue", cueId: initial.direction.note.target.id, explicitDurationMs: 5000 }],
+    })]);
+    expect(response.projectChanged).toBe(false);
+    const waiting = await runCli(controller, baseUrl, ["context"]);
+    expect(waiting.project).toEqual(initial.project);
+    expect(waiting.direction.status).toBe("proposed");
+    expect(waiting.direction.note.target.id).toBe("cue-f0-reaction");
+    expect(controller.acceptDirection(waiting.direction.proposal.id)).toBe(true);
+    const accepted = await runCli(controller, baseUrl, ["context"]);
+    expect(accepted.project.cues["cue-f0-reaction"].explicitDurationMs).toBe(5000);
+    expect(accepted.project.cues["cue-f0-train"]).toEqual(initial.project.cues["cue-f0-train"]);
+    expect(accepted.projectRevision).toBe(initial.projectRevision + 1);
+    expect(controller.revertMachineAction()).toBe(true);
+    expect((await runCli(controller, baseUrl, ["context"])).project).toEqual(initial.project);
+  });
+
   it("round-trips a CLI normalization through a direct Narrative Lens edit", async () => {
     const controller = new SalaiController("product");
     const baseUrl = await startServer();

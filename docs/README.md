@@ -4,9 +4,12 @@
 
 **Salai is an AI filmmaking interface with a heavy focus on narrative intent.** The product loop is **Tell → See → Direct → Update → See**. Start with stills, review in story context, then use cheap motion when useful. Higher fidelity is a choice, not a required finish line.
 
-Product direction is accepted in [ADR 0010](adr/0010-narrative-first-ai-filmmaking.md). The concrete extension design in [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md) is **proposed**, not an implemented API. The [filmmaking implementation plan](filmmaking-implementation-plan.md) is the only active task tracker; new implementation has not started in this documentation change.
+Product direction is accepted in [ADR 0010](adr/0010-narrative-first-ai-filmmaking.md). [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md) accepts the minimal F1 domain/migration plan. Its execution and motion gates remain unresolved. Accepted design does not imply an implemented API. The [filmmaking implementation plan](filmmaking-implementation-plan.md) is the only active task tracker.
 
 Standalone Spike 0E is **paused, not passed**. Its accepted interaction work remains available for selective reuse; completing every 0E feature is no longer a prerequisite for testing generation.
+
+The [F0 usability and architecture review](f0-review-and-next-step.md) compares current tools and proposes the next bounded experiment. Its [layout study](design/f0-review-concept.html) is illustrative, not implemented application behavior.
+The later [ImageGen concept and prompt](design/f0-imagegen-prompt.md) guide the implemented review redesign. The active plan records its verification.
 
 ## Canonical ownership
 
@@ -21,7 +24,7 @@ Standalone Spike 0E is **paused, not passed**. Its accepted interaction work rem
 | Narrative rationale, not a second schema | [scripting.md](scripting.md) |
 | Narrative Lens / Projection / Workspace semantics | [narrative-lenses.md](narrative-lenses.md) |
 | Implemented Narrative IR types, invariants, operations | [narrative-ir-spec.md](narrative-ir-spec.md) |
-| Proposed filmmaking model extensions and unresolved gates | [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md) |
+| Accepted filmmaking design and unresolved gates | [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md) |
 | Deferred temporal semantics | [RFC 0003](rfcs/0003-semantic-editorial-interaction-model.md) |
 | Current architecture and bounded future additions | [architecture.md](architecture.md) |
 | Accepted architecture decisions | [adr/README.md](adr/README.md) |
@@ -49,7 +52,7 @@ Do not duplicate operation vocabularies, exact fields, or task completion across
 - 0B: synchronized structured views worked, routine manual structure management was too costly; [assessment](spike-0b-assessment.md). [authoring-ux-spec.md](authoring-ux-spec.md) remains a historical implementation contract, not the new UI specification.
 - 0C: external-harness authoring passed human validation; [assessment](spike-0c-assessment.md). This does not validate a new embedded chat or generation interface.
 - 0D: temporal/playback architecture passed technically; direct editing usefulness was mixed; [assessment](spike-0d-assessment.md).
-- 0E: shaping was accepted, implementation was not completed before the pivot; [paused tracker](spike-0e-implementation-plan.md).
+- 0E: technical implementation through 0E.4 exists on the current branch. Human gates remain open. Its standalone program is paused; see the [retained evidence](spike-0e-implementation-plan.md).
 
 The following are exact, frozen pre-pivot snapshots. Their words such as “current,” “NOW,” and “next” describe their original period and **must not override this map or the active plan**:
 

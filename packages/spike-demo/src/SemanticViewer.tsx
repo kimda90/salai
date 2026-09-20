@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import type { ResolvedSemanticAssembly } from "./semantic-playback-model";
 import "./semantic-viewer.css";
 
@@ -9,6 +9,8 @@ export type SemanticViewerProps = {
   durationMs: number;
   isPlaying: boolean;
   onTogglePlayback: () => void;
+  children?: ReactNode;
+  mediaLabel?: string;
 };
 
 function formatTime(ms: number): string {
@@ -25,6 +27,8 @@ export function SemanticViewer({
   durationMs,
   isPlaying,
   onTogglePlayback,
+  children,
+  mediaLabel,
 }: SemanticViewerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const activeImage = assembly.scene.images.at(-1) ?? null;
@@ -73,8 +77,9 @@ export function SemanticViewer({
   return (
     <section className="semantic-viewer" aria-label="Rough assembly viewer">
       <div className="semantic-viewer-stage">
+        {mediaLabel ? <span className="semantic-media-label">{mediaLabel}</span> : null}
         {activeImage ? (
-          <img src={activeImage.src} alt={activeImage.name} />
+          <img src={activeImage.src} alt={assembly.cue?.label ?? activeImage.name} />
         ) : assembly.missingVisual ? (
           <div className="semantic-viewer-placeholder missing">
             <span>MISSING VISUAL</span>
@@ -101,6 +106,7 @@ export function SemanticViewer({
         <span className="semantic-time-readout">
           {formatTime(currentTimeMs)} / {formatTime(durationMs)}
         </span>
+        {children}
         <span className="semantic-viewer-status">
           {activeAudio ? activeAudio.name : "No source audio at playhead"}
         </span>

@@ -8,7 +8,7 @@ Develop the smallest maintainable implementation that tests the current product 
 
 Read [AGENTS.md](../AGENTS.md) and [the documentation map](README.md), then the [PRD](prd.md), [filmmaking interaction contract](filmmaking-interaction.md), [architecture](architecture.md), [active plan](filmmaking-implementation-plan.md), and relevant code/tests. Read [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md) before proposed model/execution additions and [Narrative IR](narrative-ir-spec.md) before domain edits.
 
-ADR 0010 accepts product direction. RFC 0004 is proposed technical shape; its explicit review gates must be resolved for the slice being implemented. Do not turn a draft schema into an implemented contract by copying it into code without review.
+ADR 0010 accepts product direction. RFC 0004 accepts the minimal F1 domain/migration plan. Its execution, motion, and 3D review gates remain unresolved. Do not turn a draft schema into an implemented contract by copying it into code without review.
 
 Standalone 0E is paused, not passed. Consult [editorial-interaction.md](editorial-interaction.md) and RFC 0003 for temporal changes. Historical plans are evidence and reusable work, not current priority instructions.
 

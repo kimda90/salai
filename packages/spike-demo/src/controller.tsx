@@ -15,6 +15,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { createFixture, type FixtureKey } from "./fixtures";
+import { describeProjectChanges, directionTargetExists, narrativeLabel, type DirectionProposalInput, type DirectionReview, type DirectionTarget } from "./film-direction";
 import {
   createStoryWallWorkspace,
   promoteIdeaCardReference,
@@ -41,9 +42,12 @@ export type OperationFeedback = {
 export type SalaiAppState = {
   fixtureKey: FixtureKey;
   project: NarrativeProject;
+  projectRevision: number;
+  direction: DirectionReview | null;
+  directionDraft: { text: string; scope: string };
   workspace: Workspace;
   selection: CanonicalSelection | null;
-  activeSurface: "outline" | "story-wall" | "av-script" | "paper-edit" | "timeline";
+  activeSurface: "outline" | "story-wall" | "av-script" | "paper-edit" | "timeline" | "film";
   feedback: OperationFeedback;
   canRevertMachineAction: boolean;
 };
@@ -67,6 +71,7 @@ export interface SalaiProjectService {
   getSnapshot: () => SalaiAppState;
   getProjectContext: (options?: ProjectContextOptions) => SalaiProjectContext;
   subscribe: (listener: () => void) => () => void;
+  proposeDirection: (input: DirectionProposalInput) => boolean;
   dispatchNarrativeBatch: (
     operations: readonly NarrativeOperation[],
     options?: NarrativeBatchOptions,
@@ -92,9 +97,12 @@ function initialState(fixtureKey: FixtureKey): SalaiAppState {
   return {
     fixtureKey,
     project,
+    projectRevision: 0,
+    direction: null,
+    directionDraft: { text: "", scope: "cue" },
     workspace: createStoryWallWorkspace(project),
     selection: null,
-    activeSurface: fixtureKey === "semantic-editorial" ? "timeline" : "outline",
+    activeSurface: fixtureKey === "filmmaking" ? "film" : fixtureKey === "semantic-editorial" ? "timeline" : "outline",
     feedback: EMPTY_FEEDBACK,
     canRevertMachineAction: false,
   };
@@ -165,6 +173,7 @@ export class SalaiController implements SalaiProjectService {
     previousProject: NarrativeProject,
     result: OperationResult,
     revertible: boolean,
+    direction = this.state.direction,
   ): void {
     const selection = this.state.selection;
     const selectionRemoved =
@@ -180,6 +189,8 @@ export class SalaiController implements SalaiProjectService {
     this.publish({
       ...this.state,
       project: result.model,
+      projectRevision: this.state.projectRevision + 1,
+      direction,
       workspace,
       selection: selectionRemoved ? null : selection,
       feedback: feedbackFromResult(result),
@@ -189,12 +200,11 @@ export class SalaiController implements SalaiProjectService {
 
   setFixture(fixtureKey: FixtureKey): void {
     this.revertSnapshot = null;
-    this.publish(initialState(fixtureKey));
+    this.publish({ ...initialState(fixtureKey), projectRevision: this.state.projectRevision + 1 });
   }
 
   resetFixture(): void {
-    this.revertSnapshot = null;
-    this.publish(initialState(this.state.fixtureKey));
+    this.setFixture(this.state.fixtureKey);
   }
 
   setSurface(activeSurface: SalaiAppState["activeSurface"]): void {
@@ -203,6 +213,81 @@ export class SalaiController implements SalaiProjectService {
 
   select(selection: CanonicalSelection | null): void {
     this.publish({ ...this.state, selection });
+  }
+
+  updateDirectionDraft(draft: Partial<SalaiAppState["directionDraft"]>): void {
+    this.publish({ ...this.state, directionDraft: { ...this.state.directionDraft, ...draft } });
+  }
+
+  submitDirection(text: string, target: DirectionTarget, playheadMs: number): boolean {
+    try {
+      if (!text.trim()) throw new Error("Write a direction note before submitting.");
+      if (!directionTargetExists(this.state.project, target)) throw new Error("The direction target no longer exists.");
+      if (!Number.isFinite(playheadMs) || playheadMs < 0) throw new Error("Invalid direction playhead.");
+      this.publish({ ...this.state, direction: {
+        status: "waiting",
+        note: {
+          id: crypto.randomUUID(), text: text.trim(), target: { ...target },
+          targetLabel: narrativeLabel(this.state.project, target.id),
+          projectRevision: this.state.projectRevision,
+          submittedProject: structuredClone(this.state.project), playheadMs,
+        },
+      }, feedback: { ...EMPTY_FEEDBACK } });
+      return true;
+    } catch (error) {
+      this.publishError(error);
+      return false;
+    }
+  }
+
+  proposeDirection(input: DirectionProposalInput): boolean {
+    try {
+      const review = this.state.direction;
+      if (!review || review.note.id !== input.noteId || review.status !== "waiting") {
+        throw new Error("This note is no longer waiting for a proposal. Read fresh context.");
+      }
+      // ponytail: any project edit invalidates a proposal; use narrower read sets only if this disrupts real review.
+      if (input.baseRevision !== this.state.projectRevision || input.baseRevision !== review.note.projectRevision) {
+        throw new Error("The project changed after submission. Submit the note again before proposing changes.");
+      }
+      if (!input.summary.trim() || !input.operations.length) throw new Error("A proposal needs a summary and operations.");
+      const operations = structuredClone(input.operations);
+      const result = applyOperations(this.state.project, operations);
+      const changes = describeProjectChanges(this.state.project, result.model);
+      if (!changes.length) throw new Error("The proposal does not change the project.");
+      this.publish({ ...this.state, direction: {
+        ...review, status: "proposed",
+        proposal: { ...input, operations, id: crypto.randomUUID(), changes, warnings: result.warnings.map((warning) => warning.message) },
+      }, feedback: { ...EMPTY_FEEDBACK } });
+      return true;
+    } catch (error) {
+      this.publishError(error);
+      return false;
+    }
+  }
+
+  acceptDirection(proposalId: string): boolean {
+    const review = this.state.direction;
+    const proposal = review?.proposal;
+    if (!review || review.status !== "proposed" || !proposal || proposal.id !== proposalId) return false;
+    if (proposal.baseRevision !== this.state.projectRevision || !directionTargetExists(this.state.project, review.note.target)) {
+      this.publishError(new Error("The project changed. Submit the note again and review a new proposal."));
+      return false;
+    }
+    try {
+      const result = applyOperations(this.state.project, proposal.operations);
+      this.publishNarrativeResult(this.state.project, result, true, {
+        ...review, status: "applied", appliedRevision: this.state.projectRevision + 1,
+      });
+      return true;
+    } catch (error) {
+      this.publishError(error);
+      return false;
+    }
+  }
+
+  dismissDirection(): void {
+    if (this.state.direction) this.publish({ ...this.state, direction: { ...this.state.direction, status: "dismissed" } });
   }
 
   updateWorkspace(update: (workspace: Workspace) => Workspace): void {
@@ -247,8 +332,11 @@ export class SalaiController implements SalaiProjectService {
     this.publish({
       ...this.state,
       project: snapshot.project,
+      projectRevision: this.state.projectRevision + 1,
+      direction: this.state.direction?.appliedRevision === this.state.projectRevision
+        ? { ...this.state.direction, status: "reverted" } : this.state.direction,
       workspace: snapshot.workspace,
-      selection: null,
+      selection: this.state.selection && directionTargetExists(snapshot.project, this.state.selection) ? this.state.selection : null,
       feedback: { ...EMPTY_FEEDBACK },
       canRevertMachineAction: false,
     });
@@ -282,6 +370,7 @@ export class SalaiController implements SalaiProjectService {
       this.publish({
         ...this.state,
         project: result.model,
+        projectRevision: this.state.projectRevision + 1,
         workspace,
         selection: { type: "beat", id: beatId },
         feedback: feedbackFromResult(result),

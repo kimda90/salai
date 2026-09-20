@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+<title id="title">The last light: storyboard frame 3</title><desc id="desc">Original vector fixture sketch. Mara wears a long coat. Ivo wears work clothes. A signal lamp connects the workshop and platform.</desc>
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#202d3e"/><stop offset="1" stop-color="#3c434a"/></linearGradient></defs>
+<rect width="960" height="540" fill="url(#sky)"/><path d="M0 410 L960 310 V540 H0" fill="#49423c"/><g transform="translate(690 245) scale(1.5)" stroke="#d9b878" stroke-width="5" fill="#383a35"><path d="M-28 -52 Q-28 -93 0 -93 Q28 -93 28 -52" fill="none"/><rect x="-37" y="-52" width="74" height="91" rx="9" fill="#151b23"/><path d="M-43 42 H43 M-42 -58 H42 M-22 -49 V35 M22 -49 V35"/></g><path d="M180 218 L458 195 L496 365 L218 390 Z" fill="#ddcfaf" stroke="#8d7e61" stroke-width="4"/><path d="M180 218 L355 306 L458 195" fill="none" stroke="#897d68" stroke-width="3"/><path d="M0 243 L268 256 L339 298 L318 325 L248 303 L0 348" fill="#8d969b" stroke="#cbd0d1" stroke-width="5"/>
+<rect x="20" y="18" width="236" height="30" rx="4" fill="#10171f" opacity=".88"/><text x="32" y="39" fill="#dfc695" font-size="14" font-family="sans-serif" letter-spacing="2">FIXTURE SKETCH · 03</text>
+</svg>

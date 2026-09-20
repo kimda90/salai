@@ -16,7 +16,7 @@ Record submitted context independently from current mutable project state. Late 
 
 The first real-generation loop needs enough save/reopen behavior to retain committed intent, references, available media, selections, and request provenance. Saving metadata alone is insufficient if the referenced bytes are temporary, expired, or unavailable. State exactly what is durable, what needs relinking, and what is intentionally transient.
 
-Keep schema migration versioned and tested. Preserve original media and recorded input snapshots; do not overwrite source evidence. The new persistence contract is proposed in RFC 0004 and must be implemented before claiming durability. Existing Narrative IR serialization alone does not save a full generated-media project.
+Keep schema migration versioned and tested. Preserve original media and recorded input snapshots; do not overwrite source evidence. The new persistence contract is accepted for F1 in RFC 0004 and must be implemented before claiming durability. Existing Narrative IR serialization alone does not save a full generated-media project.
 
 ## Honest derived status
 

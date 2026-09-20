@@ -4,7 +4,7 @@
 
 **Paused by the September 18, 2026 narrative-first filmmaking pivot; not implemented or passed by that decision.**
 
-The original shape was accepted on September 2, 2026. At the inspected baseline, the implementation tasks were unchecked. Preserve that evidence in the [unchanged pre-pivot plan](spike-0e-plan-before-pivot.md).
+The original shape was accepted on September 2, 2026. At the pivot documentation baseline, the implementation tasks were unchecked. Current `main` also contains technical implementation through 0E.4 and its September 2, 2026 evidence. The human gates remain open. Preserve the earlier evidence in the [unchanged pre-pivot plan](spike-0e-plan-before-pivot.md).
 
 The active task/status owner is now [filmmaking-implementation-plan.md](filmmaking-implementation-plan.md), under [ADR 0010](adr/0010-narrative-first-ai-filmmaking.md). Do not treat the old plan's “current” labels as instructions to resume its entire sequence.
 
@@ -69,7 +69,7 @@ Under accepted RFC 0003, implementation works from these constraints:
 ```text
 0E.SHAPE  Interaction/domain contract review        [complete]
     ↓
-0E.0      Interaction foundation + evaluation noise [current]
+0E.0      Interaction foundation + evaluation noise [technical evidence below]
     ↓
 0E.1      Hierarchical semantic timeline
     ↓

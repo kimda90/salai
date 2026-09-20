@@ -2,19 +2,19 @@
 
 ## Status and ownership
 
-**Active plan; implementation not started.** Product direction was accepted on September 18, 2026. The documentation PR records scope and learning; it does not complete any implementation or human-validation task below.
+**Active plan. F0 implementation and technical verification are complete on September 19, 2026.** Product direction was accepted on September 18, 2026. F1–F4 are not implemented. Human validation remains separate from technical evidence.
 
-This is the sole active task/status/evidence tracker. [PRD](prd.md) owns outcomes, [filmmaking-interaction.md](filmmaking-interaction.md) owns observable interaction, [architecture.md](architecture.md) owns boundaries, and [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md) owns proposed additions and their review gates.
+This is the sole active task/status/evidence tracker. [PRD](prd.md) owns outcomes, [filmmaking-interaction.md](filmmaking-interaction.md) owns observable interaction, [architecture.md](architecture.md) owns boundaries, and [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md) owns the accepted F1 domain/migration plan and unresolved later gates.
 
 The prior [0E tracker](spike-0e-implementation-plan.md) is paused, not passed. No 0E checkbox is completed by this pivot.
 
 ## Inspected baseline
 
-Baseline: `main` at `3a9b7cd2e23f5c1ad75811e33b8cd309b85bbcf9` (September 2, 2026). Branch/activity inspection found no open PR to build on at the time of this documentation work. Re-read the current branch before coding.
+F0 starts from `main` at `a241f2a` on September 19, 2026. It includes the 0E implementation in `fd8a1d9` and technical evidence in `ae4e3c5`. The pivot documentation inspected the earlier `3a9b7cd` baseline. Its unchecked snapshot does not describe all code now present. F0 work is on `codex/f0-film-review`.
 
 Implemented foundations include `packages/script-model/src/types.ts`, `operation-api.ts`, `operations.ts`, `serialization.ts`, their tests, and the prototype's shared project-service/machine and timeline/playback boundaries. The existing types contain minimal ShotIntent/MediaSegment references, not a full generation registry.
 
-Preserved evidence: 0A passed the model spike; 0B was mixed on interaction; 0C passed external-harness validation; 0D was mixed because direct editing was insufficient. 0E had an accepted shape but its implementation tasks remained unchecked. Consult the original assessment documents rather than treating this summary as new test evidence.
+Preserved evidence: 0A passed the model spike; 0B was mixed on interaction; 0C passed external-harness validation; 0D was mixed because direct editing was insufficient. 0E has technical implementation through 0E.4, with human interaction gates still open. Consult the original assessment documents rather than treating this summary as new test evidence.
 
 ## Pilot and finish line
 
@@ -44,14 +44,68 @@ Prefer one focused PR per slice. Do not combine a desktop rewrite, 3D editor, co
 
 Goal: make the intended user interaction concrete without pretending to have generation.
 
-- [ ] Read current code, [ADR 0010](adr/0010-narrative-first-ai-filmmaking.md), and the active specs; identify reusable controller/CLI/timeline components.
-- [ ] Create a representative story fixture through existing canonical operations, preserving Beat/Cue distinction and explicit ShotIntent references.
-- [ ] Show viewer/shot context and a concise intent description; capture feedback with an explicit target and submission context.
-- [ ] Support direct order/duration/text edits through the existing service; retain source evidence and immediate grouped-revert limits.
-- [ ] Reuse only necessary 0E fixes, starting with transport/selection/context and non-distracting review media; record adopted task references here.
-- [ ] Review RFC 0004 and approve the minimal domain/migration plan before F1 adds new canonical records.
+- [x] Read current code, [ADR 0010](adr/0010-narrative-first-ai-filmmaking.md), and the active specs; identify reusable controller/CLI/timeline components.
+- [x] Create a representative story fixture through existing canonical operations, preserving Beat/Cue distinction and explicit ShotIntent references.
+- [x] Show viewer/shot context and a concise intent description; capture feedback with an explicit target and submission context.
+- [x] Support direct order/duration/text edits through the existing service; retain source evidence and immediate grouped-revert limits.
+- [x] Reuse only necessary 0E fixes, starting with transport/selection/context and non-distracting review media; record adopted task references here.
+- [x] Review RFC 0004 and approve the minimal domain/migration plan before F1 adds new canonical records.
 
 **Gate:** a reviewer can identify the targeted moment, give a note, inspect a proposed change, and see a canonical edit without learning object wiring. Fake or fixture media is clearly labeled. No new generation/runtime capability is claimed.
+
+### F0 implementation evidence
+
+Technical verification date: September 19, 2026. This is an agent-operated implementation check. A filmmaker has not yet evaluated usefulness or comprehension.
+
+| Criterion | Evidence | Source |
+| --- | --- | --- |
+| Representative story | `filmmaking-fixture.ts` builds two Scenes, four Beats, and eight Cues with existing operations. Each moment links a ShotIntent stub. | `film-direction.test.ts` validates identity, multiple content blocks, deterministic construction, and serialization. |
+| Review context | `FilmReview.tsx` shows ordered moments, Scene/Beat context, narrative intent, and linked shot direction. Eight local SVG sketches are labeled as fixture media. | Browser checks verified all images load, playback advances, and selection seeks to the intended moment. |
+| Frozen direction | The controller captures target, text, local revision, playhead, and a copied project snapshot. Selection and workspace changes do not retarget the note. | Unit tests and a live browser note on moment 4 followed by selection of moment 8. |
+| Review before application | `propose-direction` stages validated existing operations through the same CLI/HTTP bridge. The UI derives before/after fields from the actual result. | Real CLI process tests and browser review, acceptance, and revert. |
+| Direct edits | Duration, authored text, beat intent, and sibling order use existing atomic operations. Detailed temporal edits remain in the existing timeline. | Browser edits changed the selected Cue and authored block while preserving source evidence. |
+| Failures and stale work | Edits invalidate pending proposals. Dismissed, duplicate, replaced, reset, and deleted-target requests cannot apply. Invalid batches leave the project unchanged. | `film-direction.test.ts` and `live-machine-flow.test.mjs`. |
+| Domain review | RFC 0004 records the accepted minimal F1 domain/migration plan. F0 retains schema version 1. | Engineering review in RFC 0004. No new canonical record is implemented. |
+
+Adopted 0E work: 0E.0.3 safe Space transport, the timeline projection and viewer, 0E.2 contextual selection, and 0E.4 canonical order/duration/text edits. F0 uses silent local sketches. Playback retains its position after canonical edits. Revert retains a selection when that object exists in the restored project. No deferred timing or split behavior is added.
+
+Checks: `pnpm typecheck`, `pnpm test`, and `pnpm build` pass with Node.js 24.19.0 and pnpm 10.34.5. The uncached suite passes 146 tests across 35 files. CLI/bridge tests require local socket and child-process access. The build reports a bundle-size warning above 500 kB. [PR #74](https://github.com/kimda90/salai/pull/74) contains the implementation and hosted CI results. CI passes for the initial implementation commit `2cebcd7`.
+
+Browser evidence covers proposal acceptance, grouped revert, direct text/duration/order edits, unchanged source ranges, stale-note resubmission, dismissal, and Space in a text field. Timeline navigation preserves the selected Cue and returns to its review context. Narrow and wide layouts show the controls without document-level horizontal overflow. A clean final load has no console errors or warnings. These checks establish technical behavior, not narrative quality or filmmaker usability.
+
+Known limits: one active note/proposal, conservative whole-project revision checks, no saved notes, no durable project/media bundle, and no automatic agent dispatch. The external harness must read context and propose changes. Fixture drawings remain fixed after text edits. ShotIntent and MediaSegment stubs are fixture inputs because current public operations can only link them.
+
+Development observation: hot updates to shared controller code caused transient React context errors during implementation. A full reload restores the prototype. This does not occur on the verified clean load.
+
+The follow-up UI review found that view changes discarded an unfinished direction note. The draft text and scope now remain in controller interaction state. A regression test and browser round-trip verify retention without a canonical edit or loss of immediate revert. Resetting or changing the fixture clears the draft.
+
+The review also found horizontal overflow from the shared header in a narrow window. The grid now permits shrinking, the fixture header stays within its parent, and view tabs wrap. Browser checks verify the correction at narrow and phone sizes.
+
+The [F0 usability and architecture review](f0-review-and-next-step.md) records tool comparisons, remaining interaction risks, and proposed execution order. Its layout study is a separate illustration. F1–F4 scope and gates remain unchanged.
+
+To conduct the human review, start `pnpm dev` and open `http://localhost:5173/salai/?bridge=1&fixture=filmmaking`.
+
+1. Watch the storyboard and select moment 4.
+2. Read its narrative intent and submit the example direction, or write another note.
+3. Ask the external agent to read context and return a proposal using the discovered command.
+4. Inspect the interpretation, affected items, and before/after values.
+5. Apply or dismiss the proposal, then inspect the story again.
+6. Revert the edit before another project or workspace edit.
+7. Record whether intent helped the decision and whether the proposed scope matched the note.
+
+The functional F0 path is implemented. The human observation remains unclaimed. Continue with the accepted F1 data contract only as a separate implementation slice.
+
+### F0 visual redesign follow-up
+
+On September 20, 2026, ImageGen produced a [two-state visual concept](design/f0-imagegen-concept.png) from this [saved prompt](design/f0-imagegen-prompt.md). The application implements its warm surfaces, dark viewer, compact header, gold selection, adjacent direction, and before/after review. The concept's incidental controls and illustrations do not add domain behavior. Existing fixture media remains unchanged.
+
+The shared header now uses a native **View** selector. Development controls replace the expanded fixture header and model diagnostics. The review keeps purpose above the image and direct editing in the side panel. Pending proposals replace the composer and group existing content changes by moment. A focused regression test verifies that grouping retains source edits, removals, and new items.
+
+Browser checks cover draft retention through Outline, submitted-target recovery, proposal application, complete project revert, and direct duration editing. The source-backed moment retains separate Action, Sound, and source evidence. Typing spaces in a note pauses playback and does not restart it. Desktop, narrow-window, and phone checks use 1440 × 900, 900 × 768, and 390 × 844 viewports. The page has no horizontal overflow. The thumbnail strip scrolls within its own width.
+
+Follow-up checks pass: `pnpm typecheck`, 147 tests across 35 files, and `pnpm build`. A clean browser load has no console errors or warnings. The existing build warning for a bundle above 500 kB remains.
+
+These are technical checks of the implemented design. The separate September 19 HTML study remains illustrative. Human usefulness, generation, and F1 persistence remain unverified or unimplemented as stated above.
 
 ## F1 — Minimal records, save/reopen, and still review
 

@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { AVScript } from "./AVScript";
 import { useSalaiController, useSalaiState } from "./controller";
 import { FIXTURES, getFixtureDefinition } from "./fixtures";
+import { FilmReview } from "./FilmReview";
 import { formatDuration, getDurationEstimate } from "./model-utils";
 import { Outline } from "./Outline";
 import { PaperEdit } from "./PaperEdit";
@@ -10,6 +11,7 @@ import { SemanticTimeline } from "./SemanticTimeline";
 import { StoryWall } from "./StoryWall";
 
 const SURFACES = [
+  { key: "film", label: "Film review" },
   { key: "outline", label: "Outline" },
   { key: "story-wall", label: "Story Wall" },
   { key: "av-script", label: "AV Script" },
@@ -67,89 +69,29 @@ export function App() {
   );
 
   return (
-    <div className="app-shell">
-      <header className="topbar">
-        <div className="brand-lockup">
-          <span className="brand-mark">S</span>
-          <div>
-            <div className="brand-name">SALAI</div>
-            <div className="brand-subtitle">Spike 0E · Semantic Editorial Environment</div>
-          </div>
+    <div className={`app-shell ${state.activeSurface === "film" ? "film-app" : ""}`}>
+      <header className="project-header">
+        <span className="project-wordmark">SALAI</span>
+        <div className="project-identity">
+          <strong>{state.project.script.title ?? "Untitled story"}</strong>
+          <span>{formatDuration(duration.scriptMs)} · {Object.keys(state.project.cues).length} moments</span>
         </div>
-        <div className="topbar-status">
-          <span className={`validity-dot ${validation.valid ? "valid" : "invalid"}`} />
-          {validation.valid
-            ? "Narrative IR valid"
-            : `${validation.issues.length} IR issues`}
-        </div>
+        <span className="project-temporary">Temporary project</span>
+        <nav className="project-navigation" aria-label="Creative surfaces">
+          <button className="ghost-button" type="button" disabled={!state.canRevertMachineAction} onClick={() => controller.revertMachineAction()}>Revert last edit</button>
+          <label>View
+            <select value={state.activeSurface} onChange={(event) => controller.setSurface(event.target.value as typeof state.activeSurface)}>
+              {SURFACES.map((surface) => <option key={surface.key} value={surface.key}>{surface.label}</option>)}
+            </select>
+          </label>
+        </nav>
       </header>
-
-      <section className="fixture-bar">
-        <div className="fixture-copy">
-          <label htmlFor="fixture-select">Fixture</label>
-          <select
-            id="fixture-select"
-            value={state.fixtureKey}
-            onChange={(event) =>
-              controller.setFixture(event.target.value as typeof state.fixtureKey)
-            }
-          >
-            {FIXTURES.map((item) => (
-              <option key={item.key} value={item.key}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-          <span>{fixture.description}</span>
-        </div>
-        <div className="fixture-stats">
-          <div>
-            <small>Runtime</small>
-            <strong>{formatDuration(duration.scriptMs)}</strong>
-          </div>
-          <div>
-            <small>Beats</small>
-            <strong>{Object.keys(state.project.beats).length}</strong>
-          </div>
-          <div>
-            <small>Cues</small>
-            <strong>{Object.keys(state.project.cues).length}</strong>
-          </div>
-          {state.canRevertMachineAction ? (
-            <button
-              className="ghost-button"
-              type="button"
-              onClick={() => controller.revertMachineAction()}
-            >
-              Revert last machine action
-            </button>
-          ) : null}
-          <button
-            className="ghost-button"
-            type="button"
-            onClick={() => controller.resetFixture()}
-          >
-            Reset fixture
-          </button>
-        </div>
-      </section>
-
-      <nav className="surface-tabs" aria-label="Creative surfaces">
-        {SURFACES.map((surface) => (
-          <button
-            type="button"
-            key={surface.key}
-            className={state.activeSurface === surface.key ? "active" : ""}
-            onClick={() => controller.setSurface(surface.key)}
-          >
-            {surface.label}
-          </button>
-        ))}
-      </nav>
+      {!validation.valid ? <p className="project-validation-error" role="alert">The project has {validation.issues.length} validation issues. Open development controls for details.</p> : null}
 
       <FeedbackPanel />
 
       <main className="workspace-frame">
+        {state.activeSurface === "film" ? <FilmReview key={state.fixtureKey} /> : null}
         {state.activeSurface === "outline" ? <Outline /> : null}
         {state.activeSurface === "story-wall" ? <StoryWall /> : null}
         {state.activeSurface === "av-script" ? <AVScript /> : null}
@@ -157,14 +99,22 @@ export function App() {
         {state.activeSurface === "timeline" ? <SemanticTimeline /> : null}
       </main>
 
-      <footer className="app-footer">
-        <span>Canonical model: @salai/script-model</span>
-        <span>
-          {state.selection
-            ? `Selected ${state.selection.type}: ${state.selection.id}`
-            : "No selection"}
-        </span>
-      </footer>
+      <details className="development-controls">
+        <summary>Development controls</summary>
+        <section className="fixture-bar">
+          <div className="fixture-copy">
+            <label htmlFor="fixture-select">Fixture</label>
+            <select id="fixture-select" value={state.fixtureKey} onChange={(event) => controller.setFixture(event.target.value as typeof state.fixtureKey)}>
+              {FIXTURES.map((item) => <option key={item.key} value={item.key}>{item.label}</option>)}
+            </select>
+            <span>{fixture.description}</span>
+          </div>
+          <button className="ghost-button" type="button" onClick={() => controller.resetFixture()}>Reset fixture</button>
+        </section>
+        <p>{validation.valid ? "Narrative IR valid" : `${validation.issues.length} IR issues`} · Canonical model: @salai/script-model</p>
+        {!validation.valid ? <pre>{JSON.stringify(validation.issues, null, 2)}</pre> : null}
+        <p>{state.selection ? `Selected ${state.selection.type}: ${state.selection.id}` : "No selection"}</p>
+      </details>
     </div>
   );
 }

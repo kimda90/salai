@@ -2,7 +2,7 @@
 
 ## Status and goal
 
-Target requirements for the narrative-first AI filmmaking pivot recorded in [ADR 0010](adr/0010-narrative-first-ai-filmmaking.md). Implementation status belongs only in [filmmaking-implementation-plan.md](filmmaking-implementation-plan.md). The existing Narrative IR remains the [implemented contract](narrative-ir-spec.md); proposed additions are in [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md).
+Target requirements for the narrative-first AI filmmaking pivot recorded in [ADR 0010](adr/0010-narrative-first-ai-filmmaking.md). Implementation status belongs only in [filmmaking-implementation-plan.md](filmmaking-implementation-plan.md). The existing Narrative IR remains the [implemented contract](narrative-ir-spec.md); planned additions are in [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md).
 
 **Goal:** a filmmaker can tell a story, see it early, give narrative direction, and review an updated film without repeatedly reconstructing context or losing accepted work.
 

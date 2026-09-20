@@ -2,9 +2,9 @@
 
 ## Status
 
-**Proposed implementation shape for review in the pivot documentation PR.** Product direction is accepted in [ADR 0010](../adr/0010-narrative-first-ai-filmmaking.md); this RFC is not an implemented schema or machine API.
+**Accepted for the existing-model F0 interaction and the minimal F1 domain/migration plan on September 19, 2026.** The execution and motion decisions remain unresolved. Product direction is accepted in [ADR 0010](../adr/0010-narrative-first-ai-filmmaking.md).
 
-Accept this RFC, including the decisions required below, before implementing new canonical filmmaking records. Existing-operation UX groundwork can proceed under the active plan. After acceptance, update the canonical Narrative IR specification alongside implementation, migrations, operations, and tests; do not relabel the present spec as if these additions already existed.
+This acceptance records the engineering review performed during the authorized F0 implementation. It does not represent human product validation or implemented F1 records. Implement the accepted delta with migrations, typed operations, tests, and the canonical Narrative IR specification in F1. Resolve the remaining gates before the corresponding later slices.
 
 ## Summary and motivation
 
@@ -12,7 +12,7 @@ Support a small loop: story interpretation → still candidates → contextual n
 
 Current `packages/script-model/src/types.ts` has a minimal ShotIntent, MediaSegment references, and narrative ContentBlocks. It does not contain an asset registry, per-object revision history, generation jobs, or a selected generated-video block. Those gaps need explicit small extensions, not hidden engine state.
 
-## Proposal
+## Staged design
 
 ### 1. Preserve the existing narrative model
 
@@ -94,7 +94,7 @@ Small schema additions still require migration and validation work. Coarse revis
 
 ## Decisions required before the corresponding implementation
 
-**Before new domain records (F1):** approve the concrete field/operation delta, per-use material binding, guidance-history policy, schema migration, and save/reopen fixture. The owning implementation PR must update `narrative-ir-spec.md`; this RFC deliberately does not duplicate its operation vocabulary.
+**Before new domain records (F1):** follow the accepted domain/migration plan below. The owning implementation PR must update `narrative-ir-spec.md` with exact types and operation signatures. A materially different binding or migration needs renewed review.
 
 **Before real generation (F2):** select one executor and output profiles using current documentation; define approval/cost, data-sharing, recovery/idempotency, and request/receipt integration through the existing boundary. A new runtime/transport requires its own explicit decision.
 
@@ -102,6 +102,54 @@ Small schema additions still require migration and validation work. Coarse revis
 
 **Before 3D (next scope):** select an engine, coordinate/staging representation, and one verified export/conditioning path. 3D is not required for F0–F4.
 
+## F0 domain and migration review
+
+The review question is whether the pilot needs a new narrative hierarchy or a second state owner. It does not. The existing controller, operation batches, timeline projection, and playback adapter support the F0 interaction.
+
+F0 retains schema version 1. A submitted note contains a target, text, playhead, local project revision, and copied submission context. One pending note and proposal live in controller interaction state. They are not serialized as narrative facts. A proposal uses existing operations, previews the resulting field changes, and requires explicit acceptance. Any intervening canonical edit invalidates acceptance. This conservative rule is sufficient for eight moments. It is not the later generation-input comparison algorithm.
+
+The current API links ShotIntent and MediaSegment stubs but cannot create or update those stubs through public operations. F0 seeds documented fixture stubs, then builds all narrative structure and relationships with operations. Do not use that fixture construction path to import live project data.
+
+### Accepted F1 delta
+
+These records are design commitments for F1, not callable F0 capabilities.
+
+| Owner | Minimal addition | Invariants |
+| --- | --- | --- |
+| Project assets | An asset map with stable ID, media kind, MIME type, byte length, content digest, origin, and optional generation request ID. | Imported, captured, and generated origins stay distinct. Returned bytes and identity are immutable. Missing bytes do not delete the record. |
+| Visual content | A `visual_media` ContentBlock with candidate asset IDs and an optional selected asset ID. It can record the associated ShotIntent ID. | The block is the material use. Selection affects only that block. Preserve other visual/audio blocks and existing Beat/Cue-to-ShotIntent relationships. |
+| Scoped guidance | Immutable guidance revisions plus a current revision pointer for each typed scope. Each revision contains text and named reference bindings. | Allowed scopes are Script, Section, Scene, Beat, ShotIntent, and material use. Reusing old guidance appends a revision. No edits to historical revisions. |
+| Reference bindings | Each binding contains a stable slot name, role, and asset ID. | The pilot reuses named slots such as `mara` or `workshop`. A local binding replaces the inherited binding for that slot. An explicit empty binding removes it locally. |
+| Requests | A request map with ID, target use and ShotIntent identities, output kind/profile, frozen inputs, prompt/parameters, executor identity, and approval scope. | Preserve the input values and identifiers needed to inspect the actual request. Credentials never enter these records. |
+| Completion | Request execution status, receipt identity, and returned asset IDs. | Repeating the same receipt is a no-op. Conflicting receipts fail. Completion registers candidates but never selects them. Deleted targets remain historical references. |
+
+Resolve structured bindings from Script → Section → optional Scene → Beat → ShotIntent → material use. Preserve free-form guidance from each scope with its origin. Do not silently resolve contradictory prose. If several ShotIntents condition one use, freeze their explicit ordered identities and guidance. Do not choose one from map iteration order.
+
+Compare the complete resolved manifest, including membership, reference slots, content digests, inherited guidance, and relevant story text. A scene move or added reference must be detectable. Exclude presentation selection, viewport, and playhead. A selected still used to condition motion is a real input and must be included.
+
+Use typed operation families to register assets, revise scoped guidance, create/update material uses, request work, record completion, and select candidates. Add public stub registration/update operations only where live import requires them. Validate all references, media kinds, selection membership, immutable receipts, and history at the existing operation boundary. Do not add a generic patch operation.
+
+### Migration and save/reopen
+
+1. Introduce schema version 2 only when F1 implements these records.
+2. Read version 1 projects by adding empty asset, guidance, and request collections.
+3. Preserve every existing ID, relationship, ordering array, block, and source range.
+4. Leave old media relationships intact. Do not infer selected candidates or generation provenance from them.
+5. Reject unsupported future versions without modifying the input file.
+6. Save the canonical JSON with a separate asset-byte map in one portable JSON bundle for the small pilot.
+7. Store bundled bytes as base64, keyed by asset ID, with MIME type and digest checks on import.
+8. Mark absent bytes as unavailable and support deliberate relinking to matching content.
+
+The portable bundle avoids a desktop rewrite and a dependency for archive handling. Base64 increases file size. Set and test an explicit import-size limit during F1. Move to an archive or directory format only when actual pilot media exceeds that limit. The serializer remains separate from the byte bundle. Downloading a file is the persistence step. An in-memory object or blob URL is not a durable save.
+
+The F1 fixture must round-trip all existing fixtures and the F0 story. It must contain two uses of one ShotIntent with different selections, older candidates, a replaced reference, and an interrupted request. Verify added/removed inputs, changed ancestry, duplicate completion, deleted targets, missing bytes, digest mismatch, and unknown provenance. Tests must use fake execution and actual local image bytes. They must not claim real generation quality or a human pass.
+
+### Alternatives and remaining gates
+
+Reject renderer-only candidate selection because it cannot survive canonical save/reopen. Reject a global selected take on ShotIntent because its uses can differ. Reject a graph database, general event log, and job platform because direct records answer the pilot questions.
+
+The existing bridge is sufficient for F0 proposal review. F2 must still choose and verify one executor, profiles, approval/cost disclosure, request/receipt recovery, and the complete user handoff. F3 must resolve returned-video duration/fit behavior before motion. The deferred RFC 0003 semantics remain deferred. No new runtime or transport is accepted here.
+
 ## Decision / outcome
 
-Awaiting implementation-shape review. Product scope is accepted; no code, new operation, provider selection, or new runtime is approved as implemented by this document. Track the above gates in [filmmaking-implementation-plan.md](../filmmaking-implementation-plan.md).
+Accept the bounded F0 interaction and F1 domain/migration plan above. Retain the later execution, motion, and 3D gates. Track implementation and evidence only in [the active plan](../filmmaking-implementation-plan.md). This decision does not claim that F1 schema, durable media, or generation exists.

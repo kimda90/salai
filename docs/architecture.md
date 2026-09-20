@@ -2,7 +2,7 @@
 
 ## Status
 
-Current ownership model plus a bounded extension direction under [ADR 0010](adr/0010-narrative-first-ai-filmmaking.md). The [Narrative IR specification](narrative-ir-spec.md) describes implemented types/operations. [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md) contains proposed filmmaking additions, not a shipped API. The [active plan](filmmaking-implementation-plan.md) is the implementation-status authority.
+Current ownership model plus a bounded extension direction under [ADR 0010](adr/0010-narrative-first-ai-filmmaking.md). The [Narrative IR specification](narrative-ir-spec.md) describes implemented types/operations. [RFC 0004](rfcs/0004-narrative-first-filmmaking-loop.md) contains the accepted F1 design and unresolved later gates, not a shipped F1 API. The [active plan](filmmaking-implementation-plan.md) is the implementation-status authority.
 
 ## One project, one service, replaceable execution
 
@@ -27,6 +27,8 @@ Adapters return results through validated service actions; they do not mutate a 
 `SalaiProjectService` names the existing shared boundary, currently implemented by `SalaiController`. Canonical multi-operation changes use `applyOperations()` and publish atomically. A second service/state owner is unnecessary.
 
 The external harness owns model/provider access, auth, sessions, planning, and tool-loop behavior under [ADR 0008](adr/0008-external-harness-owns-agent-runtime.md). The CLI and local HTTP bridge reach the browser-owned project. The bridge stores no project. Proposed conversational UI must not silently introduce another agent runtime.
+
+F0 direction notes and proposals are temporary interaction state in the existing controller. `propose-direction` adds a command to the current transport. It validates existing operations and prepares a review without changing the project. Acceptance uses the same canonical operation engine and publication path as direct edits. A local revision counter protects against stale acceptance. It is not a domain revision system or a substitute for frozen generation inputs.
 
 Timeline/playback projections remain disposable. Retain `@moritzbrantner/timeline-editor` and `@elah/core` behind their current boundaries until evidence requires a change. Specialist NLEs remain optional downstream; the pivot does not make an NLE a dependency.
 

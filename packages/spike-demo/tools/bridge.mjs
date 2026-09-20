@@ -71,6 +71,7 @@ export function createBridgeServer({ requestTimeoutMs = 15_000 } = {}) {
         if (
           body.command !== "context" &&
           body.command !== "apply" &&
+          body.command !== "proposeDirection" &&
           body.command !== "createStory"
         ) {
           sendJson(response, 400, { ok: false, error: "Unknown Salai machine command" });
